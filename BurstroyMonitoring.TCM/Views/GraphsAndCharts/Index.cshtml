@@ -1,0 +1,98 @@
+@{
+    ViewData["Title"] = "Графики и диаграммы";
+}
+
+<div class="view-container">
+    <h1 class="view-title">Графики</h1>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Обзор доступных данных для построения графиков</h5>
+        </div>
+        <div class="card-body">
+            <p class="text-muted">
+                Здесь в будущем будут отображаться графики и диаграммы на основе данных датчиков:
+            </p>
+            <ul>
+                <li>DSPD — состояние дорожного полотна (сцепление, температура, высота осадков и т.д.)</li>
+                <li>IWS — метеоданные (температура, влажность, ветер, осадки)</li>
+                <li>DOV — оптическая видимость</li>
+                <li>MUEKS — управление энергоснабжением и контроля сети</li>
+                <li>Результаты проверок и ошибки</li>
+            </ul>
+            <p class="mt-3">
+                Пока страница пустая — данные и графики добавим позже.
+            </p>
+        </div>
+    </div>
+
+    <!-- Здесь в будущем будут контейнеры для графиков -->
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h6 class="mb-0">Пример: Температура дороги (DSPD)</h6>
+                </div>
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <div class="text-center text-muted">
+                        <i class="fas fa-chart-line fa-4x mb-3"></i>
+                        <p>График будет здесь</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h6 class="mb-0">Пример: Скорость ветра (IWS)</h6>
+                </div>
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <div class="text-center text-muted">
+                        <i class="fas fa-wind fa-4x mb-3"></i>
+                        <p>График будет здесь</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Место для будущих графиков -->
+    <div id="charts-placeholder" class="mt-4">
+        <!-- Динамические графики будут добавляться сюда -->
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .view-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .view-title {
+            margin-bottom: 28px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: var(--shadow-small);
+            transition: all 0.2s;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-medium);
+        }
+
+        .card-header {
+            background: #f8f9fa;
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 20px;
+            font-weight: 600;
+        }
+    </style>
+}

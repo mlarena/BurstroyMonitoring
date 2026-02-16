@@ -1,0 +1,254 @@
+/* ============================================
+   СТИЛИ ДЛЯ ТАБЛИЦ И СПИСКОВ ДАННЫХ
+   ============================================ */
+
+/* Базовая таблица */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bg-secondary);
+    font-size: 14px;
+    box-shadow: var(--shadow-small);
+    table-layout: auto;
+}
+
+.table th,
+.table td {
+    padding: var(--spacing-sm) var(--spacing-md);
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 300px;
+    cursor: pointer; /* Курсор при наведении на ячейку */
+}
+
+.table th {
+    background: var(--bg-primary);
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 13px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    cursor: default; /* Заголовки не кликабельны */
+}
+
+.table tr:hover {
+    background: var(--bg-hover);
+}
+
+/* Анимация при наведении на строку */
+.table tr {
+    transition: background-color 0.2s ease;
+}
+
+/* Таблица с адаптивным скроллом */
+.table-responsive {
+    overflow-x: auto;
+    margin-bottom: var(--spacing-lg);
+    border-radius: var(--radius-medium);
+    border: 1px solid var(--border-color);
+}
+
+/* Компактная таблица (для справочников) */
+.table--compact th,
+.table--compact td {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 13px;
+}
+
+/* Широкие столбцы для длинного текста */
+.table--wide td:nth-child(2),
+.table--wide td:nth-child(7) {
+    white-space: normal;
+    min-width: 150px;
+    max-width: 400px;
+}
+
+/* Столбцы с действиями */
+.table td:last-child {
+    min-width: 200px;
+    white-space: nowrap;
+    cursor: default; /* Кнопки - не кликабельны для ячейки */
+}
+
+/* Кнопки действий в таблице */
+.action-buttons {
+    display: flex;
+    gap: var(--spacing-xs);
+    flex-wrap: nowrap;
+}
+
+.action-buttons .button {
+    padding: var(--spacing-xs);
+    min-width: 36px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer; /* Кнопки кликабельны */
+}
+
+/* Состояние "пусто" для таблицы */
+.empty-state {
+    text-align: center;
+    padding: var(--spacing-xxl) var(--spacing-xl);
+    background: var(--bg-primary);
+    border-radius: var(--radius-large);
+    margin-top: var(--spacing-xl);
+}
+
+.empty-state-icon {
+    font-size: 48px;
+    margin-bottom: var(--spacing-lg);
+}
+
+.empty-state h3 {
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-primary);
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-lg);
+}
+
+/* Стили для длинного текста с подсказкой */
+.long-text-cell {
+    position: relative;
+    cursor: help;
+}
+
+.long-text-cell:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    background: var(--text-primary);
+    color: var(--bg-secondary);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-small);
+    font-size: 12px;
+    white-space: normal;
+    min-width: 200px;
+    max-width: 400px;
+    z-index: 100;
+    box-shadow: var(--shadow-medium);
+}
+
+/* Заголовок таблицы */
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+/* Счетчик записей */
+.records-count {
+    color: var(--text-secondary);
+    font-size: 14px;
+    background: var(--bg-primary);
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-medium);
+}
+
+/* Таблица в AUI стиле (для совместимости) */
+table.aui {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bg-secondary);
+    font-size: 14px;
+    box-shadow: var(--shadow-small);
+    table-layout: auto;
+}
+
+table.aui th,
+table.aui td {
+    padding: var(--spacing-sm) var(--spacing-md);
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+
+table.aui th {
+    background: var(--bg-primary);
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 13px;
+    cursor: default;
+}
+
+table.aui tr:hover {
+    background: var(--bg-hover);
+}
+
+/* Адаптивность таблиц */
+@media (max-width: 768px) {
+    .table-responsive {
+        font-size: 13px;
+    }
+    
+    .table th,
+    .table td {
+        padding: var(--spacing-xs) var(--spacing-sm);
+        max-width: 200px;
+    }
+    
+    .table td:last-child {
+        min-width: 150px;
+    }
+    
+    .action-buttons {
+        gap: 2px;
+    }
+    
+    .action-buttons .button {
+        min-width: 32px;
+        height: 24px;
+        font-size: 12px;
+    }
+}
+
+
+
+
+/* В файл wwwroot/css/components/_tables.css добавьте: */
+.table th a {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: inherit;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.table th a:hover {
+    color: var(--primary-color);
+}
+
+.sort-arrow {
+    font-size: 10px;
+    color: var(--primary-color);
+}
+
+/* Подсветка активной колонки сортировки */
+.table th .active-sort {
+    color: var(--primary-color);
+}
+
+ .sensor-count {
+        font-weight: 600;
+        color: var(--primary-color);
+        background: var(--bg-primary);
+        padding: 2px 8px;
+        border-radius: 10px;
+        
+    }

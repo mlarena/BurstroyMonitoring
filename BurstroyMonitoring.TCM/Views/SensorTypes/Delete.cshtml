@@ -1,0 +1,72 @@
+@model BurstroyMonitoring.Data.Models.SensorType
+
+@{
+    ViewData["Title"] = "Удалить тип датчика";
+}
+
+<div class="details-container">
+    <h1 class="form-title">Удалить тип датчика</h1>
+    
+    <h3>Вы уверены, что хотите удалить этот тип датчика?</h3>
+    
+    <div class="details-row">
+        <div class="details-label">Название типа датчика</div>
+        <div class="details-value">@Html.DisplayFor(model => model.SensorTypeName)</div>
+    </div>
+    
+    <div class="details-row">
+        <div class="details-label">Описание</div>
+        <div class="details-value">
+            <div class="description-text">@Html.DisplayFor(model => model.Description)</div>
+        </div>
+    </div>
+    
+    <div class="details-row">
+        <div class="details-label">Создан</div>
+        <div class="details-value">
+            @if (Model.CreatedAt.HasValue)
+            {
+                <span>@Model.CreatedAt.Value.ToString("dd.MM.yyyy HH:mm")</span>
+            }
+            else
+            {
+                <span class="text-muted">Не указана</span>
+            }
+        </div>
+    </div>
+    
+    <div class="details-row">
+        <div class="details-label">Количество датчиков</div>
+        <div class="details-value">
+            @if (Model.Sensors?.Any() == true)
+            {
+                <div class="alert-danger">
+                    <strong>Внимание!</strong> Этот тип датчика имеет связанные датчики (@Model.Sensors.Count шт.).
+                    Сначала удалите или переназначьте датчики перед удалением типа.
+                </div>
+            }
+            else
+            {
+                <span class="text-muted">Нет связанных датчиков</span>
+            }
+        </div>
+    </div>
+    
+    <form asp-action="Delete" class="delete-form">
+        <input type="hidden" asp-for="Id" />
+        <div class="form-actions">
+            @if (Model.Sensors?.Any() == true)
+            {
+                <button type="submit" class="button button--danger" disabled 
+                        title="Удаление невозможно: есть связанные датчики">
+                    Удалить
+                </button>
+            }
+            else
+            {
+                <input type="submit" value="Удалить" class="button button--danger" />
+            }
+            <a asp-action="Index" class="button button--secondary">Назад к списку</a>
+        </div>
+    </form>
+</div>

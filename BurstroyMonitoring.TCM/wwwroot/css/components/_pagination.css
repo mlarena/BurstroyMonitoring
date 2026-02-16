@@ -1,0 +1,87 @@
+/* ============================================
+   ПАГИНАЦИЯ И НАВИГАЦИЯ ПО СТРАНИЦАМ
+   ============================================ */
+
+/* Контейнер пагинации */
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: var(--spacing-lg) 0;
+    padding: var(--spacing-lg);
+    background: var(--bg-primary);
+    border-radius: var(--radius-large);
+}
+
+/* Навигация по страницам */
+.pagination {
+    display: flex;
+    gap: var(--spacing-xs);
+    flex-wrap: wrap;
+}
+
+/* Кнопки пагинации */
+.pagination-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--height-sm);
+    height: var(--height-sm);
+    padding: 0 var(--spacing-sm);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-medium);
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 13px;
+    transition: all 0.2s;
+}
+
+.pagination-btn:hover {
+    background: var(--bg-hover);
+    border-color: var(--border-hover);
+}
+
+.pagination-btn.active {
+    background: var(--primary-color);
+    color: var(--text-light);
+    border-color: var(--primary-color);
+    font-weight: 600;
+}
+
+.pagination-btn.disabled {
+    color: var(--text-muted);
+    cursor: not-allowed;
+    background: var(--bg-primary);
+}
+
+.pagination-btn.disabled:hover {
+    background: var(--bg-primary);
+    border-color: var(--border-color);
+}
+
+/* Многоточие в пагинации */
+.pagination-dots {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--height-sm);
+    height: var(--height-sm);
+    padding: 0 var(--spacing-sm);
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+/* Выбор размера страницы */
+.page-size-selector {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.page-size-selector select {
+    width: auto;
+    min-width: 80px;
+}

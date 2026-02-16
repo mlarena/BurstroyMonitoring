@@ -1,0 +1,81 @@
+/* ============================================
+   МОДАЛЬНЫЕ ОКНА И ВСПЛЫВАЮЩИЕ ОКНА
+   ============================================ */
+
+/* Оверлей модального окна */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(9, 30, 66, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    visibility: hidden;
+    opacity: 0;
+    transition: all 0.2s;
+}
+
+.modal-overlay.active {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Контент модального окна */
+.modal-content {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-large);
+    width: 90%;
+    max-width: 900px;
+    max-height: 90vh;
+    box-shadow: var(--shadow-large);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Заголовок модального окна */
+.modal-header {
+    padding: var(--spacing-lg) var(--spacing-xxl);
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+/* Тело модального окна */
+.modal-body {
+    padding: var(--spacing-xl) var(--spacing-xxl);
+    overflow-y: auto;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    background: #fafafa;
+}
+
+/* Кнопка закрытия модального окна */
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    padding: 0;
+    width: var(--height-sm);
+    height: var(--height-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-small);
+}
+
+.modal-close:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}

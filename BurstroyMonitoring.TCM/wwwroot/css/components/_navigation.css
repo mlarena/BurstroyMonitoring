@@ -1,0 +1,63 @@
+/* ============================================
+   НАВИГАЦИОННЫЕ ПАНЕЛИ И МЕНЮ
+   ============================================ */
+
+/* Верхняя навигационная панель */
+.topbar-navigation {
+    background: #0d6efd;
+    box-shadow: var(--shadow-small);
+    position: sticky;
+    top: 0;
+    z-index: 900;
+}
+
+.topbar-nav {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg);
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+/* Кнопки навигации */
+.nav-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 var(--spacing-lg);
+    height: var(--height-md);
+    background: transparent;
+    color: var(--text-light);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: var(--radius-large);
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.nav-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--text-light);
+}
+
+.nav-btn.active {
+    background: rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    font-weight: 600;
+}
+
+/* Адаптивность навигации */
+@media (max-width: 768px) {
+    .topbar-nav {
+        padding: 0 var(--spacing-md);
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+    .nav-btn {
+        font-size: 13px;
+        padding: 0 var(--spacing-md);
+        height: 36px;
+    }
+}

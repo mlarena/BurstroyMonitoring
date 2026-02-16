@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="BurstroyMonitoring.Data/BurstroyMonitoring.Data.csproj" />
+  <Project Path="BurstroyMonitoring.TCM/BurstroyMonitoring.TCM.csproj" />
+  <Project Path="BurstroyMonitoring.Worker/BurstroyMonitoring.Worker.csproj" />
+</Solution>

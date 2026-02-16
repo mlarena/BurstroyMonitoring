@@ -1,0 +1,241 @@
+/* ============================================
+   ОСНОВНОЙ КОНТЕНТ И РАЗМЕТКА СТРАНИЦЫ
+   ============================================ */
+
+/* Главный контейнер контента */
+.main-content {
+    padding: 0 var(--spacing-xl);
+    max-width: 1700px;  
+    margin: 0 auto;
+    padding-top: 8px;
+}
+
+/* Контейнер представления */
+.view-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: var(--spacing-lg);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-xlarge);
+    box-shadow: var(--shadow-small);
+}
+
+/* Заголовок представления */
+.view-title {
+    margin-bottom: var(--spacing-lg);
+    color: var(--text-primary);
+    font-size: 24px;
+    font-weight: 600;
+}
+
+/* Контейнер поиска */
+.search-container {
+    background: var(--bg-primary);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-large);
+    margin-bottom: var(--spacing-lg);
+}
+
+/* Форма поиска */
+.search-form {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+}
+
+/* Строка поиска */
+.search-row {
+    display: flex;
+    gap: var(--spacing-md);
+    flex: 1;
+}
+
+/* Поле поиска */
+.search-input {
+    flex: 1;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-medium);
+    font-size: 14px;
+}
+
+/* Информация о записях */
+.records-info {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 13px;
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: var(--bg-primary);
+    border-radius: var(--radius-medium);
+}
+
+/* Контейнер фильтров */
+.filter-container {
+    background: var(--bg-primary);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-large);
+    margin-bottom: var(--spacing-lg);
+}
+
+/* Форма фильтров */
+.filter-form {
+    width: 100%;
+}
+
+/* Заголовок фильтра */
+.filter-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+/* Активные фильтры */
+.active-filters-info {
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: #e6f4ff;
+    border-radius: var(--radius-medium);
+    border-left: 4px solid var(--primary-color);
+}
+
+.filter-info {
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 500;
+    display: block;
+}
+
+/* Контейнер для деталей */
+.details-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: var(--spacing-xxl);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-xlarge);
+    box-shadow: var(--shadow-small);
+}
+
+/* Строка деталей */
+.details-row {
+    display: flex;
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--bg-primary);
+}
+
+.details-row:last-child {
+    border-bottom: none;
+}
+
+/* Метка детали */
+.details-label {
+    flex: 0 0 200px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+/* Значение детали */
+.details-value {
+    flex: 1;
+    color: var(--text-primary);
+}
+
+/* Действия в деталях */
+.details-actions {
+    margin-top: var(--spacing-xl);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+/* Заголовок таблицы */
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+/* Счетчик записей */
+.records-count {
+    color: var(--text-secondary);
+    font-size: 14px;
+    background: var(--bg-primary);
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-medium);
+}
+
+/* Ссылки в таблице */
+.sensor-type-link,
+.post-link {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.sensor-type-link:hover,
+.post-link:hover {
+    text-decoration: underline;
+}
+
+/* Стили для счетчика датчиков */
+.sensor-count {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.view-sensors-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 14px;
+    margin-left: var(--spacing-sm);
+}
+
+.view-sensors-link:hover {
+    text-decoration: underline;
+}
+
+.add-sensor-link {
+    color: var(--success-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.add-sensor-link:hover {
+    text-decoration: underline;
+}
+
+/* Стили для удаления */
+.delete-form {
+    margin-top: var(--spacing-xl);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+}
+
+/* Предупреждения */
+.alert-warning {
+    background: var(--warning-bg);
+    border-left: 4px solid var(--warning-color);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius-medium);
+    margin-top: var(--spacing-sm);
+}
+
+.alert-warning strong {
+    color: var(--warning-color);
+}
+
+.alert-danger {
+    background: var(--danger-bg);
+    border-left: 4px solid var(--danger-color);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius-medium);
+    margin-top: var(--spacing-sm);
+}
+
+.alert-danger strong {
+    color: var(--danger-color);
+}

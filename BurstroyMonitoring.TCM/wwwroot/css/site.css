@@ -1,0 +1,734 @@
+/* ============================================
+   БАЗОВЫЕ СТИЛИ И ПЕРЕМЕННЫЕ
+   ============================================ */
+   
+/* Импортируем все CSS модули */
+@import 'base/_reset.css';
+@import 'base/_variables.css';
+@import 'base/_utilities.css';
+
+/* КОМПОНЕНТЫ */
+@import 'components/_buttons.css';
+@import 'components/_forms.css';
+@import 'components/_tables.css';
+@import 'components/_navigation.css';
+@import 'components/_modals.css';
+@import 'components/_pagination.css';
+@import 'components/_dropdown.css';
+
+/* МАКЕТЫ */
+@import 'layouts/_header.css';
+@import 'layouts/_main.css';
+
+/* СТРАНИЦЫ */
+@import 'pages/_home.css';
+@import 'pages/_dataviewer.css';
+@import 'pages/_details.css';
+@import 'pages/_index.css';
+
+/* ============================================
+   ДОПОЛНИТЕЛЬНЫЕ СТИЛИ
+   ============================================ */
+
+/* JSON подсветка (используется в детальных представлениях) */
+.json-key { color: var(--primary-color); font-weight: 600; }
+.json-string { color: #008000; }
+.json-number { color: #d73a49; }
+.json-boolean { color: #d73a49; font-weight: bold; }
+.json-null { color: var(--text-muted); font-style: italic; }
+
+#jsonCode {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+    white-space: pre !important;
+    overflow-x: auto;
+}
+
+/* Автодополнение для поиска */
+#autocomplete-results > div:hover {
+    background-color: var(--bg-hover) !important;
+}
+
+#autocomplete-results {
+    box-shadow: var(--shadow-medium);
+    border-radius: 0 0 6px 6px;
+    font-size: 14px;
+}
+
+/* Темная тема */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-primary: #1a1a1a;
+        --bg-secondary: #2d2d2d;
+        --bg-hover: #3d3d3d;
+        --text-primary: #ffffff;
+        --text-secondary: #cccccc;
+        --text-muted: #888888;
+        --border-color: #444444;
+        --primary-color: #4a9eff;
+        --success-color: #2ca58d;
+        --danger-color: #ff6b6b;
+        --warning-color: #ffa726;
+        --shadow-small: 0 2px 4px rgba(0, 0, 0, 0.3);
+        --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+    
+    body {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+    }
+    
+    .form-container,
+    .details-container,
+    .view-container {
+        background: var(--bg-secondary);
+        box-shadow: var(--shadow-medium);
+    }
+    
+    .search-container,
+    .filter-container {
+        background: var(--bg-secondary);
+    }
+    
+    table.aui th {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+    }
+    
+    table.aui tr:hover {
+        background: var(--bg-hover);
+    }
+    
+    .pagination-container {
+        background: var(--bg-secondary);
+    }
+    
+    .text-muted {
+        color: var(--text-muted);
+    }
+}
+
+/* Принудительное включение темной темы (для тестирования) */
+/* Раскомментируйте для принудительной темной темы */
+/*
+body {
+    background: #1a1a1a !important;
+    color: #ffffff !important;
+}
+*/
+
+
+/* Стили для всплывающих подсказок */
+.nav-btn {
+    position: relative;
+    cursor: pointer;
+}
+
+.nav-btn:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: rgb(206, 215, 252);
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 5px;
+    pointer-events: none;
+    animation: fadeIn 0.2s ease;
+}
+
+.nav-btn:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.8);
+    margin-bottom: -5px;
+    z-index: 1000;
+    pointer-events: none;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Для выпадающего меню */
+.dropdown-btn:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 5px;
+    pointer-events: none;
+    animation: fadeIn 0.2s ease;
+}
+
+.dropdown-btn:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.8);
+    margin-bottom: -5px;
+    z-index: 1000;
+    pointer-events: none;
+    animation: fadeIn 0.2s ease;
+}
+
+/* Для ссылок внутри выпадающего меню */
+.dropdown-content a:hover::after {
+    content: attr(title);
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000000 !important;
+    margin-left: 5px;
+    pointer-events: none;
+    animation: fadeIn 0.2s ease;
+}
+
+
+/* ============================================
+    СТИЛИ ДЛЯ КАРТЫ МОНИТОРИНГА
+    ============================================ */
+
+/* Стили для карты мониторинга */
+.leaflet-control-attribution.leaflet-control {
+    display: none !important;
+}
+
+.monitoring-view-container {
+    min-height: calc(100vh - 120px);
+    padding: 20px;
+    background-color: var(--bg-primary);
+}
+
+.monitoring-view-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.monitoring-title-text {
+    margin-bottom: var(--spacing-lg);
+    color: var(--text-primary);
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.monitoring-title-count {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-left: 10px;
+}
+
+.monitoring-map-container {
+    display: flex;
+    gap: 20px;
+    height: calc(95vh - 180px);
+    position: relative;
+}
+
+.monitoring-map-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.monitoring-map-card {
+    flex: 1;
+    border-radius: var(--radius-large);
+    overflow: hidden;
+    box-shadow: var(--shadow-medium);
+    background: var(--bg-secondary);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+#monitoring-map {
+    flex: 1;
+    min-height: 500px;
+    z-index: 1;
+}
+
+.monitoring-filter-container {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 12px;
+    border-radius: var(--radius-medium);
+    box-shadow: var(--shadow-small);
+    position: absolute;
+    top: 10px;
+    left: 80px;
+    z-index: 3;
+    max-width: calc(100% - 40px);
+}
+
+.monitoring-search-container {
+    position: relative;
+    min-width: 300px;
+}
+
+.monitoring-search-input {
+    padding: 8px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-medium);
+    width: 100%;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.monitoring-search-input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(var(--primary-color), 0.2);
+}
+
+.monitoring-autocomplete {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-medium);
+    box-shadow: var(--shadow-medium);
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1001;
+    display: none;
+}
+
+.monitoring-autocomplete-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 13px;
+    color: var(--text-primary);
+}
+
+.monitoring-autocomplete-item:hover,
+.monitoring-autocomplete-item.selected {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+}
+
+.monitoring-autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.monitoring-control-button {
+    padding: 8px 16px;
+    border: 2px solid var(--border-color);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-medium);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-primary);
+}
+
+.monitoring-control-button:hover {
+    border-color: var(--primary-color);
+    background-color: var(--bg-hover);
+}
+
+.monitoring-details-section {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    width: 380px;
+    height: calc(100% - 20px);
+    background: var(--bg-secondary);
+    box-shadow: var(--shadow-medium);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius-large);
+    overflow: hidden;
+}
+
+.monitoring-details-section.collapsed {
+    width: 50px;
+}
+
+.monitoring-details-section.collapsed .monitoring-details-content,
+.monitoring-details-section.collapsed .monitoring-details-header h3 span,
+.monitoring-details-section.collapsed .monitoring-details-header .monitoring-button span {
+    display: none;
+}
+
+.monitoring-details-section.hidden {
+    display: none;
+}
+
+.monitoring-details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 2px solid var(--border-color);
+    background: var(--bg-primary);
+    cursor: pointer;
+    min-height: 50px;
+}
+
+.monitoring-details-header h3 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-primary);
+    font-size: 16px;
+}
+
+.monitoring-details-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    font-size: 13px;
+}
+
+.monitoring-details-content.collapsed {
+    display: none;
+}
+
+.monitoring-no-selection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 20px;
+}
+
+.monitoring-no-selection i {
+    margin-bottom: 15px;
+    color: var(--text-muted);
+    font-size: 24px;
+}
+
+.monitoring-no-selection p {
+    margin: 0;
+    font-size: 13px;
+}
+
+.monitoring-button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: var(--radius-medium);
+    cursor: pointer;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.monitoring-button-secondary {
+    background-color: var(--text-secondary);
+    color: var(--text-light);
+}
+
+.monitoring-button-secondary:hover {
+    background-color: var(--text-primary);
+}
+
+.monitoring-details-item {
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.monitoring-details-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.monitoring-details-label {
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    font-size: 13px;
+}
+
+.monitoring-details-value {
+    color: var(--text-primary);
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.monitoring-sensor-list {
+    margin-top: 12px;
+}
+
+.monitoring-sensor-item {
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-medium);
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 12px;
+}
+
+.monitoring-sensor-item:hover {
+    background-color: var(--bg-hover);
+    border-color: var(--primary-color);
+}
+
+.monitoring-sensor-item.active {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    border-color: var(--primary-color);
+}
+
+.monitoring-sensor-item.active .badge {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.monitoring-sensor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.monitoring-sensor-header strong {
+    font-size: 13px;
+}
+
+.monitoring-sensor-data {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-color);
+    font-size: 12px;
+}
+
+.monitoring-data-table {
+    width: 100%;
+    font-size: 12px;
+    border-collapse: collapse;
+}
+
+.monitoring-data-table td {
+    padding: 3px 6px;
+    border-bottom: 1px solid var(--border-color);
+    line-height: 1.3;
+}
+
+.monitoring-data-table tr:last-child td {
+    border-bottom: none;
+}
+
+.monitoring-data-label {
+    font-weight: 600;
+    color: var(--text-secondary);
+    width: 50%;
+    white-space: nowrap;
+}
+
+/* Стили для РАЗВЕРНУТОГО режима */
+.monitoring-map-card.expanded {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 9999 !important;
+    background: var(--bg-secondary) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.monitoring-map-card.expanded #monitoring-map {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    height: 100% !important;
+}
+
+.monitoring-map-card.expanded .monitoring-details-section {
+    top: 10px !important;
+    right: 10px !important;
+    height: calc(100% - 20px) !important;
+}
+
+.monitoring-map-card.expanded .monitoring-filter-container {
+    top: 10px !important;
+    left: 80px !important;
+}
+
+/* Скрываем контейнер с заголовком в развернутом режиме */
+.monitoring-map-card.expanded + .monitoring-view-container {
+    display: none !important;
+}
+
+/* Бейджи */
+.badge {
+    display: inline-block;
+    padding: 3px 6px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: var(--radius-small);
+}
+
+.badge-success {
+    background-color: var(--success-color);
+    color: var(--text-light);
+}
+
+.badge-danger {
+    background-color: var(--danger-color);
+    color: var(--text-light);
+}
+
+.badge-warning {
+    background-color: var(--warning-color);
+    color: var(--text-primary);
+}
+
+.badge-info {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+}
+
+/* Стили для спиннера */
+.text-center {
+    text-align: center;
+}
+
+.spinner-border {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    vertical-align: text-bottom;
+    border: 0.2em solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spinner-border 0.75s linear infinite;
+}
+
+.spinner-border-sm {
+    width: 0.8rem;
+    height: 0.8rem;
+    border-width: 0.15em;
+}
+
+@keyframes spinner-border {
+    to { transform: rotate(360deg); }
+}
+
+.ms-2 {
+    margin-left: 0.5rem !important;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .monitoring-map-container {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .monitoring-details-section {
+        position: relative;
+        top: auto;
+        right: auto;
+        width: 100%;
+        height: 300px;
+        margin-top: 10px;
+    }
+    
+    .monitoring-filter-container {
+        left: 10px;
+        right: 10px;
+        background: rgba(255, 255, 255, 0.95) !important;
+        max-width: calc(100% - 20px);
+    }
+    
+    .monitoring-search-container {
+        min-width: 200px;
+    }
+}
+
+/* Темная тема */
+@media (prefers-color-scheme: dark) {
+    .monitoring-search-input {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        border-color: var(--border-color);
+    }
+    
+    .monitoring-autocomplete {
+        background: var(--bg-secondary);
+        border-color: var(--border-color);
+    }
+    
+    .monitoring-autocomplete-item {
+        color: var(--text-primary);
+    }
+    
+    .monitoring-control-button {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        border-color: var(--border-color);
+    }
+    
+    .monitoring-control-button:hover {
+        background: var(--bg-hover);
+    }
+    
+    .monitoring-map-card.expanded .monitoring-filter-container {
+        background: rgba(50, 50, 50, 0.95) !important;
+    }
+}

@@ -1,0 +1,98 @@
+@model BurstroyMonitoring.Data.Models.MonitoringPost
+
+@{
+    ViewData["Title"] = "Удалить пост мониторинга";
+}
+
+<div class="details-container">
+    <h1 class="form-title">Удалить пост мониторинга</h1>
+    
+    <h3>Вы уверены, что хотите удалить этот пост мониторинга?</h3>
+    
+    <div class="details-row">
+        <div class="details-label">Наименование</div>
+        <div class="details-value">@Html.DisplayFor(model => model.Name)</div>
+    </div>
+    
+    <div class="details-row">
+        <div class="details-label">Описание</div>
+        <div class="details-value">@Html.DisplayFor(model => model.Description)</div>
+    </div>
+    
+    <div class="details-row">
+        <div class="details-label">Координаты</div>
+        <div class="details-value">
+            @if (Model.Longitude.HasValue && Model.Latitude.HasValue)
+            {
+                <span>@Model.Longitude.Value.ToString("F6"), @Model.Latitude.Value.ToString("F6")</span>
+            }
+            else
+            {
+                <span class="text-muted">Не указаны</span>
+            }
+        </div>
+    </div>
+    
+    <div class="details-row">
+        <div class="details-label">Пост мобильный</div>
+        <div class="details-value">
+            @if (Model.IsMobile)
+            {
+                <span class="lozenge">Мобильный</span>
+            }
+            else
+            {
+                <span class="lozenge">Стационарный</span>
+            }
+        </div>
+    </div>
+    
+    <div class="details-row">
+        <div class="details-label">Активный</div>
+        <div class="details-value">
+            @if (Model.IsActive)
+            {
+                <span class="lozenge lozenge--success">Активен</span>
+            }
+            else
+            {
+                <span class="lozenge lozenge--error">Неактивен</span>
+            }
+        </div>
+    </div>
+    
+    <div class="details-row">
+        <div class="details-label">Создан</div>
+        <div class="details-value">
+            @if (Model.CreatedAt.HasValue)
+            {
+                <span>@Model.CreatedAt.Value.ToString("dd.MM.yyyy HH:mm")</span>
+            }
+            else
+            {
+                <span class="text-muted">Не указана</span>
+            }
+        </div>
+    </div>
+    
+    @if (Model.Sensors?.Any() == true)
+    {
+        <div class="details-row">
+            <div class="details-label">Количество датчиков</div>
+            <div class="details-value">
+                <div class="alert-warning">
+                    <strong>Внимание!</strong> Этот пост мониторинга имеет связанные датчики (@Model.Sensors.Count шт.).
+                    При удалении поста, датчики будут отсоединены от него.
+                </div>
+            </div>
+        </div>
+    }
+    
+    <form asp-action="Delete" class="delete-form">
+        <input type="hidden" asp-for="Id" />
+        <div class="form-actions">
+            <input type="submit" value="Удалить" class="button button--danger" />
+            <a asp-action="Index" class="button button--secondary">Назад к списку</a>
+        </div>
+    </form>
+</div>

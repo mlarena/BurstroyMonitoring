@@ -1,0 +1,43 @@
+.\publish.ps1 -Project TCM -Runtime linux-x64
+.\publish.ps1 -Project Worker -Runtime linux-x64
+
+.\publish.ps1 -Project TCM -Runtime linux-arm64
+.\publish.ps1 -Project Worker -Runtime linux-arm64
+
+
+.\publish.ps1 -Project TCM -Runtime win-x64
+.\publish.ps1 -Project Worker -Runtime win-x64
+
+
+# Создать все архивы для всех runtime
+.\create-zips.ps1
+
+# Создать архивы только для linux-arm64
+.\create-zips.ps1 -Runtime linux-arm64
+
+# Создать архивы только для linux-x64
+.\create-zips.ps1 -Runtime linux-x64
+
+# Создать архивы только для win-x64
+.\create-zips.ps1 -Runtime win-x64
+
+---TCM
+# Linux ARM64
+dotnet publish "C:\git\BurstroyMonitoring\BurstroyMonitoring.TCM\BurstroyMonitoring.TCM.csproj" -c Release -r linux-arm64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -o "C:\git\BurstroyMonitoring\BurstroyMonitoring.TCM\release\linux-arm64\"
+
+# Linux x64
+dotnet publish "C:\git\BurstroyMonitoring\BurstroyMonitoring.TCM\BurstroyMonitoring.TCM.csproj" -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -o "C:\git\BurstroyMonitoring\BurstroyMonitoring.TCM\release\linux-x64\"
+
+
+# Windows x64
+dotnet publish "C:\git\BurstroyMonitoring\BurstroyMonitoring.TCM\BurstroyMonitoring.TCM.csproj" -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -o "C:\git\BurstroyMonitoring\BurstroyMonitoring.TCM\release\win-x64\"
+
+----Worker
+# Linux ARM64
+dotnet publish "C:\git\BurstroyMonitoring\BurstroyMonitoring.Worker\BurstroyMonitoring.Worker.csproj" -c Release -r linux-arm64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -o "C:\git\BurstroyMonitoring\BurstroyMonitoring.Worker\release\linux-arm64\"
+
+# Linux x64
+dotnet publish "C:\git\BurstroyMonitoring\BurstroyMonitoring.Worker\BurstroyMonitoring.Worker.csproj" -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -o "C:\git\BurstroyMonitoring\BurstroyMonitoring.Worker\release\linux-x64\"
+
+# Windows x64
+dotnet publish "C:\git\BurstroyMonitoring\BurstroyMonitoring.Worker\BurstroyMonitoring.Worker.csproj" -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -o "C:\git\BurstroyMonitoring\BurstroyMonitoring.Worker\release\win-x64\"

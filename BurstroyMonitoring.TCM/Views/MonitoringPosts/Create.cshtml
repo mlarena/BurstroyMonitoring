@@ -1,0 +1,53 @@
+@model BurstroyMonitoring.Data.Models.MonitoringPost
+
+@{
+    ViewData["Title"] = "Создать пост мониторинга";
+}
+
+<div class="form-container">
+    <h1 class="form-title">Создать пост мониторинга</h1>
+    
+    <form asp-action="Create" id="monitoringPostForm">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        
+        <div class="field-group">
+            <label asp-for="Name" class="control-label required">Наименование</label>
+            <input asp-for="Name" class="input" />
+            <span asp-validation-for="Name" class="field-validation-error"></span>
+        </div>
+        
+        <div class="field-group">
+            <label asp-for="Description" class="control-label">Описание</label>
+            <textarea asp-for="Description" class="input" rows="3"></textarea>
+            <span asp-validation-for="Description" class="field-validation-error"></span>
+        </div>
+        
+        <!-- Используем Partial View для координат -->
+        @await Html.PartialAsync("_CoordinateFields", Model)
+        
+        <div class="field-group">
+            <div class="checkbox-group">
+                <input asp-for="IsMobile" />
+                <label asp-for="IsMobile" class="control-label">Пост мобильный</label>
+            </div>
+        </div>
+        
+        <div class="field-group">
+            <div class="checkbox-group">
+                <input asp-for="IsActive" checked="checked" />
+                <label asp-for="IsActive" class="control-label">Активный</label>
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <input type="submit" value="Создать" class="button button--primary" />
+            <a asp-action="Index" class="button button--secondary">Назад к списку</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script src="~/js/coordinateValidation.js" asp-append-version="true"></script>
+}

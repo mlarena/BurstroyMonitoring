@@ -1,0 +1,80 @@
+@model BurstroyMonitoring.Data.Models.Sensor
+
+@{
+    ViewData["Title"] = "Добавить датчик";
+}
+
+<div class="form-container">
+    <h1 class="form-title">Добавить датчик</h1>
+    
+    <form asp-action="Create" id="sensorForm">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        
+        <div class="field-group">
+            <label asp-for="SerialNumber" class="control-label required">Серийный номер</label>
+            <input asp-for="SerialNumber" class="input" placeholder="Введите серийный номер" />
+            <span asp-validation-for="SerialNumber" class="field-validation-error"></span>
+        </div>
+        
+        <div class="form-row">
+            <div class="field-group">
+                <label asp-for="SensorTypeId" class="control-label required">Тип датчика</label>
+                <select asp-for="SensorTypeId" class="input select" asp-items="ViewBag.SensorTypeId">
+                    <option value="">-- Выберите тип --</option>
+                </select>
+                <span asp-validation-for="SensorTypeId" class="field-validation-error"></span>
+            </div>
+            
+            <div class="field-group">
+                <label asp-for="MonitoringPostId" class="control-label">Пост мониторинга</label>
+                <select asp-for="MonitoringPostId" class="input select" asp-items="ViewBag.MonitoringPostId">
+                    <option value="">-- Не привязан --</option>
+                </select>
+                <span asp-validation-for="MonitoringPostId" class="field-validation-error"></span>
+            </div>
+        </div>
+        
+        <!-- Используем Partial View для координат -->
+        @await Html.PartialAsync("_CoordinateFields", Model)
+        
+        <div class="form-row">
+            <div class="field-group">
+                <label asp-for="EndPointsName" class="control-label required">Название конечной точки</label>
+                <input asp-for="EndPointsName" class="input" placeholder="Введите название" />
+                <span asp-validation-for="EndPointsName" class="field-validation-error"></span>
+            </div>
+            
+            <div class="field-group">
+                <label asp-for="CheckIntervalSeconds" class="control-label required">Интервал проверки (сек)</label>
+                <input asp-for="CheckIntervalSeconds" class="input" value="300" />
+                <span asp-validation-for="CheckIntervalSeconds" class="field-validation-error"></span>
+                <small class="coordinates-hint">Рекомендуемое значение: 300 секунд (5 минут)</small>
+            </div>
+        </div>
+        
+        <div class="field-group">
+            <label asp-for="Url" class="control-label required">URL</label>
+            <input asp-for="Url" class="input" placeholder="https://example.com/api" />
+            <span asp-validation-for="Url" class="field-validation-error"></span>
+            <small class="coordinates-hint">Полный URL для доступа к API датчика</small>
+        </div>
+        
+        <div class="field-group">
+            <div class="checkbox-group">
+                <input asp-for="IsActive" checked="checked" />
+                <label asp-for="IsActive" class="control-label">Активен</label>
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <input type="submit" value="Создать" class="button button--primary" />
+            <a asp-action="Index" class="button button--secondary">Назад к списку</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script src="~/js/coordinateValidation.js" asp-append-version="true"></script>
+}

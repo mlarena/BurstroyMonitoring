@@ -1,0 +1,220 @@
+@model IEnumerable<BurstroyMonitoring.Data.Models.MonitoringPost>
+
+@{
+    ViewData["Title"] = "Посты мониторинга";
+    
+    // Получаем параметры сортировки из ViewBag
+    var sortBy = ViewBag.SortBy as string ?? "Id";
+    var sortDesc = ViewBag.SortDesc as bool? ?? true;
+    var search = ViewBag.Search as string ?? "";
+    
+    // Функция для получения URL сортировки
+    string GetSortUrl(string columnName)
+    {
+        var newSortDesc = (sortBy == columnName) ? !sortDesc : true;
+        return Url.Action("Index", new { 
+            sortBy = columnName, 
+            sortDesc = newSortDesc,
+            search = search
+        });
+    }
+    
+    // Функция для отображения стрелки сортировки
+    string GetSortArrow(string columnName)
+    {
+        if (sortBy == columnName)
+        {
+            return sortDesc ? "▼" : "▲";
+        }
+        return "";
+    }
+}
+
+<div class="view-container">
+    <h1 class="view-title">Посты мониторинга</h1>
+    
+    <!-- Поисковая строка -->
+    <div class="search-container">
+        <form method="get" class="search-form">
+            <div class="search-row">
+                <input type="text" name="search" value="@search" 
+                       placeholder="Поиск по названию или описанию..." 
+                       class="input search-input" />
+                <button type="submit" class="button button--primary">Найти</button>
+                @if (!string.IsNullOrEmpty(search))
+                {
+                    <a href="@Url.Action("Index")" class="button button--secondary">Сбросить</a>
+                }
+            </div>
+            <!-- Скрытые поля для сохранения сортировки -->
+            <input type="hidden" name="sortBy" value="@sortBy" />
+            <input type="hidden" name="sortDesc" value="@sortDesc.ToString()" />
+        </form>
+    </div>
+    
+    <div class="table-header">
+        <a asp-action="Create" class="button button--primary">Создать новый</a>
+        
+        @if (Model.Any())
+        {
+            <div class="records-count">
+                Всего постов: @Model.Count()
+                @if (!string.IsNullOrEmpty(search))
+                {
+                    <span> (по запросу: "@search")</span>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table--wide">
+            <thead>
+                <tr>
+                    <th>
+                        <a href="@GetSortUrl("Name")" style="color: inherit; text-decoration: none;">
+                            Название @GetSortArrow("Name")
+                        </a>
+                    </th>
+                    <th>
+                        <a href="@GetSortUrl("Description")" style="color: inherit; text-decoration: none;">
+                            Описание @GetSortArrow("Description")
+                        </a>
+                    </th>
+                    <th>
+                        <a href="@GetSortUrl("Coordinates")" style="color: inherit; text-decoration: none;">
+                            Координаты @GetSortArrow("Coordinates")
+                        </a>
+                    </th>
+                    <th>
+                        <a href="@GetSortUrl("Type")" style="color: inherit; text-decoration: none;">
+                            Тип @GetSortArrow("Type")
+                        </a>
+                    </th>
+                    <th>
+                        <a href="@GetSortUrl("Status")" style="color: inherit; text-decoration: none;">
+                            Статус @GetSortArrow("Status")
+                        </a>
+                    </th>
+                    <th>
+                        <a href="@GetSortUrl("Created")" style="color: inherit; text-decoration: none;">
+                            Создан @GetSortArrow("Created")
+                        </a>
+                    </th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td title="@item.Name">
+                            @if (item.Name.Length > 20)
+                            {
+                                @item.Name.Substring(0, 20)<text>...</text>
+                            }
+                            else
+                            {
+                                @item.Name
+                            }
+                        </td>
+                        <td class="long-text-cell" title="@item.Description">
+                            @if (!string.IsNullOrEmpty(item.Description) && item.Description.Length > 30)
+                            {
+                                @item.Description.Substring(0, 30)<text>...</text>
+                            }
+                            else if (!string.IsNullOrEmpty(item.Description))
+                            {
+                                @item.Description
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.Longitude.HasValue && item.Latitude.HasValue)
+                            {
+                                <span title="@item.Longitude.Value.ToString("F6"), @item.Latitude.Value.ToString("F6")">
+                                    @item.Longitude.Value.ToString("F2"), @item.Latitude.Value.ToString("F2")
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.IsMobile)
+                            {
+                                <span class="lozenge" title="Мобильный пост">Моб.</span>
+                            }
+                            else
+                            {
+                                <span class="lozenge" title="Стационарный пост">Стац.</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.IsActive)
+                            {
+                                <span class="lozenge lozenge--success" title="Активен">✓</span>
+                            }
+                            else
+                            {
+                                <span class="lozenge lozenge--error" title="Неактивен">✗</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.CreatedAt.HasValue)
+                            {
+                                <span title="@item.CreatedAt.Value.ToString("dd.MM.yyyy HH:mm:ss")">
+                                    @item.CreatedAt.Value.ToString("dd.MM.yyyy HH:mm")
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a asp-action="Edit" asp-route-id="@item.Id" 
+                                   class="button button--sm button--secondary" 
+                                   title="Редактировать пост">
+                                    ✏️
+                                </a>
+                                <a asp-action="Details" asp-route-id="@item.Id" 
+                                   class="button button--sm button--secondary" 
+                                   title="Подробности о посте">
+                                    📄
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" 
+                                   class="button button--sm button--danger" 
+                                   title="Удалить пост">
+                                    🗑️
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-state-icon">📊</div>
+            <h3>@(string.IsNullOrEmpty(search) ? "Нет постов мониторинга" : "Посты не найдены")</h3>
+            <p>@(string.IsNullOrEmpty(search) ? "Создайте первый пост мониторинга, чтобы начать работу" : "Попробуйте изменить параметры поиска")</p>
+            <a asp-action="Create" class="button button--primary">Создать пост</a>
+            @if (!string.IsNullOrEmpty(search))
+            {
+                <a href="@Url.Action("Index")" class="button button--secondary" style="margin-left: 10px;">
+                    Показать все
+                </a>
+            }
+        </div>
+    }
+</div>
+

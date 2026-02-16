@@ -1,0 +1,665 @@
+@model List<BurstroyMonitoring.Data.Models.MonitoringPost>
+@{
+    ViewData["Title"] = "Карта мониторинга";
+    var totalPosts = ViewData["TotalPosts"] as int? ?? 0;
+    var totalSensors = ViewData["TotalSensors"] as int? ?? 0;
+}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<div class="monitoring-view-container">
+    <div class="monitoring-view-title">
+        <h1 class="monitoring-title-text">
+            <i class="fas fa-map"></i> Карта мониторинга
+            <span class="monitoring-title-count">
+                (Постов: @totalPosts, Датчиков: @totalSensors)
+            </span>
+        </h1>
+    </div>
+
+    <div class="monitoring-map-container">
+        <div class="monitoring-map-section">
+            <div class="monitoring-map-card">
+                <!-- Контейнер с фильтрами и поиском -->
+                <div class="monitoring-filter-container">
+                    <div class="monitoring-search-container">
+                        <input type="text" 
+                               class="monitoring-search-input" 
+                               id="postSearch" 
+                               placeholder="Введите название поста для поиска...">
+                        <div class="monitoring-autocomplete" id="autocompleteResults"></div>
+                    </div>
+                    <button class="monitoring-control-button" onclick="toggleExpand()" title="Развернуть/свернуть карту">
+                        <i class="fas fa-expand"></i> <span>Развернуть</span>
+                    </button>
+                </div>
+
+                <!-- Карта -->
+                <div id="monitoring-map"></div>
+
+                <!-- Панель деталей -->
+                <div class="monitoring-details-section" id="monitoringDetailsPanel">
+                    <div class="monitoring-details-header" onclick="toggleDetailsPanel()">
+                        <h3><i class="fas fa-info-circle"></i> <span>Детали</span></h3>
+                        <button type="button" class="monitoring-button monitoring-button-secondary" onclick="clearDetails(event)">
+                            <i class="fas fa-times"></i> <span>Очистить</span>
+                        </button>
+                    </div>
+                    <div class="monitoring-details-content" id="monitoringDetailsContent">
+                        <div class="monitoring-no-selection">
+                            <i class="fas fa-mouse-pointer"></i>
+                            <p>Выберите объект на карте для просмотра деталей</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Глобальные переменные
+        let map;
+        let markers = [];
+        let isDetailsCollapsed = false;
+        let isExpanded = false;
+        let searchTimeout = null;
+        let selectedAutocompleteIndex = -1;
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+            loadMapData();
+            initSearch();
+            
+            // Инициализация панели деталей
+            const panel = document.getElementById('monitoringDetailsPanel');
+            const clearButton = panel.querySelector('.monitoring-button.monitoring-button-secondary');
+            
+            // Устанавливаем начальную высоту и видимость кнопки
+            if (panel && !isDetailsCollapsed) {
+                panel.style.height = 'calc(100% - 20px)';
+                if (clearButton) {
+                    clearButton.style.display = 'inline-flex';
+                }
+            }
+        });
+
+        function initMap() {
+            // Центр России
+            map = L.map('monitoring-map').setView([55.7558, 37.6173], 5);
+
+            // Добавляем слой карты
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map);
+            
+            // Сохраняем карту в глобальной переменной
+            window.monitoringMap = map;
+        }
+
+        function initSearch() {
+            const searchInput = document.getElementById('postSearch');
+            const autocomplete = document.getElementById('autocompleteResults');
+            
+            searchInput.addEventListener('input', function(e) {
+                clearTimeout(searchTimeout);
+                selectedAutocompleteIndex = -1;
+                
+                const query = e.target.value.trim();
+                if (query.length < 2) {
+                    autocomplete.style.display = 'none';
+                    return;
+                }
+                
+                searchTimeout = setTimeout(() => {
+                    searchPosts(query);
+                }, 300);
+            });
+            
+            // Обработка нажатия клавиш
+            searchInput.addEventListener('keydown', function(e) {
+                const autocomplete = document.getElementById('autocompleteResults');
+                const items = autocomplete.querySelectorAll('.monitoring-autocomplete-item');
+                
+                if (autocomplete.style.display !== 'block' || items.length === 0) {
+                    return;
+                }
+                
+                switch(e.key) {
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        navigateAutocomplete(1);
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        navigateAutocomplete(-1);
+                        break;
+                    case 'Enter':
+                        e.preventDefault();
+                        selectAutocompleteItem();
+                        break;
+                    case 'Escape':
+                        autocomplete.style.display = 'none';
+                        searchInput.value = '';
+                        break;
+                }
+            });
+            
+            // Закрываем автодополнение при клике вне
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !autocomplete.contains(e.target)) {
+                    autocomplete.style.display = 'none';
+                }
+            });
+        }
+
+        function navigateAutocomplete(direction) {
+            const items = document.querySelectorAll('.monitoring-autocomplete-item');
+            if (items.length === 0) return;
+            
+            // Снимаем выделение с текущего элемента
+            if (selectedAutocompleteIndex >= 0 && selectedAutocompleteIndex < items.length) {
+                items[selectedAutocompleteIndex].classList.remove('selected');
+            }
+            
+            // Вычисляем новый индекс
+            selectedAutocompleteIndex += direction;
+            
+            // Зацикливаем навигацию
+            if (selectedAutocompleteIndex < 0) {
+                selectedAutocompleteIndex = items.length - 1;
+            } else if (selectedAutocompleteIndex >= items.length) {
+                selectedAutocompleteIndex = 0;
+            }
+            
+            // Добавляем выделение новому элементу
+            items[selectedAutocompleteIndex].classList.add('selected');
+            
+            // Прокручиваем к выделенному элементу
+            items[selectedAutocompleteIndex].scrollIntoView({
+                block: 'nearest',
+                behavior: 'smooth'
+            });
+        }
+
+        function selectAutocompleteItem() {
+            const items = document.querySelectorAll('.monitoring-autocomplete-item');
+            if (items.length === 0 || selectedAutocompleteIndex < 0) return;
+            
+            const selectedItem = items[selectedAutocompleteIndex];
+            const id = selectedItem.getAttribute('data-id');
+            const lat = parseFloat(selectedItem.getAttribute('data-lat'));
+            const lng = parseFloat(selectedItem.getAttribute('data-lng'));
+            
+            if (id && lat && lng) {
+                selectPost(id, lat, lng);
+            }
+        }
+
+        async function searchPosts(query) {
+            try {
+                const response = await fetch(`@Url.Action("SearchPosts", "MonitoringMap")?query=${encodeURIComponent(query)}`);
+                if (response.ok) {
+                    const posts = await response.json();
+                    displayAutocomplete(posts);
+                }
+            } catch (error) {
+                console.error('Ошибка поиска:', error);
+            }
+        }
+
+        function displayAutocomplete(posts) {
+            const autocomplete = document.getElementById('autocompleteResults');
+            
+            if (posts.length === 0) {
+                autocomplete.innerHTML = '<div class="monitoring-autocomplete-item">Ничего не найдено</div>';
+                autocomplete.style.display = 'block';
+                return;
+            }
+            
+            let html = '';
+            posts.forEach((post, index) => {
+                html += `
+                    <div class="monitoring-autocomplete-item" 
+                         data-id="${post.id}"
+                         data-lat="${post.latitude}"
+                         data-lng="${post.longitude}"
+                         onclick="selectPost(${post.id}, ${post.latitude}, ${post.longitude})"
+                         onmouseover="hoverAutocompleteItem(this)">
+                        ${post.name}
+                    </div>
+                `;
+            });
+            
+            autocomplete.innerHTML = html;
+            autocomplete.style.display = 'block';
+        }
+
+        function hoverAutocompleteItem(element) {
+            // Снимаем выделение со всех элементов
+            document.querySelectorAll('.monitoring-autocomplete-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Добавляем выделение наведенному элементу
+            element.classList.add('selected');
+            
+            // Обновляем индекс выбранного элемента
+            const items = Array.from(document.querySelectorAll('.monitoring-autocomplete-item'));
+            selectedAutocompleteIndex = items.indexOf(element);
+        }
+
+        function selectPost(id, lat, lng) {
+            // Закрываем автодополнение
+            const autocomplete = document.getElementById('autocompleteResults');
+            autocomplete.style.display = 'none';
+            
+            // Очищаем поле поиска
+            document.getElementById('postSearch').value = '';
+            selectedAutocompleteIndex = -1;
+            
+            // Перемещаем карту к выбранному посту
+            map.setView([lat, lng], 13);
+            
+            // Показываем детали поста
+            showDetails(id, 'post');
+            
+            // Подсвечиваем маркер
+            highlightMarker(id, 'post');
+        }
+
+        function highlightMarker(id, type) {
+            markers.forEach(item => {
+                if (item.type === type && item.data.id === id) {
+                    const marker = item.marker;
+                    marker.openPopup();
+                    
+                    // Временное увеличение маркера
+                    const icon = marker.getIcon();
+                    if (icon.options.html) {
+                        const tempHtml = icon.options.html.replace('24px', '30px').replace('12px', '15px');
+                        marker.setIcon(L.divIcon({
+                            ...icon.options,
+                            html: tempHtml,
+                            iconSize: [30, 30],
+                            iconAnchor: [15, 15]
+                        }));
+                        
+                        // Возвращаем исходный размер через 2 секунды
+                        setTimeout(() => {
+                            marker.setIcon(icon);
+                        }, 2000);
+                    }
+                }
+            });
+        }
+
+        async function loadMapData() {
+            try {
+                const response = await fetch('@Url.Action("GetMapData", "MonitoringMap")');
+                const data = await response.json();
+                
+                clearMarkers();
+                
+                // Добавляем посты
+                data.posts.forEach(post => {
+                    if (post.latitude && post.longitude) {
+                        addPostMarker(post);
+                    }
+                });
+                
+                // Добавляем датчики без постов
+                data.sensors.forEach(sensor => {
+                    if (sensor.latitude && sensor.longitude && sensor.monitoringPostId === null) {
+                        addSensorMarker(sensor);
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Ошибка загрузки данных:', error);
+            }
+        }
+
+        function addPostMarker(post) {
+            const icon = L.divIcon({
+                className: 'custom-div-icon',
+                html: `<div style="background-color: ${post.isMobile ? '#ff9800' : '#2196f3'}; 
+                               width: 24px; height: 24px; border-radius: 50%; 
+                               border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                               display: flex; align-items: center; justify-content: center;">
+                          <i class="fas fa-building" style="color: white; font-size: 12px;"></i>
+                       </div>`,
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
+            });
+
+            const marker = L.marker([post.latitude, post.longitude], { icon })
+                .addTo(map)
+                .bindPopup(`
+                    <div style="font-size: 13px;">
+                        <b>${post.name}</b><br/>
+                        ${post.description || ''}<br/>
+                        Датчиков: ${post.sensorCount}<br/>
+                        ${post.isMobile ? 'Мобильный' : 'Стационарный'}
+                    </div>
+                `);
+
+            marker.on('click', function() {
+                showDetails(post.id, 'post');
+            });
+
+            markers.push({ marker, type: 'post', data: post });
+        }
+
+        function addSensorMarker(sensor) {
+            const icon = L.divIcon({
+                className: 'custom-div-icon',
+                html: `<div style="background-color: #4caf50; 
+                               width: 20px; height: 20px; border-radius: 50%; 
+                               border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                               display: flex; align-items: center; justify-content: center;">
+                          <i class="fas fa-microchip" style="color: white; font-size: 10px;"></i>
+                       </div>`,
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
+            });
+
+            const marker = L.marker([sensor.latitude, sensor.longitude], { icon })
+                .addTo(map)
+                .bindPopup(`
+                    <div style="font-size: 13px;">
+                        <b>${sensor.name}</b><br/>
+                        ${sensor.serialNumber}<br/>
+                        Тип: ${sensor.sensorTypeId}
+                    </div>
+                `);
+
+            marker.on('click', function() {
+                showDetails(sensor.id, 'sensor');
+            });
+
+            markers.push({ marker, type: 'sensor', data: sensor });
+        }
+
+        function clearMarkers() {
+            markers.forEach(item => map.removeLayer(item.marker));
+            markers = [];
+        }
+
+        async function showDetails(id, type) {
+            try {
+                // Раскрываем панель, если она свернута
+                if (isDetailsCollapsed) {
+                    toggleDetailsPanel();
+                }
+                
+                const response = await fetch(`@Url.Action("GetDetails", "MonitoringMap")?id=${id}&type=${type}`);
+                if (response.ok) {
+                    const html = await response.text();
+                    document.getElementById('monitoringDetailsContent').innerHTML = html;
+                    
+                    // Показываем панель, если скрыта
+                    const panel = document.getElementById('monitoringDetailsPanel');
+                    panel.classList.remove('hidden');
+                    
+                    // Загружаем данные датчиков, если это пост
+                    if (type === 'post') {
+                        await loadSensorData(id);
+                    }
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки деталей:', error);
+            }
+        }
+
+        async function loadSensorData(postId) {
+            try {
+                const response = await fetch(`@Url.Action("GetSensorData", "MonitoringMap")?postId=${postId}`);
+                if (response.ok) {
+                    const html = await response.text();
+                    const sensorList = document.getElementById('sensorList');
+                    if (sensorList) {
+                        sensorList.innerHTML = html;
+                    }
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки данных датчиков:', error);
+                const sensorList = document.getElementById('sensorList');
+                if (sensorList) {
+                    sensorList.innerHTML = '<span class="text-danger">Ошибка загрузки данных датчиков</span>';
+                }
+            }
+        }
+
+        async function showSensorDetails(sensorId, element) {
+            // Снимаем активный класс со всех элементов
+            document.querySelectorAll('.monitoring-sensor-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Добавляем активный класс текущему элементу
+            element.classList.add('active');
+            
+            // Получаем sensorTypeId из атрибута или находим в DOM
+            const sensorTypeId = element.getAttribute('data-sensor-type') || 
+                               element.querySelector('[data-sensor-type]')?.getAttribute('data-sensor-type') || 
+                               1; // значение по умолчанию
+            
+            // Показываем/скрываем данные датчика
+            const dataElement = document.getElementById(`sensorData_${sensorId}`);
+            if (dataElement) {
+                if (dataElement.style.display === 'none') {
+                    dataElement.style.display = 'block';
+                    await loadSensorLatestData(sensorId, sensorTypeId, dataElement);
+                } else {
+                    dataElement.style.display = 'none';
+                }
+            }
+        }
+
+        async function loadSensorLatestData(sensorId, sensorTypeId, container) {
+            try {
+                const response = await fetch(`@Url.Action("GetLatestSensorData", "MonitoringMap")?sensorId=${sensorId}&sensorTypeId=${sensorTypeId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    displayLatestData(data, container);
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки данных датчика:', error);
+                container.innerHTML = '<em>Ошибка загрузки данных</em>';
+            }
+        }
+
+        function displayLatestData(data, container) {
+            if (!data || Object.keys(data).length === 0) {
+                container.innerHTML = '<em>Нет данных для отображения</em>';
+                return;
+            }
+            
+            let html = '<table class="monitoring-data-table">';
+            
+            // Сортируем ключи для лучшего отображения
+            const keys = Object.keys(data).filter(key => 
+                data[key] !== null && 
+                key !== 'id' && 
+                key !== 'sensorId' && 
+                key !== 'receivedAt' &&
+                key !== 'dataTimestamp'
+            ).sort();
+            
+            // Добавляем временные метки первыми, если есть
+            if (data.receivedAt || data.dataTimestamp) {
+                if (data.receivedAt) {
+                    const receivedDate = new Date(data.receivedAt);
+                    html += `
+                        <tr>
+                            <td class="monitoring-data-label">Получено:</td>
+                            <td>${receivedDate.toLocaleDateString()} ${receivedDate.toLocaleTimeString()}</td>
+                        </tr>
+                    `;
+                }
+                if (data.dataTimestamp) {
+                    const dataDate = new Date(data.dataTimestamp);
+                    html += `
+                        <tr>
+                            <td class="monitoring-data-label">Время данных:</td>
+                            <td>${dataDate.toLocaleDateString()} ${dataDate.toLocaleTimeString()}</td>
+                        </tr>
+                    `;
+                }
+            }
+            
+            // Добавляем остальные данные
+            keys.forEach(key => {
+                html += `
+                    <tr>
+                        <td class="monitoring-data-label">${formatKey(key)}:</td>
+                        <td>${formatValue(data[key])}</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</table>';
+            container.innerHTML = html;
+        }
+
+        function formatKey(key) {
+            return key
+                .replace(/([A-Z])/g, ' $1')
+                .replace(/^./, str => str.toUpperCase())
+                .replace('P M', 'PM')
+                .replace('U ', 'U')
+                .replace('G P S', 'GPS');
+        }
+
+        function formatValue(value) {
+            if (typeof value === 'number') {
+                return value.toFixed(2);
+            }
+            if (value instanceof Date || (typeof value === 'string' && Date.parse(value))) {
+                const date = new Date(value);
+                return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+            }
+            return value;
+        }
+
+        function clearDetails(event) {
+            if (event) {
+                event.stopPropagation();
+            }
+            
+            document.getElementById('monitoringDetailsContent').innerHTML = `
+                <div class="monitoring-no-selection">
+                    <i class="fas fa-mouse-pointer"></i>
+                    <p>Выберите объект на карте для просмотра деталей</p>
+                </div>
+            `;
+        }
+
+        function toggleDetailsPanel() {
+            const panel = document.getElementById('monitoringDetailsPanel');
+            const content = document.getElementById('monitoringDetailsContent');
+            const clearButton = panel.querySelector('.monitoring-button.monitoring-button-secondary');
+            
+            if (isDetailsCollapsed) {
+                // Раскрываем панель
+                panel.classList.remove('collapsed');
+                content.classList.remove('collapsed');
+                
+                // Показываем кнопку очистки
+                if (clearButton) {
+                    clearButton.style.display = 'inline-flex';
+                }
+                
+                // Восстанавливаем сохраненную высоту или используем стандартную
+                if (window.savedPanelHeight) {
+                    panel.style.height = window.savedPanelHeight;
+                } else {
+                    panel.style.height = 'calc(100% - 20px)';
+                }
+                
+                isDetailsCollapsed = false;
+            } else {
+                // Сворачиваем панель
+                panel.classList.add('collapsed');
+                content.classList.add('collapsed');
+                
+                // Скрываем кнопку очистки
+                if (clearButton) {
+                    clearButton.style.display = 'none';
+                }
+                
+                // Сохраняем текущую высоту перед сворачиванием
+                window.savedPanelHeight = panel.style.height || 'calc(100% - 20px)';
+                
+                // Устанавливаем высоту 50px
+                panel.style.height = '50px';
+                
+                isDetailsCollapsed = true;
+            }
+        }
+
+        // ФУНКЦИЯ РАЗВЕРТЫВАНИЯ КАРТЫ
+        function toggleExpand() {
+            const mapCard = document.querySelector('.monitoring-map-card');
+            const expandBtn = document.querySelector('[onclick="toggleExpand()"]');
+            const expandIcon = expandBtn.querySelector('i');
+            const expandText = expandBtn.querySelector('span');
+            const viewContainer = document.querySelector('.monitoring-view-container');
+            
+            if (!isExpanded) {
+                // ВХОД В РАЗВЕРНУТЫЙ РЕЖИМ
+                mapCard.classList.add('expanded');
+                expandIcon.className = 'fas fa-compress';
+                expandText.textContent = 'Свернуть';
+                
+                // Добавляем обработчик Escape
+                document.addEventListener('keydown', handleExpandEscape);
+                
+                isExpanded = true;
+            } else {
+                // ВЫХОД ИЗ РАЗВЕРНУТОГО РЕЖИМА
+                mapCard.classList.remove('expanded');
+                expandIcon.className = 'fas fa-expand';
+                expandText.textContent = 'Развернуть';
+                
+                // Показываем основной контейнер
+                if (viewContainer) {
+                    viewContainer.style.display = 'block';
+                }
+                
+                // Удаляем обработчик Escape
+                document.removeEventListener('keydown', handleExpandEscape);
+                
+                isExpanded = false;
+            }
+            
+            // ОБНОВЛЯЕМ РАЗМЕР КАРТЫ (ВАЖНО!)
+            if (window.monitoringMap) {
+                setTimeout(() => {
+                    window.monitoringMap.invalidateSize();
+                }, 100);
+            }
+        }
+
+        function handleExpandEscape(e) {
+            if (e.key === 'Escape' && isExpanded) {
+                toggleExpand();
+            }
+        }
+
+        // Обработка изменения размера окна
+        window.addEventListener('resize', function() {
+            if (window.monitoringMap) {
+                setTimeout(() => {
+                    window.monitoringMap.invalidateSize();
+                }, 100);
+            }
+        });
+    </script>
+}

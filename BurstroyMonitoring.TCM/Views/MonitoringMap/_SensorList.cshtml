@@ -1,0 +1,30 @@
+@model IEnumerable<BurstroyMonitoring.Data.Models.Sensor>
+
+@if (Model.Any())
+{
+    <div class="monitoring-sensor-list">
+        @foreach (var sensor in Model)
+        {
+            <div class="monitoring-sensor-item" onclick="showSensorDetails(@sensor.Id, this)">
+                <div class="monitoring-sensor-header">
+                    <strong>@sensor.EndPointsName</strong>
+                    <span class="badge @(sensor.IsActive ? "badge-success" : "badge-danger")">
+                        @(sensor.IsActive ? "Активен" : "Неактивен")
+                    </span>
+                </div>
+                <div>Серийный номер: @sensor.SerialNumber</div>
+                <div>URL: <a href="@sensor.Url" target="_blank">@sensor.Url</a></div>
+                <div class="monitoring-sensor-data" id="sensorData_@sensor.Id" style="display: none;">
+                    <div class="text-center">
+                        <div class="spinner-border spinner-border-sm" role="status"></div>
+                        <span class="ms-2">Загрузка данных...</span>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <span>Нет датчиков</span>
+}

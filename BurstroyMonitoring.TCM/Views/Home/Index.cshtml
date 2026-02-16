@@ -1,0 +1,83 @@
+﻿@{
+    ViewData["Title"] = "Главная страница";
+}
+
+<div class="home-container">
+    
+    <div class="text-center">
+        <h1 class="view-title">Система мониторинга датчиков</h1>
+      
+        
+        <div class="home-content">
+            <div class="quick-links">
+                <a asp-controller="MonitoringPosts" asp-action="Index" class="button button--primary button--lg">
+                    Посты мониторинга
+                </a>
+                <a asp-controller="SensorTypes" asp-action="Index" class="button button--primary button--lg">
+                    Типы датчиков
+                </a>
+                <a asp-controller="Sensors" asp-action="Index" class="button button--primary button--lg">
+                    Датчики
+                </a>
+                <a asp-controller="WorkerConfiguration" asp-action="Index" class="button button--primary button--lg">
+                    Настройки
+                </a>                
+            </div>
+            
+            <div class="data-links">
+                <h4>Данные датчиков:</h4>
+                <div class="data-grid">
+                    <a asp-controller="MonitoringMap" asp-action="Index" class="data-card">
+                        <div class="data-card-icon">🗺️</div>
+                        <div class="data-card-title">Карта мониторинга</div>
+                        <div class="data-card-desc">Интерактивная карта постов и датчиков</div>
+                    </a>
+                    <a asp-controller="GraphsAndCharts" asp-action="Index" class="data-card">
+                        <div class="data-card-icon">📊</div>
+                        <div class="data-card-title">Графики и диаграммы</div>
+                        <div class="data-card-desc">Визуализация данных датчиков</div>
+                    </a>
+                    <a asp-controller="MueksData" asp-action="Index" class="data-card">
+                        <div class="data-card-icon">📡</div>
+                        <div class="data-card-title">Данные MUEKS</div>
+                        <div class="data-card-desc">Температура, напряжение, видимость</div>
+                    </a>
+                    
+                    <a asp-controller="IwsData" asp-action="Index" class="data-card">
+                        <div class="data-card-icon">🌡️</div>
+                        <div class="data-card-title">Данные IWS</div>
+                        <div class="data-card-desc">Погодные условия, давление, ветер</div>
+                    </a>
+                    
+                    <a asp-controller="DspdData" asp-action="Index" class="data-card">
+                        <div class="data-card-icon">🛣️</div>
+                        <div class="data-card-title">Данные DSPD</div>
+                        <div class="data-card-desc">Состояние дороги, сцепление</div>
+                    </a>
+                    
+                    <a asp-controller="DovData" asp-action="Index" class="data-card">
+                        <div class="data-card-icon">👁️</div>
+                        <div class="data-card-title">Данные DOV</div>
+                        <div class="data-card-desc">Видимость, яркость</div>
+                    </a>
+            
+                    <a asp-controller="DustData" asp-action="Index" class="data-card">
+                        <div class="data-card-icon">💨</div>
+                        <div class="data-card-title">Данные DUST</div>
+                        <div class="data-card-desc">Концентрация пыли, PM частицы</div>
+                    </a>
+                    <a asp-controller="SensorResults" asp-action="Index" class="data-card">
+                        <div class="data-card-icon">✅</div>
+                        <div class="data-card-title">Результаты проверок</div>
+                        <div class="data-card-desc">Статусы и время ответа</div>
+                    </a>
+                    <a asp-controller="SensorErrors" asp-action="Index" class="data-card">
+                        <div class="data-card-icon">⚠️</div>
+                        <div class="data-card-title">Ошибки</div>
+                        <div class="data-card-desc">Журнал ошибок датчиков</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

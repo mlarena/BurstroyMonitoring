@@ -1,0 +1,125 @@
+@model BurstroyMonitoring.Data.Models.Sensor
+
+@{
+    ViewData["Title"] = "Удалить датчик";
+}
+
+<div class="details-container">
+    <h1 class="form-title">Удалить датчик</h1>
+    
+    <h3>Вы уверены, что хотите удалить этот датчик?</h3>
+    
+    <div class="details-row">
+        <div class="details-label">Серийный номер</div>
+        <div class="details-value">@Html.DisplayFor(model => model.SerialNumber)</div>
+    </div>
+    
+    <div class="details-row">
+        <div class="details-label">Тип датчика</div>
+        <div class="details-value">
+            @if (Model.SensorType != null)
+            {
+                <span>@Model.SensorType.SensorTypeName</span>
+            }
+            else
+            {
+                <span class="text-muted">Не указан</span>
+            }
+        </div>
+    </div>
+    
+    <div class="details-row">
+        <div class="details-label">Пост мониторинга</div>
+        <div class="details-value">
+            @if (Model.MonitoringPost != null)
+            {
+                <span>@Model.MonitoringPost.Name</span>
+            }
+            else
+            {
+                <span class="text-muted">Не привязан</span>
+            }
+        </div>
+    </div>
+    
+    <div class="details-row">
+        <div class="details-label">Координаты</div>
+        <div class="details-value">
+            @if (Model.Longitude.HasValue && Model.Latitude.HasValue)
+            {
+                <span>@Model.Longitude.Value.ToString("F6"), @Model.Latitude.Value.ToString("F6")</span>
+            }
+            else
+            {
+                <span class="text-muted">Не указаны</span>
+            }
+        </div>
+    </div>
+    
+    <div class="details-row">
+        <div class="details-label">Название конечной точки</div>
+        <div class="details-value">@Html.DisplayFor(model => model.EndPointsName)</div>
+    </div>
+    
+    <div class="details-row">
+        <div class="details-label">@Html.DisplayNameFor(model => model.Url)</div>
+        <div class="details-value">
+            @if (!string.IsNullOrEmpty(Model.Url))
+            {
+                <a href="@Model.Url" target="_blank" style="color: var(--primary-color); word-break: break-all;">
+                    @Model.Url
+                </a>
+            }
+            else
+            {
+                <span class="text-muted">Не указан</span>
+            }
+        </div>
+    </div>
+    
+    <div class="details-row">
+        <div class="details-label">Интервал проверки (сек)</div>
+        <div class="details-value">
+            @Model.CheckIntervalSeconds секунд
+            <small style="color: var(--text-secondary); margin-left: 8px;">
+                (@(Model.CheckIntervalSeconds / 60) минут)
+            </small>
+        </div>
+    </div>
+    
+    <div class="details-row">
+        <div class="details-label">Создан</div>
+        <div class="details-value">
+            @if (Model.CreatedAt.HasValue)
+            {
+                <span>@Model.CreatedAt.Value.ToString("dd.MM.yyyy HH:mm")</span>
+            }
+            else
+            {
+                <span class="text-muted">Не указана</span>
+            }
+        </div>
+    </div>
+    
+    <div class="details-row">
+        <div class="details-label">Статус</div>
+        <div class="details-value">
+            @if (Model.IsActive)
+            {
+                <span class="lozenge lozenge--success">Активен</span>
+            }
+            else
+            {
+                <span class="lozenge lozenge--error">Неактивен</span>
+            }
+        </div>
+    </div>
+    
+    <form asp-action="Delete" class="delete-form">
+        <input type="hidden" asp-for="Id" />
+        <div class="form-actions">
+            <input type="submit" value="Удалить" class="button button--danger" />
+            <a asp-action="Index" class="button button--secondary">Назад к списку</a>
+        </div>
+    </form>
+</div>

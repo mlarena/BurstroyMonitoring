@@ -1,0 +1,121 @@
+/* ============================================
+   СТИЛИ ДЛЯ КНОПОК И ИНТЕРАКТИВНЫХ ЭЛЕМЕНТОВ
+   ============================================ */
+
+/* Базовый стиль кнопки */
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 var(--spacing-md);
+    height: var(--height-sm);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1;
+    text-decoration: none;
+    border: 1px solid transparent;
+    border-radius: var(--radius-small);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+
+.button:hover {
+    text-decoration: none;
+}
+
+/* Размеры кнопок */
+.button--sm {
+    padding: 0 var(--spacing-sm);
+    height: 28px;
+    font-size: 13px;
+}
+
+.button--md {
+    padding: 0 var(--spacing-md);
+    height: var(--height-sm);
+    font-size: 14px;
+}
+
+.button--lg {
+    padding: 0 var(--spacing-lg);
+    height: var(--height-md);
+    font-size: 16px;
+}
+
+/* Варианты кнопок */
+.button--primary {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    border-color: var(--primary-color);
+}
+
+.button--primary:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+}
+
+.button--primary:active {
+    background-color: var(--primary-active);
+    border-color: var(--primary-active);
+}
+
+.button--secondary {
+    background-color: transparent;
+    color: var(--text-primary);
+    border-color: transparent;
+}
+
+.button--secondary:hover {
+    background-color: var(--bg-hover);
+}
+
+.button--secondary:active {
+    background-color: var(--bg-active);
+}
+
+.button--danger {
+    color: var(--danger-color);
+    background-color: transparent;
+    border-color: transparent;
+}
+
+.button--danger:hover {
+    background-color: var(--danger-bg);
+    color: var(--danger-color);
+}
+
+.button--success {
+    color: var(--success-color);
+    background-color: var(--success-bg);
+    border-color: var(--success-border);
+}
+
+/* Бейджи и метки */
+.lozenge {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+    border-radius: var(--radius-small);
+    text-transform: uppercase;
+}
+
+.lozenge--success {
+    background-color: var(--success-bg);
+    color: var(--success-color);
+    border: 1px solid var(--success-border);
+}
+
+.lozenge--error {
+    background-color: var(--danger-bg);
+    color: var(--danger-color);
+    border: 1px solid var(--danger-border);
+}
+
+.lozenge--warning {
+    background-color: var(--warning-bg);
+    color: var(--warning-color);
+}

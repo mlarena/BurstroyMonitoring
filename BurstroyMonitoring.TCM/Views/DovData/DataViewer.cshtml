@@ -1,0 +1,633 @@
+@model IEnumerable<BurstroyMonitoring.Data.Models.VwDovDataFull>
+@using BurstroyMonitoring.Data.Models.ViewModels
+@{
+    ViewData["Title"] = "Просмотр и экспорт данных DOV";
+    var filter = ViewBag.Filter as DataFilterViewModel ?? new DataFilterViewModel();
+    var availableFields = ViewBag.AvailableFields as List<string> ?? new List<string>();
+    var serialNumbers = ViewBag.SerialNumbers as List<string> ?? new List<string>();
+    var endpointNames = ViewBag.EndpointNames as List<string> ?? new List<string>();
+    var totalCount = ViewBag.TotalCount as int? ?? 0;
+    var displayedCount = Model.Count();
+    
+    // Словарь для отображения русских названий полей
+    var fieldDisplayNames = new Dictionary<string, string>
+    {
+        ["DovDataId"] = "ID данных",
+        ["ReceivedAt"] = "Время получения",
+        ["DataTimestamp"] = "Метка времени",
+        ["VisibleRange"] = "Видимая дальность",
+        ["BrightFlag"] = "Флаг яркости",
+        ["SensorLongitude"] = "Долгота датчика",
+        ["SensorLatitude"] = "Широта датчика",
+        ["SerialNumber"] = "Серийный номер",
+        ["EndpointName"] = "Конечная точка",
+        ["SensorUrl"] = "URL датчика",
+        ["CheckIntervalSeconds"] = "Интервал проверки (сек)",
+        ["LastActivityUtc"] = "Последняя активность",
+        ["SensorIsActive"] = "Датчик активен",
+        ["SensorTypeName"] = "Тип датчика",
+        ["SensorTypeDescription"] = "Описание типа",
+        ["PostName"] = "Имя поста",
+        ["PostDescription"] = "Описание поста",
+        ["PostIsMobile"] = "Мобильный пост",
+        ["PostIsActive"] = "Пост активен"
+    };
+    
+    // Сортируем availableFields согласно порядку в fieldDisplayNames
+    var sortedFields = availableFields
+        .OrderBy(f => fieldDisplayNames.ContainsKey(f) 
+            ? Array.IndexOf(fieldDisplayNames.Keys.ToArray(), f) 
+            : int.MaxValue)
+        .ToList();
+    
+    // Формируем строку с примененными фильтрами
+    var appliedFilters = new List<string>();
+    
+    if (filter.StartDate.HasValue)
+    {
+        appliedFilters.Add($"С: {filter.StartDate.Value.ToString("dd.MM.yyyy HH:mm")}");
+    }
+    
+    if (filter.EndDate.HasValue)
+    {
+        appliedFilters.Add($"По: {filter.EndDate.Value.ToString("dd.MM.yyyy HH:mm")}");
+    }
+    
+    if (!string.IsNullOrEmpty(filter.SerialNumber))
+    {
+        appliedFilters.Add($"Серийный №: {filter.SerialNumber}");
+    }
+    
+    if (!string.IsNullOrEmpty(filter.EndpointName))
+    {
+        appliedFilters.Add($"Конечная точка: {filter.EndpointName}");
+    }
+    
+    if (filter.SensorIsActive.HasValue)
+    {
+        appliedFilters.Add($"Датчик активен: {(filter.SensorIsActive.Value ? "Да" : "Нет")}");
+    }
+    
+    if (filter.PostIsActive.HasValue)
+    {
+        appliedFilters.Add($"Пост активен: {(filter.PostIsActive.Value ? "Да" : "Нет")}");
+    }
+    
+    if (!string.IsNullOrEmpty(filter.PageSize))
+    {
+        var pageSizeText = filter.PageSize == "all" ? "Всё" : $"Первые {filter.PageSize}";
+        appliedFilters.Add($"Выводить: {pageSizeText}");
+    }
+    
+    var appliedFiltersText = appliedFilters.Any() ? string.Join("; ", appliedFilters) : "Фильтры не применены";
+}
+
+<div class="main-content">
+    <div class="view-container">
+        <h1 class="view-title">Просмотр и экспорт данных DOV</h1>
+        
+        <!-- Сообщения -->
+        @if (TempData["Message"] != null)
+        {
+            <div class="alert alert-success m-2">
+                <div class="alert-content">
+                    @TempData["Message"]
+                    <button type="button" class="alert-close" onclick="this.parentElement.parentElement.style.display='none'">×</button>
+                </div>
+            </div>
+        }
+        
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-error m-2">
+                <div class="alert-content">
+                    @TempData["ErrorMessage"]
+                    <button type="button" class="alert-close" onclick="this.parentElement.parentElement.style.display='none'">×</button>
+                </div>
+            </div>
+        }
+        
+        <!-- Форма фильтров -->
+        <div class="filter-container m-2">
+            <div class="filter-header d-flex align-center justify-between cursor-pointer" id="filterHeader">
+                <div class="d-flex align-center gap-2">
+                    <div class="filter-toggle-icon">
+                        <svg id="filterToggleIcon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                            <path id="filterTogglePath" d="M12 5L8 9L4 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                        </svg>
+                    </div>
+                    <h3 class="filter-title m-0">Фильтры и настройки отображения</h3>
+                </div>
+                <div class="applied-filters-text text-muted" id="appliedFiltersText">
+                    @appliedFiltersText
+                </div>
+            </div>
+            
+            <div class="filter-content" id="filterContent">
+                <form method="get" id="filterForm" class="filter-form mt-3">
+                    <!-- Все фильтры в одной строке -->
+                    <div class="form-row d-flex align-end gap-2">
+                        <!-- Начальная дата -->
+                        <div class="field-group" style="width: 180px;">
+                            <label class="control-label">Начальная дата</label>
+                            <input type="datetime-local" class="input" name="StartDate" 
+                                   value="@(filter.StartDate?.ToString("yyyy-MM-ddTHH:mm"))">
+                        </div>
+                        
+                        <!-- Конечная дата -->
+                        <div class="field-group" style="width: 180px;">
+                            <label class="control-label">Конечная дата</label>
+                            <input type="datetime-local" class="input" name="EndDate" 
+                                   value="@(filter.EndDate?.ToString("yyyy-MM-ddTHH:mm"))">
+                        </div>
+                        
+                        <!-- Серийный номер -->
+                        <div class="field-group" style="width: 200px;">
+                            <label class="control-label">Серийный номер</label>
+                            <select class="input select" name="SerialNumber">
+                                <option value="">Все</option>
+                                @foreach (var serial in serialNumbers)
+                                {
+                                    <option value="@serial" selected="@(serial == filter.SerialNumber)">@serial</option>
+                                }
+                            </select>
+                        </div>
+                        
+                        <!-- Конечная точка -->
+                        <div class="field-group" style="width: 200px;">
+                            <label class="control-label">Конечная точка</label>
+                            <select class="input select" name="EndpointName">
+                                <option value="">Все</option>
+                                @foreach (var endpoint in endpointNames)
+                                {
+                                    <option value="@endpoint" selected="@(endpoint == filter.EndpointName)">@endpoint</option>
+                                }
+                            </select>
+                        </div>
+                        
+                        <!-- Активный датчик -->
+                        <div class="field-group" style="width: 150px;">
+                            <label class="control-label">Активный датчик</label>
+                            <select class="input select" name="SensorIsActive">
+                                <option value="">Все</option>
+                                <option value="true" selected="@(filter.SensorIsActive == true)">Да</option>
+                                <option value="false" selected="@(filter.SensorIsActive == false)">Нет</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Активный пост -->
+                        <div class="field-group" style="width: 150px;">
+                            <label class="control-label">Активный пост</label>
+                            <select class="input select" name="PostIsActive">
+                                <option value="">Все</option>
+                                <option value="true" selected="@(filter.PostIsActive == true)">Да</option>
+                                <option value="false" selected="@(filter.PostIsActive == false)">Нет</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Выводить по -->
+                        <div class="field-group" style="width: 150px;">
+                            <label class="control-label">Выводить по</label>
+                            <select class="input select" name="PageSize">
+                                <option value="10" selected="@(filter.PageSize == "10")">Первые 10</option>
+                                <option value="100" selected="@(filter.PageSize == "100")">Первые 100</option>
+                                <option value="all" selected="@(filter.PageSize == "all" || filter.PageSize == "всё")">Всё (@totalCount)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Выбор полей -->
+                    <div class="field-group mt-3">
+                        <label class="control-label mb-2">Выберите поля для отображения:</label>
+                        
+                        <div class="checkbox-group-header mb-2">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="selectAllFields" class="checkbox-input">
+                                <label for="selectAllFields" class="checkbox-label" id="selectAllLabel">
+                                    <span class="checkbox-custom"></span>
+                                    Выбрать все
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="fields-grid" id="fieldsContainer">
+                            @{
+                                int columnCount = 4;
+                                // Разбиваем отсортированный список на колонки, сохраняя порядок
+                                int itemsPerColumn = (int)Math.Ceiling((double)sortedFields.Count / columnCount);
+                                var fieldColumns = new List<List<string>>();
+                                
+                                for (int i = 0; i < columnCount; i++)
+                                {
+                                    fieldColumns.Add(new List<string>());
+                                }
+                                
+                                // Заполняем колонки по порядку (сначала первый столбец, потом второй и т.д.)
+                                for (int i = 0; i < sortedFields.Count; i++)
+                                {
+                                    int columnIndex = i / itemsPerColumn;
+                                    if (columnIndex < columnCount)
+                                    {
+                                        fieldColumns[columnIndex].Add(sortedFields[i]);
+                                    }
+                                }
+                            }
+                            
+                            <div class="fields-table d-flex gap-3">
+                                @for (int col = 0; col < columnCount; col++)
+                                {
+                                    <div class="fields-column @(col < columnCount - 1 ? "column-with-border" : "")">
+                                        @foreach (var field in fieldColumns[col])
+                                        {
+                                            <div class="checkbox-item">
+                                                <input type="checkbox" class="checkbox-input field-checkbox" 
+                                                       name="SelectedFields" value="@field" 
+                                                       id="field_@field"
+                                                       @(filter.SelectedFields.Contains(field) ? "checked" : "")>
+                                                <label for="field_@field" class="checkbox-label" title="@field">
+                                                    <span class="checkbox-custom"></span>
+                                                    @{
+                                                        var displayName = fieldDisplayNames.ContainsKey(field) 
+                                                            ? fieldDisplayNames[field] 
+                                                            : field;
+                                                    }
+                                                    @displayName
+                                                </label>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Кнопки действий -->
+                    <div class="form-actions mt-3">
+                        <button type="submit" class="button button--primary">Применить фильтры</button>
+                        <a href="@Url.Action("Reset")" class="button button--secondary">Сбросить все фильтры</a>
+                        <a href="@Url.Action("DataViewer")" class="button button--secondary">Обновить</a>
+                        
+                        <div class="records-info ml-auto">
+                            Показано: @displayedCount из @totalCount записей
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Форма экспорта -->
+        <div class="card m-2">
+            <div class="card-header">
+                <h3 class="card-title">Экспорт данных</h3>
+            </div>
+            <div class="card-body">
+                <form method="post" asp-action="Export" id="exportForm">
+                    <input type="hidden" name="StartDate" value="@filter.StartDate" />
+                    <input type="hidden" name="EndDate" value="@filter.EndDate" />
+                    <input type="hidden" name="SerialNumber" value="@filter.SerialNumber" />
+                    <input type="hidden" name="EndpointName" value="@filter.EndpointName" />
+                    <input type="hidden" name="SensorIsActive" value="@filter.SensorIsActive" />
+                    <input type="hidden" name="PostIsActive" value="@filter.PostIsActive" />
+                    <input type="hidden" name="PageSize" value="@filter.PageSize" />
+                    
+                    <!-- Скрытые поля для выбранных полей -->
+                    <div id="hiddenFields">
+                        @foreach (var field in filter.SelectedFields)
+                        {
+                            <input type="hidden" name="SelectedFields" value="@field" />
+                        }
+                    </div>
+                    
+                    <div class="export-actions d-flex align-center justify-between mt-2">
+                        <div class="export-buttons d-flex gap-2">
+                            <button type="submit" name="format" value="excel" class="button button--success">
+                                <span class="button-icon excel-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M21.17 3.25Q21.5 3.25 21.76 3.5 22 3.74 22 4.08V19.92Q22 20.26 21.76 20.5 21.5 20.75 21.17 20.75H7.83Q7.5 20.75 7.24 20.5 7 20.26 7 19.92V17H2.83Q2.5 17 2.24 16.76 2 16.5 2 16.17V7.83Q2 7.5 2.24 7.24 2.5 7 2.83 7H7V4.08Q7 3.74 7.24 3.5 7.5 3.25 7.83 3.25M7 13.06L8.18 15.28H9.97L8 12.06L9.93 8.89H8.22L7 10.9L5.82 8.89H4.09L6 12.06L4 15.28H5.81M20.75 19.5V17H8.25V19.5M20.75 15.75V12.63H12V15.75M20.75 11.38V8.25H12V11.38M20.75 7V4.5H8.25V7Z"/>
+                                    </svg>
+                                </span>
+                                Экспорт в Excel
+                            </button>
+                            <button type="submit" name="format" value="csv" class="button button--info">
+                                <span class="button-icon">📋</span>
+                                Экспорт в CSV
+                            </button>
+                        </div>
+                        
+                        <div class="export-option">
+                            <label class="checkbox-item" style="margin: 0;">
+                                <input type="checkbox" id="exportAllData" name="ExportAllData" value="true" class="checkbox-input">
+                                <span class="checkbox-custom"></span>
+                                <span class="checkbox-label">Экспортировать все данные (независимо от "Выводить по")</span>
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Таблица данных -->
+        <div class="m-2">
+            <div class="table-header">
+                <h3>Результаты</h3>
+                <span class="records-count">(@displayedCount записей)</span>
+            </div>
+            
+            <div class="table-responsive">
+                <!-- Заголовок таблицы -->
+                <div class="overflow-x-auto" id="tableHeaderScroll">
+                    <table class="table table-bordered">
+                        <thead>
+                           <tr>
+                                @{
+                                    int fieldIndex = 0;
+                                    foreach (var field in filter.SelectedFields)
+                                    {
+                                        var displayName = fieldDisplayNames.ContainsKey(field) 
+                                            ? fieldDisplayNames[field] 
+                                            : field;
+                                        var cellClass = fieldIndex < filter.SelectedFields.Count() - 1 ? "cell-with-border" : "";
+                                        <th class="@cellClass" style="min-width: 150px; white-space: nowrap;">@displayName</th>
+                                        fieldIndex++;
+                                    }
+                                }
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                
+                <!-- Основная таблица с данными -->
+                <div class="overflow-x-auto" id="tableBodyScroll" style="max-height: 600px;">
+                    <table class="table table-bordered">
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    @{
+                                        int cellIndex = 0;
+                                        foreach (var field in filter.SelectedFields)
+                                        {
+                                            var cellClass = cellIndex < filter.SelectedFields.Count() - 1 ? "cell-with-border" : "";
+                                            <td class="@cellClass" style="min-width: 150px;">@GetPropertyValue(item, field)</td>
+                                            cellIndex++;
+                                        }
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('[JS] Форма загружена');
+            
+            // 1. Сворачивание/разворачивание блока фильтров
+            const filterHeader = document.getElementById('filterHeader');
+            const filterContent = document.getElementById('filterContent');
+            const filterToggleIcon = document.getElementById('filterToggleIcon');
+            const filterTogglePath = document.getElementById('filterTogglePath');
+            const appliedFiltersText = document.getElementById('appliedFiltersText');
+            
+            // Проверяем сохраненное состояние в localStorage
+            const isFilterCollapsed = localStorage.getItem('filterCollapsed') === 'true';
+            
+            // Устанавливаем начальное состояние
+            if (isFilterCollapsed) {
+                filterContent.classList.add('collapsed');
+                filterToggleIcon.classList.add('collapsed');
+                filterTogglePath.setAttribute('d', 'M4 8L8 4L12 8'); // Иконка вправо
+                appliedFiltersText.style.display = 'block';
+            } else {
+                appliedFiltersText.style.display = 'none';
+            }
+            
+            filterHeader.addEventListener('click', function() {
+                const isCollapsed = filterContent.classList.contains('collapsed');
+                
+                if (isCollapsed) {
+                    // Разворачиваем
+                    filterContent.classList.remove('collapsed');
+                    filterToggleIcon.classList.remove('collapsed');
+                    filterTogglePath.setAttribute('d', 'M12 5L8 9L4 5'); // Иконка вниз
+                    appliedFiltersText.style.display = 'none';
+                    localStorage.setItem('filterCollapsed', 'false');
+                } else {
+                    // Сворачиваем
+                    filterContent.classList.add('collapsed');
+                    filterToggleIcon.classList.add('collapsed');
+                    filterTogglePath.setAttribute('d', 'M4 8L8 4L12 8'); // Иконка вправо
+                    appliedFiltersText.style.display = 'block';
+                    localStorage.setItem('filterCollapsed', 'true');
+                }
+            });
+            
+            // 2. Синхронизация прокрутки верхней и нижней таблиц
+            const headerScroll = document.getElementById('tableHeaderScroll');
+            const bodyScroll = document.getElementById('tableBodyScroll');
+            
+            if (headerScroll && bodyScroll) {
+                headerScroll.addEventListener('scroll', function() {
+                    bodyScroll.scrollLeft = headerScroll.scrollLeft;
+                });
+                
+                bodyScroll.addEventListener('scroll', function() {
+                    headerScroll.scrollLeft = bodyScroll.scrollLeft;
+                });
+            }
+            
+            // 3. Обработка кнопки "Выбрать все"
+            const selectAllCheckbox = document.getElementById('selectAllFields');
+            const selectAllLabel = document.getElementById('selectAllLabel');
+            const fieldCheckboxes = document.querySelectorAll('.field-checkbox');
+            
+            // Функция для обновления текста кнопки
+            function updateSelectAllText() {
+                const allChecked = Array.from(fieldCheckboxes).every(cb => cb.checked);
+                const someChecked = Array.from(fieldCheckboxes).some(cb => cb.checked);
+                
+                selectAllCheckbox.checked = allChecked;
+                selectAllCheckbox.indeterminate = someChecked && !allChecked;
+                
+                // Обновляем текст кнопки
+                if (allChecked) {
+                    selectAllLabel.textContent = 'Снять все выделения';
+                } else {
+                    selectAllLabel.textContent = 'Выбрать все';
+                }
+            }
+            
+            // Инициализация при загрузке
+            updateSelectAllText();
+            
+            // Обработчик для "Выбрать все"
+            selectAllCheckbox.addEventListener('change', function() {
+                const isChecked = this.checked;
+                console.log(`[JS] Выбрать все: ${isChecked}`);
+                
+                fieldCheckboxes.forEach(checkbox => {
+                    checkbox.checked = isChecked;
+                });
+                
+                updateSelectAllText(); // Обновляем текст после изменения
+                updateHiddenFields();
+            });
+            
+            // 4. Обработчики для отдельных чекбоксов
+            fieldCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    console.log(`[JS] Изменен чекбокс: ${this.value} = ${this.checked}`);
+                    updateSelectAllText(); // Обновляем текст после изменения
+                    updateHiddenFields();
+                });
+            });
+            
+            // 5. Обновление скрытых полей
+            function updateHiddenFields() {
+                const hiddenFieldsContainer = document.getElementById('hiddenFields');
+                hiddenFieldsContainer.innerHTML = '';
+                
+                const checkedBoxes = document.querySelectorAll('.field-checkbox:checked');
+                console.log(`[JS] Обновление скрытых полей, выбрано: ${checkedBoxes.length}`);
+                
+                checkedBoxes.forEach(checkbox => {
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'SelectedFields';
+                    hiddenInput.value = checkbox.value;
+                    hiddenFieldsContainer.appendChild(hiddenInput);
+                });
+            }
+            
+            // 6. Обработка формы экспорта
+            const exportForm = document.getElementById('exportForm');
+            const exportAllCheckbox = document.getElementById('exportAllData');
+            
+            if (exportForm) {
+                exportForm.addEventListener('submit', function(e) {
+                    const checkedBoxes = document.querySelectorAll('.field-checkbox:checked');
+                    console.log(`[JS] Отправка формы экспорта, выбрано полей: ${checkedBoxes.length}`);
+                    
+                    if (checkedBoxes.length === 0) {
+                        e.preventDefault();
+                        alert('Пожалуйста, выберите хотя бы одно поле для экспорта');
+                        console.log('[JS] Экспорт отменен: не выбраны поля');
+                        return false;
+                    }
+                    
+                    // Если выбрана опция "Экспортировать все данные"
+                    if (exportAllCheckbox && exportAllCheckbox.checked) {
+                        console.log('[JS] Экспорт ВСЕХ данных (игнорируя пагинацию)');
+                    }
+                    
+                    console.log('[JS] Форма экспорта отправляется...');
+                    return true;
+                });
+            }
+            
+            // 7. Автосохранение фильтра
+            fieldCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    setTimeout(saveFilterToSession, 500);
+                });
+            });
+            
+            // Изменения в селектах тоже сохраняем
+            document.querySelectorAll('select').forEach(select => {
+                select.addEventListener('change', function() {
+                    setTimeout(saveFilterToSession, 500);
+                });
+            });
+            
+            // Изменения в полях ввода дат
+            document.querySelectorAll('input[type="datetime-local"]').forEach(input => {
+                input.addEventListener('change', function() {
+                    setTimeout(saveFilterToSession, 500);
+                });
+            });
+            
+            function saveFilterToSession() {
+                const formData = new FormData(document.getElementById('filterForm'));
+                const selectedFields = [];
+                
+                document.querySelectorAll('.field-checkbox:checked').forEach(cb => {
+                    selectedFields.push(cb.value);
+                });
+                
+                fetch('@Url.Action("SaveFilter", "DovData")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        StartDate: formData.get('StartDate'),
+                        EndDate: formData.get('EndDate'),
+                        SerialNumber: formData.get('SerialNumber'),
+                        EndpointName: formData.get('EndpointName'),
+                        SensorIsActive: formData.get('SensorIsActive'),
+                        PostIsActive: formData.get('PostIsActive'),
+                        PageSize: formData.get('PageSize'),
+                        SelectedFields: selectedFields
+                    })
+                }).then(response => {
+                    if (response.ok) {
+                        console.log('[JS] Фильтр сохранен в сессии');
+                    }
+                });
+            }
+            
+            // Инициализация скрытых полей при загрузке
+            updateHiddenFields();
+            
+            // Инициализация размеров колонок
+            setTimeout(() => {
+                const headerTable = headerScroll ? headerScroll.querySelector('table') : null;
+                if (headerTable) {
+                    headerTable.style.visibility = 'visible';
+                }
+            }, 100);
+        });
+    </script>
+}
+
+@functions {
+    public string GetPropertyValue(VwDovDataFull item, string propertyName)
+    {
+        var property = item.GetType().GetProperty(propertyName);
+        if (property == null) return "";
+        
+        var value = property.GetValue(item);
+        
+        // Особый случай для BrightFlag
+        if (propertyName == "BrightFlag" && value is int intValue)
+        {
+            return intValue == 1 ? "Да" : intValue == 0 ? "Нет" : "Неизвестно";
+        }
+        
+        // Форматирование дат
+        if (value is DateTime dateTimeValue)
+        {
+            return dateTimeValue.ToString("dd.MM.yyyy HH:mm");
+        }
+        
+        // Для булевых значений
+        if (value is bool boolValue)
+        {
+            return boolValue ? "Да" : "Нет";
+        }
+        
+        // Для NULL значений
+        if (value == null)
+        {
+            return "";
+        }
+        
+        return value.ToString();
+    }
+}

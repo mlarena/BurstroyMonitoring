@@ -1,0 +1,145 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+@{
+    System.Threading.Thread.CurrentThread.CurrentCulture =
+        System.Globalization.CultureInfo.GetCultureInfo("ru-RU");
+    System.Threading.Thread.CurrentThread.CurrentUICulture =
+        System.Globalization.CultureInfo.GetCultureInfo("ru-RU");
+}
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Мониторинг датчиков</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    <!-- Шапка сайта -->
+    <header>
+        <h1>Типовой Центр Мониторинга</h1>
+    </header>
+
+    <!-- Основная навигация -->
+    <div class="topbar-navigation">
+        <nav class="topbar-nav">
+            <a asp-controller="Home" asp-action="Index"
+               class="nav-btn @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")"
+               title="Главная страница системы мониторинга">
+                Главная
+            </a>
+
+            <!-- Выпадающее меню Справочники -->
+            <div class="dropdown">
+                @{
+                    var currentController = ViewContext.RouteData.Values["Controller"]?.ToString();
+                    var isDictionariesActive = currentController == "MonitoringPosts" ||
+                                               currentController == "SensorTypes" ||
+                                               currentController == "Sensors" ||
+                                               currentController == "WorkerConfiguration";
+                }
+                <button class="dropdown-btn @(isDictionariesActive ? "active" : "")"
+                        title="Управление справочниками системы">
+                    Справочники
+                </button>
+                <div class="dropdown-content">
+                    <a asp-controller="MonitoringPosts" asp-action="Index"
+                       class="@(currentController == "MonitoringPosts" ? "active" : "")"
+                       title="Управление постами мониторинга">
+                        Посты мониторинга
+                    </a>
+                    <a asp-controller="SensorTypes" asp-action="Index"
+                       class="@(currentController == "SensorTypes" ? "active" : "")"
+                       title="Управление типами датчиков">
+                        Типы датчиков
+                    </a>
+                    <a asp-controller="Sensors" asp-action="Index"
+                       class="@(currentController == "Sensors" ? "active" : "")"
+                       title="Управление датчиками">
+                        Датчики
+                    </a>
+                    <a asp-controller="WorkerConfiguration" asp-action="Index"
+                       class="@(currentController == "WorkerConfiguration" ? "active" : "")"
+                       title="Настройки системы мониторинга">
+                        Настройки
+                    </a>
+                </div>
+            </div>
+
+            <!-- Новое выпадающее меню "Данные датчиков" -->
+            <div class="dropdown">
+                @{
+                    var dataControllers = new[] { "MueksData", "IwsData", "DspdData", "DovData", "DustData" };
+                    var isDataActive = dataControllers.Contains(currentController);
+                }
+                <button class="dropdown-btn @(isDataActive ? "active" : "")"
+                        title="Данные с различных типов датчиков">
+                    Данные датчиков
+                </button>
+                <div class="dropdown-content">
+                    <a asp-controller="MueksData" asp-action="Index"
+                       class="@(currentController == "MueksData" ? "active" : "")"
+                       title="Данные MUEKS: Температура, напряжение, видимость">
+                        Данные MUEKS
+                    </a>
+                    <a asp-controller="IwsData" asp-action="Index"
+                       class="@(currentController == "IwsData" ? "active" : "")"
+                       title="Данные IWS: Погодные условия, давление, ветер">
+                        Данные IWS
+                    </a>
+                    <a asp-controller="DspdData" asp-action="Index"
+                       class="@(currentController == "DspdData" ? "active" : "")"
+                       title="Данные DSPD: Состояние дороги, сцепление">
+                        Данные DSPD
+                    </a>
+                    <a asp-controller="DovData" asp-action="Index"
+                       class="@(currentController == "DovData" ? "active" : "")"
+                       title="Данные DOV: Видимость, яркость">
+                        Данные DOV
+                    </a>
+                    <a asp-controller="DustData" asp-action="Index"
+                       class="@(currentController == "DustData" ? "active" : "")"
+                       title="Данные DUST: Концентрация пыли, PM частицы">
+                        Данные DUST
+                    </a>
+                </div>
+            </div>
+
+            <!-- Остальные пункты меню -->
+            <a asp-controller="SensorResults" asp-action="Index"
+               class="nav-btn @(currentController == "SensorResults" ? "active" : "")"
+               title="Результаты проверок датчиков: Статусы и время ответа">
+                Результаты
+            </a>
+
+            <a asp-controller="GraphsAndCharts" asp-action="Index"
+               class="nav-btn @(currentController == "GraphsAndCharts" ? "active" : "")"
+               title="Графики и диаграммы: Визуализация данных датчиков">
+                Графики
+            </a>
+
+            <a asp-controller="MonitoringMap" asp-action="Index"
+               class="nav-btn @(currentController == "MonitoringMap" ? "active" : "")"
+               title="Карта мониторинга">
+                Карта мониторинга
+            </a>
+
+            <a asp-controller="SensorErrors" asp-action="Index"
+               class="nav-btn @(currentController == "SensorErrors" ? "active" : "")"
+               title="Ошибки датчиков: Журнал ошибок системы">
+                Ошибки
+            </a>
+        </nav>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="main-content">
+        <main>
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/coordinateValidation.js" asp-append-version="true"></script>
+    @RenderSection("Styles", required: false)
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

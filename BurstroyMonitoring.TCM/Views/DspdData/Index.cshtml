@@ -1,0 +1,160 @@
+@model IEnumerable<BurstroyMonitoring.Data.Models.VwDspdDataFull>
+
+@{
+    ViewData["Title"] = "Данные DSPD";
+}
+
+<div class="view-container">
+    <h1 class="view-title">Данные DSPD</h1>
+
+    <!-- Поиск и фильтры -->
+    <div class="search-container">
+        <form method="get" class="search-form">
+            <div class="search-row">
+                <input type="text" name="search" value="@ViewBag.Search" 
+                       placeholder="Поиск по серийному номеру, названию точки..." 
+                       class="input search-input" />
+                <button type="submit" class="button button--primary">Найти</button>
+                <a href="@Url.Action("Index")" class="button button--secondary">Сбросить</a>
+                <a href="@Url.Action("DataViewer")" class="button button--secondary">Просмотр и экспорт</a>
+                <label style="display: inline-flex; align-items: center; gap: 8px; margin-left: 16px; cursor: pointer;">
+                    <input type="checkbox" id="autoRefresh" style="width: 16px; height: 16px; margin: 0; accent-color: #0052cc;" />
+                    <span style="font-size: 14px; color: #172b4d;">Обновлять автоматически</span>
+                </label>
+            </div>
+        </form>
+        
+
+    </div>
+
+    <!-- Пагинация сверху -->
+    @await Html.PartialAsync("_Pagination")
+
+    <!-- Таблица данных -->
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        <a href="@Url.Action("Index", new { 
+                            page = ViewBag.Page, 
+                            pageSize = ViewBag.PageSize, 
+                            search = ViewBag.Search,
+                            sortBy = "DspdDataId",
+                            sortDesc = ViewBag.SortBy == "DspdDataId" ? !ViewBag.SortDesc : true
+                        })">
+                            ID
+                            @if (ViewBag.SortBy == "DspdDataId")
+                            {
+                                <span>@(ViewBag.SortDesc ? "▼" : "▲")</span>
+                            }
+                        </a>
+                    </th>
+                    <th>Дата получения</th>
+                    <th>Серийный номер</th>
+                    <th>Конечная точка</th>
+                    <th>Температура дороги</th>
+                    <th>Сцепление</th>
+                    <th>Вода/Лед/Снег</th>
+                    <th>GPS</th>
+                    <th>Статус</th>
+                    <th>Подробности</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.DspdDataId</td>
+                        <td>@item.ReceivedAt?.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@item.SerialNumber</td>
+                        <td>@item.EndpointName</td>
+                        <td>
+                            @if (item.RoadTemperature.HasValue)
+                            {
+                                <span>@item.RoadTemperature.Value.ToString("F1")°C</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">-</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.GripCoefficient.HasValue)
+                            {
+                                <span>@item.GripCoefficient.Value.ToString("F2")</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">-</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.WaterHeight.HasValue || item.IceHeight.HasValue || item.SnowHeight.HasValue)
+                            {
+                                <span title="Вода: @(item.WaterHeight?.ToString("F1") ?? "0") мм, Лед: @(item.IceHeight?.ToString("F1") ?? "0") мм, Снег: @(item.SnowHeight?.ToString("F1") ?? "0") мм">
+                                    @(item.WaterHeight?.ToString("F1") ?? "0")/
+                                    @(item.IceHeight?.ToString("F1") ?? "0")/
+                                    @(item.SnowHeight?.ToString("F1") ?? "0") мм
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">-</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.GpsValid.HasValue)
+                            {
+                                @if (item.GpsValid == true)
+                                {
+                                    <span class="lozenge lozenge--success" title="GPS валиден">✓</span>
+                                }
+                                else
+                                {
+                                    <span class="lozenge lozenge--error" title="GPS невалиден">✗</span>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted">-</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.CalibrationNeeded.HasValue)
+                            {
+                                @if (item.CalibrationNeeded == 1)
+                                {
+                                    <span class="lozenge lozenge--error" title="Требуется калибровка">⚠️</span>
+                                }
+                                else
+                                {
+                                    <span class="lozenge lozenge--success" title="OK">✓</span>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted">-</span>
+                            }
+                        </td>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@item.DspdDataId" 
+                               class="button button--sm button--secondary" title="Просмотр деталей">
+                                📊
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Пагинация снизу -->
+    @await Html.PartialAsync("_Pagination")
+
+    <!-- Информация о количестве записей -->
+    <div class="records-info">
+        Показано @(((ViewBag.Page - 1) * ViewBag.PageSize) + 1)-@Math.Min(ViewBag.Page * ViewBag.PageSize, ViewBag.TotalCount) 
+        из @ViewBag.TotalCount записей
+    </div>
+</div>

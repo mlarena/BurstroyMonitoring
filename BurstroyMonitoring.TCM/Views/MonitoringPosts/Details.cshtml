@@ -1,0 +1,154 @@
+@model BurstroyMonitoring.Data.Models.MonitoringPost
+
+@{
+    ViewData["Title"] = "Подробности о посте мониторинга";
+}
+
+<div class="details-container">
+    <h1 class="form-title">Подробности о посте мониторинга</h1>
+    
+    <div class="details-row">
+        <div class="details-label">Наименование</div>
+        <div class="details-value">@Html.DisplayFor(model => model.Name)</div>
+    </div>
+    
+    <div class="details-row">
+        <div class="details-label">Описание</div>
+        <div class="details-value">@Html.DisplayFor(model => model.Description)</div>
+    </div>
+    
+    <div class="details-row">
+        <div class="details-label">Координаты</div>
+        <div class="details-value">
+            @if (Model.Longitude.HasValue && Model.Latitude.HasValue)
+            {
+                <span>@Model.Longitude.Value.ToString("F6"), @Model.Latitude.Value.ToString("F6")</span>
+                <br />
+                <small>
+                    <a href="https://www.google.com/maps?q=@Model.Latitude.Value,@Model.Longitude.Value" 
+                       target="_blank" style="color: var(--primary-color); text-decoration: none;">
+                        📍 Открыть в Google Maps
+                    </a>
+                </small>
+            }
+            else
+            {
+                <span class="text-muted">Не указаны</span>
+            }
+        </div>
+    </div>
+    
+    <div class="details-row">
+        <div class="details-label">Пост мобильный</div>
+        <div class="details-value">
+            @if (Model.IsMobile)
+            {
+                <span class="lozenge">Мобильный</span>
+            }
+            else
+            {
+                <span class="lozenge">Стационарный</span>
+            }
+        </div>
+    </div>
+    
+    <div class="details-row">
+        <div class="details-label">Активный</div>
+        <div class="details-value">
+            @if (Model.IsActive)
+            {
+                <span class="lozenge lozenge--success">Активен</span>
+            }
+            else
+            {
+                <span class="lozenge lozenge--error">Неактивен</span>
+            }
+        </div>
+    </div>
+    
+    <div class="details-row">
+        <div class="details-label">Создан</div>
+        <div class="details-value">
+            @if (Model.CreatedAt.HasValue)
+            {
+                <span>@Model.CreatedAt.Value.ToString("dd.MM.yyyy HH:mm")</span>
+            }
+            else
+            {
+                <span class="text-muted">Не указана</span>
+            }
+        </div>
+    </div>
+    
+    <div class="details-row">
+        <div class="details-label">Обновлен</div>
+        <div class="details-value">
+            @if (Model.UpdatedAt.HasValue)
+            {
+                <span>@Model.UpdatedAt.Value.ToString("dd.MM.yyyy HH:mm")</span>
+            }
+            else
+            {
+                <span class="text-muted">Не указана</span>
+            }
+        </div>
+    </div>
+    
+    <div class="details-row">
+        <div class="details-label">Количество датчиков</div>
+        <div class="details-value">
+            @if (Model.Sensors != null && Model.Sensors.Any())
+            {
+                <span class="sensor-count">@Model.Sensors.Count</span>
+                <a href="@Url.Action("Index", "Sensors", new { monitoringPostId = Model.Id })" 
+                   class="view-sensors-link">
+                    Просмотреть все
+                </a>
+                
+                <!-- Список активных датчиков -->
+                <div class="sensors-list">
+                    <strong>Активные датчики:</strong>
+                    <ul>
+                        @foreach (var sensor in Model.Sensors.Take(5))
+                        {
+                            <li>
+                                <a href="@Url.Action("Details", "Sensors", new { id = sensor.Id })" 
+                                   style="color: var(--primary-color); text-decoration: none;">
+                                    @sensor.SerialNumber - @sensor.EndPointsName
+                                </a>
+                                @if (sensor.IsActive)
+                                {
+                                    <span class="lozenge lozenge--success" style="margin-left: 5px; font-size: 11px;">Активен</span>
+                                }
+                                else
+                                {
+                                    <span class="lozenge lozenge--error" style="margin-left: 5px; font-size: 11px;">Неактивен</span>
+                                }
+                            </li>
+                        }
+                        @if (Model.Sensors.Count > 5)
+                        {
+                            <li class="text-muted">
+                                ... и еще @(Model.Sensors.Count - 5) датчиков
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+            else
+            {
+                <span class="text-muted">Нет датчиков</span>
+                <a href="@Url.Action("Create", "Sensors", new { monitoringPostId = Model.Id })" 
+                   class="add-sensor-link">
+                    Добавить датчик
+                </a>
+            }
+        </div>
+    </div>
+    
+    <div class="details-actions">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="button button--primary">Редактировать</a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="button button--danger">Удалить</a>
+        <a asp-action="Index" class="button button--secondary">Назад к списку</a>
+    </div>
+</div>

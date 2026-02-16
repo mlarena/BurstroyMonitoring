@@ -1,0 +1,164 @@
+/* ============================================
+   СТИЛИ ДЛЯ ГЛАВНОЙ СТРАНИЦЫ
+   ============================================ */
+
+/* Уникальный контейнер для главной страницы */
+.home-container {
+    max-width: 1000px; /* Уменьшенная ширина */
+    margin: 0 auto;
+    padding: var(--spacing-lg);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-xlarge);
+    box-shadow: var(--shadow-small);
+}
+
+.home-content {
+    margin-top: var(--spacing-xl);
+}
+
+.quick-links {
+    display: flex;
+    gap: var(--spacing-lg);
+    justify-content: center;
+    margin: var(--spacing-xl) 0;
+    flex-wrap: wrap;
+}
+
+.quick-links .button {
+    min-width: 180px;
+    padding: 0 var(--spacing-xl);
+}
+
+.data-links {
+    margin-top: var(--spacing-xxl);
+}
+
+.data-links h4 {
+    color: var(--text-secondary);
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: var(--spacing-lg);
+    text-align: center;
+}
+
+/* Сетка карточек - строго 4 колонки */
+.data-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Фиксированные 4 колонки */
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+}
+
+/* Карточки с улучшенным современным дизайном */
+.data-card {
+    display: block;
+    background: var(--bg-secondary); /* Чистый фон без градиента */
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-large);
+    padding: var(--spacing-lg);
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Плавная анимация */
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Тонкая полоска сверху для акцента */
+.data-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--primary-color);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+}
+
+.data-card:hover::before {
+    transform: scaleX(1);
+}
+
+.data-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-large);
+    border-color: var(--primary-color);
+    background: var(--bg-secondary); /* Оставляем тот же фон при наведении */
+}
+
+/* Иконка карточки */
+.data-card-icon {
+    font-size: 32px;
+    margin-bottom: var(--spacing-sm);
+    display: inline-block;
+    transition: transform 0.3s ease, color 0.3s ease;
+    color: var(--primary-color); /* Цвет иконки */
+}
+
+.data-card:hover .data-card-icon {
+    transform: scale(1.1);
+    color: var(--primary-hover); /* Изменение цвета при наведении */
+}
+
+/* Заголовок карточки */
+.data-card-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: var(--spacing-xs);
+    color: var(--primary-color);
+    transition: color 0.3s ease;
+}
+
+.data-card:hover .data-card-title {
+    color: var(--primary-hover);
+}
+
+/* Описание карточки */
+.data-card-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    opacity: 0.9;
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* Адаптивность для главной страницы */
+@media (max-width: 1024px) {
+    .home-container {
+        max-width: 90%;
+    }
+    
+    .data-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 колонки на планшетах */
+    }
+}
+
+@media (max-width: 768px) {
+    .quick-links {
+        flex-direction: column;
+        align-items: center;
+        gap: var(--spacing-md);
+    }
+    
+    .quick-links .button {
+        width: 100%;
+        max-width: 280px;
+    }
+    
+    .data-grid {
+        grid-template-columns: 1fr; /* 1 колонка на мобильных */
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .data-card {
+        padding: var(--spacing-md);
+    }
+}

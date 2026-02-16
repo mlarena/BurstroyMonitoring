@@ -1,0 +1,125 @@
+@* _CoordinateFields.cshtml - универсальное частичное представление для полей координат *@
+
+@model dynamic
+
+@{
+    // Получаем имена полей
+    var longitudeName = ViewData["LongitudeName"] as string ?? "Longitude";
+    var latitudeName = ViewData["LatitudeName"] as string ?? "Latitude";
+    
+    // Получаем значения из ModelState (если форма была отправлена с ошибками)
+    var modelStateLongitude = ViewData.ModelState[$"{longitudeName}"]?.AttemptedValue;
+    var modelStateLatitude = ViewData.ModelState[$"{latitudeName}"]?.AttemptedValue;
+    
+    // Получаем значения из модели
+    object longitudeValue = null;
+    object latitudeValue = null;
+    
+    if (Model != null)
+    {
+        try
+        {
+            // Пробуем получить значения через отражение
+            var type = Model.GetType();
+            var longitudeProp = type.GetProperty(longitudeName);
+            var latitudeProp = type.GetProperty(latitudeName);
+            
+            if (longitudeProp != null)
+            {
+                longitudeValue = longitudeProp.GetValue(Model);
+            }
+            if (latitudeProp != null)
+            {
+                latitudeValue = latitudeProp.GetValue(Model);
+            }
+        }
+        catch
+        {
+            // Если не получилось - оставляем null
+        }
+    }
+    
+    // Форматируем значения для отображения
+    string FormatCoordinateValue(object value, string attemptedValue)
+    {
+        // Если есть значение из ModelState (после отправки формы), используем его
+        if (!string.IsNullOrEmpty(attemptedValue))
+        {
+            return attemptedValue.Replace(',', '.');
+        }
+        
+        if (value == null) return "";
+        
+        if (value is double d)
+            return d.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        else if (value is decimal dec)
+            return dec.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        else if (value is float f)
+            return f.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        else if (value is int i)
+            return i.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        else if (value is string s && !string.IsNullOrEmpty(s))
+            return s.Replace(',', '.');
+        else
+            return value.ToString()?.Replace(',', '.');
+    }
+    
+    var longitudeString = FormatCoordinateValue(longitudeValue, modelStateLongitude);
+    var latitudeString = FormatCoordinateValue(latitudeValue, modelStateLatitude);
+}
+
+<div class="form-row">
+    <div class="field-group">
+        <label for="@longitudeName" class="control-label">Долгота</label>
+        <input type="number" 
+               step="any"
+               id="@longitudeName" 
+               name="@longitudeName"
+               value="@longitudeString"
+               class="input coordinates-input" 
+               placeholder="например: 37.6173"
+               data-field="longitude" />
+        
+        <span asp-validation-for="@longitudeName" class="field-validation-error"></span>
+        
+        <small class="coordinates-hint">Диапазон: от -180 до 180</small>
+    </div>
+    <div class="field-group">
+        <label for="@latitudeName" class="control-label">Широта</label>
+        <input type="number"
+               step="any"
+               id="@latitudeName" 
+               name="@latitudeName"
+               value="@latitudeString"
+               class="input coordinates-input" 
+               placeholder="например: 55.7558"
+               data-field="latitude" />
+        
+        <span asp-validation-for="@latitudeName" class="field-validation-error"></span>
+        
+        <small class="coordinates-hint">Диапазон: от -90 до 90</small>
+    </div>
+</div>
+
+<div class="field-group">
+    <div id="coordRowExp"></div>
+</div>
+
+<style>
+    .input-error {
+        border-color: var(--danger-color) !important;
+        box-shadow: 0 0 0 2px rgba(222, 53, 11, 0.2) !important;
+    }
+    
+    .coordinates-hint {
+        display: block;
+        font-size: 12px;
+        color: var(--text-secondary);
+        margin-top: 4px;
+    }
+    
+    .coordinates-input::placeholder {
+        color: #999;
+        font-size: 13px;
+    }
+</style>

@@ -1,0 +1,112 @@
+@model BurstroyMonitoring.Data.Models.MonitoringPost
+
+<style>
+    /* Только для компактных элементов */
+    .compact-item {
+        display: flex !important;
+        align-items: center !important;
+        margin-bottom: 6px !important;
+        padding-bottom: 6px !important;
+        border-bottom: 1px solid #e9ecef !important;
+    }
+    
+    .compact-item .monitoring-details-label {
+        font-weight: 600;
+        color: #495057;
+        margin-right: 8px;
+        font-size: 13px;
+        white-space: nowrap;
+        display: inline;
+    }
+    
+    .compact-item .compact-value {
+        color: #212529;
+        font-size: 13px;
+        line-height: 1.4;
+        display: inline;
+    }
+    
+    .compact-item .badge {
+        display: inline-flex !important;
+        align-items: center !important;
+        height: 20px !important;
+    }
+</style>
+
+<div class="monitoring-details-item">
+    <div class="monitoring-details-label">Название:</div>
+    <div class="monitoring-details-value">@Model.Name</div>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.Description))
+{
+    <div class="monitoring-details-item">
+        <div class="monitoring-details-label">Описание:</div>
+        <div class="monitoring-details-value">@Model.Description</div>
+    </div>
+}
+
+<!-- Координаты в одну строку -->
+<div class="monitoring-details-item compact-item">
+    <span class="monitoring-details-label">Координаты:</span>
+    <span class="monitoring-details-value compact-value">
+        @if (Model.Latitude.HasValue && Model.Longitude.HasValue)
+        {
+            @Model.Latitude.Value.ToString("F6")<text>, </text>@Model.Longitude.Value.ToString("F6")
+        }
+        else
+        {
+            <span>Не указаны</span>
+        }
+    </span>
+</div>
+
+<!-- Тип в одну строку -->
+<div class="monitoring-details-item compact-item">
+    <span class="monitoring-details-label">Тип:</span>
+    <span class="monitoring-details-value compact-value">
+        <span class="badge @(Model.IsMobile ? "badge-warning" : "badge-info")">
+            @(Model.IsMobile ? "Мобильный" : "Стационарный")
+        </span>
+    </span>
+</div>
+
+<!-- Статус в одну строку -->
+<div class="monitoring-details-item compact-item">
+    <span class="monitoring-details-label">Статус:</span>
+    <span class="monitoring-details-value compact-value">
+        <span class="badge @(Model.IsActive ? "badge-success" : "badge-danger")">
+            @(Model.IsActive ? "Активный" : "Неактивный")
+        </span>
+    </span>
+</div>
+
+<!-- Создан в одну строку -->
+@if (Model.CreatedAt.HasValue)
+{
+    <div class="monitoring-details-item compact-item">
+        <span class="monitoring-details-label">Создан:</span>
+        <span class="monitoring-details-value compact-value">
+            @Model.CreatedAt.Value.ToString("dd.MM.yyyy HH:mm")
+        </span>
+    </div>
+}
+
+<div class="monitoring-details-item">
+    <div class="monitoring-details-label">Датчики (@Model.Sensors.Count):</div>
+    <div class="monitoring-details-value">
+        <div class="monitoring-sensor-list" id="sensorList">
+            @if (Model.Sensors.Any())
+            {
+                <div class="text-center">
+                    <div class="spinner-border spinner-border-sm" role="status"></div>
+                    <span class="ms-2">Загрузка...</span>
+                </div>
+            }
+            else
+            {
+                <span>Нет датчиков</span>
+            }
+        </div>
+    </div>
+</div>

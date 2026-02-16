@@ -1,0 +1,98 @@
+@model BurstroyMonitoring.Data.Models.SensorType
+
+@{
+    ViewData["Title"] = "Подробности о типе датчика";
+}
+
+<div class="details-container">
+    <h1 class="form-title">Подробности о типе датчика</h1>
+    
+    <div class="details-row">
+        <div class="details-label">Название типа датчика</div>
+        <div class="details-value">@Html.DisplayFor(model => model.SensorTypeName)</div>
+    </div>
+    
+    <div class="details-row">
+        <div class="details-label">Описание</div>
+        <div class="details-value">
+            <div class="description-text">@Html.DisplayFor(model => model.Description)</div>
+        </div>
+    </div>
+    
+    <div class="details-row">
+        <div class="details-label">Создан</div>
+        <div class="details-value">
+            @if (Model.CreatedAt.HasValue)
+            {
+                <span>@Model.CreatedAt.Value.ToString("dd.MM.yyyy HH:mm")</span>
+            }
+            else
+            {
+                <span class="text-muted">Не указана</span>
+            }
+        </div>
+    </div>
+    
+    <div class="details-row">
+        <div class="details-label">Количество датчиков</div>
+        <div class="details-value">
+            @if (ViewBag.Sensors != null && ((List<BurstroyMonitoring.Data.Models.Sensor>)ViewBag.Sensors).Any())
+            {
+                <span class="sensor-count">@ViewBag.TotalSensorCount шт.</span>
+                <a href="@Url.Action("Index", "Sensors", new { sensorTypeId = Model.Id })" 
+                   class="view-sensors-link">
+                    Просмотреть все
+                </a>
+                
+                <div class="sensors-list">
+                    <strong>Датчики этого типа:</strong>
+                    <ul>
+                        @foreach (var sensor in (List<BurstroyMonitoring.Data.Models.Sensor>)ViewBag.Sensors)
+                        {
+                            <li>
+                                <a href="@Url.Action("Details", "Sensors", new { id = sensor.Id })" 
+                                   style="color: var(--primary-color); text-decoration: none;">
+                                    @sensor.SerialNumber - @sensor.EndPointsName
+                                </a>
+                                @if (sensor.MonitoringPost != null)
+                                {
+                                    <small style="color: var(--text-secondary); margin-left: 8px;">
+                                        (пост: @sensor.MonitoringPost.Name)
+                                    </small>
+                                }
+                                @if (sensor.IsActive)
+                                {
+                                    <span class="lozenge lozenge--success" style="margin-left: 5px; font-size: 11px;">Активен</span>
+                                }
+                                else
+                                {
+                                    <span class="lozenge lozenge--error" style="margin-left: 5px; font-size: 11px;">Неактивен</span>
+                                }
+                            </li>
+                        }
+                        @if (ViewBag.TotalSensorCount > 10)
+                        {
+                            <li class="text-muted">
+                                ... и еще @(ViewBag.TotalSensorCount - 10) датчиков
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+            else
+            {
+                <span class="text-muted">Нет датчиков этого типа</span>
+                <a href="@Url.Action("Create", "Sensors", new { sensorTypeId = Model.Id })" 
+                   class="add-sensor-link">
+                    Добавить датчик
+                </a>
+            }
+        </div>
+    </div>
+    
+    <div class="details-actions">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="button button--primary">Редактировать</a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="button button--danger">Удалить</a>
+        <a asp-action="Index" class="button button--secondary">Назад к списку</a>
+    </div>
+</div>

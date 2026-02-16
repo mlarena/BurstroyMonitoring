@@ -1,0 +1,37 @@
+@model BurstroyMonitoring.Data.Models.SensorType
+
+@{
+    ViewData["Title"] = "Редактировать тип датчика";
+}
+
+<div class="form-container">
+    <h1 class="form-title">Редактировать тип датчика</h1>
+    
+    <form asp-action="Edit">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="CreatedAt" />
+        
+        <div class="field-group">
+            <label asp-for="SensorTypeName" class="control-label required">Название типа датчика</label>
+            <input asp-for="SensorTypeName" class="input" maxlength="20" />
+            <span asp-validation-for="SensorTypeName" class="field-validation-error"></span>
+        </div>
+        
+        <div class="field-group">
+            <label asp-for="Description" class="control-label required">Описание</label>
+            <textarea asp-for="Description" class="input" rows="4"></textarea>
+            <span asp-validation-for="Description" class="field-validation-error"></span>
+        </div>
+        
+        <div class="form-actions">
+            <input type="submit" value="Сохранить" class="button button--primary" />
+            <a asp-action="Details" asp-route-id="@Model.Id" class="button button--secondary">Просмотр</a>
+            <a asp-action="Index" class="button button--secondary">Назад к списку</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

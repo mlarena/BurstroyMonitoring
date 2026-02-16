@@ -1,0 +1,104 @@
+
+1. создание архивов
+написать powershell скрипт для создания архива
+
+2. загрузка на сервер
+виртуалка
+scp -P 58222 "C:\git\BurstroyMonitoring\BurstroyMonitoring.Worker\release\linux-x64\BurstroyMonitoring.Worker.zip" usermeteo@192.168.192.137:/opt/burstroy/tmp 
+scp -P 58222 "C:\git\BurstroyMonitoring\BurstroyMonitoring.TCM\release\linux-x64\BurstroyMonitoring.TCM.zip" usermeteo@192.168.192.137:/opt/burstroy/tmp 
+scp -P 58222 "C:\git\BurstroyMonitoring\admin\sql\db_db.sql" usermeteo@192.168.192.137:/opt/burstroy/tmp 
+scp -P 58222 "C:\git\BurstroyMonitoring\admin\sql\db_insert.sql" usermeteo@192.168.192.137:/opt/burstroy/tmp 
+
+scp -P 58222 "C:\git\BurstroyMonitoring\admin\sql\monitoring_mini_posts.sql" usermeteo@192.168.192.137:/opt/burstroy/tmp 
+
+scp -P 58222 "C:\git\BurstroyMonitoring\admin\sql\db_new_sensors.sql" usermeteo@192.168.192.137:/opt/burstroy/tmp 
+scp -P 58222 "C:\git\BurstroyMonitoring\admin\sql\db_vw.sql" usermeteo@192.168.192.137:/opt/burstroy/tmp 
+ssh -p 58222 usermeteo@192.168.192.137
+toor
+
+виртуалка 2
+scp "C:\git\BurstroyMonitoring\BurstroyMonitoring.Worker\release\linux-x64\BurstroyMonitoring.Worker.zip" devuser@192.168.77.144:/opt/burstroy/tmp
+scp "C:\git\BurstroyMonitoring\BurstroyMonitoring.TCM\release\linux-x64\BurstroyMonitoring.TCM.zip" devuser@192.168.77.144:/opt/burstroy/tmp
+scp "C:\git\BurstroyMonitoring\admin\sql\db_db.sql" devuser@192.168.77.144:/opt/burstroy/tmp
+scp "C:\git\BurstroyMonitoring\admin\sql\db_insert.sql" devuser@192.168.77.144:/opt/burstroy/tmp
+scp "C:\git\BurstroyMonitoring\admin\sql\db_vw.sql" devuser@192.168.77.144:/opt/burstroy/tmp
+
+scp "C:\git\BurstroyMonitoring\admin\sql\monitoring_posts.sql" devuser@192.168.77.144:/opt/burstroy/tmp
+
+
+
+ssh devuser@192.168.77.144
+
+тестовый сервер
+scp "C:\git\BurstroyMonitoring\BurstroyMonitoring.Worker\release\linux-x64\BurstroyMonitoring.Worker.zip" debusr@192.168.3.74:/opt/burstroy/tmp
+scp "C:\git\BurstroyMonitoring\BurstroyMonitoring.TCM\release\linux-x64\BurstroyMonitoring.TCM.zip" debusr@192.168.3.74:/opt/burstroy/tmp
+scp "C:\git\BurstroyMonitoring\admin\sql\db_db.sql" debusr@192.168.3.74:/opt/burstroy/tmp
+scp "C:\git\BurstroyMonitoring\admin\sql\db_insert.sql" debusr@192.168.3.74:/opt/burstroy/tmp
+
+scp "C:\git\BurstroyMonitoring\admin\sql\db_new_sensors.sql" debusr@192.168.3.74:/opt/burstroy/tmp
+
+scp "C:\git\BurstroyMonitoring\admin\sql\db_vw.sql" debusr@192.168.3.74:/opt/burstroy/tmp
+
+ssh debusr@192.168.3.74 
+@Ze2vgeFyYVC
+user: root
+pass: y$2wbYUcCo2%
+
+
+крыша
+scp -P 9022 "C:\git\BurstroyMonitoring\BurstroyMonitoring.Worker\release\linux-arm64\BurstroyMonitoring.Worker.zip" bsp@192.168.3.19:/opt/burstroy/tmp 
+scp -P 9022 "C:\git\BurstroyMonitoring\BurstroyMonitoring.TCM\release\linux-arm64\BurstroyMonitoring.TCM.zip" bsp@192.168.3.19:/opt/burstroy/tmp 
+scp -P 9022 "C:\git\BurstroyMonitoring\admin\sql\db_db.sql" bsp@192.168.3.19:/opt/burstroy/tmp 
+scp -P 9022 "C:\git\BurstroyMonitoring\admin\sql\db_insert_kr.sql" bsp@192.168.3.19:/opt/burstroy/tmp 
+scp -P 9022 "C:\git\BurstroyMonitoring\admin\sql\db_vw.sql" bsp@192.168.3.19:/opt/burstroy/tmp 
+ssh bsp@192.168.3.19 -p 9022
+bsp
+
+sudo timedatectl set-timezone Europe/Moscow
+
+mkdir -p /opt/burstroy/tmp/
+cd /opt/
+chmod -R 777 burstroy/
+cd /opt/burstroy/tmp/
+
+3. подключение к postgres, создание базы данных
+
+psql -U postgres -h localhost -d postgres
+create database sensordb;
+
+4. выполнение скриптов на базе данных
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_db.sql
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_insert_kr.sql
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_insert.sql
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/monitoring_posts.sql
+
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_new_sensors.sql
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_vw.sql
+
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_new_sensors.sql
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_vw.sql
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/monitoring_mini_posts.sql
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_insert.sql
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_db.sql
+
+sudo -u postgres psql -d sensordb_v2 -f /opt/burstroy/tmp/monitoring_posts.sql
+
+SELECT * FROM public."Sensor";
+
+sudo systemctl start burstroy-monitoring-tcm
+sudo systemctl stop burstroy-monitoring-tcm
+sudo systemctl restart burstroy-monitoring-tcm
+sudo systemctl status burstroy-monitoring-tcm
+sudo journalctl -u burstroy-monitoring-tcm -f
+sudo systemctl enable burstroy-monitoring-tcm
+sudo systemctl disable burstroy-monitoring-tcm
+
+
+sudo systemctl start burstroy-monitoring-worker
+sudo systemctl stop burstroy-monitoring-worker
+sudo systemctl restart burstroy-monitoring-worker
+sudo systemctl status burstroy-monitoring-worker
+sudo journalctl -u burstroy-monitoring-worker -f
+sudo systemctl enable burstroy-monitoring-worker
+sudo systemctl disable burstroy-monitoring-worker
+

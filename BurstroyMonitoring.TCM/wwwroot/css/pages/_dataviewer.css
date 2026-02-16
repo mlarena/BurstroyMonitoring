@@ -1,0 +1,272 @@
+/* ============================================
+   СТИЛИ ДЛЯ СТРАНИЦ ПРОСМОТРА И ЭКСПОРТА ДАННЫХ (DataViewer)
+   ============================================ */
+
+/* Стили для сворачиваемого блока фильтров */
+.filter-header {
+    padding: 12px 16px;
+    background-color: var(--bg-primary);
+    border-radius: var(--radius-medium);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.filter-header:hover {
+    background-color: var(--bg-hover);
+}
+
+.filter-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.filter-toggle-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+    color: var(--primary-color);
+}
+
+.filter-toggle-icon.collapsed {
+    transform: rotate(-90deg);
+}
+
+.filter-content {
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    max-height: 1000px;
+    opacity: 1;
+}
+
+.filter-content.collapsed {
+    max-height: 0;
+    opacity: 0;
+    padding: 0;
+    margin: 0;
+}
+
+.applied-filters-text {
+    font-size: 13px;
+    font-weight: 500;
+    padding: 4px 8px;
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-small);
+    border: 1px solid var(--border-color);
+    max-width: 60%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Стили для Excel иконки */
+.excel-icon svg {
+    width: 16px;
+    height: 16px;
+    fill: #217346; /* Excel зеленый цвет */
+    stroke: #217346;
+    margin-right: 4px;
+}
+
+.button--success:hover .excel-icon svg {
+    fill: #ffffff;
+    stroke: #ffffff;
+}
+
+/* Стили для чекбоксов в 4 колонки */
+.fields-table {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0;
+    width: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-medium);
+    background-color: var(--bg-secondary);
+    overflow: hidden;
+}
+
+.fields-column {
+    flex: 1;
+    min-width: 0;
+    padding: 12px;
+}
+
+/* Вертикальные линии-разделители между колонками */
+.column-with-border {
+    border-right: 1px solid var(--border-color);
+}
+
+/* Первая колонка без левого бордера */
+.fields-column:first-child {
+    border-left: none;
+}
+
+/* Последняя колонка без правого бордера */
+.fields-column:last-child {
+    border-right: none;
+}
+
+.fields-column .checkbox-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 4px;
+    border-bottom: 1px solid var(--bg-primary);
+    width: 100%;
+}
+
+.fields-column .checkbox-item:last-child {
+    border-bottom: none;
+}
+
+.fields-column .checkbox-item input[type="checkbox"] {
+    margin-right: 10px;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.fields-column .checkbox-item label {
+    cursor: pointer;
+    color: var(--text-primary);
+    font-size: 14px;
+    flex: 1;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 2px 0;
+}
+
+.fields-column .checkbox-item:hover {
+    background: var(--bg-hover);
+    border-radius: var(--radius-small);
+    padding-left: 8px;
+    padding-right: 8px;
+    margin-left: -4px;
+    margin-right: -4px;
+}
+
+/* Стили для чекбокса "Выбрать все" */
+.checkbox-group-header {
+    padding: 8px;
+    background-color: var(--bg-primary);
+    border-radius: var(--radius-small);
+    margin-bottom: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.checkbox-group-header .checkbox-item {
+    display: flex;
+    align-items: center;
+    padding: 4px;
+    border-bottom: none;
+}
+
+.checkbox-group-header .checkbox-item:hover {
+    background: transparent;
+    padding-left: 4px;
+    padding-right: 4px;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.checkbox-group-header .checkbox-label {
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: 14px;
+}
+
+/* Стили для фильтров в одной строке */
+.filter-form .form-row .field-group label {
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.filter-form .form-row .field-group .input {
+    height: 32px;
+    font-size: 13px;
+    padding: 4px 8px;
+}
+
+.filter-form .form-row .field-group .select {
+    background-position: right 8px center;
+    background-size: 12px;
+    padding-right: 28px;
+}
+
+/* Стили для таблицы с данными в DataViewer */
+.table.table-bordered {
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--border-color);
+}
+
+.table.table-bordered th,
+.table.table-bordered td {
+    border-top: 1px solid var(--border-color);
+    border-left: 1px solid var(--border-color);
+    padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.table.table-bordered thead th {
+    border-top: none;
+    position: sticky;
+    top: 0;
+    background-color: var(--bg-primary);
+    z-index: 10;
+}
+
+.table.table-bordered th:first-child,
+.table.table-bordered td:first-child {
+    border-left: none;
+}
+
+/* Вертикальные линии-разделители между ячейками таблицы */
+.table.table-bordered th.cell-with-border,
+.table.table-bordered td.cell-with-border {
+    border-right: 1px solid var(--border-color);
+}
+
+/* Убираем правую границу у последней ячейки */
+.table.table-bordered th:last-child,
+.table.table-bordered td:last-child {
+    border-right: none;
+}
+
+/* Эффект при наведении на строку */
+.table.table-bordered tbody tr:hover {
+    background-color: var(--bg-hover);
+}
+
+/* Зебра-эффект для строк */
+.table.table-bordered tbody tr:nth-child(even) {
+    background-color: var(--bg-primary);
+}
+
+.table.table-bordered tbody tr:nth-child(even):hover {
+    background-color: var(--bg-hover);
+}
+
+/* Стили для таблицы результатов */
+.table-responsive {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-medium);
+    overflow: hidden;
+    background-color: var(--bg-secondary);
+}
+
+#tableHeaderScroll {
+    border-bottom: 2px solid var(--border-color);
+}
+
+#tableBodyScroll {
+    border-top: none;
+}
