@@ -13,7 +13,7 @@
 
         <div class="details-table">
             <!-- Дата получения -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Дата получения</div>
                 <div class="details-value">
                     @if (Model.ReceivedAt.HasValue)
@@ -28,7 +28,7 @@
             </div>
 
             <!-- Серийный номер -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Серийный номер</div>
                 <div class="details-value">
                     @if (!string.IsNullOrEmpty(Model.SerialNumber))
@@ -43,7 +43,7 @@
             </div>
 
             <!-- Конечная точка -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Конечная точка</div>
                 <div class="details-value">
                     @if (!string.IsNullOrEmpty(Model.EndpointName))
@@ -58,7 +58,7 @@
             </div>
 
             <!-- Текущие значения PM -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Текущие значения PM (мкг/м³)</div>
                 <div class="details-value">
                     @if (Model.PM10Act.HasValue || Model.PM25Act.HasValue || Model.PM1Act.HasValue)
@@ -77,7 +77,7 @@
             </div>
 
             <!-- Средние значения PM -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Средние значения PM (мкг/м³)</div>
                 <div class="details-value">
                     @if (Model.PM10AWG.HasValue || Model.PM25AWG.HasValue || Model.PM1AWG.HasValue)
@@ -96,7 +96,7 @@
             </div>
 
             <!-- Температура датчика -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Температура датчика</div>
                 <div class="details-value">
                     @if (Model.TemperatureProbe.HasValue)
@@ -111,7 +111,7 @@
             </div>
 
             <!-- Влажность датчика -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Влажность датчика</div>
                 <div class="details-value">
                     @if (Model.HumidityProbe.HasValue)
@@ -126,7 +126,7 @@
             </div>
 
             <!-- Расход пробы -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Расход пробы</div>
                 <div class="details-value">
                     @if (Model.FlowProbe.HasValue)
@@ -141,7 +141,7 @@
             </div>
 
             <!-- Статус лазера -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Статус лазера</div>
                 <div class="details-value">
                     @if (Model.LaserStatus.HasValue)
@@ -163,7 +163,7 @@
             </div>
 
             <!-- Напряжение питания -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Напряжение питания</div>
                 <div class="details-value">
                     @if (Model.SupplyVoltage.HasValue)
@@ -178,7 +178,7 @@
             </div>
 
             <!-- URL датчика -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">URL датчика</div>
                 <div class="details-value">
                     @if (!string.IsNullOrEmpty(Model.SensorUrl))
@@ -195,7 +195,7 @@
             </div>
 
             <!-- Тип датчика -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Тип датчика</div>
                 <div class="details-value">
                     @if (!string.IsNullOrEmpty(Model.SensorTypeName))
@@ -210,7 +210,7 @@
             </div>
 
             <!-- Пост мониторинга -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Пост мониторинга</div>
                 <div class="details-value">
                     @if (!string.IsNullOrEmpty(Model.PostName))

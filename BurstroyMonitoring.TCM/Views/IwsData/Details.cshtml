@@ -21,7 +21,7 @@
             -->
 
             <!-- Дата получения -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Дата получения</div>
                 <div class="details-value">
                     @if (Model.ReceivedAt.HasValue)
@@ -36,7 +36,7 @@
             </div>
 
             <!-- Серийный номер -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Серийный номер</div>
                 <div class="details-value">
                     @if (!string.IsNullOrEmpty(Model.SerialNumber))
@@ -51,7 +51,7 @@
             </div>
 
             <!-- Конечная точка -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Конечная точка</div>
                 <div class="details-value">
                     @if (!string.IsNullOrEmpty(Model.EndpointName))
@@ -66,7 +66,7 @@
             </div>
 
             <!-- Температура окружающей среды -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Температура окружающей среды</div>
                 <div class="details-value">
                     @if (Model.EnvironmentTemperature.HasValue)
@@ -81,7 +81,7 @@
             </div>
 
             <!-- Влажность -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Влажность</div>
                 <div class="details-value">
                     @if (Model.HumidityPercentage.HasValue)
@@ -96,7 +96,7 @@
             </div>
 
             <!-- Точка росы -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Точка росы</div>
                 <div class="details-value">
                     @if (Model.DewPoint.HasValue)
@@ -111,7 +111,7 @@
             </div>
 
             <!-- Давление (гПа) -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Давление (гПа)</div>
                 <div class="details-value">
                     @if (Model.PressureHpa.HasValue)
@@ -126,7 +126,7 @@
             </div>
 
             <!-- Давление QNH (гПа) -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Давление QNH (гПа)</div>
                 <div class="details-value">
                     @if (Model.PressureQnhHpa.HasValue)
@@ -141,7 +141,7 @@
             </div>
 
             <!-- Давление (мм рт.ст.) -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Давление (мм рт.ст.)</div>
                 <div class="details-value">
                     @if (Model.PressureMmhg.HasValue)
@@ -156,7 +156,7 @@
             </div>
 
             <!-- Скорость ветра -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Скорость ветра</div>
                 <div class="details-value">
                     @if (Model.WindSpeed.HasValue)
@@ -171,7 +171,7 @@
             </div>
 
             <!-- Направление ветра -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Направление ветра</div>
                 <div class="details-value">
                     @if (Model.WindDirection.HasValue)
@@ -186,7 +186,7 @@
             </div>
 
             <!-- Скорость ветра относительно звука -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Скорость ветра относительно звука</div>
                 <div class="details-value">
                     @if (Model.WindVsSound.HasValue)
@@ -201,7 +201,7 @@
             </div>
 
             <!-- Тип осадков -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Тип осадков</div>
                 <div class="details-value">
                     @if (Model.PrecipitationType.HasValue)
@@ -225,7 +225,7 @@
             </div>
 
             <!-- Интенсивность осадков -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Интенсивность осадков</div>
                 <div class="details-value">
                     @if (Model.PrecipitationIntensity.HasValue)
@@ -240,7 +240,7 @@
             </div>
 
             <!-- Количество осадков -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Количество осадков</div>
                 <div class="details-value">
                     @if (Model.PrecipitationQuantity.HasValue)
@@ -255,7 +255,7 @@
             </div>
 
             <!-- Продолжительность осадков -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Продолжительность осадков</div>
                 <div class="details-value">
                     @if (Model.PrecipitationElapsed.HasValue)
@@ -270,7 +270,7 @@
             </div>
 
             <!-- Период осадков -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Период осадков</div>
                 <div class="details-value">
                     @if (Model.PrecipitationPeriod.HasValue)
@@ -285,7 +285,7 @@
             </div>
 
             <!-- Напряжение питания -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Напряжение питания</div>
                 <div class="details-value">
                     @if (Model.SupplyVoltage.HasValue)
@@ -300,7 +300,7 @@
             </div>
 
             <!-- Координаты IWS -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Координаты IWS</div>
                 <div class="details-value">
                     @if (Model.IwsLongitude.HasValue && Model.IwsLatitude.HasValue)
@@ -317,7 +317,7 @@
             </div>
 
             <!-- Высота над уровнем моря -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Высота над уровнем моря</div>
                 <div class="details-value">
                     @if (Model.Altitude.HasValue)
@@ -332,7 +332,7 @@
             </div>
 
             <!-- Значение KSP -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Значение KSP</div>
                 <div class="details-value">
                     @if (Model.KspValue.HasValue)
@@ -347,7 +347,7 @@
             </div>
 
             <!-- Скорость GPS -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Скорость GPS</div>
                 <div class="details-value">
                     @if (Model.GpsSpeed.HasValue)
@@ -362,7 +362,7 @@
             </div>
 
             <!-- Стандартное отклонение ускорения -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Стандартное отклонение ускорения</div>
                 <div class="details-value">
                     @if (Model.AccelerationStdDev.HasValue)
@@ -377,7 +377,7 @@
             </div>
 
             <!-- Угол крена -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Угол крена</div>
                 <div class="details-value">
                     @if (Model.RollAngle.HasValue)
@@ -392,7 +392,7 @@
             </div>
 
             <!-- Угол тангажа -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Угол тангажа</div>
                 <div class="details-value">
                     @if (Model.PitchAngle.HasValue)
@@ -407,7 +407,7 @@
             </div>
 
             <!-- Статус OK -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Статус OK</div>
                 <div class="details-value">
                     @if (Model.StatusOk.HasValue)
@@ -429,7 +429,7 @@
             </div>
 
             <!-- URL датчика -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">URL датчика</div>
                 <div class="details-value">
                     @if (!string.IsNullOrEmpty(Model.SensorUrl))
@@ -446,7 +446,7 @@
             </div>
 
             <!-- Тип датчика -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Тип датчика</div>
                 <div class="details-value">
                     @if (!string.IsNullOrEmpty(Model.SensorTypeName))
@@ -461,7 +461,7 @@
             </div>
 
             <!-- Пост мониторинга -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Пост мониторинга</div>
                 <div class="details-value">
                     @if (!string.IsNullOrEmpty(Model.PostName))

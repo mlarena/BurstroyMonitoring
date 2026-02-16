@@ -274,7 +274,7 @@ SELECT
 
 CREATE OR REPLACE VIEW public.vw_dust_data_full
 AS 
-SELECT dd."Id" AS dov_data_id,
+SELECT dd."Id" AS dust_data_id,
     dd."ReceivedAt" AS received_at,
     dd."DataTimestamp" AS data_timestamp,    
     dd."PM10Act" AS PM10Act,

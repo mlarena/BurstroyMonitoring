@@ -19,7 +19,7 @@
             </div>
 
             <!-- Дата получения -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Дата получения</div>
                 <div class="details-value">
                     @if (Model.ReceivedAt.HasValue)
@@ -34,7 +34,7 @@
             </div>
 
             <!-- Серийный номер -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Серийный номер</div>
                 <div class="details-value">
                     @if (!string.IsNullOrEmpty(Model.SerialNumber))
@@ -49,7 +49,7 @@
             </div>
 
             <!-- Конечная точка -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Конечная точка</div>
                 <div class="details-value">
                     @if (!string.IsNullOrEmpty(Model.EndpointName))
@@ -64,7 +64,7 @@
             </div>
 
             <!-- Коэффициент сцепления -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Коэффициент сцепления</div>
                 <div class="details-value">
                     @if (Model.GripCoefficient.HasValue)
@@ -79,7 +79,7 @@
             </div>
 
             <!-- Уровень вибрации -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Уровень вибрации</div>
                 <div class="details-value">
                     @if (Model.ShakeLevel.HasValue)
@@ -94,7 +94,7 @@
             </div>
 
             <!-- Температура дороги -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Температура дороги</div>
                 <div class="details-value">
                     @if (Model.RoadTemperature.HasValue)
@@ -109,7 +109,7 @@
             </div>
 
             <!-- Температура корпуса -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Температура корпуса</div>
                 <div class="details-value">
                     @if (Model.CaseTemperature.HasValue)
@@ -124,7 +124,7 @@
             </div>
 
             <!-- Высота воды/льда/снега -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Высота воды/льда/снега</div>
                 <div class="details-value">
                     @if (Model.WaterHeight.HasValue || Model.IceHeight.HasValue || Model.SnowHeight.HasValue)
@@ -143,7 +143,7 @@
             </div>
 
             <!-- Процент льда/PGM -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Процент льда/PGM</div>
                 <div class="details-value">
                     @if (Model.IcePercentage.HasValue || Model.PgmPercentage.HasValue)
@@ -161,7 +161,7 @@
             </div>
 
             <!-- Статус дороги -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Статус дороги</div>
                 <div class="details-value">
                     @if (Model.RoadStatusCode.HasValue)
@@ -176,7 +176,7 @@
             </div>
 
             <!-- Напряжение питания -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Напряжение питания</div>
                 <div class="details-value">
                     @if (Model.VoltagePower.HasValue)
@@ -191,7 +191,7 @@
             </div>
 
             <!-- Угол дороги -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Угол дороги</div>
                 <div class="details-value">
                     @if (Model.RoadAngle.HasValue)
@@ -206,7 +206,7 @@
             </div>
 
             <!-- Температура замерзания -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Температура замерзания</div>
                 <div class="details-value">
                     @if (Model.FreezeTemperature.HasValue)
@@ -221,7 +221,7 @@
             </div>
 
             <!-- Требуется калибровка -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Требуется калибровка</div>
                 <div class="details-value">
                     @if (Model.CalibrationNeeded.HasValue)
@@ -243,7 +243,7 @@
             </div>
 
             <!-- GPS статус -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">GPS статус</div>
                 <div class="details-value">
                     @if (Model.GpsValid.HasValue)
@@ -265,7 +265,7 @@
             </div>
 
             <!-- Координаты GPS -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Координаты GPS</div>
                 <div class="details-value">
                     @if (Model.GpsLatitude.HasValue && Model.GpsLongitude.HasValue)
@@ -280,7 +280,7 @@
             </div>
 
             <!-- Расстояние до поверхности -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Расстояние до поверхности</div>
                 <div class="details-value">
                     @if (Model.DistanceToSurface.HasValue)
@@ -295,7 +295,7 @@
             </div>
 
             <!-- URL датчика -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">URL датчика</div>
                 <div class="details-value">
                     @if (!string.IsNullOrEmpty(Model.SensorUrl))
@@ -312,7 +312,7 @@
             </div>
 
             <!-- Тип датчика -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Тип датчика</div>
                 <div class="details-value">
                     @if (!string.IsNullOrEmpty(Model.SensorTypeName))
@@ -327,7 +327,7 @@
             </div>
 
             <!-- Пост мониторинга -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Пост мониторинга</div>
                 <div class="details-value">
                     @if (!string.IsNullOrEmpty(Model.PostName))

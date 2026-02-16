@@ -43,20 +43,32 @@
     --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.4);
     --shadow-large: 0 8px 16px rgba(0, 0, 0, 0.5);
     
-    /* Таблицы */
+    /* Размеры остаются теми же */
+    --radius-small: 3px;
+    --radius-medium: 4px;
+    --radius-large: 6px;
+    --radius-xlarge: 8px;
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 12px;
+    --spacing-lg: 16px;
+    --spacing-xl: 20px;
+    --spacing-xxl: 24px;
+    --height-sm: 32px;
+    --height-md: 40px;
+    --height-lg: 48px;
+    
     --table-header-bg: #363636;
     --table-header-text: #ffffff;
     --table-row-hover: rgba(74, 158, 255, 0.15);
     --table-row-inactive-bg: #2d2d2d;
     --table-row-inactive-text: #888888;
     
-    /* JSON подсветка */
     --json-key: #7cb9ff;
     --json-string: #8bc34a;
     --json-number: #ff8a80;
     --json-null: #888888;
     
-    /* Кнопки */
     --button-primary-bg: #4a9eff;
     --button-primary-text: #ffffff;
     --button-secondary-bg: transparent;
@@ -64,31 +76,42 @@
     --button-danger-bg: transparent;
     --button-danger-text: #ff6b6b;
     
-    /* Модальные окна */
     --modal-overlay: rgba(0, 0, 0, 0.7);
     --modal-bg: #2d2d2d;
     --modal-header-bg: #363636;
     
-    /* Навигация */
     --nav-bg: #2d2d2d;
     --nav-text: #ffffff;
     --nav-hover: rgba(255, 255, 255, 0.15);
     --nav-active: rgba(255, 255, 255, 0.25);
     
-    /* Блоки ошибок */
     --error-bg: #3d2626;
     --error-border: #ff6b6b;
     --error-text: #ff6b6b;
     
-    /* Специфичные стили для датчиков */
     --sensor-active-domain: #2ca58d;
     --sensor-inactive-domain: #888888;
     --sensor-inactive-row: #2d2d2d;
     --sensor-inactive-text: #888888;
     
-    /* Фильтры */
     --filter-active-bg: #1e3a5e;
     --filter-active-border: #4a9eff;
     --filter-badge-bg: #ff6b6b;
     --filter-badge-text: #ffffff;
+}
+
+/* ДОБАВЛЕНО: Специфичные стили для страницы Details в темной теме */
+.theme-dark .details-label {
+    background-color: #3a3a3a; /* Более светлый фон для меток */
+    color: var(--text-primary);
+}
+
+.theme-dark .details-row--primary .details-label {
+    background-color: #2a3a4a; /* Темно-синий фон для выделенных строк */
+    color: var(--primary-color);
+}
+
+.theme-dark .details-row--header {
+    background-color: #2a3a4a;
+    color: var(--primary-color);
 }

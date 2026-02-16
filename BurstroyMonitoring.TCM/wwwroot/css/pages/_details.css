@@ -38,8 +38,7 @@
 .details-label {
     width: 240px; /* фиксированная ширина левой колонки */
     font-weight: 600;
-    color: var(--text-secondary);
-    background-color: #f0f4f8;
+    color: var(--text-primary); /* ИЗМЕНЕНО: было var(--text-secondary) */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

@@ -21,7 +21,7 @@
             -->
 
             <!-- Дата получения -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Дата получения</div>
                 <div class="details-value">
                     @if (Model.ReceivedAt.HasValue)
@@ -36,7 +36,7 @@
             </div>
 
             <!-- Серийный номер -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Серийный номер</div>
                 <div class="details-value">
                     @if (!string.IsNullOrEmpty(Model.SerialNumber))
@@ -51,7 +51,7 @@
             </div>
 
             <!-- Конечная точка -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Конечная точка</div>
                 <div class="details-value">
                     @if (!string.IsNullOrEmpty(Model.EndpointName))
@@ -66,7 +66,7 @@
             </div>
 
             <!-- Видимость -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Видимость</div>
                 <div class="details-value">
                     @if (Model.VisibleRange.HasValue)
@@ -81,7 +81,7 @@
             </div>
 
             <!-- Флаг яркости -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Флаг яркости</div>
                 <div class="details-value">
                     @if (Model.BrightFlag.HasValue)
@@ -103,7 +103,7 @@
             </div>
 
             <!-- URL датчика -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">URL датчика</div>
                 <div class="details-value">
                     @if (!string.IsNullOrEmpty(Model.SensorUrl))
@@ -120,7 +120,7 @@
             </div>
 
             <!-- Тип датчика -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Тип датчика</div>
                 <div class="details-value">
                     @if (!string.IsNullOrEmpty(Model.SensorTypeName))
@@ -135,7 +135,7 @@
             </div>
 
             <!-- Пост мониторинга -->
-            <div class="details-row details-row--primary">
+            <div class="details-row">
                 <div class="details-label">Пост мониторинга</div>
                 <div class="details-value">
                     @if (!string.IsNullOrEmpty(Model.PostName))
