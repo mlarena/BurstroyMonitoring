@@ -1,7 +1,13 @@
 /* ============================================
-   CSS ПЕРЕМЕННЫЕ ДЛЯ ЦВЕТОВ И РАЗМЕРОВ
-   ============================================ */
+    БАЗОВЫЕ CSS ПЕРЕМЕННЫЕ (значения по умолчанию)
+    ============================================ */
 
+:root {
+    /* Эти переменные будут переопределены классами тем */
+}
+
+/* Светлая тема (по умолчанию) */
+.theme-light,
 :root {
     /* Цветовая палитра */
     --primary-color: #0052cc;
@@ -24,12 +30,15 @@
     --bg-secondary: #ffffff;
     --bg-hover: #ebecf0;
     --bg-active: #dfe1e6;
+    --bg-overlay: rgba(9, 30, 66, 0.5);
     
     /* Текст */
     --text-primary: #172b4d;
     --text-secondary: #5e6c84;
     --text-muted: #999999;
     --text-light: #ffffff;
+    --text-link: #0052cc;
+    --text-link-hover: #0065ff;
     
     /* Границы */
     --border-color: #dfe1e6;
@@ -58,4 +67,147 @@
     --height-sm: 32px;
     --height-md: 40px;
     --height-lg: 48px;
+    
+    /* Таблицы */
+    --table-header-bg: #f0f4f8;
+    --table-header-text: #172b4d;
+    --table-row-hover: rgba(0, 82, 204, 0.05);
+    --table-row-inactive-bg: #fff5f5;
+    --table-row-inactive-text: #5e6c84;
+    
+    /* JSON подсветка */
+    --json-key: #0052cc;
+    --json-string: #008000;
+    --json-number: #d73a49;
+    --json-null: #999999;
+    
+    /* Кнопки */
+    --button-primary-bg: #0052cc;
+    --button-primary-text: #ffffff;
+    --button-secondary-bg: transparent;
+    --button-secondary-text: #172b4d;
+    --button-danger-bg: transparent;
+    --button-danger-text: #de350b;
+    
+    /* Модальные окна */
+    --modal-overlay: rgba(9, 30, 66, 0.5);
+    --modal-bg: #ffffff;
+    --modal-header-bg: #f4f5f7;
+    
+    /* Навигация */
+    --nav-bg: #0052cc;
+    --nav-text: #ffffff;
+    --nav-hover: rgba(255, 255, 255, 0.15);
+    --nav-active: rgba(255, 255, 255, 0.25);
+    
+    /* Блоки ошибок */
+    --error-bg: #fff5f5;
+    --error-border: #de350b;
+    --error-text: #de350b;
+    
+    /* Специфичные стили для датчиков */
+    --sensor-active-domain: #00875a;
+    --sensor-inactive-domain: #999999;
+    --sensor-inactive-row: #fff5f5;
+    --sensor-inactive-text: #5e6c84;
+    
+    /* Фильтры */
+    --filter-active-bg: #e6f4ff;
+    --filter-active-border: #0052cc;
+    --filter-badge-bg: #de350b;
+    --filter-badge-text: #ffffff;
+}
+
+/* Темная тема */
+.theme-dark {
+    --primary-color: #4a9eff;
+    --primary-hover: #6baeff;
+    --primary-active: #2b8aff;
+    
+    --success-color: #2ca58d;
+    --success-bg: #1e3a2e;
+    --success-border: #2ca58d;
+    
+    --danger-color: #ff6b6b;
+    --danger-bg: #3d2626;
+    --danger-border: #ff6b6b;
+    
+    --warning-color: #ffa726;
+    --warning-bg: #3d3220;
+    
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-hover: #3d3d3d;
+    --bg-active: #4d4d4d;
+    --bg-overlay: rgba(0, 0, 0, 0.7);
+    
+    --text-primary: #ffffff;
+    --text-secondary: #cccccc;
+    --text-muted: #888888;
+    --text-light: #ffffff;
+    --text-link: #4a9eff;
+    --text-link-hover: #6baeff;
+    
+    --border-color: #444444;
+    --border-hover: #666666;
+    
+    --shadow-small: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --shadow-large: 0 8px 16px rgba(0, 0, 0, 0.5);
+    
+    /* Размеры остаются теми же */
+    --radius-small: 3px;
+    --radius-medium: 4px;
+    --radius-large: 6px;
+    --radius-xlarge: 8px;
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 12px;
+    --spacing-lg: 16px;
+    --spacing-xl: 20px;
+    --spacing-xxl: 24px;
+    --height-sm: 32px;
+    --height-md: 40px;
+    --height-lg: 48px;
+    
+    --table-header-bg: #363636;
+    --table-header-text: #ffffff;
+    --table-row-hover: rgba(74, 158, 255, 0.15);
+    --table-row-inactive-bg: #2d2d2d;
+    --table-row-inactive-text: #888888;
+    
+    --json-key: #7cb9ff;
+    --json-string: #8bc34a;
+    --json-number: #ff8a80;
+    --json-null: #888888;
+    
+    --button-primary-bg: #4a9eff;
+    --button-primary-text: #ffffff;
+    --button-secondary-bg: transparent;
+    --button-secondary-text: #ffffff;
+    --button-danger-bg: transparent;
+    --button-danger-text: #ff6b6b;
+    
+    --modal-overlay: rgba(0, 0, 0, 0.7);
+    --modal-bg: #2d2d2d;
+    --modal-header-bg: #363636;
+    
+    --nav-bg: #2d2d2d;
+    --nav-text: #ffffff;
+    --nav-hover: rgba(255, 255, 255, 0.15);
+    --nav-active: rgba(255, 255, 255, 0.25);
+    
+    --error-bg: #3d2626;
+    --error-border: #ff6b6b;
+    --error-text: #ff6b6b;
+    
+    --sensor-active-domain: #2ca58d;
+    --sensor-inactive-domain: #888888;
+    --sensor-inactive-row: #2d2d2d;
+    --sensor-inactive-text: #888888;
+    
+    --filter-active-bg: #1e3a5e;
+    --filter-active-border: #4a9eff;
+    --filter-badge-bg: #ff6b6b;
+    --filter-badge-text: #ffffff;
 }

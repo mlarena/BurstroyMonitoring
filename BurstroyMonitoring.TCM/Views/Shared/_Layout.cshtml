@@ -9,13 +9,20 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
     <title>@ViewData["Title"] - Мониторинг датчиков</title>
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
 <body>
     <!-- Шапка сайта -->
-    <header>
-        <h1>Типовой Центр Мониторинга</h1>
+    <header class="site-header">
+        <div class="header-container">
+            <div class="header-left"></div> <!-- Пустой div для баланса -->
+            <h1>Типовой Центр Мониторинга</h1>
+            <button id="theme-toggle" class="bsp-theme-toggle" title="Правый клик для сброса к системной теме">
+                Загрузка...
+            </button>
+        </div>
     </header>
 
     <!-- Основная навигация -->

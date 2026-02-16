@@ -10,6 +10,7 @@
     font-size: 14px;
     box-shadow: var(--shadow-small);
     table-layout: auto;
+    color: var(--text-primary); /* Добавляем цвет текста */
 }
 
 .table th,
@@ -23,6 +24,7 @@
     text-overflow: ellipsis;
     max-width: 300px;
     cursor: pointer; /* Курсор при наведении на ячейку */
+    color: var(--text-primary); /* Цвет текста из темы */
 }
 
 .table th {
@@ -119,7 +121,7 @@
 /* Стили для длинного текста с подсказкой */
 .long-text-cell {
     position: relative;
-    cursor: help;
+    cursor: pointer;
 }
 
 .long-text-cell:hover::after {

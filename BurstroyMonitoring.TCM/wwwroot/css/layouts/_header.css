@@ -1,19 +1,145 @@
 /* ============================================
-   ШАПКА САЙТА И ЗАГОЛОВОЧНАЯ ОБЛАСТЬ
-   ============================================ */
+    ШАПКА САЙТА И ЗАГОЛОВОЧНАЯ ОБЛАСТЬ
+    ============================================ */
 
 /* Основная шапка */
-header {
-    background: var(--primary-color) !important;
-    padding: var(--spacing-lg) 0 !important;
+.site-header {
+    background: var(--nav-bg) !important;
+    padding: 0 !important;
     margin: 0 !important;
     box-shadow: var(--shadow-small);
+    height: 60px; /* Фиксированная высота */
+    display: flex;
+    align-items: center;
 }
 
-header h1 {
+.header-container {
+    max-width: 1700px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 var(--spacing-xl);
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Распределяет пространство между элементами */
+    gap: var(--spacing-lg);
+}
+
+.header-left {
+    width: 140px; /* Такая же ширина, как у кнопки справа, для баланса */
+    flex-shrink: 0;
+}
+
+.site-header h1 {
     color: var(--text-light);
     margin: 0;
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 600;
+    line-height: 1.2;
     text-align: center;
+    flex: 0 1 auto; /* Не растягивается, но может сжиматься */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 600px; /* Ограничиваем максимальную ширину */
+}
+
+/* Кнопка переключения темы */
+.bsp-theme-toggle {
+    padding: 6px 16px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    color: var(--text-light);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 140px;
+    flex-shrink: 0; /* Запрещаем сжиматься */
+}
+
+.bsp-theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.bsp-theme-toggle:active {
+    transform: translateY(1px);
+}
+
+/* Стили для темной темы */
+.theme-dark .bsp-theme-toggle {
+    background: rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.theme-dark .bsp-theme-toggle:hover {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 1024px) {
+    .site-header h1 {
+        max-width: 400px;
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 768px) {
+    .site-header {
+        height: auto;
+        min-height: 60px;
+        padding: var(--spacing-sm) 0;
+    }
+    
+    .header-container {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: var(--spacing-sm);
+        padding: 0 var(--spacing-md);
+    }
+    
+    .header-left {
+        display: none; /* Скрываем пустой div на мобильных */
+    }
+    
+    .site-header h1 {
+        order: 1; /* Заголовок первый */
+        width: 100%;
+        max-width: 100%;
+        text-align: center;
+        white-space: normal;
+        font-size: 18px;
+        margin-bottom: 4px;
+    }
+    
+    .bsp-theme-toggle {
+        order: 2; /* Кнопка вторая */
+        margin: 0 auto; /* Центрируем кнопку */
+        min-width: 120px;
+        font-size: 13px;
+        padding: 4px 12px;
+        height: 32px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-container {
+        padding: 0 var(--spacing-sm);
+    }
+    
+    .site-header h1 {
+        font-size: 16px;
+    }
+    
+    .bsp-theme-toggle {
+        min-width: 100px;
+        font-size: 12px;
+        padding: 4px 8px;
+    }
 }

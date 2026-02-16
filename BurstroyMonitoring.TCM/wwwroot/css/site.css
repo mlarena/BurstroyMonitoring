@@ -2,9 +2,11 @@
     БАЗОВЫЕ СТИЛИ И ПЕРЕМЕННЫЕ
     ============================================ */
     
+/* Импортируем переменные (включают светлую тему по умолчанию) */
+@import 'base/_variables.css';
+
 /* Импортируем все CSS модули */
 @import 'base/_reset.css';
-@import 'base/_variables.css';
 @import 'base/_utilities.css';
 
 /* КОМПОНЕНТЫ */
@@ -35,12 +37,29 @@
     ДОПОЛНИТЕЛЬНЫЕ СТИЛИ
     ============================================ */
 
-/* JSON подсветка (используется в детальных представлениях) */
-.json-key { color: var(--primary-color); font-weight: 600; }
-.json-string { color: #008000; }
-.json-number { color: #d73a49; }
-.json-boolean { color: #d73a49; font-weight: bold; }
-.json-null { color: var(--text-muted); font-style: italic; }
+/* JSON подсветка */
+.json-key { 
+    color: var(--json-key); 
+    font-weight: 600; 
+}
+
+.json-string { 
+    color: var(--json-string); 
+}
+
+.json-number { 
+    color: var(--json-number); 
+}
+
+.json-boolean { 
+    color: var(--json-number); 
+    font-weight: bold; 
+}
+
+.json-null { 
+    color: var(--json-null); 
+    font-style: italic; 
+}
 
 #jsonCode {
     font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
@@ -48,6 +67,8 @@
     line-height: 1.5 !important;
     white-space: pre !important;
     overflow-x: auto;
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
 }
 
 /* Автодополнение для поиска */
@@ -59,59 +80,8 @@
     box-shadow: var(--shadow-medium);
     border-radius: 0 0 6px 6px;
     font-size: 14px;
-}
-
-/* Темная тема */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --bg-primary: #1a1a1a;
-        --bg-secondary: #2d2d2d;
-        --bg-hover: #3d3d3d;
-        --text-primary: #ffffff;
-        --text-secondary: #cccccc;
-        --text-muted: #888888;
-        --border-color: #444444;
-        --primary-color: #4a9eff;
-        --success-color: #2ca58d;
-        --danger-color: #ff6b6b;
-        --warning-color: #ffa726;
-        --shadow-small: 0 2px 4px rgba(0, 0, 0, 0.3);
-        --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.4);
-    }
-    
-    body {
-        background: var(--bg-primary);
-        color: var(--text-primary);
-    }
-    
-    .form-container,
-    .details-container,
-    .view-container {
-        background: var(--bg-secondary);
-        box-shadow: var(--shadow-medium);
-    }
-    
-    .search-container,
-    .filter-container {
-        background: var(--bg-secondary);
-    }
-    
-    table.aui th {
-        background: var(--bg-secondary);
-        color: var(--text-primary);
-    }
-    
-    table.aui tr:hover {
-        background: var(--bg-hover);
-    }
-    
-    .pagination-container {
-        background: var(--bg-secondary);
-    }
-    
-    .text-muted {
-        color: var(--text-muted);
-    }
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
 }
 
 /* Стили для всплывающих подсказок */
@@ -126,8 +96,8 @@
     bottom: 100%;
     left: 50%;
     transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.8);
-    color: rgb(206, 215, 252);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
     padding: 6px 10px;
     border-radius: 4px;
     font-size: 12px;
@@ -136,6 +106,8 @@
     margin-bottom: 5px;
     pointer-events: none;
     animation: fadeIn 0.2s ease;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-medium);
 }
 
 .nav-btn:hover::before {
@@ -145,7 +117,7 @@
     left: 50%;
     transform: translateX(-50%);
     border: 5px solid transparent;
-    border-top-color: rgba(0, 0, 0, 0.8);
+    border-top-color: var(--bg-secondary);
     margin-bottom: -5px;
     z-index: 1000;
     pointer-events: none;
@@ -164,8 +136,8 @@
     bottom: 100%;
     left: 50%;
     transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
     padding: 6px 10px;
     border-radius: 4px;
     font-size: 12px;
@@ -174,6 +146,8 @@
     margin-bottom: 5px;
     pointer-events: none;
     animation: fadeIn 0.2s ease;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-medium);
 }
 
 .dropdown-btn:hover::before {
@@ -183,7 +157,7 @@
     left: 50%;
     transform: translateX(-50%);
     border: 5px solid transparent;
-    border-top-color: rgba(0, 0, 0, 0.8);
+    border-top-color: var(--bg-secondary);
     margin-bottom: -5px;
     z-index: 1000;
     pointer-events: none;
@@ -197,8 +171,8 @@
     left: 100%;
     top: 50%;
     transform: translateY(-50%);
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
     padding: 6px 10px;
     border-radius: 4px;
     font-size: 12px;
@@ -207,6 +181,8 @@
     margin-left: 5px;
     pointer-events: none;
     animation: fadeIn 0.2s ease;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-medium);
 }
 
 /* ============================================
@@ -280,7 +256,7 @@
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--bg-secondary);
     padding: 12px;
     border-radius: var(--radius-medium);
     box-shadow: var(--shadow-small);
@@ -289,6 +265,7 @@
     left: 80px;
     z-index: 3;
     max-width: calc(100% - 40px);
+    border: 1px solid var(--border-color);
 }
 
 .monitoring-search-container {
@@ -379,6 +356,7 @@
     flex-direction: column;
     border-radius: var(--radius-large);
     overflow: hidden;
+    border: 1px solid var(--border-color);
 }
 
 .monitoring-details-section.collapsed {
@@ -686,7 +664,6 @@
     .monitoring-filter-container {
         left: 10px;
         right: 10px;
-        background: rgba(255, 255, 255, 0.95) !important;
         max-width: calc(100% - 20px);
     }
     
@@ -695,34 +672,37 @@
     }
 }
 
-/* Темная тема */
-@media (prefers-color-scheme: dark) {
-    .monitoring-search-input {
-        background: var(--bg-secondary);
-        color: var(--text-primary);
-        border-color: var(--border-color);
-    }
-    
-    .monitoring-autocomplete {
-        background: var(--bg-secondary);
-        border-color: var(--border-color);
-    }
-    
-    .monitoring-autocomplete-item {
-        color: var(--text-primary);
-    }
-    
-    .monitoring-control-button {
-        background: var(--bg-secondary);
-        color: var(--text-primary);
-        border-color: var(--border-color);
-    }
-    
-    .monitoring-control-button:hover {
-        background: var(--bg-hover);
-    }
-    
-    .monitoring-map-card.expanded .monitoring-filter-container {
-        background: rgba(50, 50, 50, 0.95) !important;
-    }
+/* Дополнительные стили для карты в темной теме */
+.theme-dark .monitoring-filter-container {
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+}
+
+.theme-dark .monitoring-search-input {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.theme-dark .monitoring-autocomplete {
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+}
+
+.theme-dark .monitoring-autocomplete-item {
+    color: var(--text-primary);
+}
+
+.theme-dark .monitoring-control-button {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.theme-dark .monitoring-control-button:hover {
+    background: var(--bg-hover);
+}
+
+.theme-dark .monitoring-map-card.expanded .monitoring-filter-container {
+    background: var(--bg-secondary);
 }
