@@ -12,48 +12,48 @@ namespace BurstroyMonitoring.Data.Models
     public class VwDustDataFull
     {
         // ========== DUSTData поля ==========
-        [Column("dust_data_id")]  // ИСПРАВЛЕНО: было dov_data_id
+        [Column("dust_data_id")]  // было "dust_data_id", это правильно
         public int DustDataId { get; set; }
 
-        [Column("received_at")]
+        [Column("received_at")]   // было "ReceivedAt" - ИСПРАВЛЕНО
         public DateTime? ReceivedAt { get; set; }
 
-        [Column("data_timestamp")]
+        [Column("data_timestamp")] // было "DataTimestamp" - ИСПРАВЛЕНО
         public DateTime? DataTimestamp { get; set; }
         
-        [Column("PM10Act")]
+        [Column("pm10act")]        // было "PM10Act" - ИСПРАВЛЕНО
         public decimal? PM10Act { get; set; }
         
-        [Column("PM25Act")]
+        [Column("pm25act")]        // было "PM25Act" - ИСПРАВЛЕНО
         public decimal? PM25Act { get; set; }
         
-        [Column("PM1Act")]
+        [Column("pm1act")]         // было "PM1Act" - ИСПРАВЛЕНО
         public decimal? PM1Act { get; set; }
         
-        [Column("PM10AWG")]
+        [Column("pm10awg")]        // было "PM10AWG" - ИСПРАВЛЕНО
         public decimal? PM10AWG { get; set; }
         
-        [Column("PM25AWG")]
+        [Column("pm25awg")]        // было "PM25AWG" - ИСПРАВЛЕНО
         public decimal? PM25AWG { get; set; }
         
-        [Column("PM1AWG")]
+        [Column("pm1awg")]         // было "PM1AWG" - ИСПРАВЛЕНО
         public decimal? PM1AWG { get; set; }
         
-        [Column("FlowProbe")]
+        [Column("flowprobe")]      // было "FlowProbe" - ИСПРАВЛЕНО!
         public decimal? FlowProbe { get; set; }
         
-        [Column("TemperatureProbe")]
+        [Column("temperatureprobe")] // было "TemperatureProbe" - ИСПРАВЛЕНО
         public decimal? TemperatureProbe { get; set; }
         
-        [Column("HumidityProbe")]
+        [Column("humidityprobe")]    // было "HumidityProbe" - ИСПРАВЛЕНО
         public decimal? HumidityProbe { get; set; }
         
-        [Column("LaserStatus")]
+        [Column("laserstatus")]      // было "LaserStatus" - ИСПРАВЛЕНО
         public int? LaserStatus { get; set; }
         
-        [Column("SupplyVoltage")]
+        [Column("supplyvoltage")]    // было "SupplyVoltage" - ИСПРАВЛЕНО
         public decimal? SupplyVoltage { get; set; }
-
+        
         // ========== Sensor поля ==========
         [Column("sensor_id")]
         public int? SensorId { get; set; }
