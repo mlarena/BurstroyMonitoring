@@ -1,6 +1,6 @@
 /* ============================================
-   СТИЛИ ДЛЯ ТАБЛИЦ И СПИСКОВ ДАННЫХ
-   ============================================ */
+    СТИЛИ ДЛЯ ТАБЛИЦ И СПИСКОВ ДАННЫХ
+    ============================================ */
 
 /* Базовая таблица */
 .table {
@@ -10,7 +10,7 @@
     font-size: 14px;
     box-shadow: var(--shadow-small);
     table-layout: auto;
-    color: var(--text-primary); /* Добавляем цвет текста */
+    color: var(--text-primary);
 }
 
 .table th,
@@ -23,8 +23,8 @@
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 300px;
-    cursor: pointer; /* Курсор при наведении на ячейку */
-    color: var(--text-primary); /* Цвет текста из темы */
+    cursor: pointer;
+    color: var(--text-primary);
 }
 
 .table th {
@@ -35,7 +35,7 @@
     position: sticky;
     top: 0;
     z-index: 10;
-    cursor: default; /* Заголовки не кликабельны */
+    cursor: default;
 }
 
 .table tr:hover {
@@ -74,7 +74,7 @@
 .table td:last-child {
     min-width: 200px;
     white-space: nowrap;
-    cursor: default; /* Кнопки - не кликабельны для ячейки */
+    cursor: default;
 }
 
 /* Кнопки действий в таблице */
@@ -91,7 +91,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer; /* Кнопки кликабельны */
+    cursor: pointer;
 }
 
 /* Состояние "пусто" для таблицы */
@@ -178,6 +178,7 @@ table.aui td {
     overflow: hidden;
     text-overflow: ellipsis;
     cursor: pointer;
+    color: var(--text-primary);
 }
 
 table.aui th {
@@ -190,6 +191,38 @@ table.aui th {
 
 table.aui tr:hover {
     background: var(--bg-hover);
+}
+
+/* Стили для сортировки */
+.table th a {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.table th a:hover {
+    color: var(--primary-color);
+}
+
+.sort-arrow {
+    font-size: 10px;
+    color: var(--primary-color);
+}
+
+/* Подсветка активной колонки сортировки */
+.table th .active-sort {
+    color: var(--primary-color);
+}
+
+.sensor-count {
+    font-weight: 600;
+    color: var(--primary-color);
+    background: var(--bg-primary);
+    padding: 2px 8px;
+    border-radius: 10px;
 }
 
 /* Адаптивность таблиц */
@@ -219,38 +252,18 @@ table.aui tr:hover {
     }
 }
 
-
-
-
-/* В файл wwwroot/css/components/_tables.css добавьте: */
-.table th a {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    color: inherit;
-    text-decoration: none;
-    font-weight: 600;
+/* Стили для темной темы */
+.theme-dark .table th,
+.theme-dark .table td,
+.theme-dark table.aui th,
+.theme-dark table.aui td {
+    color: var(--text-primary);
 }
 
-.table th a:hover {
+.theme-dark .table th a {
+    color: var(--text-primary);
+}
+
+.theme-dark .table th a:hover {
     color: var(--primary-color);
 }
-
-.sort-arrow {
-    font-size: 10px;
-    color: var(--primary-color);
-}
-
-/* Подсветка активной колонки сортировки */
-.table th .active-sort {
-    color: var(--primary-color);
-}
-
- .sensor-count {
-        font-weight: 600;
-        color: var(--primary-color);
-        background: var(--bg-primary);
-        padding: 2px 8px;
-        border-radius: 10px;
-        
-    }

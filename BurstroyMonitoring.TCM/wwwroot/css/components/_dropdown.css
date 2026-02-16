@@ -1,6 +1,6 @@
 /* ============================================
-   ВЫПАДАЮЩИЕ МЕНЮ И СПИСКИ
-   ============================================ */
+    ВЫПАДАЮЩИЕ МЕНЮ И СПИСКИ
+    ============================================ */
 
 /* Контейнер выпадающего меню */
 .dropdown {
@@ -88,8 +88,8 @@
 }
 
 /* ============================================
-   СТИЛИ ДЛЯ ВЫПАДАЮЩИХ ФИЛЬТРОВ В ТАБЛИЦАХ
-   ============================================ */
+    СТИЛИ ДЛЯ ВЫПАДАЮЩИХ ФИЛЬТРОВ В ТАБЛИЦАХ
+    ============================================ */
 
 /* Контейнер фильтров */
 .filter-container {
@@ -242,12 +242,13 @@
 /* Элемент чекбокса (каждый на отдельной строке) */
 .checkbox-item {
     display: flex;
-    align-items: center;
+    align-items: flex-start; /* Изменено с center на flex-start для правильного выравнивания */
     padding: var(--spacing-sm) 0;
     border-bottom: 1px solid var(--bg-primary);
     width: 100%;
     clear: both;
-    flex-direction: row; /* Убеждаемся, что это row, а не column */
+    flex-direction: row;
+    min-height: 32px; /* Минимальная высота для удобства клика */
 }
 
 .checkbox-item:last-child {
@@ -256,10 +257,11 @@
 
 .checkbox-item input[type="checkbox"] {
     margin-right: var(--spacing-sm);
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     cursor: pointer;
-    flex-shrink: 0; /* Запрещаем сжиматься */
+    flex-shrink: 0;
+    margin-top: 2px; /* Небольшой отступ сверху для выравнивания с текстом */
 }
 
 .checkbox-item label {
@@ -268,9 +270,10 @@
     font-size: 14px;
     flex: 1;
     margin: 0;
-    white-space: normal; /* Разрешаем перенос текста */
-    word-break: break-word; /* Разбиваем длинные слова */
-    line-height: 1.4; /* Увеличиваем межстрочный интервал */
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.5; /* Увеличиваем межстрочный интервал для лучшей читаемости */
+    padding: 2px 0; /* Небольшие отступы для удобства */
 }
 
 .checkbox-item:hover {
@@ -307,33 +310,31 @@
 }
 
 /* Темная тема для фильтров */
-@media (prefers-color-scheme: dark) {
-    .active-filters-info {
-        background: #0d2942;
-        border-left-color: var(--primary-color);
-    }
-    
-    .filter-trigger {
-        background: var(--bg-secondary);
-        border-color: var(--border-color);
-    }
-    
-    .filter-trigger:hover {
-        background: var(--bg-hover);
-    }
-    
-    .filter-dropdown {
-        background: var(--bg-secondary);
-        border-color: var(--border-color);
-    }
-    
-    .filter-dropdown-header {
-        background: var(--bg-primary);
-    }
-    
-    .checkbox-item:hover {
-        background: var(--bg-hover);
-    }
+.theme-dark .active-filters-info {
+    background: #0d2942;
+    border-left-color: var(--primary-color);
+}
+
+.theme-dark .filter-trigger {
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+}
+
+.theme-dark .filter-trigger:hover {
+    background: var(--bg-hover);
+}
+
+.theme-dark .filter-dropdown {
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+}
+
+.theme-dark .filter-dropdown-header {
+    background: var(--bg-primary);
+}
+
+.theme-dark .checkbox-item:hover {
+    background: var(--bg-hover);
 }
 
 /* Адаптивность фильтров */
