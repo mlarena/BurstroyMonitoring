@@ -16,13 +16,17 @@ namespace BurstroyMonitoring.TCM.Controllers
             _context = context;
         }
 
-        // GET: Index с пагинацией и фильтрацией
+        // GET: Index с пагинацией, поиском и фильтрацией
         public virtual async Task<IActionResult> Index(
             int page = 1,
             int pageSize = 10,
             string search = "",
             string sortBy = "",
-            bool sortDesc = false)
+            bool sortDesc = false,
+            List<int> selectedSensorTypes = null,
+            List<int> selectedMonitoringPosts = null,
+            int? sensorTypeId = null,
+            int? monitoringPostId = null)
         {
             var query = DbSet.AsQueryable();
 
@@ -30,6 +34,26 @@ namespace BurstroyMonitoring.TCM.Controllers
             if (!string.IsNullOrEmpty(search))
             {
                 query = ApplySearch(query, search);
+            }
+
+            // Применяем фильтрацию по типу датчика
+            if (selectedSensorTypes != null && selectedSensorTypes.Any())
+            {
+                query = ApplySensorTypeFilter(query, selectedSensorTypes);
+            }
+            else if (sensorTypeId.HasValue)
+            {
+                query = ApplySensorTypeFilter(query, new List<int> { sensorTypeId.Value });
+            }
+
+            // Применяем фильтрацию по посту мониторинга
+            if (selectedMonitoringPosts != null && selectedMonitoringPosts.Any())
+            {
+                query = ApplyMonitoringPostFilter(query, selectedMonitoringPosts);
+            }
+            else if (monitoringPostId.HasValue)
+            {
+                query = ApplyMonitoringPostFilter(query, new List<int> { monitoringPostId.Value });
             }
 
             // Применяем сортировку
@@ -53,6 +77,9 @@ namespace BurstroyMonitoring.TCM.Controllers
                 .Take(pageSize)
                 .ToListAsync();
 
+            // Получаем данные для фильтров
+            var filterData = await GetFilterData();
+
             // Передаем данные в View
             ViewBag.Page = page;
             ViewBag.PageSize = pageSize;
@@ -61,8 +88,62 @@ namespace BurstroyMonitoring.TCM.Controllers
             ViewBag.SortBy = sortBy;
             ViewBag.SortDesc = sortDesc;
             ViewBag.TotalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+            
+            // Данные для фильтров
+            ViewBag.SensorTypes = filterData.SensorTypes;
+            ViewBag.MonitoringPosts = filterData.MonitoringPosts;
+            
+            // Выбранные фильтры
+            ViewBag.SelectedSensorTypeIds = selectedSensorTypes ?? new List<int>();
+            ViewBag.SelectedMonitoringPostIds = selectedMonitoringPosts ?? new List<int>();
+            ViewBag.SelectedSensorTypeId = sensorTypeId;
+            ViewBag.SelectedMonitoringPostId = monitoringPostId;
 
             return View(items);
+        }
+
+        // Метод для получения данных фильтров
+        protected virtual async Task<(List<dynamic> SensorTypes, List<dynamic> MonitoringPosts)> GetFilterData()
+        {
+            // Получаем уникальные типы датчиков из данных
+            var sensorTypes = await DbSet
+                .AsQueryable()
+                .Select(e => new { 
+                    SensorTypeId = EF.Property<int?>(e, "SensorTypeId"),
+                    SensorTypeName = EF.Property<string>(e, "SensorTypeName")
+                })
+                .Where(x => x.SensorTypeId.HasValue && x.SensorTypeName != null)
+                .Distinct()
+                .OrderBy(x => x.SensorTypeName)
+                .Select(x => new { x.SensorTypeId, x.SensorTypeName })
+                .ToListAsync();
+
+            // Получаем уникальные посты мониторинга из данных
+            var monitoringPosts = await DbSet
+                .AsQueryable()
+                .Select(e => new { 
+                    PostId = EF.Property<int?>(e, "PostId"),
+                    PostName = EF.Property<string>(e, "PostName")
+                })
+                .Where(x => x.PostId.HasValue && x.PostName != null)
+                .Distinct()
+                .OrderBy(x => x.PostName)
+                .Select(x => new { PostId = x.PostId, Name = x.PostName })
+                .ToListAsync();
+
+            return (sensorTypes.Cast<dynamic>().ToList(), monitoringPosts.Cast<dynamic>().ToList());
+        }
+
+        // Метод для фильтрации по типу датчика
+        protected virtual IQueryable<T> ApplySensorTypeFilter(IQueryable<T> query, List<int> sensorTypeIds)
+        {
+            return query.Where(e => sensorTypeIds.Contains(EF.Property<int>(e, "SensorTypeId")));
+        }
+
+        // Метод для фильтрации по посту мониторинга
+        protected virtual IQueryable<T> ApplyMonitoringPostFilter(IQueryable<T> query, List<int> postIds)
+        {
+            return query.Where(e => postIds.Contains(EF.Property<int>(e, "PostId")));
         }
 
         // Метод для автозаполнения
@@ -88,7 +169,7 @@ namespace BurstroyMonitoring.TCM.Controllers
                 .Where(e => 
                     (serialNumberProp.GetValue(e) != null && serialNumberProp.GetValue(e).ToString().ToLower().Contains(term)) ||
                     (endpointNameProp.GetValue(e) != null && endpointNameProp.GetValue(e).ToString().ToLower().Contains(term)))
-                .AsEnumerable(); // Переключаемся на Linq to Objects для безопасного использования GetValue
+                .AsEnumerable();
 
             // Получаем предложения
             var suggestions = filtered

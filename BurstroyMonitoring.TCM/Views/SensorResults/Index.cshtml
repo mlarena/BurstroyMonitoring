@@ -2,31 +2,224 @@
 
 @{
     ViewData["Title"] = "Результаты проверок датчиков";
+    
+    // Получаем параметры фильтрации
+    var search = ViewBag.Search as string ?? "";
+    var selectedSensorTypeIds = ViewBag.SelectedSensorTypeIds as List<int> ?? new List<int>();
+    var selectedMonitoringPostIds = ViewBag.SelectedMonitoringPostIds as List<int> ?? new List<int>();
+    var selectedSensorTypeId = ViewBag.SelectedSensorTypeId as int?;
+    var selectedMonitoringPostId = ViewBag.SelectedMonitoringPostId as int?;
+    
+    var hasSensorTypeFilter = selectedSensorTypeId.HasValue || selectedSensorTypeIds.Any();
+    var hasMonitoringPostFilter = selectedMonitoringPostId.HasValue || selectedMonitoringPostIds.Any();
+    
+    // Формируем текст активных фильтров
+    var selectedSensorTypeNames = new List<string>();
+    var selectedMonitoringPostNames = new List<string>();
+    
+    if (ViewBag.SensorTypes != null)
+    {
+        foreach (var type in ViewBag.SensorTypes)
+        {
+            if (selectedSensorTypeIds.Contains(type.SensorTypeId) || 
+                (selectedSensorTypeId.HasValue && selectedSensorTypeId.Value == type.SensorTypeId))
+            {
+                selectedSensorTypeNames.Add(type.SensorTypeName);
+            }
+        }
+    }
+    
+    if (ViewBag.MonitoringPosts != null)
+    {
+        foreach (var post in ViewBag.MonitoringPosts)
+        {
+            if (selectedMonitoringPostIds.Contains(post.PostId) || 
+                (selectedMonitoringPostId.HasValue && selectedMonitoringPostId.Value == post.PostId))
+            {
+                selectedMonitoringPostNames.Add(post.Name);
+            }
+        }
+    }
+    
+    var filterNamesText = "";
+    if (selectedSensorTypeNames.Any())
+    {
+        filterNamesText += "Типы: " + string.Join(", ", selectedSensorTypeNames);
+    }
+    if (selectedMonitoringPostNames.Any())
+    {
+        if (!string.IsNullOrEmpty(filterNamesText))
+            filterNamesText += "; ";
+        filterNamesText += "Посты: " + string.Join(", ", selectedMonitoringPostNames);
+    }
 }
 
 <div class="view-container">
     <h1 class="view-title">Результаты проверок датчиков</h1>
 
-    <!-- Поиск и фильтры -->
+    <!-- Поиск и фильтры в одной строке -->
     <div class="search-container">
-        <form method="get" class="search-form">
-            <div class="search-row">
-                <input type="text" name="search" value="@ViewBag.Search" 
-                       placeholder="Поиск по серийному номеру, ответу..." 
-                       class="input search-input" />
-                <button type="submit" class="button button--primary">Найти</button>
-                <a href="@Url.Action("Index")" class="button button--secondary">Сбросить</a>
-                <label style="display: inline-flex; align-items: center; gap: 8px; margin-left: 16px; cursor: pointer;">
-                    <input type="checkbox" id="autoRefresh" style="width: 16px; height: 16px; margin: 0; accent-color: #0052cc;" />
-                    <span style="font-size: 14px; color: #172b4d;">Обновлять автоматически</span>
-                </label>
+        <div class="search-filters-row">
+            <!-- Поисковая строка -->
+            <form method="get" class="search-form" style="flex: 1;">
+                <div class="search-row">
+                    <input type="text" name="search" value="@search" 
+                           placeholder="Поиск по серийному номеру, ответу..." 
+                           class="input search-input" />
+                    <button type="submit" class="button button--primary">Найти</button>
+                    @if (!string.IsNullOrEmpty(search))
+                    {
+                        <a href="@Url.Action("Index", new { 
+                            page = 1,
+                            pageSize = ViewBag.PageSize,
+                            selectedSensorTypes = selectedSensorTypeIds,
+                            selectedMonitoringPosts = selectedMonitoringPostIds,
+                            sensorTypeId = selectedSensorTypeId,
+                            monitoringPostId = selectedMonitoringPostId
+                        })" class="button button--secondary">Сбросить поиск</a>
+                    }
+                    
+                    <label style="display: inline-flex; align-items: center; gap: 8px; margin-left: 16px; cursor: pointer;">
+                        <input type="checkbox" id="autoRefresh" style="width: 16px; height: 16px; margin: 0; accent-color: #0052cc;" />
+                        <span style="font-size: 14px; color: #172b4d;">Обновлять автоматически</span>
+                    </label>
+                </div>
+                
+                <!-- Скрытые поля для сохранения параметров -->
+                <input type="hidden" name="page" value="1" />
+                <input type="hidden" name="pageSize" value="@ViewBag.PageSize" />
+                <input type="hidden" name="sortBy" value="@ViewBag.SortBy" />
+                <input type="hidden" name="sortDesc" value="@ViewBag.SortDesc.ToString()" />
+                
+                @if (selectedSensorTypeId.HasValue)
+                {
+                    <input type="hidden" name="sensorTypeId" value="@selectedSensorTypeId.Value" />
+                }
+                @if (selectedMonitoringPostId.HasValue)
+                {
+                    <input type="hidden" name="monitoringPostId" value="@selectedMonitoringPostId.Value" />
+                }
+                @foreach (var id in selectedSensorTypeIds)
+                {
+                    <input type="hidden" name="selectedSensorTypes" value="@id" />
+                }
+                @foreach (var id in selectedMonitoringPostIds)
+                {
+                    <input type="hidden" name="selectedMonitoringPosts" value="@id" />
+                }
+            </form>
 
+            <!-- Кнопки фильтров -->
+            <div class="filter-buttons" style="display: flex; gap: 8px; margin-left: 16px;">
+                <!-- Фильтр Типы датчиков -->
+                <div class="filter-trigger-group">
+                    <button type="button" class="button @(hasSensorTypeFilter ? "button--primary" : "button--secondary")" 
+                            onclick="toggleFilter('sensorTypesFilter')">
+                        Типы датчиков
+                        @if (hasSensorTypeFilter)
+                        {
+                            <span class="filter-badge">@(selectedSensorTypeIds.Count + (selectedSensorTypeId.HasValue ? 1 : 0))</span>
+                        }
+                    </button>
+                    <div class="filter-dropdown" id="sensorTypesFilter">
+                        <div class="filter-dropdown-header">
+                            <span>Выберите типы датчиков</span>
+                            <button type="button" class="filter-dropdown-close" 
+                                    onclick="closeFilter('sensorTypesFilter')" title="Закрыть">
+                                ✕
+                            </button>
+                        </div>
+                        <div class="checkbox-group">
+                            @if (ViewBag.SensorTypes != null)
+                            {
+                                foreach (var type in ViewBag.SensorTypes)
+                                {
+                                    var isChecked = selectedSensorTypeIds.Contains(type.SensorTypeId) || 
+                                                   (selectedSensorTypeId.HasValue && selectedSensorTypeId.Value == type.SensorTypeId);
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" 
+                                               name="selectedSensorTypes" 
+                                               value="@type.SensorTypeId" 
+                                               id="sensorType_@type.SensorTypeId"
+                                               @(isChecked ? "checked" : "")
+                                               onchange="applyFilter()" />
+                                        <label for="sensorType_@type.SensorTypeId">@type.SensorTypeName</label>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Фильтр Посты мониторинга -->
+                <div class="filter-trigger-group">
+                    <button type="button" class="button @(hasMonitoringPostFilter ? "button--primary" : "button--secondary")" 
+                            onclick="toggleFilter('monitoringPostsFilter')">
+                        Посты мониторинга
+                        @if (hasMonitoringPostFilter)
+                        {
+                            <span class="filter-badge">@(selectedMonitoringPostIds.Count + (selectedMonitoringPostId.HasValue ? 1 : 0))</span>
+                        }
+                    </button>
+                    <div class="filter-dropdown" id="monitoringPostsFilter">
+                        <div class="filter-dropdown-header">
+                            <span>Выберите посты мониторинга</span>
+                            <button type="button" class="filter-dropdown-close" 
+                                    onclick="closeFilter('monitoringPostsFilter')" title="Закрыть">
+                                ✕
+                            </button>
+                        </div>
+                        <div class="checkbox-group">
+                            @if (ViewBag.MonitoringPosts != null)
+                            {
+                                foreach (var post in ViewBag.MonitoringPosts)
+                                {
+                                    var isChecked = selectedMonitoringPostIds.Contains(post.PostId) || 
+                                                   (selectedMonitoringPostId.HasValue && selectedMonitoringPostId.Value == post.PostId);
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" 
+                                               name="selectedMonitoringPosts" 
+                                               value="@post.PostId" 
+                                               id="post_@post.PostId"
+                                               @(isChecked ? "checked" : "")
+                                               onchange="applyFilter()" />
+                                        <label for="post_@post.PostId">@post.Name</label>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Кнопка сброса всех фильтров -->
+                @if (hasSensorTypeFilter || hasMonitoringPostFilter || !string.IsNullOrEmpty(search))
+                {
+                    <a href="@Url.Action("Index", new { page = 1, pageSize = ViewBag.PageSize })" 
+                       class="button button--secondary">Сбросить все</a>
+                }
             </div>
-        </form>
+        </div>
+        
+        @if (!string.IsNullOrEmpty(filterNamesText))
+        {
+            <div class="active-filters-info">
+                <small class="filter-info" title="@filterNamesText">
+                    @filterNamesText
+                </small>
+            </div>
+        }
     </div>
 
     <!-- Пагинация сверху -->
-    @await Html.PartialAsync("_Pagination")
+    @await Html.PartialAsync("_Pagination", new ViewDataDictionary(ViewData) {
+        { "AdditionalParams", new Dictionary<string, object> {
+            { "selectedSensorTypes", selectedSensorTypeIds },
+            { "selectedMonitoringPosts", selectedMonitoringPostIds },
+            { "sensorTypeId", selectedSensorTypeId },
+            { "monitoringPostId", selectedMonitoringPostId },
+            { "search", search }
+        }}
+    })
 
     <!-- Таблица данных -->
     <div class="table-responsive">
@@ -39,7 +232,11 @@
                             pageSize = ViewBag.PageSize, 
                             search = ViewBag.Search,
                             sortBy = "ResultId",
-                            sortDesc = ViewBag.SortBy == "ResultId" ? !ViewBag.SortDesc : true
+                            sortDesc = ViewBag.SortBy == "ResultId" ? !ViewBag.SortDesc : true,
+                            selectedSensorTypes = selectedSensorTypeIds,
+                            selectedMonitoringPosts = selectedMonitoringPostIds,
+                            sensorTypeId = selectedSensorTypeId,
+                            monitoringPostId = selectedMonitoringPostId
                         })">
                             ID
                             @if (ViewBag.SortBy == "ResultId")
@@ -50,6 +247,8 @@
                     </th>
                     <th>Время проверки</th>
                     <th>Серийный номер</th>
+                    <th>Тип датчика</th>
+                    <th>Пост мониторинга</th>
                     <th>Конечная точка</th>
                     <th>Код статуса</th>
                     <th>Время ответа</th>
@@ -63,7 +262,53 @@
                     <tr>
                         <td>@item.ResultId</td>
                         <td>@item.CheckedAt?.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss")</td>
-                        <td>@item.SerialNumber</td>
+                        <td>
+                            <a href="@Url.Action("Index", "SensorResults", new { 
+                                search = item.SerialNumber,
+                                page = 1,
+                                pageSize = ViewBag.PageSize
+                            })" title="Показать все результаты этого датчика">
+                                @item.SerialNumber
+                            </a>
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(item.SensorTypeName))
+                            {
+                                <a href="@Url.Action("Index", new { 
+                                    sensorTypeId = item.SensorTypeId,
+                                    page = 1,
+                                    pageSize = ViewBag.PageSize,
+                                    search = ViewBag.Search,
+                                    selectedMonitoringPosts = selectedMonitoringPostIds,
+                                    monitoringPostId = selectedMonitoringPostId
+                                })" class="filter-link" title="Показать только этот тип">
+                                    @item.SensorTypeName
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(item.PostName))
+                            {
+                                <a href="@Url.Action("Index", new { 
+                                    monitoringPostId = item.PostId,
+                                    page = 1,
+                                    pageSize = ViewBag.PageSize,
+                                    search = ViewBag.Search,
+                                    selectedSensorTypes = selectedSensorTypeIds,
+                                    sensorTypeId = selectedSensorTypeId
+                                })" class="filter-link" title="Показать только этот пост">
+                                    @item.PostName
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
                         <td>@item.EndpointName</td>
                         <td>
                             @if (item.StatusCode.HasValue)
@@ -115,7 +360,15 @@
     </div>
 
     <!-- Пагинация снизу -->
-    @await Html.PartialAsync("_Pagination")
+    @await Html.PartialAsync("_Pagination", new ViewDataDictionary(ViewData) {
+        { "AdditionalParams", new Dictionary<string, object> {
+            { "selectedSensorTypes", selectedSensorTypeIds },
+            { "selectedMonitoringPosts", selectedMonitoringPostIds },
+            { "sensorTypeId", selectedSensorTypeId },
+            { "monitoringPostId", selectedMonitoringPostId },
+            { "search", search }
+        }}
+    })
 
     <!-- Информация о количестве записей -->
     <div class="records-info">
@@ -123,3 +376,102 @@
         из @ViewBag.TotalCount записей
     </div>
 </div>
+
+<script>
+    // Функции для работы с фильтрами (копируем из Sensors/Index.cshtml)
+    let activeDropdown = null;
+
+    function toggleFilter(filterId) {
+        const dropdown = document.getElementById(filterId);
+        
+        closeAllDropdowns();
+        
+        dropdown.classList.add('show');
+        activeDropdown = dropdown;
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeFilter(filterId) {
+        const dropdown = document.getElementById(filterId);
+        dropdown.classList.remove('show');
+        
+        if (activeDropdown === dropdown) {
+            activeDropdown = null;
+        }
+        
+        if (!document.querySelector('.filter-dropdown.show')) {
+            document.body.style.overflow = '';
+        }
+    }
+
+    function closeAllDropdowns() {
+        document.querySelectorAll('.filter-dropdown').forEach(dropdown => {
+            dropdown.classList.remove('show');
+        });
+        
+        activeDropdown = null;
+        document.body.style.overflow = '';
+    }
+
+    function applyFilter() {
+        const form = document.querySelector('.search-form');
+        const formData = new FormData(form);
+        
+        // Собираем выбранные типы датчиков
+        const sensorTypeCheckboxes = document.querySelectorAll('input[name="selectedSensorTypes"]:checked');
+        sensorTypeCheckboxes.forEach(checkbox => {
+            formData.append('selectedSensorTypes', checkbox.value);
+        });
+        
+        // Собираем выбранные посты мониторинга
+        const monitoringPostCheckboxes = document.querySelectorAll('input[name="selectedMonitoringPosts"]:checked');
+        monitoringPostCheckboxes.forEach(checkbox => {
+            formData.append('selectedMonitoringPosts', checkbox.value);
+        });
+        
+        // Создаем URL с параметрами
+        const params = new URLSearchParams();
+        for (const [key, value] of formData.entries()) {
+            if (value) {
+                params.append(key, value);
+            }
+        }
+        
+        // Убеждаемся, что page = 1 при изменении фильтров
+        params.set('page', '1');
+        
+        const queryString = params.toString();
+        const newUrl = queryString ? '@Url.Action("Index")?' + queryString : '@Url.Action("Index")';
+        
+        window.location.href = newUrl;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('click', function(event) {
+            if (activeDropdown && !activeDropdown.contains(event.target) && 
+                !event.target.closest('.filter-trigger-group .button')) {
+                closeAllDropdowns();
+            }
+        });
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeAllDropdowns();
+            }
+        });
+    });
+</script>
+
+<style>
+    .filter-link {
+        color: #0052cc;
+        text-decoration: none;
+        border-bottom: 1px dashed #0052cc;
+        cursor: pointer;
+    }
+    
+    .filter-link:hover {
+        color: #003d99;
+        border-bottom: 1px solid #003d99;
+    }
+</style>
