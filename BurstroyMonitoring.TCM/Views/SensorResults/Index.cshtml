@@ -77,7 +77,7 @@
             <form method="get" class="search-form" style="flex: 1;" action="@Url.Action("Index")">
                 <div class="search-row">
                     <input type="text" name="search" value="@search" 
-                           placeholder="Поиск по серийному номеру, ответу..." 
+                           placeholder="Поиск ..." 
                            class="input search-input" />
                     <button type="submit" class="button button--primary">Найти</button>
                     @if (!string.IsNullOrEmpty(search))
@@ -417,5 +417,7 @@
 </style>
 
 @section Scripts {
+    
+    <script src="~/js/autoRefresh.js"></script>
     <script src="~/js/filter.js"></script>
 }

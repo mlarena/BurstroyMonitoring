@@ -7,8 +7,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: var(--spacing-lg) 0;
-    padding: var(--spacing-lg);
+    /* margin: var(--spacing-lg) 0;
+    padding: var(--spacing-lg); */
+    padding-left: 10px;
+    padding-right: 10px;
     background: var(--bg-primary);
     border-radius: var(--radius-large);
 }

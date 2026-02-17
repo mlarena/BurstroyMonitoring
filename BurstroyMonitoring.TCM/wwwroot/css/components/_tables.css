@@ -53,6 +53,7 @@
     margin-bottom: var(--spacing-lg);
     border-radius: var(--radius-medium);
     border: 1px solid var(--border-color);
+    margin-bottom: 1px;
 }
 
 /* Компактная таблица (для справочников) */
