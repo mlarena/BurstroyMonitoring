@@ -32,6 +32,7 @@ SELECT
     s."IsActive" AS sensor_is_active,
     
     -- SensorType (все поля)
+    st."Id" AS sensor_type_id,
     st."SensorTypeName" AS sensor_type_name,
     st."Description" AS sensor_type_description,
     
@@ -91,6 +92,7 @@ SELECT
     s."IsActive" AS sensor_is_active,
     
     -- SensorType (все поля)
+    st."Id" AS sensor_type_id,
     st."SensorTypeName" AS sensor_type_name,
     st."Description" AS sensor_type_description,
     
@@ -142,6 +144,7 @@ SELECT
     s."IsActive" AS sensor_is_active,
     
     -- SensorType (все поля)
+    st."Id" AS sensor_type_id,
     st."SensorTypeName" AS sensor_type_name,
     st."Description" AS sensor_type_description,
     
@@ -178,6 +181,7 @@ SELECT
     s."IsActive" AS sensor_is_active,
     
     -- SensorType (все поля)
+    st."Id" AS sensor_type_id,
     st."SensorTypeName" AS sensor_type_name,
     st."Description" AS sensor_type_description,
     
@@ -218,6 +222,7 @@ SELECT
     s."CheckIntervalSeconds" AS check_interval_seconds,
     s."LastActivityUTC" AS last_activity_utc,
     s."IsActive" AS sensor_is_active,
+    st."Id" AS sensor_type_id,
     st."SensorTypeName" AS sensor_type_name,
     st."Description" AS sensor_type_description,
     mp."Id" AS post_id,

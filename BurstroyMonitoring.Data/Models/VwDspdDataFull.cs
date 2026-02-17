@@ -103,6 +103,9 @@ namespace BurstroyMonitoring.Data.Models
         public bool? SensorIsActive { get; set; }
 
         // ========== SensorType поля ==========
+        [Column("sensor_type_id")]  // ДОБАВИТЬ!
+        public int? SensorTypeId { get; set; }
+
         [Column("sensor_type_name")]
         public string? SensorTypeName { get; set; }
 
