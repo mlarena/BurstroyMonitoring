@@ -5,7 +5,7 @@ namespace BurstroyMonitoring.Data.Models
 {
     /// <summary>
     /// View Model для vw_sensor_errors_full
-    /// Обновлено: добавлены sensor_id, post_id
+    /// Обновлено: добавлены sensor_id, post_id, sensor_type_id
     /// </summary>
     [Table("vw_sensor_errors_full", Schema = "public")]
     public class VwSensorErrorsFull
@@ -64,6 +64,9 @@ namespace BurstroyMonitoring.Data.Models
         public bool? SensorIsActive { get; set; }
 
         // ========== SensorType поля ==========
+        [Column("sensor_type_id")]  // НОВОЕ ПОЛЕ
+        public int? SensorTypeId { get; set; }
+
         [Column("sensor_type_name")]
         public string? SensorTypeName { get; set; }
 
