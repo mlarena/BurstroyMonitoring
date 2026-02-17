@@ -91,6 +91,19 @@
         }
         return "";
     }
+    
+    // Функция для определения активности элемента фильтра
+    bool IsSensorTypeActive(int typeId)
+    {
+        return selectedSensorTypeIds.Contains(typeId) || 
+               (selectedSensorTypeId.HasValue && selectedSensorTypeId.Value == typeId);
+    }
+    
+    bool IsMonitoringPostActive(int postId)
+    {
+        return selectedMonitoringPostIds.Contains(postId) || 
+               (selectedMonitoringPostId.HasValue && selectedMonitoringPostId.Value == postId);
+    }
 }
 
 <div class="view-container">
@@ -100,7 +113,7 @@
     <div class="search-container">
         <div class="search-filters-row">
             <!-- Поисковая строка -->
-            <form method="get" class="search-form" style="flex: 1;">
+            <form method="get" class="search-form" style="flex: 1;" action="@Url.Action("Index")">
                 <div class="search-row">
                     <input type="text" name="search" value="@search" 
                            placeholder="Поиск по серийному номеру, названию..." 
@@ -108,7 +121,7 @@
                     <button type="submit" class="button button--primary">Найти</button>
                     @if (!string.IsNullOrEmpty(search))
                     {
-                        <a href="@Url.Action("Index")" class="button button--secondary">Сбросить поиск</a>
+                        <button type="button" onclick="resetAllFilters('@Url.Action("Index")')" class="button button--secondary">Сбросить поиск</button>
                     }
                 </div>
                 <!-- Скрытые поля для сохранения сортировки и фильтров -->
@@ -134,46 +147,6 @@
 
             <!-- Кнопки фильтров -->
             <div class="filter-buttons" style="display: flex; gap: 8px; margin-left: 16px;">
-                <!-- Фильтр Типы датчиков -->
-                <div class="filter-trigger-group">
-                    <button type="button" class="button @(hasSensorTypeFilter ? "button--primary" : "button--secondary")" 
-                            onclick="toggleFilter('sensorTypesFilter')">
-                        Типы датчиков
-                        @if (hasSensorTypeFilter)
-                        {
-                            <span class="filter-badge">@(selectedSensorTypeIds.Count + (selectedSensorTypeId.HasValue ? 1 : 0))</span>
-                        }
-                    </button>
-                    <div class="filter-dropdown" id="sensorTypesFilter">
-                        <div class="filter-dropdown-header">
-                            <span>Выберите типы датчиков</span>
-                            <button type="button" class="filter-dropdown-close" 
-                                    onclick="closeFilter('sensorTypesFilter')" title="Закрыть">
-                                ✕
-                            </button>
-                        </div>
-                        <div class="checkbox-group">
-                            @if (ViewBag.SensorTypes != null)
-                            {
-                                foreach (var type in ViewBag.SensorTypes)
-                                {
-                                    var isChecked = selectedSensorTypeIds.Contains(type.SensorTypeId) || 
-                                                   (selectedSensorTypeId.HasValue && selectedSensorTypeId.Value == type.SensorTypeId);
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" 
-                                               name="selectedSensorTypes" 
-                                               value="@type.SensorTypeId" 
-                                               id="sensorType_@type.SensorTypeId"
-                                               @(isChecked ? "checked" : "")
-                                               onchange="applyFilter()" />
-                                        <label for="sensorType_@type.SensorTypeId">@type.SensorTypeName</label>
-                                    </div>
-                                }
-                            }
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Фильтр Посты мониторинга -->
                 <div class="filter-trigger-group">
                     <button type="button" class="button @(hasMonitoringPostFilter ? "button--primary" : "button--secondary")" 
@@ -197,8 +170,7 @@
                             {
                                 foreach (var post in ViewBag.MonitoringPosts)
                                 {
-                                    var isChecked = selectedMonitoringPostIds.Contains(post.MonitoringPostId) || 
-                                                   (selectedMonitoringPostId.HasValue && selectedMonitoringPostId.Value == post.MonitoringPostId);
+                                    var isChecked = IsMonitoringPostActive(post.MonitoringPostId);
                                     <div class="checkbox-item">
                                         <input type="checkbox" 
                                                name="selectedMonitoringPosts" 
@@ -214,10 +186,49 @@
                     </div>
                 </div>
 
+                <!-- Фильтр Типы датчиков -->
+                <div class="filter-trigger-group">
+                    <button type="button" class="button @(hasSensorTypeFilter ? "button--primary" : "button--secondary")" 
+                            onclick="toggleFilter('sensorTypesFilter')">
+                        Типы датчиков
+                        @if (hasSensorTypeFilter)
+                        {
+                            <span class="filter-badge">@(selectedSensorTypeIds.Count + (selectedSensorTypeId.HasValue ? 1 : 0))</span>
+                        }
+                    </button>
+                    <div class="filter-dropdown" id="sensorTypesFilter">
+                        <div class="filter-dropdown-header">
+                            <span>Выберите типы датчиков</span>
+                            <button type="button" class="filter-dropdown-close" 
+                                    onclick="closeFilter('sensorTypesFilter')" title="Закрыть">
+                                ✕
+                            </button>
+                        </div>
+                        <div class="checkbox-group">
+                            @if (ViewBag.SensorTypes != null)
+                            {
+                                foreach (var type in ViewBag.SensorTypes)
+                                {
+                                    var isChecked = IsSensorTypeActive(type.SensorTypeId);
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" 
+                                               name="selectedSensorTypes" 
+                                               value="@type.SensorTypeId" 
+                                               id="sensorType_@type.SensorTypeId"
+                                               @(isChecked ? "checked" : "")
+                                               onchange="applyFilter()" />
+                                        <label for="sensorType_@type.SensorTypeId">@type.SensorTypeName</label>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Кнопка сброса фильтров -->
                 @if (hasSensorTypeFilter || hasMonitoringPostFilter || !string.IsNullOrEmpty(search))
                 {
-                    <a href="@Url.Action("Index")" class="button button--secondary">Сбросить все</a>
+                    <button type="button" onclick="resetAllFilters('@Url.Action("Index")')" class="button button--secondary">Сбросить все</button>
                 }
             </div>
         </div>
@@ -296,150 +307,163 @@
                 </tr>
             </thead>
 
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr class="@(item.IsActive ? "row-active" : "row-inactive")">
-                    <td title="@item.SerialNumber">
-                        @if (item.SerialNumber.Length > 15)
-                        {
-                            @item.SerialNumber.Substring(0, 15)<text>...</text>
-                        }
-                        else
-                        {
-                            @item.SerialNumber
-                        }
-                    </td>
-                    <td>
-                        @if (item.SensorType != null)
-                        {
-                            <a href="@Url.Action("Index", new { sensorTypeId = item.SensorTypeId, sortBy = sortBy, sortDesc = sortDesc, search = search })"
-                            class="sensor-type-link" title="Показать все датчики этого типа">
-                                @item.SensorType.SensorTypeName
-                            </a>
-                        }
-                        else
-                        {
-                            <span class="text-muted">—</span>
-                        }
-                    </td>
-                    <td>
-                        @if (item.MonitoringPost != null)
-                        {
-                            <a href="@Url.Action("Index", new { monitoringPostId = item.MonitoringPostId, sortBy = sortBy, sortDesc = sortDesc, search = search })"
-                            class="post-link" title="Показать все датчики этого поста">
-                                @item.MonitoringPost.Name
-                                @if (item.MonitoringPost.IsMobile)
-                                {
-                                    <span class="lozenge" style="margin-left: 4px; font-size: 11px;">Моб.</span>
-                                }
-                            </a>
-                        }
-                        else
-                        {
-                            <span class="text-muted">—</span>
-                        }
-                    </td>
-                   <td class="long-text-cell" title="@item.Url">
-                        @if (!string.IsNullOrEmpty(item.Url))
-                        {
-                            var url = item.Url;
-                            var protocol = url.StartsWith("https://") ? "https://" : (url.StartsWith("http://") ? "http://" : "");
-                            var rest = url.Substring(protocol.Length);
-                            var domainEndIndex = rest.IndexOf('/');
-                            var domainPart = domainEndIndex >= 0 ? rest.Substring(0, domainEndIndex) : rest;
-                            var pathPart = domainEndIndex >= 0 ? rest.Substring(domainEndIndex) : "";
-
-                            var colorClass = item.IsActive ? "url-active" : "url-inactive";
-
-                            <a href="@item.Url" target="_blank" class="sensor-url-link @colorClass">
-                                <span class="url-protocol">@protocol</span>
-                                <strong class="url-domain">@domainPart</strong>
-                                <span class="url-path">@pathPart</span>
-                            </a>
-                        }
-                        else
-                        {
-                            <span class="text-muted">—</span>
-                        }
-                </td>
-                    <td>
-                        @if (item.IsActive)
-                        {
-                            <span class="lozenge lozenge--success" title="Активен">✓</span>
-                        }
-                        else
-                        {
-                            <span class="lozenge lozenge--error" title="Неактивен">✗</span>
-                        }
-                    </td>
-                    <td>
-                        @if (item.LastActivityUTC.HasValue)
-                        {
-                            var timeAgo = DateTime.UtcNow - item.LastActivityUTC.Value;
-                            string timeText;
-
-                            if (timeAgo.TotalDays >= 1)
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr class="@(item.IsActive ? "row-active" : "row-inactive")">
+                        <td title="@item.SerialNumber">
+                            @if (item.SerialNumber.Length > 15)
                             {
-                                timeText = $"{(int)timeAgo.TotalDays} дн. назад";
-                            }
-                            else if (timeAgo.TotalHours >= 1)
-                            {
-                                timeText = $"{(int)timeAgo.TotalHours} ч. назад";
-                            }
-                            else if (timeAgo.TotalMinutes >= 1)
-                            {
-                                timeText = $"{(int)timeAgo.TotalMinutes} мин. назад";
+                                @item.SerialNumber.Substring(0, 15)<text>...</text>
                             }
                             else
                             {
-                                timeText = "Только что";
+                                @item.SerialNumber
                             }
+                        </td>
+                        <td>
+                            @if (item.SensorType != null)
+                            {
+                                var isActive = IsSensorTypeActive(item.SensorTypeId);
+                                <a href="javascript:void(0);"
+                                   onclick="toggleFilterItem('sensorType', '@item.SensorTypeId')"
+                                   class="filter-link @(isActive ? "filter-link--active" : "")"
+                                   title="@(isActive ? "Убрать фильтр по этому типу" : "Показать все датчики этого типа")">
+                                    @item.SensorType.SensorTypeName
+                                    @if (isActive)
+                                    {
+                                        <span class="filter-active-indicator">✓</span>
+                                    }
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.MonitoringPost != null)
+                            {
+                                var isActive = IsMonitoringPostActive(item.MonitoringPostId.Value);
+                                <a href="javascript:void(0);"
+                                   onclick="toggleFilterItem('monitoringPost', '@item.MonitoringPostId')"
+                                   class="filter-link @(isActive ? "filter-link--active" : "")"
+                                   title="@(isActive ? "Убрать фильтр по этому посту" : "Показать все датчики этого поста")">
+                                    @item.MonitoringPost.Name
+                                    @if (item.MonitoringPost.IsMobile)
+                                    {
+                                        <span class="lozenge" style="margin-left: 4px; font-size: 11px;">Моб.</span>
+                                    }
+                                    @if (isActive)
+                                    {
+                                        <span class="filter-active-indicator">✓</span>
+                                    }
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                        <td class="long-text-cell" title="@item.Url">
+                            @if (!string.IsNullOrEmpty(item.Url))
+                            {
+                                var url = item.Url;
+                                var protocol = url.StartsWith("https://") ? "https://" : (url.StartsWith("http://") ? "http://" : "");
+                                var rest = url.Substring(protocol.Length);
+                                var domainEndIndex = rest.IndexOf('/');
+                                var domainPart = domainEndIndex >= 0 ? rest.Substring(0, domainEndIndex) : rest;
+                                var pathPart = domainEndIndex >= 0 ? rest.Substring(domainEndIndex) : "";
 
-                            <span title="@item.LastActivityUTC.Value.ToString("dd.MM.yyyy HH:mm:ss") UTC">
-                                @timeText
+                                var colorClass = item.IsActive ? "url-active" : "url-inactive";
+
+                                <a href="@item.Url" target="_blank" class="sensor-url-link @colorClass">
+                                    <span class="url-protocol">@protocol</span>
+                                    <strong class="url-domain">@domainPart</strong>
+                                    <span class="url-path">@pathPart</span>
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.IsActive)
+                            {
+                                <span class="lozenge lozenge--success" title="Активен">✓</span>
+                            }
+                            else
+                            {
+                                <span class="lozenge lozenge--error" title="Неактивен">✗</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.LastActivityUTC.HasValue)
+                            {
+                                var timeAgo = DateTime.UtcNow - item.LastActivityUTC.Value;
+                                string timeText;
+
+                                if (timeAgo.TotalDays >= 1)
+                                {
+                                    timeText = $"{(int)timeAgo.TotalDays} дн. назад";
+                                }
+                                else if (timeAgo.TotalHours >= 1)
+                                {
+                                    timeText = $"{(int)timeAgo.TotalHours} ч. назад";
+                                }
+                                else if (timeAgo.TotalMinutes >= 1)
+                                {
+                                    timeText = $"{(int)timeAgo.TotalMinutes} мин. назад";
+                                }
+                                else
+                                {
+                                    timeText = "Только что";
+                                }
+
+                                <span title="@item.LastActivityUTC.Value.ToString("dd.MM.yyyy HH:mm:ss") UTC">
+                                    @timeText
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted" title="Нет данных">—</span>
+                            }
+                        </td>
+                        <td>
+                            <span title="@item.CheckIntervalSeconds секунд">
+                                @item.CheckIntervalSeconds
+                                <small style="color: var(--text-secondary);">сек</small>
                             </span>
-                        }
-                        else
-                        {
-                            <span class="text-muted" title="Нет данных">—</span>
-                        }
-                    </td>
-                    <td>
-                        <span title="@item.CheckIntervalSeconds секунд">
-                            @item.CheckIntervalSeconds
-                            <small style="color: var(--text-secondary);">сек</small>
-                        </span>
-                    </td>
-                    <td>
-                        @if (item.CreatedAt.HasValue)
-                        {
-                            <span title="@item.CreatedAt.Value.ToString("dd.MM.yyyy HH:mm:ss") UTC">
-                                @item.CreatedAt.Value.ToString("dd.MM.yyyy HH:mm")
-                            </span>
-                        }
-                        else
-                        {
-                            <span class="text-muted">—</span>
-                        }
-                    </td>
-                    <td>
-                        <div class="action-buttons">
-                            <a asp-action="Edit" asp-route-id="@item.Id"                            class="button button--sm button--secondary"                            title="Редактировать датчик">
-                                ✏️
-                            </a>
-                            <a asp-action="Details" asp-route-id="@item.Id"                            class="button button--sm button--secondary"                            title="Подробности о датчике">
-                                📄
-                            </a>
-                            <a asp-action="Delete" asp-route-id="@item.Id"                            class="button button--sm button--danger"                            title="Удалить датчик">
-                                🗑️
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-            }
-        </tbody>
-        
+                        </td>
+                        <td>
+                            @if (item.CreatedAt.HasValue)
+                            {
+                                <span title="@item.CreatedAt.Value.ToString("dd.MM.yyyy HH:mm:ss") UTC">
+                                    @item.CreatedAt.Value.ToString("dd.MM.yyyy HH:mm")
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="button button--sm button--secondary" title="Редактировать датчик">
+                                    ✏️
+                                </a>
+                                <a asp-action="Details" asp-route-id="@item.Id" class="button button--sm button--secondary" title="Подробности о датчике">
+                                    📄
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="button button--sm button--danger" title="Удалить датчик">
+                                    🗑️
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
         </table>
     </div>
     
@@ -452,98 +476,47 @@
             <a asp-action="Create" class="button button--primary">Создать датчик</a>
             @if (hasSensorTypeFilter || hasMonitoringPostFilter || !string.IsNullOrEmpty(search))
             {
-                <a href="@Url.Action("Index")" class="button button--secondary" style="margin-left: 10px;">
+                <button type="button" onclick="resetAllFilters('@Url.Action("Index")')" class="button button--secondary" style="margin-left: 10px;">
                     Показать все
-                </a>
+                </button>
             }
         </div>
     }
 </div>
 
-<script>
-    // Функции для работы с фильтрами
-    let activeDropdown = null;
-
-    function toggleFilter(filterId) {
-        const dropdown = document.getElementById(filterId);
-        
-        // Закрываем все другие dropdown
-        closeAllDropdowns();
-        
-        // Открываем текущий dropdown
-        dropdown.classList.add('show');
-        activeDropdown = dropdown;
-        
-        // Блокируем скролл страницы
-        document.body.style.overflow = 'hidden';
+<style>
+    .filter-link {
+        color: #0052cc;
+        text-decoration: none;
+        border-bottom: 1px dashed #0052cc;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
     }
-
-    function closeFilter(filterId) {
-        const dropdown = document.getElementById(filterId);
-        dropdown.classList.remove('show');
-        
-        if (activeDropdown === dropdown) {
-            activeDropdown = null;
-        }
-        
-        if (!document.querySelector('.filter-dropdown.show')) {
-            document.body.style.overflow = '';
-        }
+    
+    .filter-link:hover {
+        color: #003d99;
+        border-bottom: 1px solid #003d99;
     }
-
-    function closeAllDropdowns() {
-        document.querySelectorAll('.filter-dropdown').forEach(dropdown => {
-            dropdown.classList.remove('show');
-        });
-        
-        activeDropdown = null;
-        document.body.style.overflow = '';
+    
+    .filter-link--active {
+        color: #28a745;
+        border-bottom-color: #28a745;
+        font-weight: 500;
     }
-
-    function applyFilter() {
-        const form = document.querySelector('.search-form');
-        const formData = new FormData(form);
-        
-        // Собираем выбранные типы датчиков
-        const sensorTypeCheckboxes = document.querySelectorAll('input[name="selectedSensorTypes"]:checked');
-        sensorTypeCheckboxes.forEach(checkbox => {
-            formData.append('selectedSensorTypes', checkbox.value);
-        });
-        
-        // Собираем выбранные посты мониторинга
-        const monitoringPostCheckboxes = document.querySelectorAll('input[name="selectedMonitoringPosts"]:checked');
-        monitoringPostCheckboxes.forEach(checkbox => {
-            formData.append('selectedMonitoringPosts', checkbox.value);
-        });
-        
-        // Создаем URL с параметрами
-        const params = new URLSearchParams();
-        for (const [key, value] of formData.entries()) {
-            if (value) {
-                params.append(key, value);
-            }
-        }
-        
-        const queryString = params.toString();
-        const newUrl = queryString ? '@Url.Action("Index")?' + queryString : '@Url.Action("Index")';
-        
-        window.location.href = newUrl;
+    
+    .filter-link--active:hover {
+        color: #218838;
+        border-bottom-color: #218838;
     }
+    
+    .filter-active-indicator {
+        font-size: 12px;
+        margin-left: 2px;
+    }
+</style>
 
-    document.addEventListener('DOMContentLoaded', function() {
-        // Закрытие dropdown при клике вне его области
-        document.addEventListener('click', function(event) {
-            if (activeDropdown && !activeDropdown.contains(event.target) && 
-                !event.target.closest('.filter-trigger-group .button')) {
-                closeAllDropdowns();
-            }
-        });
-        
-        // Закрытие при нажатии Escape
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeAllDropdowns();
-            }
-        });
-    });
-</script>
+@section Scripts {
+    <script src="~/js/filter.js"></script>
+}
