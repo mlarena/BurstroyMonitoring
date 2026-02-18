@@ -12,7 +12,7 @@
     /* Стили для панели данных датчика */
     .sensor-data-section {
         position: absolute;
-        bottom: 20px;
+        bottom: 10px;
         left: 20px;
         right: 20px;
         background: white;
@@ -23,7 +23,7 @@
         overflow: hidden;
         transition: all 0.3s ease;
         border: 1px solid #dee2e6;
-        margin-right: 400px;
+        margin-right: 290px;
     }
 
     .sensor-data-section.collapsed {
@@ -163,31 +163,31 @@
         background-color: #f8f9fa;
         border-radius: 4px;
     }
-    /* Стили для неактивных элементов */
-.monitoring-sensor-item.inactive-sensor {
-    opacity: 0.7;
-    background-color: #f8f9fa;
-    border-left: 3px solid #6c757d;
-}
+        /* Стили для неактивных элементов */
+    .monitoring-sensor-item.inactive-sensor {
+        opacity: 0.7;
+        background-color: #f8f9fa;
+        border-left: 3px solid #6c757d;
+    }
 
-.monitoring-sensor-item.inactive-sensor:hover {
-    opacity: 0.9;
-    background-color: #e9ecef;
-}
+    .monitoring-sensor-item.inactive-sensor:hover {
+        opacity: 0.9;
+        background-color: #e9ecef;
+    }
 
-.badge-secondary {
-    color: #fff;
-    background-color: #6c757d;
-}
+    .badge-secondary {
+        color: #fff;
+        background-color: #6c757d;
+    }
 
-/* Стили для маркеров на карте */
-.leaflet-marker-icon {
-    transition: all 0.2s ease;
-}
+    /* Стили для маркеров на карте */
+    .leaflet-marker-icon {
+        transition: all 0.2s ease;
+    }
 
-.leaflet-marker-icon:hover {
-    transform: scale(1.1);
-}
+    .leaflet-marker-icon:hover {
+        transform: scale(1.1);
+    }
 </style>
 
 <div class="monitoring-view-container">

@@ -15,10 +15,10 @@
                         @(sensor.IsActive ? "Активен" : "Неактивен")
                     </span>
                 </div>
-                <div>Серийный номер: @sensor.SerialNumber</div>
-                <div>URL: @sensor.Url</div>
-                <div class="sensor-type-info" style="font-size: 11px; color: #6c757d; margin-top: 5px;">
-                    Тип: @sensor.SensorTypeName (ID: @sensor.SensorTypeId)
+                <div class="monitoring-details-value">SN: @sensor.SerialNumber</div>
+                <div class="monitoring-details-value">URL: @sensor.Url</div>
+                <div class="monitoring-details-value">
+                    Тип: @sensor.SensorTypeName 
                 </div>
             </div>
         }
