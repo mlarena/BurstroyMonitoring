@@ -1,0 +1,225 @@
+@model dynamic
+
+@{
+    var sensorTypeId = ViewBag.SensorTypeId as int?;
+    var sensorId = ViewBag.SensorId as int?;
+    
+    // Преобразуем dynamic в Dictionary для удобства
+    var data = new Dictionary<string, object>();
+    if (Model != null)
+    {
+        var properties = Model.GetType().GetProperties();
+        foreach (var prop in properties)
+        {
+            var value = prop.GetValue(Model);
+            if (value != null)
+            {
+                data[prop.Name] = value;
+            }
+        }
+    }
+}
+
+<style>
+    .sensor-data-container {
+        width: 100%;
+        overflow-x: auto;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .sensor-data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        min-width: 800px;
+    }
+    
+    .sensor-data-table td {
+        padding: 12px 15px;
+        border: 1px solid #e9ecef;
+        vertical-align: middle;
+    }
+    
+    .timestamp-row {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .timestamp-label {
+        font-weight: 600;
+        color: white;
+        font-size: 14px;
+        white-space: nowrap;
+        border: none !important;
+    }
+    
+    .timestamp-label i {
+        margin-right: 8px;
+        opacity: 0.9;
+    }
+    
+    .timestamp-value {
+        color: white;
+        font-family: 'Courier New', monospace;
+        font-weight: 500;
+        font-size: 14px;
+        border: none !important;
+    }
+    
+    .parameters-row td {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        color: #495057;
+        white-space: nowrap;
+        text-align: center;
+    }
+    
+    .values-row td {
+        font-family: 'Courier New', monospace;
+        font-weight: 500;
+        text-align: center;
+        background-color: white;
+    }
+    
+    .values-row td.number {
+        color: #28a745;
+    }
+    
+    .values-row td.boolean {
+        color: #dc3545;
+    }
+    
+    .values-row td.string {
+        color: #17a2b8;
+    }
+    
+    .values-row td.datetime {
+        color: #6f42c1;
+    }
+    
+    .no-data-message {
+        padding: 30px;
+        text-align: center;
+        color: #6c757d;
+        font-style: italic;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .no-data-message i {
+        font-size: 24px;
+        margin-bottom: 10px;
+        color: #adb5bd;
+    }
+    
+  
+</style>
+
+@if (data.Any())
+{
+    <div class="sensor-data-container">
+        <table class="sensor-data-table">
+            @{
+                // Получаем временную метку
+                var timestamp = data.FirstOrDefault(x => 
+                    x.Key == "ReceivedAt" || 
+                    x.Key == "receivedAt" || 
+                    x.Key == "DataTimestamp" || 
+                    x.Key == "dataTimestamp").Value;
+                
+                // Фильтруем параметры для отображения (исключаем ID и временные метки)
+                var displayParams = data.Where(x => 
+                    !x.Key.Contains("ReceivedAt") && 
+                    !x.Key.Contains("DataTimestamp") && 
+                    !x.Key.Contains("received") && 
+                    !x.Key.Contains("timestamp") &&
+                    !x.Key.Contains("Id") && 
+                    !x.Key.Contains("SensorId") && 
+                    !x.Key.Contains("id") && 
+                    !x.Key.Contains("sensor_id")).ToList();
+            }
+            
+            @* Строка с временной меткой *@
+            <tr class="timestamp-row">
+                <td class="timestamp-label" colspan="1">
+                    <i class="far fa-clock"></i> Время получения данных
+                </td>
+                <td class="timestamp-value" colspan="@displayParams.Count">
+                    @if (timestamp != null)
+                    {
+                        if (timestamp is DateTime dt)
+                        {
+                            @dt.ToString("dd.MM.yyyy HH:mm:ss")
+                        }
+                        else
+                        {
+                            @timestamp.ToString()
+                        }
+                    }
+                </td>
+            </tr>
+            
+            @* Строка с названиями параметров *@
+            <tr class="parameters-row">
+                
+                @foreach (var item in displayParams)
+                {
+                    <td>@item.Key</td>
+                }
+            </tr>
+            
+            @* Строка со значениями *@
+            <tr class="values-row">
+               
+                @foreach (var item in displayParams)
+                {
+                    string displayValue = item.Value?.ToString() ?? "-";
+                    string valueClass = "";
+                    
+                    // Форматирование значений
+                    if (item.Value is DateTime dt)
+                    {
+                        displayValue = dt.ToString("dd.MM.yyyy HH:mm");
+                        valueClass = "datetime";
+                    }
+                    else if (item.Value is decimal d)
+                    {
+                        displayValue = d.ToString("F2");
+                        valueClass = "number";
+                    }
+                    else if (item.Value is double db)
+                    {
+                        displayValue = db.ToString("F2");
+                        valueClass = "number";
+                    }
+                    else if (item.Value is int i)
+                    {
+                        displayValue = i.ToString();
+                        valueClass = "number";
+                    }
+                    else if (item.Value is bool b)
+                    {
+                        displayValue = b ? "Да" : "Нет";
+                        valueClass = "boolean";
+                    }
+                    else if (item.Value is string s)
+                    {
+                        displayValue = s;
+                        valueClass = "string";
+                    }
+                    
+                    <td class="@valueClass">@displayValue</td>
+                }
+            </tr>
+        </table>
+    </div>
+}
+else
+{
+    <div class="no-data-message">
+        <i class="fas fa-database"></i>
+        <p>Нет данных для отображения</p>
+    </div>
+}

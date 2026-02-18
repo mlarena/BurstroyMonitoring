@@ -8,6 +8,188 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+<style>
+    /* Стили для панели данных датчика */
+    .sensor-data-section {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        z-index: 1000;
+        max-height: 300px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border: 1px solid #dee2e6;
+        margin-right: 400px;
+    }
+
+    .sensor-data-section.collapsed {
+        max-height: 50px;
+    }
+
+    .sensor-data-header {
+        background: #f8f9fa;
+        padding: 12px 20px;
+        border-bottom: 1px solid #dee2e6;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .sensor-data-header h3 {
+        margin: 0;
+        font-size: 16px;
+        color: #495057;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .sensor-data-header h3 i {
+        color: #17a2b8;
+    }
+
+    .sensor-data-content {
+        padding: 20px;
+        overflow-y: auto;
+        max-height: 250px;
+        background: white;
+    }
+
+    .sensor-data-content.collapsed {
+        display: none;
+    }
+
+   
+
+    /* Стили для таблицы данных датчика */
+    .sensor-data-compact {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+    }
+
+    .sensor-data-compact td {
+        padding: 8px 12px;
+        border: 1px solid #e9ecef;
+    }
+
+    .sensor-data-compact tr:first-child td {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .sensor-data-label {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        color: #495057;
+        width: 40%;
+    }
+
+    .sensor-data-value {
+        color: #212529;
+        width: 60%;
+    }
+
+    /* Индикатор загрузки */
+    .loading-spinner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 30px;
+        color: #6c757d;
+    }
+
+    .loading-spinner i {
+        margin-right: 10px;
+    }
+
+    .monitoring-sensor-item.active {
+        background-color: #e3f2fd !important;
+        border-left: 3px solid #2196f3 !important;
+    }
+
+    .monitoring-sensor-item {
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .monitoring-sensor-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.25em 0.4em;
+        font-size: 75%;
+        font-weight: 700;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: 0.25rem;
+    }
+
+    .badge-success {
+        color: #fff;
+        background-color: #28a745;
+    }
+
+    .badge-danger {
+        color: #fff;
+        background-color: #dc3545;
+    }
+
+    .badge-warning {
+        color: #212529;
+        background-color: #ffc107;
+    }
+
+    .badge-info {
+        color: #fff;
+        background-color: #17a2b8;
+    }
+
+    .no-data-message {
+        padding: 15px;
+        text-align: center;
+        color: #6c757d;
+        font-style: italic;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+    }
+    /* Стили для неактивных элементов */
+.monitoring-sensor-item.inactive-sensor {
+    opacity: 0.7;
+    background-color: #f8f9fa;
+    border-left: 3px solid #6c757d;
+}
+
+.monitoring-sensor-item.inactive-sensor:hover {
+    opacity: 0.9;
+    background-color: #e9ecef;
+}
+
+.badge-secondary {
+    color: #fff;
+    background-color: #6c757d;
+}
+
+/* Стили для маркеров на карте */
+.leaflet-marker-icon {
+    transition: all 0.2s ease;
+}
+
+.leaflet-marker-icon:hover {
+    transform: scale(1.1);
+}
+</style>
+
 <div class="monitoring-view-container">
     <div class="monitoring-view-title">
         <h1 class="monitoring-title-text">
@@ -38,10 +220,10 @@
                 <!-- Карта -->
                 <div id="monitoring-map"></div>
 
-                <!-- Панель деталей -->
+                <!-- Панель деталей (для постов) -->
                 <div class="monitoring-details-section" id="monitoringDetailsPanel">
                     <div class="monitoring-details-header" onclick="toggleDetailsPanel()">
-                        <h3><i class="fas fa-info-circle"></i> <span>Детали</span></h3>
+                        <h3><i class="fas fa-info-circle"></i> <span>Детали поста</span></h3>
                         <button type="button" class="monitoring-button monitoring-button-secondary" onclick="clearDetails(event)">
                             <i class="fas fa-times"></i> <span>Очистить</span>
                         </button>
@@ -53,6 +235,24 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- НОВАЯ ПАНЕЛЬ: Данные датчика (внизу карты) -->
+                <div class="sensor-data-section" id="sensorDataPanel">
+                    <div class="sensor-data-header" onclick="toggleSensorDataPanel()">
+                        <h3><i class="fas fa-microchip"></i> <span>Данные датчика</span></h3>
+                        <button type="button" class="monitoring-button monitoring-button-secondary" onclick="clearSensorData(event)">
+                            <i class="fas fa-times"></i> <span>Закрыть</span>
+                        </button>
+                    </div>
+                    <div class="sensor-data-content" id="sensorDataContent">
+                        <div class="monitoring-no-selection">
+                            <i class="fas fa-chart-line"></i>
+                            <p>Нажмите на датчик в списке для просмотра данных</p>
+                        </div>
+                    </div>
+                </div>
+
+
             </div>
         </div>
     </div>
@@ -65,6 +265,7 @@
         let map;
         let markers = [];
         let isDetailsCollapsed = false;
+        let isSensorDataCollapsed = true;
         let isExpanded = false;
         let searchTimeout = null;
         let selectedAutocompleteIndex = -1;
@@ -77,15 +278,36 @@
             
             // Инициализация панели деталей
             const panel = document.getElementById('monitoringDetailsPanel');
-            const clearButton = panel.querySelector('.monitoring-button.monitoring-button-secondary');
+            const clearButton = panel?.querySelector('.monitoring-button.monitoring-button-secondary');
             
-            // Устанавливаем начальную высоту и видимость кнопки
             if (panel && !isDetailsCollapsed) {
                 panel.style.height = 'calc(100% - 20px)';
                 if (clearButton) {
                     clearButton.style.display = 'inline-flex';
                 }
             }
+            
+            // Инициализация панели данных датчика
+            const sensorPanel = document.getElementById('sensorDataPanel');
+            if (sensorPanel) {
+                // По умолчанию панель свернута
+                sensorPanel.classList.add('collapsed');
+                document.getElementById('sensorDataContent').classList.add('collapsed');
+                isSensorDataCollapsed = true;
+            }
+            
+            // ОТЛАДКА: Проверяем все датчики в DOM после загрузки
+            setTimeout(() => {
+                console.log('=== ОТЛАДКА: Список датчиков в DOM ===');
+                document.querySelectorAll('.monitoring-sensor-item').forEach((item, index) => {
+                    console.log(`Датчик ${index + 1}:`, {
+                        id: item.getAttribute('onclick')?.match(/\d+/)?.[0],
+                        sensorTypeId: item.getAttribute('data-sensor-type'),
+                        sensorName: item.getAttribute('data-sensor-name'),
+                        html: item.outerHTML.substring(0, 200) + '...'
+                    });
+                });
+            }, 1000);
         });
 
         function initMap() {
@@ -306,34 +528,58 @@
                 
                 clearMarkers();
                 
-                // Добавляем посты
+                // Добавляем все посты (и активные и неактивные)
                 data.posts.forEach(post => {
                     if (post.latitude && post.longitude) {
                         addPostMarker(post);
                     }
                 });
                 
-                // Добавляем датчики без постов
+                // Добавляем все датчики без постов (и активные и неактивные)
                 data.sensors.forEach(sensor => {
                     if (sensor.latitude && sensor.longitude && sensor.monitoringPostId === null) {
                         addSensorMarker(sensor);
                     }
                 });
                 
+                // Обновляем статистику в заголовке
+                updateStatistics(data);
+                
             } catch (error) {
                 console.error('Ошибка загрузки данных:', error);
             }
         }
 
+        function updateStatistics(data) {
+            const activePosts = data.posts.filter(p => p.isActive).length;
+            const inactivePosts = data.posts.length - activePosts;
+            const activeSensors = data.sensors.filter(s => s.isActive).length;
+            const inactiveSensors = data.sensors.length - activeSensors;
+            
+            const titleSpan = document.querySelector('.monitoring-title-count');
+            if (titleSpan) {
+                titleSpan.innerHTML = `(Постов: ${data.posts.length}, Датчиков: ${data.sensors.length})`;
+            }
+        }
+
         function addPostMarker(post) {
+            // Разные цвета для активных/неактивных и мобильных/стационарных
+            let bgColor;
+            if (!post.isActive) {
+                bgColor = '#6c757d'; // Серый для неактивных
+            } else {
+                bgColor = post.isMobile ? '#ff9800' : '#2196f3'; // Оранжевый для мобильных, синий для стационарных
+            }
+            
             const icon = L.divIcon({
                 className: 'custom-div-icon',
-                html: `<div style="background-color: ${post.isMobile ? '#ff9800' : '#2196f3'}; 
-                               width: 24px; height: 24px; border-radius: 50%; 
-                               border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-                               display: flex; align-items: center; justify-content: center;">
-                          <i class="fas fa-building" style="color: white; font-size: 12px;"></i>
-                       </div>`,
+                html: `<div style="background-color: ${bgColor}; 
+                            width: 24px; height: 24px; border-radius: 50%; 
+                            border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                            display: flex; align-items: center; justify-content: center;
+                            opacity: ${post.isActive ? '1' : '0.6'};">
+                        <i class="fas fa-building" style="color: white; font-size: 12px;"></i>
+                    </div>`,
                 iconSize: [24, 24],
                 iconAnchor: [12, 12]
             });
@@ -345,7 +591,10 @@
                         <b>${post.name}</b><br/>
                         ${post.description || ''}<br/>
                         Датчиков: ${post.sensorCount}<br/>
-                        ${post.isMobile ? 'Мобильный' : 'Стационарный'}
+                        ${post.isMobile ? 'Мобильный' : 'Стационарный'}<br/>
+                        <span style="color: ${post.isActive ? '#28a745' : '#dc3545'};">
+                            ${post.isActive ? 'Активен' : 'Неактивен'}
+                        </span>
                     </div>
                 `);
 
@@ -357,14 +606,25 @@
         }
 
         function addSensorMarker(sensor) {
+            // Разные цвета для разных типов датчиков и статусов
+            let bgColor;
+            const typeColor = getSensorTypeColor(sensor.sensorTypeId);
+            
+            if (!sensor.isActive) {
+                bgColor = '#6c757d'; // Серый для неактивных
+            } else {
+                bgColor = typeColor; // Цвет по типу для активных
+            }
+            
             const icon = L.divIcon({
                 className: 'custom-div-icon',
-                html: `<div style="background-color: #4caf50; 
-                               width: 20px; height: 20px; border-radius: 50%; 
-                               border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-                               display: flex; align-items: center; justify-content: center;">
-                          <i class="fas fa-microchip" style="color: white; font-size: 10px;"></i>
-                       </div>`,
+                html: `<div style="background-color: ${bgColor}; 
+                            width: 20px; height: 20px; border-radius: 50%; 
+                            border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                            display: flex; align-items: center; justify-content: center;
+                            opacity: ${sensor.isActive ? '1' : '0.6'};">
+                        <i class="fas fa-microchip" style="color: white; font-size: 10px;"></i>
+                    </div>`,
                 iconSize: [20, 20],
                 iconAnchor: [10, 10]
             });
@@ -375,7 +635,10 @@
                     <div style="font-size: 13px;">
                         <b>${sensor.name}</b><br/>
                         ${sensor.serialNumber}<br/>
-                        Тип: ${sensor.sensorTypeId}
+                        Тип: ${getSensorTypeName(sensor.sensorTypeId)}<br/>
+                        <span style="color: ${sensor.isActive ? '#28a745' : '#dc3545'};">
+                            ${sensor.isActive ? 'Активен' : 'Неактивен'}
+                        </span>
                     </div>
                 `);
 
@@ -386,6 +649,27 @@
             markers.push({ marker, type: 'sensor', data: sensor });
         }
 
+        function getSensorTypeColor(typeId) {
+            switch(typeId) {
+                case 1: return '#4caf50'; // DSPD - зеленый
+                case 2: return '#2196f3'; // IWS - синий
+                case 3: return '#ff9800'; // DOV - оранжевый
+                case 4: return '#9c27b0'; // DUST - фиолетовый
+                case 5: return '#f44336'; // MUEKS - красный
+                default: return '#607d8b'; // серый для неизвестных
+            }
+        }
+
+        function getSensorTypeName(typeId) {
+            switch(typeId) {
+                case 1: return 'DSPD';
+                case 2: return 'IWS';
+                case 3: return 'DOV';
+                case 4: return 'DUST';
+                case 5: return 'MUEKS';
+                default: return 'Неизвестный';
+            }
+        }
         function clearMarkers() {
             markers.forEach(item => map.removeLayer(item.marker));
             markers = [];
@@ -436,6 +720,7 @@
             }
         }
 
+        // Функция для показа данных датчика
         async function showSensorDetails(sensorId, element) {
             // Снимаем активный класс со всех элементов
             document.querySelectorAll('.monitoring-sensor-item').forEach(item => {
@@ -445,107 +730,103 @@
             // Добавляем активный класс текущему элементу
             element.classList.add('active');
             
-            // Получаем sensorTypeId из атрибута или находим в DOM
-            const sensorTypeId = element.getAttribute('data-sensor-type') || 
-                               element.querySelector('[data-sensor-type]')?.getAttribute('data-sensor-type') || 
-                               1; // значение по умолчанию
+            // Получаем данные из атрибутов
+            const sensorTypeId = element.getAttribute('data-sensor-type');
+            const sensorName = element.getAttribute('data-sensor-name');
             
-            // Показываем/скрываем данные датчика
-            const dataElement = document.getElementById(`sensorData_${sensorId}`);
-            if (dataElement) {
-                if (dataElement.style.display === 'none') {
-                    dataElement.style.display = 'block';
-                    await loadSensorLatestData(sensorId, sensorTypeId, dataElement);
-                } else {
-                    dataElement.style.display = 'none';
-                }
+            // Обновляем заголовок панели
+            const panelHeader = document.querySelector('#sensorDataPanel .sensor-data-header h3 span');
+            if (panelHeader) {
+                panelHeader.innerHTML = `Данные датчика: <strong>${sensorName}</strong> (ID: ${sensorId}, тип: ${sensorTypeId})`;
             }
-        }
-
-        async function loadSensorLatestData(sensorId, sensorTypeId, container) {
+            
+            // Показываем панель данных датчика, если она скрыта
+            const sensorPanel = document.getElementById('sensorDataPanel');
+            const sensorContent = document.getElementById('sensorDataContent');
+            
+            if (isSensorDataCollapsed) {
+                toggleSensorDataPanel();
+            }
+            
+            // Показываем загрузку
+            sensorContent.innerHTML = `
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i> Загрузка данных датчика...
+                </div>
+            `;
+            
             try {
-                const response = await fetch(`@Url.Action("GetLatestSensorData", "MonitoringMap")?sensorId=${sensorId}&sensorTypeId=${sensorTypeId}`);
+                const response = await fetch(`/MonitoringMap/GetLatestSensorData?sensorId=${sensorId}&sensorTypeId=${sensorTypeId}`);
+                
                 if (response.ok) {
-                    const data = await response.json();
-                    displayLatestData(data, container);
+                    const html = await response.text();
+                    sensorContent.innerHTML = html;
+                } else {
+                    sensorContent.innerHTML = `
+                        <div class="no-data-message">
+                            <i class="fas fa-exclamation-triangle"></i> Ошибка загрузки данных
+                        </div>
+                    `;
                 }
             } catch (error) {
-                console.error('Ошибка загрузки данных датчика:', error);
-                container.innerHTML = '<em>Ошибка загрузки данных</em>';
-            }
-        }
-
-        function displayLatestData(data, container) {
-            if (!data || Object.keys(data).length === 0) {
-                container.innerHTML = '<em>Нет данных для отображения</em>';
-                return;
-            }
-            
-            let html = '<table class="monitoring-data-table">';
-            
-            // Сортируем ключи для лучшего отображения
-            const keys = Object.keys(data).filter(key => 
-                data[key] !== null && 
-                key !== 'id' && 
-                key !== 'sensorId' && 
-                key !== 'receivedAt' &&
-                key !== 'dataTimestamp'
-            ).sort();
-            
-            // Добавляем временные метки первыми, если есть
-            if (data.receivedAt || data.dataTimestamp) {
-                if (data.receivedAt) {
-                    const receivedDate = new Date(data.receivedAt);
-                    html += `
-                        <tr>
-                            <td class="monitoring-data-label">Получено:</td>
-                            <td>${receivedDate.toLocaleDateString()} ${receivedDate.toLocaleTimeString()}</td>
-                        </tr>
-                    `;
-                }
-                if (data.dataTimestamp) {
-                    const dataDate = new Date(data.dataTimestamp);
-                    html += `
-                        <tr>
-                            <td class="monitoring-data-label">Время данных:</td>
-                            <td>${dataDate.toLocaleDateString()} ${dataDate.toLocaleTimeString()}</td>
-                        </tr>
-                    `;
-                }
-            }
-            
-            // Добавляем остальные данные
-            keys.forEach(key => {
-                html += `
-                    <tr>
-                        <td class="monitoring-data-label">${formatKey(key)}:</td>
-                        <td>${formatValue(data[key])}</td>
-                    </tr>
+                console.error('Ошибка:', error);
+                sensorContent.innerHTML = `
+                    <div class="no-data-message">
+                        <i class="fas fa-times-circle"></i> Ошибка соединения
+                    </div>
                 `;
-            });
+            }
+        }
+
+        // Функция для очистки данных датчика
+        function clearSensorData(event) {
+            if (event) {
+                event.stopPropagation();
+            }
             
-            html += '</table>';
-            container.innerHTML = html;
+            const sensorContent = document.getElementById('sensorDataContent');
+            sensorContent.innerHTML = `
+                <div class="monitoring-no-selection">
+                    <i class="fas fa-chart-line"></i>
+                    <p>Нажмите на датчик в списке для просмотра данных</p>
+                </div>
+            `;
+            
+            // Сбрасываем заголовок
+            const panelHeader = document.querySelector('#sensorDataPanel .sensor-data-header h3 span');
+            if (panelHeader) {
+                panelHeader.innerHTML = 'Данные датчика';
+            }
+            
+            // Сворачиваем панель
+            if (!isSensorDataCollapsed) {
+                toggleSensorDataPanel();
+            }
         }
 
-        function formatKey(key) {
-            return key
-                .replace(/([A-Z])/g, ' $1')
-                .replace(/^./, str => str.toUpperCase())
-                .replace('P M', 'PM')
-                .replace('U ', 'U')
-                .replace('G P S', 'GPS');
-        }
-
-        function formatValue(value) {
-            if (typeof value === 'number') {
-                return value.toFixed(2);
+        // Функция для сворачивания/разворачивания панели данных датчика
+        function toggleSensorDataPanel() {
+            const panel = document.getElementById('sensorDataPanel');
+            const content = document.getElementById('sensorDataContent');
+            const header = panel.querySelector('.sensor-data-header h3');
+            
+            if (isSensorDataCollapsed) {
+                // Раскрываем
+                panel.classList.remove('collapsed');
+                content.classList.remove('collapsed');
+                if (header) {
+                    header.innerHTML = '<i class="fas fa-microchip"></i> <span>Данные датчика</span>';
+                }
+                isSensorDataCollapsed = false;
+            } else {
+                // Сворачиваем
+                panel.classList.add('collapsed');
+                content.classList.add('collapsed');
+                if (header) {
+                    header.innerHTML = '<i class="fas fa-microchip"></i> <span>Данные датчика (свернуто)</span>';
+                }
+                isSensorDataCollapsed = true;
             }
-            if (value instanceof Date || (typeof value === 'string' && Date.parse(value))) {
-                const date = new Date(value);
-                return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-            }
-            return value;
         }
 
         function clearDetails(event) {
@@ -559,6 +840,8 @@
                     <p>Выберите объект на карте для просмотра деталей</p>
                 </div>
             `;
+            
+            // НЕ удаляем данные датчика, они управляются отдельно
         }
 
         function toggleDetailsPanel() {
@@ -604,7 +887,6 @@
             }
         }
 
-        // ФУНКЦИЯ РАЗВЕРТЫВАНИЯ КАРТЫ
         function toggleExpand() {
             const mapCard = document.querySelector('.monitoring-map-card');
             const expandBtn = document.querySelector('[onclick="toggleExpand()"]');
@@ -613,33 +895,27 @@
             const viewContainer = document.querySelector('.monitoring-view-container');
             
             if (!isExpanded) {
-                // ВХОД В РАЗВЕРНУТЫЙ РЕЖИМ
                 mapCard.classList.add('expanded');
                 expandIcon.className = 'fas fa-compress';
                 expandText.textContent = 'Свернуть';
                 
-                // Добавляем обработчик Escape
                 document.addEventListener('keydown', handleExpandEscape);
                 
                 isExpanded = true;
             } else {
-                // ВЫХОД ИЗ РАЗВЕРНУТОГО РЕЖИМА
                 mapCard.classList.remove('expanded');
                 expandIcon.className = 'fas fa-expand';
                 expandText.textContent = 'Развернуть';
                 
-                // Показываем основной контейнер
                 if (viewContainer) {
                     viewContainer.style.display = 'block';
                 }
                 
-                // Удаляем обработчик Escape
                 document.removeEventListener('keydown', handleExpandEscape);
                 
                 isExpanded = false;
             }
             
-            // ОБНОВЛЯЕМ РАЗМЕР КАРТЫ (ВАЖНО!)
             if (window.monitoringMap) {
                 setTimeout(() => {
                     window.monitoringMap.invalidateSize();
@@ -653,7 +929,6 @@
             }
         }
 
-        // Обработка изменения размера окна
         window.addEventListener('resize', function() {
             if (window.monitoringMap) {
                 setTimeout(() => {

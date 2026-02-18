@@ -1,24 +1,24 @@
-@model IEnumerable<BurstroyMonitoring.Data.Models.Sensor>
+@model IEnumerable<dynamic>
 
 @if (Model.Any())
 {
     <div class="monitoring-sensor-list">
         @foreach (var sensor in Model)
         {
-            <div class="monitoring-sensor-item" onclick="showSensorDetails(@sensor.Id, this)">
+            <div class="monitoring-sensor-item @(sensor.IsActive ? "active-sensor" : "inactive-sensor")" 
+                 onclick="showSensorDetails(@sensor.Id, this)"
+                 data-sensor-type="@sensor.SensorTypeId"
+                 data-sensor-name="@sensor.EndPointsName">
                 <div class="monitoring-sensor-header">
                     <strong>@sensor.EndPointsName</strong>
-                    <span class="badge @(sensor.IsActive ? "badge-success" : "badge-danger")">
+                    <span class="badge @(sensor.IsActive ? "badge-success" : "badge-secondary")">
                         @(sensor.IsActive ? "Активен" : "Неактивен")
                     </span>
                 </div>
                 <div>Серийный номер: @sensor.SerialNumber</div>
-                <div>URL: <a href="@sensor.Url" target="_blank">@sensor.Url</a></div>
-                <div class="monitoring-sensor-data" id="sensorData_@sensor.Id" style="display: none;">
-                    <div class="text-center">
-                        <div class="spinner-border spinner-border-sm" role="status"></div>
-                        <span class="ms-2">Загрузка данных...</span>
-                    </div>
+                <div>URL: @sensor.Url</div>
+                <div class="sensor-type-info" style="font-size: 11px; color: #6c757d; margin-top: 5px;">
+                    Тип: @sensor.SensorTypeName (ID: @sensor.SensorTypeId)
                 </div>
             </div>
         }
