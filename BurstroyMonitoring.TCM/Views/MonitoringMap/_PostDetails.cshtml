@@ -34,14 +34,12 @@
 </style>
 
 <div class="monitoring-details-item">
-    <!-- <div class="monitoring-details-label">Название:</div> -->
     <div class="monitoring-details-value">@Model.Name</div>
 </div>
 
 @if (!string.IsNullOrEmpty(Model.Description))
 {
     <div class="monitoring-details-item">
-        <!-- <div class="monitoring-details-label">Описание:</div> -->
         <div class="monitoring-details-value">@Model.Description</div>
     </div>
 }
@@ -95,7 +93,8 @@
 <div class="monitoring-details-item">
     <div class="monitoring-details-label">Датчики (@Model.Sensors.Count):</div>
     <div class="monitoring-details-value">
-        <div class="monitoring-sensor-list" id="sensorList">
+        <!-- Здесь НЕ нужно оборачивать в дополнительный div с классом monitoring-sensor-list -->
+        <div id="sensorList">
             @if (Model.Sensors.Any())
             {
                 <div class="text-center">

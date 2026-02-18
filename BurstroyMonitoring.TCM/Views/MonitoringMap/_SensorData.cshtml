@@ -3,6 +3,7 @@
 @{
     var sensorTypeId = ViewBag.SensorTypeId as int?;
     var sensorId = ViewBag.SensorId as int?;
+    var sensorName = ViewBag.SensorName as string ?? "Датчик";
     
     // Преобразуем dynamic в Dictionary для удобства
     var data = new Dictionary<string, object>();
@@ -21,12 +22,17 @@
 }
 
 <style>
+    .sensor-data-content {
+        padding: 0 !important;
+        max-height: 250px;
+        overflow-y: auto;
+        background: white;
+    }
+    
     .sensor-data-container {
         width: 100%;
         overflow-x: auto;
         background: white;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
     
     .sensor-data-table {
@@ -34,37 +40,13 @@
         border-collapse: collapse;
         font-size: 13px;
         min-width: 800px;
+        border: none;
     }
     
     .sensor-data-table td {
-        padding: 12px 15px;
+        padding: 10px 12px;
         border: 1px solid #e9ecef;
         vertical-align: middle;
-    }
-    
-    .timestamp-row {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    
-    .timestamp-label {
-        font-weight: 600;
-        color: white;
-        font-size: 14px;
-        white-space: nowrap;
-        border: none !important;
-    }
-    
-    .timestamp-label i {
-        margin-right: 8px;
-        opacity: 0.9;
-    }
-    
-    .timestamp-value {
-        color: white;
-        font-family: 'Courier New', monospace;
-        font-weight: 500;
-        font-size: 14px;
-        border: none !important;
     }
     
     .parameters-row td {
@@ -103,9 +85,6 @@
         text-align: center;
         color: #6c757d;
         font-style: italic;
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
     
     .no-data-message i {
@@ -113,57 +92,48 @@
         margin-bottom: 10px;
         color: #adb5bd;
     }
-    
-  
 </style>
 
 @if (data.Any())
 {
+    @* Получаем временную метку для передачи в заголовок *@
+    var timestamp = data.FirstOrDefault(x => 
+        x.Key == "ReceivedAt" || 
+        x.Key == "receivedAt" || 
+        x.Key == "DataTimestamp" || 
+        x.Key == "dataTimestamp").Value;
+    
+    string timestampStr = "";
+    if (timestamp != null)
+    {
+        if (timestamp is DateTime dt)
+        {
+            timestampStr = dt.ToString("dd.MM.yyyy HH:mm:ss");
+        }
+        else
+        {
+            timestampStr = timestamp.ToString() ?? "";
+        }
+    }
+    
+    @* Сохраняем временную метку в ViewBag для заголовка *@
+    ViewBag.Timestamp = timestampStr;
+    
+    @* Фильтруем параметры для отображения (исключаем ID и временные метки) *@
+    var displayParams = data.Where(x => 
+        !x.Key.Contains("ReceivedAt") && 
+        !x.Key.Contains("DataTimestamp") && 
+        !x.Key.Contains("received") && 
+        !x.Key.Contains("timestamp") &&
+        !x.Key.Contains("Id") && 
+        !x.Key.Contains("SensorId") && 
+        !x.Key.Contains("id") && 
+        !x.Key.Contains("sensor_id")).ToList();
+    
     <div class="sensor-data-container">
         <table class="sensor-data-table">
-            @{
-                // Получаем временную метку
-                var timestamp = data.FirstOrDefault(x => 
-                    x.Key == "ReceivedAt" || 
-                    x.Key == "receivedAt" || 
-                    x.Key == "DataTimestamp" || 
-                    x.Key == "dataTimestamp").Value;
-                
-                // Фильтруем параметры для отображения (исключаем ID и временные метки)
-                var displayParams = data.Where(x => 
-                    !x.Key.Contains("ReceivedAt") && 
-                    !x.Key.Contains("DataTimestamp") && 
-                    !x.Key.Contains("received") && 
-                    !x.Key.Contains("timestamp") &&
-                    !x.Key.Contains("Id") && 
-                    !x.Key.Contains("SensorId") && 
-                    !x.Key.Contains("id") && 
-                    !x.Key.Contains("sensor_id")).ToList();
-            }
-            
-            @* Строка с временной меткой *@
-            <tr class="timestamp-row">
-                <td class="timestamp-label" colspan="1">
-                    <i class="far fa-clock"></i> Время получения данных
-                </td>
-                <td class="timestamp-value" colspan="@displayParams.Count">
-                    @if (timestamp != null)
-                    {
-                        if (timestamp is DateTime dt)
-                        {
-                            @dt.ToString("dd.MM.yyyy HH:mm:ss")
-                        }
-                        else
-                        {
-                            @timestamp.ToString()
-                        }
-                    }
-                </td>
-            </tr>
-            
             @* Строка с названиями параметров *@
             <tr class="parameters-row">
-                
                 @foreach (var item in displayParams)
                 {
                     <td>@item.Key</td>
@@ -172,7 +142,6 @@
             
             @* Строка со значениями *@
             <tr class="values-row">
-               
                 @foreach (var item in displayParams)
                 {
                     string displayValue = item.Value?.ToString() ?? "-";

@@ -1,0 +1,593 @@
+/* Стили для карты мониторинга */
+.monitoring-view-container {
+    padding: 20px;
+    height: calc(100vh - 120px);
+    position: relative;
+}
+
+.monitoring-view-title {
+    margin-bottom: 20px;
+}
+
+.monitoring-title-text {
+    font-size: 24px;
+    margin: 0;
+    color: #333;
+}
+
+.monitoring-title-count {
+    font-size: 16px;
+    color: #666;
+    margin-left: 10px;
+}
+
+.monitoring-map-container {
+    height: calc(100% - 60px);
+    position: relative;
+}
+
+.monitoring-map-section {
+    height: 100%;
+}
+
+.monitoring-map-card {
+    height: 100%;
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.monitoring-filter-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    display: flex;
+    gap: 10px;
+    background: white;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.monitoring-search-container {
+    position: relative;
+    width: 300px;
+}
+
+.monitoring-search-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.monitoring-autocomplete {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+    z-index: 1001;
+}
+
+.monitoring-autocomplete-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+
+.monitoring-autocomplete-item:hover,
+.monitoring-autocomplete-item.selected {
+    background-color: #f0f7ff;
+}
+
+.monitoring-control-button {
+    padding: 8px 16px;
+    background: #2196f3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.monitoring-control-button:hover {
+    background: #1976d2;
+}
+
+#monitoring-map {
+    height: 100%;
+    width: 100%;
+}
+
+/* Панель деталей поста */
+.monitoring-details-section {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 280px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    z-index: 1000;
+    overflow: hidden;
+    transition: height 0.3s ease;
+}
+
+.monitoring-details-header {
+    background: #f8f9fa;
+    padding: 12px 15px;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+.monitoring-details-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.monitoring-details-header h3 i {
+    color: #2196f3;
+}
+
+.monitoring-details-content {
+    padding: 15px;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+}
+
+.monitoring-details-content.collapsed {
+    display: none;
+}
+
+.monitoring-details-item {
+    margin-bottom: 10px;
+}
+
+.monitoring-details-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 3px;
+    font-size: 13px;
+}
+
+.monitoring-details-value {
+    color: #212529;
+    font-size: 13px;
+    word-break: break-word;
+}
+
+.monitoring-no-selection {
+    text-align: center;
+    padding: 30px 15px;
+    color: #6c757d;
+}
+
+.monitoring-no-selection i {
+    font-size: 48px;
+    margin-bottom: 15px;
+    color: #dee2e6;
+}
+
+.monitoring-no-selection p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.monitoring-button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.monitoring-button-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.monitoring-button-secondary:hover {
+    background: #5a6268;
+}
+
+/* Стили для панели данных датчика */
+.sensor-data-section {
+    position: absolute;
+    bottom: 10px;
+    left: 20px;
+    right: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+    border: 1px solid #dee2e6;
+    margin-right: 290px;
+}
+
+.sensor-data-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 10px 15px;
+    border-bottom: 1px solid #dee2e6;
+    color: white;
+    border-radius: 8px 8px 0 0;
+}
+
+.sensor-data-header h3 {
+    margin: 0;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sensor-data-header h3 i {
+    color: white;
+    flex-shrink: 0;
+}
+
+.sensor-data-header h3 i.fa-clock {
+    margin-left: 15px;
+    opacity: 0.9;
+    flex-shrink: 0;
+}
+
+.sensor-data-header h3 span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sensor-data-content {
+    padding: 0 !important;
+    max-height: 250px;
+    overflow-y: auto;
+    background: white;
+    border-radius: 0 0 8px 8px;
+}
+
+/* Стили для таблицы данных датчика */
+.sensor-data-container {
+    width: 100%;
+    overflow-x: auto;
+    background: white;
+}
+
+.sensor-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 800px;
+    border: none;
+}
+
+.sensor-data-table td {
+    padding: 10px 12px;
+    border: 1px solid #e9ecef;
+    vertical-align: middle;
+}
+
+.sensor-data-table tr:first-child td {
+    border-top: none;
+}
+
+.sensor-data-table tr:last-child td {
+    border-bottom: none;
+}
+
+.parameters-row td {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.values-row td {
+    font-family: 'Courier New', monospace;
+    font-weight: 500;
+    text-align: center;
+    background-color: white;
+}
+
+.values-row td.number {
+    color: #28a745;
+}
+
+.values-row td.boolean {
+    color: #dc3545;
+}
+
+.values-row td.string {
+    color: #17a2b8;
+}
+
+.values-row td.datetime {
+    color: #6f42c1;
+}
+
+/* Стили для списка датчиков - ИСПРАВЛЕНО */
+.monitoring-sensor-list {
+    /* max-height: 250px; */
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+/* Убираем возможные вложенные списки */
+.monitoring-sensor-list .monitoring-sensor-list {
+    max-height: none;
+    overflow-y: visible;
+    padding-right: 0;
+}
+
+.monitoring-sensor-item {
+    padding: 10px;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.monitoring-sensor-item:last-child {
+    margin-bottom: 0;
+}
+
+.monitoring-sensor-item:hover {
+    background-color: #f8f9fa;
+}
+
+.monitoring-sensor-item.active {
+    background-color: #e3f2fd;
+    border-left: 3px solid #2196f3;
+}
+
+.monitoring-sensor-item.active-sensor {
+    /* Для активных датчиков (но не выбранных) */
+}
+
+.monitoring-sensor-item.inactive-sensor {
+    opacity: 0.7;
+    background-color: #f8f9fa;
+    border-left: 3px solid #6c757d;
+}
+
+.monitoring-sensor-item.inactive-sensor:hover {
+    opacity: 0.9;
+    background-color: #e9ecef;
+}
+
+.monitoring-sensor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+/* Стили для панели деталей 
+.monitoring-details-content .monitoring-sensor-list {
+    max-height: 200px;
+}
+*/
+/* Стили для badge */
+.badge {
+    display: inline-block;
+    padding: 0.25em 0.4em;
+    font-size: 75%;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+}
+
+.badge-success {
+    color: #fff;
+    background-color: #28a745;
+}
+
+.badge-danger {
+    color: #fff;
+    background-color: #dc3545;
+}
+
+.badge-warning {
+    color: #212529;
+    background-color: #ffc107;
+}
+
+.badge-info {
+    color: #fff;
+    background-color: #17a2b8;
+}
+
+.badge-secondary {
+    color: #fff;
+    background-color: #6c757d;
+}
+
+/* Стили для маркеров на карте */
+.leaflet-marker-icon {
+    transition: all 0.2s ease;
+}
+
+.leaflet-marker-icon:hover {
+    transform: scale(1.1);
+}
+
+/* Компактные элементы для деталей поста */
+.compact-item {
+    display: flex !important;
+    align-items: center !important;
+    margin-bottom: 6px !important;
+    padding-bottom: 6px !important;
+    border-bottom: 1px solid #e9ecef !important;
+}
+
+.compact-item .monitoring-details-label {
+    font-weight: 600;
+    color: #495057;
+    margin-right: 8px;
+    font-size: 13px;
+    white-space: nowrap;
+    display: inline;
+}
+
+.compact-item .compact-value {
+    color: #212529;
+    font-size: 13px;
+    line-height: 1.4;
+    display: inline;
+}
+
+.compact-item .badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    height: 20px !important;
+}
+
+/* Индикатор загрузки */
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+    color: #6c757d;
+}
+
+.loading-spinner i {
+    margin-right: 10px;
+}
+
+/* Стили для скроллбаров */
+.monitoring-sensor-list::-webkit-scrollbar,
+.sensor-data-content::-webkit-scrollbar,
+.monitoring-details-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.monitoring-sensor-list::-webkit-scrollbar-track,
+.sensor-data-content::-webkit-scrollbar-track,
+.monitoring-details-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.monitoring-sensor-list::-webkit-scrollbar-thumb,
+.sensor-data-content::-webkit-scrollbar-thumb,
+.monitoring-details-content::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.monitoring-sensor-list::-webkit-scrollbar-thumb:hover,
+.sensor-data-content::-webkit-scrollbar-thumb:hover,
+.monitoring-details-content::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Стили для карты в развернутом режиме */
+.monitoring-map-card.expanded {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    border-radius: 0;
+}
+
+.monitoring-map-card.expanded .monitoring-filter-container {
+    top: 20px;
+    left: 20px;
+}
+
+.monitoring-map-card.expanded .monitoring-details-section {
+    top: 20px;
+    right: 20px;
+}
+
+.monitoring-map-card.expanded .sensor-data-section {
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+}
+
+/* Адаптация для мобильных устройств */
+@media (max-width: 768px) {
+    .monitoring-view-container {
+        padding: 10px;
+        height: calc(100vh - 80px);
+    }
+    
+    .monitoring-filter-container {
+        flex-direction: column;
+        width: calc(100% - 40px);
+    }
+    
+    .monitoring-search-container {
+        width: 100%;
+    }
+    
+    .monitoring-details-section {
+        width: 240px;
+    }
+    
+    .sensor-data-section {
+        margin-right: 10px;
+        left: 10px;
+        right: 10px;
+    }
+    
+    .sensor-data-header h3 {
+        font-size: 12px;
+    }
+    
+    .sensor-data-table {
+        min-width: 600px;
+    }
+    
+    .sensor-data-table td {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+}
+
+/* Стили для пустого состояния */
+.no-data-message {
+    padding: 30px;
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.no-data-message i {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #adb5bd;
+}
