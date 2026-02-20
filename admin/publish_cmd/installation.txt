@@ -102,3 +102,10 @@ sudo journalctl -u burstroy-monitoring-worker -f
 sudo systemctl enable burstroy-monitoring-worker
 sudo systemctl disable burstroy-monitoring-worker
 
+DROP VIEW  vw_dov_data_full;
+DROP VIEW  vw_dspd_data_full;
+DROP VIEW  vw_dust_data_full;
+DROP VIEW   vw_iws_data_full;
+DROP VIEW  vw_mueks_data_full;
+DROP VIEW  vw_sensor_errors_full;
+DROP VIEW vw_sensor_results_full;
