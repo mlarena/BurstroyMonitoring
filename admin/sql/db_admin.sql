@@ -23,4 +23,4 @@ SELECT view_definition FROM information_schema.views WHERE table_name = 'vw_dov_
 
 создание резеврной копии sql 
 ps
-& "C:\Program Files\PostgreSQL\18\bin\pg_dump" -U postgres -h localhost -p 5432 -d sensordb -f "C:\temp\graph\sensordb_new.sql"
+& "C:\Program Files\PostgreSQL\18\bin\pg_dump" -U postgres -h localhost -p 5432 -d sensordb -f "C:\temp\sensordb_new.sql"
