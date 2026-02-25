@@ -1,0 +1,25 @@
+// BurstroyMonitoring.Data/Models/ViewModels/SensorSelectionViewModel.cs
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc.Rendering;
+
+namespace BurstroyMonitoring.Data.Models.ViewModels
+{
+    public class SensorSelectionViewModel
+    {
+        public int? SelectedMonitoringPostId { get; set; }
+        public int? SelectedSensorId { get; set; }
+        public List<SelectListItem> MonitoringPosts { get; set; } = new();
+        public List<SelectListItem> Sensors { get; set; } = new();
+        public SensorViewModel? SelectedSensor { get; set; }
+    }
+
+    public class SensorViewModel
+    {
+        public int Id { get; set; }
+        public string SensorTypeName { get; set; } = string.Empty;
+        public string EndPointsName { get; set; } = string.Empty;
+        public string SerialNumber { get; set; } = string.Empty;
+        public string? MonitoringPostName { get; set; }
+        public string DisplayName => $"{SensorTypeName} {EndPointsName} {SerialNumber}";
+    }
+}

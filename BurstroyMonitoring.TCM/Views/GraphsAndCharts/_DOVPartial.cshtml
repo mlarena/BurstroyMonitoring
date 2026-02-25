@@ -1,0 +1,103 @@
+@model BurstroyMonitoring.Data.Models.ViewModels.SensorViewModel
+@{
+    var sensorId = Model.Id;
+}
+<div class="card bsp-chart-sensor-card" id="dovContainer" data-sensor-id="@sensorId">
+    <div class="card-header bg-info text-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-eye"></i> Датчик оптической видимости (DOV)</h5>
+            <span class="badge bg-light text-dark"><i class="fas fa-barcode"></i> @Model.SerialNumber</span>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <div class="d-flex justify-content-between align-items-center bg-light p-2 rounded">
+                    <!-- УДАЛЕНЫ: EndPointsName и MonitoringPostName -->
+                    <div><i class="fas fa-clock text-info"></i> <span id="dovLastUpdateTime">Загрузка...</span></div>
+                    
+                    <!-- АВТООБНОВЛЕНИЕ - используем новый компонент -->
+                    @await Html.PartialAsync("_AutoUpdatePartial", new BurstroyMonitoring.Data.Models.ViewModels.AutoUpdateViewModel 
+                    { 
+                        Prefix = "dov", 
+                        Color = "secondary" 
+                    })
+                    
+                    <!-- ВЫБОР ПЕРИОДА -->
+                    <div class="d-flex align-items-center ms-3">
+                        @await Html.PartialAsync("_TimeRangePartial", new { Prefix = "dov", OutlineColor = "info", ActiveDays = 1 })
+                    </div>
+                    
+                    <!-- ТИП ГРАФИКА -->
+                    <div class="d-flex align-items-center ms-3">
+                        <span class="text-muted me-2">Тип графика:</span>
+                        <div class="btn-group" role="group" id="dovChartStyleRadio">
+                            <input type="radio" class="btn-check" name="dovChartStyle" id="dovChartStyleLine" value="line" autocomplete="off" checked>
+                            <label class="btn btn-outline-secondary btn-sm" for="dovChartStyleLine">Линейный</label>
+                            
+                            <input type="radio" class="btn-check" name="dovChartStyle" id="dovChartStyleScatter" value="scatter" autocomplete="off">
+                            <label class="btn btn-outline-secondary btn-sm" for="dovChartStyleScatter">Точечный</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="d-flex align-items-center">
+                            <span class="text-muted me-2"><i class="fas fa-chart-pie"></i></span>
+                            <div class="btn-group" role="group" id="dovChartTypeRadio">
+                                <input type="radio" class="btn-check" name="dovChartType" id="dovChartTypeVisibility" value="visibility" autocomplete="off" checked>
+                                <label class="btn btn-outline-info btn-sm" for="dovChartTypeVisibility">📈 Дальность видимости</label>
+                                
+                                <input type="radio" class="btn-check" name="dovChartType" id="dovChartTypeBrightness" value="brightness" autocomplete="off">
+                                <label class="btn btn-outline-info btn-sm" for="dovChartTypeBrightness">☀️ Освещенность</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @await Html.PartialAsync("_DateRangeSectionPartial", new { Prefix = "dov", Color = "primary" })
+        <div id="chartsContainer">
+            <div class="card">
+                <div class="card-header bg-light py-2 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0"><i class="fas fa-chart-line text-info"></i> <span id="dovChartTitle">Дальность видимости (метры)</span></h6>
+                    <div class="d-flex align-items-center"><span class="text-muted small me-2">Шкала:</span><span id="dovTimeScaleLabel" class="badge bg-secondary">авто</span></div>
+                </div>
+                <div class="card-body p-2">
+                    <canvas id="dovVisibilityChart" class="bsp-chart-canvas" style="height: 450px; width: 100%;"></canvas>
+                    <canvas id="dovBrightnessChart" class="bsp-chart-canvas" style="height: 450px; width: 100%; display: none;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-12">
+                <div class="d-flex justify-content-around bg-light p-2 rounded">
+                    <div class="text-center"><div class="small text-muted">Мин. видимость</div><div class="fw-bold" id="dovMinVisibility">-</div><div class="small">м</div></div>
+                    <div class="text-center"><div class="small text-muted">Макс. видимость</div><div class="fw-bold" id="dovMaxVisibility">-</div><div class="small">м</div></div>
+                    <div class="text-center"><div class="small text-muted">Средняя</div><div class="fw-bold" id="dovAvgVisibility">-</div><div class="small">м</div></div>
+                    <div class="text-center"><div class="small text-muted">Измерений</div><div class="fw-bold" id="dovTotalMeasurements">-</div><div class="small">шт</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="dovChartLoadingIndicator" class="text-center my-2 bsp-chart-loading-indicator" style="display: none;">
+    <div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">Загрузка...</span></div>
+    <span class="ms-2 text-muted small">Обновление данных...</span>
+</div>
+
+<script>
+    $(document).ready(function() {
+        if (typeof DOVCharts !== 'undefined') {
+            if (DOVCharts.cleanup) DOVCharts.cleanup();
+            DOVCharts.init(@sensorId);
+            $(document).trigger('sensorChanged');
+        } else { 
+            console.error('DOVCharts не загружен!'); 
+        }
+    });
+</script>

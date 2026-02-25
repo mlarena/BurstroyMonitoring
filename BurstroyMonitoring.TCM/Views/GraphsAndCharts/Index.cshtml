@@ -1,98 +1,113 @@
+@model BurstroyMonitoring.Data.Models.ViewModels.SensorSelectionViewModel
+
 @{
     ViewData["Title"] = "Графики и диаграммы";
 }
 
-<div class="view-container">
-    <h1 class="view-title">Графики</h1>
-
-    <div class="card mb-4">
+<div class="container mt-4">
+<!-- <div> -->
+    <div class="card mt-4">
         <div class="card-header">
-            <h5 class="mb-0">Обзор доступных данных для построения графиков</h5>
+            <h5>Выбор сенсора</h5>
         </div>
         <div class="card-body">
-            <p class="text-muted">
-                Здесь в будущем будут отображаться графики и диаграммы на основе данных датчиков:
-            </p>
-            <ul>
-                <li>DSPD — состояние дорожного полотна (сцепление, температура, высота осадков и т.д.)</li>
-                <li>IWS — метеоданные (температура, влажность, ветер, осадки)</li>
-                <li>DOV — оптическая видимость</li>
-                <li>MUEKS — управление энергоснабжением и контроля сети</li>
-                <li>Результаты проверок и ошибки</li>
-            </ul>
-            <p class="mt-3">
-                Пока страница пустая — данные и графики добавим позже.
-            </p>
+            <form id="sensorForm">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="monitoringPostSelect">Пост мониторинга</label>
+                            <select id="monitoringPostSelect" class="form-control" 
+                                    asp-for="SelectedMonitoringPostId" 
+                                    asp-items="Model.MonitoringPosts">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="sensorSelect">Сенсор</label>
+                            <select id="sensorSelect" class="form-control" 
+                                    asp-for="SelectedSensorId" 
+                                    asp-items="Model.Sensors" disabled>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- Здесь в будущем будут контейнеры для графиков -->
-    <div class="row">
-        <div class="col-lg-6 mb-4">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h6 class="mb-0">Пример: Температура дороги (DSPD)</h6>
-                </div>
-                <div class="card-body d-flex align-items-center justify-content-center">
-                    <div class="text-center text-muted">
-                        <i class="fas fa-chart-line fa-4x mb-3"></i>
-                        <p>График будет здесь</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-6 mb-4">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h6 class="mb-0">Пример: Скорость ветра (IWS)</h6>
-                </div>
-                <div class="card-body d-flex align-items-center justify-content-center">
-                    <div class="text-center text-muted">
-                        <i class="fas fa-wind fa-4x mb-3"></i>
-                        <p>График будет здесь</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Место для будущих графиков -->
-    <div id="charts-placeholder" class="mt-4">
-        <!-- Динамические графики будут добавляться сюда -->
+    <div id="sensorDataContainer" class="mt-4">
+        <!-- Здесь будут отображаться данные выбранного сенсора -->
     </div>
 </div>
 
-@section Styles {
-    <style>
-        .view-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+@section Scripts {
+    
+    
+    <script src="~/js/lib/bootstrap.bundle.min.js"></script>---
+    
+    <!-- Chart.js и зависимости -->
+    <script src="~/js/lib_chart/chart.js"></script>
+    <script src="~/js/lib_chart/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="~/js/lib_chart/moment.min.js"></script>
+    <script src="~/js/lib_chart/moment.ru.min.js"></script>
+    
+    <!-- noUiSlider (ВАЖНО: должен быть загружен до dov-charts.js) -->
+    <script src="~/js/lib_chart/nouislider.min.js"></script>
+    <script src="~/js/lib_chart/wNumb.min.js"></script>
+    
+    <script src="~/js/lib_chart/chart-utils.js" asp-append-version="true"></script>
+    <script src="~/js/lib_chart/auto-update.js" asp-append-version="true"></script>
+    <script src="~/js/lib_chart/date-range-slider.js" asp-append-version="true"></script>
+    
+    
+    <!-- Пользовательские скрипты -->
+   
+    <script src="~/js/lib_chart/dov-charts.js" asp-append-version="true"></script>
+    <script src="~/js/lib_chart/dspd-charts.js" asp-append-version="true"></script>
+    <script src="~/js/lib_chart/dust-charts.js" asp-append-version="true"></script>
+    <script src="~/js/lib_chart/iws-charts.js" asp-append-version="true"></script>
+    <script src="~/js/lib_chart/mueks-charts.js" asp-append-version="true"></script>
+    <script>
+        $(document).ready(function () {
+            // Каскадные списки
+            $('#monitoringPostSelect').change(function () {
+                var postId = $(this).val();
+                
+                if (postId) {
+                    $('#sensorSelect').prop('disabled', false);
+                    
+                    $.getJSON('/GraphsAndCharts/GetSensorsByPost', { monitoringPostId: postId }, function (data) {
+                        $('#sensorSelect').empty();
+                        $.each(data, function (index, item) {
+                            $('#sensorSelect').append($('<option>', {
+                                value: item.value,
+                                text: item.text
+                            }));
+                        });
+                    });
+                } else {
+                    $('#sensorSelect').prop('disabled', true).empty();
+                    $('#sensorSelect').append($('<option>', {
+                        value: "",
+                        text: "Сначала выберите пост мониторинга"
+                    }));
+                    $('#sensorDataContainer').empty();
+                }
+            });
 
-        .view-title {
-            margin-bottom: 28px;
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-
-        .card {
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            box-shadow: var(--shadow-small);
-            transition: all 0.2s;
-        }
-
-        .card:hover {
-            box-shadow: var(--shadow-medium);
-        }
-
-        .card-header {
-            background: #f8f9fa;
-            border-bottom: 1px solid var(--border-color);
-            padding: 12px 20px;
-            font-weight: 600;
-        }
-    </style>
+            // Загрузка данных сенсора
+            $('#sensorSelect').change(function () {
+                var sensorId = $(this).val();
+                
+                if (sensorId) {
+                    $.get('/GraphsAndCharts/GetSensorData', { sensorId: sensorId }, function (data) {
+                        $('#sensorDataContainer').html(data);
+                    });
+                } else {
+                    $('#sensorDataContainer').empty();
+                }
+            });
+        });
+    </script>
 }
