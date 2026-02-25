@@ -1,5 +1,7 @@
 // dspd-charts.js - Модуль для визуализации данных датчика состояния дорожного полотна
 
+
+
 const DSPDCharts = {
     chart: null,
     currentSensorId: null,

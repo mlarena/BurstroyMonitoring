@@ -3,6 +3,10 @@
 @{
     ViewData["Title"] = "Графики и диаграммы";
 }
+<link rel="stylesheet" href="~/css/bootstrap/bootstrap.min.css">
+<link rel="stylesheet" href="~/css/charts.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/all.min.css"> 
+<link rel="stylesheet" href="~/css/nouislider.min.css">
 
 <div class="container mt-4">
 <!-- <div> -->
@@ -44,25 +48,26 @@
 @section Scripts {
     
     
-    <script src="~/js/lib/bootstrap.bundle.min.js"></script>---
+    <script src="~/js/lib/bootstrap.bundle.min.js"></script>
     
     <!-- Chart.js и зависимости -->
-    <script src="~/js/lib_chart/chart.js"></script>
-    <script src="~/js/lib_chart/chartjs-adapter-date-fns.bundle.min.js"></script>
-    <script src="~/js/lib_chart/moment.min.js"></script>
-    <script src="~/js/lib_chart/moment.ru.min.js"></script>
+    <script src="~/js/lib/chart.js"></script>
+    <script src="~/js/lib/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="~/js/lib/moment.min.js"></script>
+    <script src="~/js/lib/moment.ru.min.js"></script>
     
     <!-- noUiSlider (ВАЖНО: должен быть загружен до dov-charts.js) -->
-    <script src="~/js/lib_chart/nouislider.min.js"></script>
-    <script src="~/js/lib_chart/wNumb.min.js"></script>
+    <script src="~/js/lib/nouislider.min.js"></script>
+    <script src="~/js/lib/wNumb.min.js"></script>
     
-    <script src="~/js/lib_chart/chart-utils.js" asp-append-version="true"></script>
-    <script src="~/js/lib_chart/auto-update.js" asp-append-version="true"></script>
-    <script src="~/js/lib_chart/date-range-slider.js" asp-append-version="true"></script>
+    
     
     
     <!-- Пользовательские скрипты -->
-   
+   <script src="~/js/lib_chart/chart-utils.js" asp-append-version="true"></script>
+    <script src="~/js/lib_chart/auto-update.js" asp-append-version="true"></script>
+    <script src="~/js/lib_chart/date-range-slider.js" asp-append-version="true"></script>
+
     <script src="~/js/lib_chart/dov-charts.js" asp-append-version="true"></script>
     <script src="~/js/lib_chart/dspd-charts.js" asp-append-version="true"></script>
     <script src="~/js/lib_chart/dust-charts.js" asp-append-version="true"></script>
