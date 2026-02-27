@@ -17,11 +17,6 @@ VALUES
 INSERT INTO public."MonitoringPost" 
     ("Name", "Description", "Longitude", "Latitude", "IsMobile", "IsActive", "CreatedAt", "UpdatedAt")
 VALUES
-    ('Екатеринбург', 'Стационарный пост мониторинга в г. Екатеринбург (ID: 004)', 60.6057025, 56.8389261, false, true, NOW(), NOW());
-
-INSERT INTO public."MonitoringPost" 
-    ("Name", "Description", "Longitude", "Latitude", "IsMobile", "IsActive", "CreatedAt", "UpdatedAt")
-VALUES
     ('Хабаровск', 'Стационарный пост мониторинга в г. Хабаровск (ID: 024)', 135.083866, 48.482707, false, true, NOW(), NOW());
 
 INSERT INTO public."MonitoringPost" 
