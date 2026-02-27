@@ -7,6 +7,7 @@ namespace BurstroyMonitoring.Data.Models.ViewModels
     public class DSPDMeasurementViewModel
     {
         public int DspdDataId { get; set; }
+        public DateTime ReceivedAt { get; set; }        
         public DateTime DataTimestamp { get; set; }
         public decimal? GripCoefficient { get; set; }
         public decimal? ShakeLevel { get; set; }

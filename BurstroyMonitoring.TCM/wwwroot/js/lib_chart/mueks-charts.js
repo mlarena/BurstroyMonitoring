@@ -12,32 +12,32 @@ const MUEKSCharts = {
 
     voltageParameters: [
         { id: 'voltageIn12b', name: 'Напряжение вх. 12В', unit: 'В', color: '#dc3545', property: 'voltagePowerIn12b', visible: true, order: 1, group: 'voltage', icon: 'fa-bolt' },
-        { id: 'voltageOut12b',name: 'Напряжение вых. 12В',unit: 'В', color: '#fd7e14', property: 'voltageOut12b',     visible: false, order: 2, group: 'voltage', icon: 'fa-bolt' },
-        { id: 'voltageAkb',   name: 'Напряжение АКБ',     unit: 'В', color: '#ffc107', property: 'voltageAkb',        visible: false, order: 3, group: 'voltage', icon: 'fa-battery-half' }
+        { id: 'voltageOut12b', name: 'Напряжение вых. 12В', unit: 'В', color: '#fd7e14', property: 'voltageOut12b', visible: false, order: 2, group: 'voltage', icon: 'fa-bolt' },
+        { id: 'voltageAkb', name: 'Напряжение АКБ', unit: 'В', color: '#ffc107', property: 'voltageAkb', visible: false, order: 3, group: 'voltage', icon: 'fa-battery-half' }
     ],
 
     currentParameters: [
-        { id: 'currentOut12b',name: 'Ток вых. 12В', unit: 'А', color: '#0d6efd', property: 'currentOut12b', visible: true, order: 1, group: 'current', icon: 'fa-wave-square' },
-        { id: 'currentOut48b',name: 'Ток вых. 48В', unit: 'А', color: '#17a2b8', property: 'currentOut48b', visible: false, order: 2, group: 'current', icon: 'fa-wave-square' },
-        { id: 'currentAkb',   name: 'Ток АКБ',      unit: 'А', color: '#20c997', property: 'currentAkb',    visible: false, order: 3, group: 'current', icon: 'fa-battery-half' }
+        { id: 'currentOut12b', name: 'Ток вых. 12В', unit: 'А', color: '#0d6efd', property: 'currentOut12b', visible: true, order: 1, group: 'current', icon: 'fa-wave-square' },
+        { id: 'currentOut48b', name: 'Ток вых. 48В', unit: 'А', color: '#17a2b8', property: 'currentOut48b', visible: false, order: 2, group: 'current', icon: 'fa-wave-square' },
+        { id: 'currentAkb', name: 'Ток АКБ', unit: 'А', color: '#20c997', property: 'currentAkb', visible: false, order: 3, group: 'current', icon: 'fa-battery-half' }
     ],
 
     energyParameters: [
-        { id: 'wattHours',    name: 'Ватт-часы АКБ', unit: 'Вт·ч', color: '#6f42c1', property: 'wattHoursAkb', visible: true,  order: 1, group: 'energy', icon: 'fa-bolt' },
-        { id: 'visibleRange', name: 'Видимый диапазон',unit: '',   color: '#e83e8c', property: 'visibleRange',visible: false, order: 2, group: 'energy', icon: 'fa-eye' }
+        { id: 'wattHours', name: 'Ватт-часы АКБ', unit: 'Вт·ч', color: '#6f42c1', property: 'wattHoursAkb', visible: true, order: 1, group: 'energy', icon: 'fa-bolt' },
+        { id: 'visibleRange', name: 'Видимый диапазон', unit: '', color: '#e83e8c', property: 'visibleRange', visible: false, order: 2, group: 'energy', icon: 'fa-eye' }
     ],
 
     statusParameters: [
-        { id: 'temperature', name: 'Температура',   unit: '°C', color: '#28a745', property: 'temperatureBox', visible: true,  order: 1, group: 'status', icon: 'fa-thermometer-half' },
-        { id: 'sensor220b',  name: 'Датчик 220В',   unit: '',   color: '#dc3545', property: 'sensor220b',     visible: false, order: 2, group: 'status', icon: 'fa-plug' },
-        { id: 'doorStatus',  name: 'Статус двери',  unit: '',   color: '#ffc107', property: 'doorStatus',      visible: false, order: 3, group: 'status', icon: 'fa-door-open' }
+        { id: 'temperature', name: 'Температура', unit: '°C', color: '#28a745', property: 'temperatureBox', visible: true, order: 1, group: 'status', icon: 'fa-thermometer-half' },
+        { id: 'sensor220b', name: 'Датчик 220В', unit: '', color: '#dc3545', property: 'sensor220b', visible: false, order: 2, group: 'status', icon: 'fa-plug' },
+        { id: 'doorStatus', name: 'Статус двери', unit: '', color: '#ffc107', property: 'doorStatus', visible: false, order: 3, group: 'status', icon: 'fa-door-open' }
     ],
 
     tdsParameters: [
-        { id: 'tdsH',     name: 'TDS H',     unit: '', color: '#6c757d', property: 'tdsH',     visible: true, order: 1, group: 'tds', icon: 'fa-microchip', isText: true },
-        { id: 'tdsTds',   name: 'TDS TDS',   unit: '', color: '#17a2b8', property: 'tdsTds',   visible: true, order: 2, group: 'tds', icon: 'fa-microchip', isText: true },
-        { id: 'tkosaT1',  name: 'TKOСА T1',  unit: '', color: '#6610f2', property: 'tkosaT1',  visible: true, order: 3, group: 'tds', icon: 'fa-microchip', isText: true },
-        { id: 'tkosaT3',  name: 'TKOСА T3',  unit: '', color: '#e83e8c', property: 'tkosaT3',  visible: true, order: 4, group: 'tds', icon: 'fa-microchip', isText: true }
+        { id: 'tdsH', name: 'TDS H', unit: '', color: '#6c757d', property: 'tdsH', visible: true, order: 1, group: 'tds', icon: 'fa-microchip', isText: true },
+        { id: 'tdsTds', name: 'TDS TDS', unit: '', color: '#17a2b8', property: 'tdsTds', visible: true, order: 2, group: 'tds', icon: 'fa-microchip', isText: true },
+        { id: 'tkosaT1', name: 'TKOСА T1', unit: '', color: '#6610f2', property: 'tkosaT1', visible: true, order: 3, group: 'tds', icon: 'fa-microchip', isText: true },
+        { id: 'tkosaT3', name: 'TKOСА T3', unit: '', color: '#e83e8c', property: 'tkosaT3', visible: true, order: 4, group: 'tds', icon: 'fa-microchip', isText: true }
     ],
 
     init: function(sensorId) {
@@ -46,13 +46,11 @@ const MUEKSCharts = {
         moment.locale('ru');
 
         this.createAllRadios();
-        
-        // Инициализация автообновления через менеджер
+
         this.initAutoUpdate();
-        
+
         this.loadData(this.currentDays);
 
-        // Обработчик кнопок периода
         $('#mueksTimeRangeButtons .btn').off('click').on('click', (e) => {
             const btn = $(e.currentTarget);
             if (btn.hasClass('active')) return;
@@ -65,13 +63,11 @@ const MUEKSCharts = {
             this.loadData(days);
         });
 
-        // Обработчик типа графика (радио-кнопки)
         $('input[name="mueksChartType"]').off('change').on('change', (e) => {
             this.currentChartType = $(e.currentTarget).val();
             if (this.currentTab !== 'tds') this.renderChart();
         });
 
-        // Обработчик переключения вкладок
         $('#mueksTabs button').off('shown.bs.tab').on('shown.bs.tab', (e) => {
             const tabId = $(e.target).attr('id');
             this.currentTab = tabId.replace('-tab', '');
@@ -87,7 +83,6 @@ const MUEKSCharts = {
             }
         });
 
-        // Обработчик радио-кнопок параметров
         $(document).on('change', '.mueks-parameter-radio', () => {
             this.updateVisibleParameters();
             if (this.currentTab !== 'tds') {
@@ -134,14 +129,14 @@ const MUEKSCharts = {
                 onRangeChange: (filteredData) => {
                     const originalData = this.allMeasurements;
                     this.allMeasurements = filteredData;
-                    
+
                     if (this.currentTab === 'tds') {
                         this.renderTdsTable();
                     } else {
                         this.renderChart();
                         this.updateStatistics();
                     }
-                    
+
                     this.allMeasurements = originalData;
                 }
             });
@@ -151,11 +146,10 @@ const MUEKSCharts = {
     },
 
     createAllRadios: function() {
-        this.createRadiosForGroup('voltage',  this.voltageParameters);
-        this.createRadiosForGroup('current',  this.currentParameters);
-        this.createRadiosForGroup('energy',   this.energyParameters);
-        this.createRadiosForGroup('status',   this.statusParameters);
-        // TDS — без радио-кнопок
+        this.createRadiosForGroup('voltage', this.voltageParameters);
+        this.createRadiosForGroup('current', this.currentParameters);
+        this.createRadiosForGroup('energy', this.energyParameters);
+        this.createRadiosForGroup('status', this.statusParameters);
     },
 
     createRadiosForGroup: function(groupName, parameters) {
@@ -182,20 +176,20 @@ const MUEKSCharts = {
         const groups = {
             voltage: this.voltageParameters,
             current: this.currentParameters,
-            energy:  this.energyParameters,
-            status:  this.statusParameters,
-            tds:     this.tdsParameters
+            energy: this.energyParameters,
+            status: this.statusParameters,
+            tds: this.tdsParameters
         };
         return (groups[this.currentTab] || []).filter(p => p.visible);
     },
 
     updateChartTitle: function() {
         const titles = {
-            voltage:  'Параметры напряжения (В)',
-            current:  'Параметры тока (А)',
-            energy:   'Параметры энергии',
-            status:   'Статусы и температура',
-            tds:      'TDS параметры'
+            voltage: 'Параметры напряжения (В)',
+            current: 'Параметры тока (А)',
+            energy: 'Параметры энергии',
+            status: 'Статусы и температура',
+            tds: 'TDS параметры'
         };
         $('#mueksChartTitle').text(titles[this.currentTab] || 'Параметры MUEKS');
     },
@@ -225,7 +219,7 @@ const MUEKSCharts = {
         recent.forEach(m => {
             html += `
                 <tr>
-                    <td>${moment(m.dataTimestamp).format('DD.MM.YYYY HH:mm:ss')}</td>
+                    <td>${moment(m.receivedAt).format('DD.MM.YYYY HH:mm:ss')}</td>
                     <td>${m.tdsH ?? '-'}</td>
                     <td>${m.tdsTds ?? '-'}</td>
                     <td>${m.tkosaT1 ?? '-'}</td>
@@ -240,7 +234,7 @@ const MUEKSCharts = {
 
     cleanup: function() {
         console.log('MUEKSCharts.cleanup()');
-        
+
         if (this.autoUpdateInstance) {
             AutoUpdateManager.destroy('mueks');
             this.autoUpdateInstance = null;
@@ -250,7 +244,7 @@ const MUEKSCharts = {
             this.chart.destroy();
             this.chart = null;
         }
-        
+
         this.allMeasurements = [];
     },
 
@@ -300,7 +294,7 @@ const MUEKSCharts = {
         if (!this.allMeasurements?.length) return;
 
         const measurements = this.allMeasurements;
-        const timestamps = measurements.map(x => new Date(x.dataTimestamp));
+        const timestamps = measurements.map(x => new Date(x.receivedAt));
 
         const timeRange = ChartUtils.getTimeRange(timestamps);
         ChartUtils.updateTimeScaleLabel('mueks', timeRange);
@@ -339,7 +333,7 @@ const MUEKSCharts = {
                 .map(x => {
                     const value = x[p.property];
                     return {
-                        x: new Date(x.dataTimestamp),
+                        x: new Date(x.receivedAt),
                         y: value != null ? parseFloat(value) : null
                     };
                 })
@@ -416,14 +410,14 @@ const MUEKSCharts = {
                 animation: { duration: 300 },
                 interaction: { mode: 'index', intersect: false },
                 plugins: {
-                    legend: { 
-                        display: true, 
-                        position: 'top', 
-                        labels: { 
-                            usePointStyle: true, 
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
                             boxWidth: 8,
                             filter: (item) => !item.text.includes('нет данных')
-                        } 
+                        }
                     },
                     tooltip: {
                         mode: 'index',
@@ -444,10 +438,10 @@ const MUEKSCharts = {
                 scales: {
                     x: {
                         type: 'time',
-                        time: { 
-                            unit: cfg.unit, 
-                            displayFormats: cfg.displayFormats, 
-                            tooltipFormat: 'dd.MM.yyyy HH:mm' 
+                        time: {
+                            unit: cfg.unit,
+                            displayFormats: cfg.displayFormats,
+                            tooltipFormat: 'dd.MM.yyyy HH:mm'
                         },
                         title: { display: true, text: 'Дата/время' }
                     },
@@ -460,7 +454,7 @@ const MUEKSCharts = {
     updateStatistics: function() {
         const container = $('#mueksStatisticsContainer');
         if (!container.length) return;
-        
+
         container.empty();
 
         const selected = this.getSelectedParameters().filter(p => !p.isText);
@@ -490,10 +484,10 @@ const MUEKSCharts = {
             $('#mueksLastUpdateTime').text('Нет данных');
             return;
         }
-        
-        const last = measurements[measurements.length-1].dataTimestamp;
+
+        const last = measurements[measurements.length-1].receivedAt;
         $('#mueksLastUpdateTime').text(moment(last).format('DD.MM.YYYY HH:mm:ss'));
-        
+
         if (this.autoUpdateInstance) {
             this.autoUpdateInstance.updateLastUpdateTime(last);
         }

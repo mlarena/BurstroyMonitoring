@@ -1,7 +1,6 @@
 // dspd-charts.js - Модуль для визуализации данных датчика состояния дорожного полотна
 
 
-
 const DSPDCharts = {
     chart: null,
     currentSensorId: null,
@@ -42,10 +41,10 @@ const DSPDCharts = {
         moment.locale('ru');
 
         this.createParameterRadios();
-        
+
         // Инициализация автообновления через менеджер
         this.initAutoUpdate();
-        
+
         this.loadData(1);
 
         // Обработчик кнопок периода
@@ -147,7 +146,7 @@ const DSPDCharts = {
         if (!container.length) return;
 
         container.empty();
-        
+
         parameters.sort((a, b) => a.order - b.order).forEach(p => {
             container.append(ChartUtils.createParameterRadio(p, groupName, 'dspd-parameter-radio'));
         });
@@ -160,7 +159,7 @@ const DSPDCharts = {
                 p.visible = $(`#${radioId}`).is(':checked');
             });
         };
-        
+
         updateGroup(this.roadConditionParameters);
         updateGroup(this.precipitationLayerParameters);
         updateGroup(this.technicalParameters);
@@ -172,7 +171,7 @@ const DSPDCharts = {
             'precipitationLayer': this.precipitationLayerParameters,
             'technical': this.technicalParameters
         };
-        
+
         return groups[this.currentTab]?.filter(p => p.visible) || [];
     },
 
@@ -187,7 +186,7 @@ const DSPDCharts = {
 
     cleanup: function() {
         console.log('DSPDCharts.cleanup()');
-        
+
         if (this.autoUpdateInstance) {
             AutoUpdateManager.destroy('dspd');
             this.autoUpdateInstance = null;
@@ -197,7 +196,7 @@ const DSPDCharts = {
             this.chart.destroy();
             this.chart = null;
         }
-        
+
         this.allMeasurements = [];
     },
 
@@ -242,7 +241,7 @@ const DSPDCharts = {
         if (!this.allMeasurements?.length) return;
 
         const measurements = this.allMeasurements;
-        const timestamps = measurements.map(x => new Date(x.dataTimestamp));
+        const timestamps = measurements.map(x => new Date(x.receivedAt));
 
         const timeRange = ChartUtils.getTimeRange(timestamps);
         ChartUtils.updateTimeScaleLabel('dspd', timeRange);
@@ -281,7 +280,7 @@ const DSPDCharts = {
                 .map(x => {
                     const value = x[p.property];
                     return {
-                        x: new Date(x.dataTimestamp),
+                        x: new Date(x.receivedAt),
                         y: value != null ? parseFloat(value) : null
                     };
                 })
@@ -358,14 +357,14 @@ const DSPDCharts = {
                 animation: { duration: 300 },
                 interaction: { mode: 'index', intersect: false },
                 plugins: {
-                    legend: { 
-                        display: true, 
-                        position: 'top', 
-                        labels: { 
-                            usePointStyle: true, 
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
                             boxWidth: 8,
                             filter: (item) => !item.text.includes('нет данных')
-                        } 
+                        }
                     },
                     tooltip: {
                         mode: 'index',
@@ -386,10 +385,10 @@ const DSPDCharts = {
                 scales: {
                     x: {
                         type: 'time',
-                        time: { 
-                            unit: cfg.unit, 
-                            displayFormats: cfg.displayFormats, 
-                            tooltipFormat: 'dd.MM.yyyy HH:mm' 
+                        time: {
+                            unit: cfg.unit,
+                            displayFormats: cfg.displayFormats,
+                            tooltipFormat: 'dd.MM.yyyy HH:mm'
                         },
                         title: { display: true, text: 'Дата/время' }
                     },
@@ -402,7 +401,7 @@ const DSPDCharts = {
     updateStatistics: function() {
         const container = $('#dspdStatisticsContainer');
         if (!container.length) return;
-        
+
         container.empty();
 
         const selected = this.getSelectedParameters();
@@ -432,10 +431,10 @@ const DSPDCharts = {
             $('#dspdLastUpdateTime').text('Нет данных');
             return;
         }
-        
-        const last = measurements[measurements.length-1].dataTimestamp;
+
+        const last = measurements[measurements.length-1].receivedAt;
         $('#dspdLastUpdateTime').text(moment(last).format('DD.MM.YYYY HH:mm:ss'));
-        
+
         if (this.autoUpdateInstance) {
             this.autoUpdateInstance.updateLastUpdateTime(last);
         }

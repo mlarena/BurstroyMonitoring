@@ -13,18 +13,18 @@ const DUSTCharts = {
     pmParameters: [
         { id: 'pm10act', name: 'PM10 акт.', unit: 'мг/м³', color: '#dc3545', property: 'pm10Act', visible: true, order: 1, group: 'pm', icon: 'fa-chart-line' },
         { id: 'pm25act', name: 'PM2.5 акт.', unit: 'мг/м³', color: '#fd7e14', property: 'pm25Act', visible: false, order: 2, group: 'pm', icon: 'fa-chart-line' },
-        { id: 'pm1act',  name: 'PM1 акт.',  unit: 'мг/м³', color: '#ffc107', property: 'pm1Act',  visible: false, order: 3, group: 'pm', icon: 'fa-chart-line' },
-        { id: 'pm10awg', name: 'PM10 ср.',  unit: 'мг/м³', color: '#20c997', property: 'pm10Awg', visible: false, order: 4, group: 'pm', icon: 'fa-chart-line' },
+        { id: 'pm1act', name: 'PM1 акт.', unit: 'мг/м³', color: '#ffc107', property: 'pm1Act', visible: false, order: 3, group: 'pm', icon: 'fa-chart-line' },
+        { id: 'pm10awg', name: 'PM10 ср.', unit: 'мг/м³', color: '#20c997', property: 'pm10Awg', visible: false, order: 4, group: 'pm', icon: 'fa-chart-line' },
         { id: 'pm25awg', name: 'PM2.5 ср.', unit: 'мг/м³', color: '#0d6efd', property: 'pm25Awg', visible: false, order: 5, group: 'pm', icon: 'fa-chart-line' },
-        { id: 'pm1awg',  name: 'PM1 ср.',  unit: 'мг/м³', color: '#6610f2', property: 'pm1Awg', visible: false, order: 6, group: 'pm', icon: 'fa-chart-line' }
+        { id: 'pm1awg', name: 'PM1 ср.', unit: 'мг/м³', color: '#6610f2', property: 'pm1Awg', visible: false, order: 6, group: 'pm', icon: 'fa-chart-line' }
     ],
 
     technicalParameters: [
-        { id: 'flow',     name: 'Поток пробы',   unit: '',     color: '#17a2b8', property: 'flowProbe',      visible: true, order: 1, group: 'technical', icon: 'fa-wind' },
-        { id: 'temp',     name: 'Температура',   unit: '°C',   color: '#dc3545', property: 'temperatureProbe',visible: false, order: 2, group: 'technical', icon: 'fa-thermometer-half' },
-        { id: 'humidity', name: 'Влажность',     unit: '%',    color: '#0d6efd', property: 'humidityProbe',   visible: false, order: 3, group: 'technical', icon: 'fa-tint' },
-        { id: 'laser',    name: 'Статус лазера', unit: '',     color: '#6c757d', property: 'laserStatus',     visible: false, order: 4, group: 'technical', icon: 'fa-sun' },
-        { id: 'voltage',  name: 'Напряжение',    unit: 'В',    color: '#28a745', property: 'supplyVoltage',   visible: false, order: 5, group: 'technical', icon: 'fa-bolt' }
+        { id: 'flow', name: 'Поток пробы', unit: '', color: '#17a2b8', property: 'flowProbe', visible: true, order: 1, group: 'technical', icon: 'fa-wind' },
+        { id: 'temp', name: 'Температура', unit: '°C', color: '#dc3545', property: 'temperatureProbe',visible: false, order: 2, group: 'technical', icon: 'fa-thermometer-half' },
+        { id: 'humidity', name: 'Влажность', unit: '%', color: '#0d6efd', property: 'humidityProbe', visible: false, order: 3, group: 'technical', icon: 'fa-tint' },
+        { id: 'laser', name: 'Статус лазера', unit: '', color: '#6c757d', property: 'laserStatus', visible: false, order: 4, group: 'technical', icon: 'fa-sun' },
+        { id: 'voltage', name: 'Напряжение', unit: 'В', color: '#28a745', property: 'supplyVoltage', visible: false, order: 5, group: 'technical', icon: 'fa-bolt' }
     ],
 
     init: function(sensorId) {
@@ -33,10 +33,10 @@ const DUSTCharts = {
         moment.locale('ru');
 
         this.createParameterRadios();
-        
+
         // Инициализация автообновления через менеджер
         this.initAutoUpdate();
-        
+
         this.loadData(1);
 
         // Обработчик кнопок периода
@@ -132,7 +132,7 @@ const DUSTCharts = {
         if (!container.length) return;
 
         container.empty();
-        
+
         parameters.sort((a, b) => a.order - b.order).forEach(p => {
             container.append(ChartUtils.createParameterRadio(p, groupName, 'dust-parameter-radio'));
         });
@@ -145,7 +145,7 @@ const DUSTCharts = {
                 p.visible = $(`#${radioId}`).is(':checked');
             });
         };
-        
+
         updateGroup(this.pmParameters);
         updateGroup(this.technicalParameters);
     },
@@ -155,19 +155,19 @@ const DUSTCharts = {
             'pm': this.pmParameters,
             'technical': this.technicalParameters
         };
-        
+
         return groups[this.currentTab]?.filter(p => p.visible) || [];
     },
 
     updateChartTitle: function() {
         $('#dustChartTitle').text(this.currentTab === 'pm'
-            ? 'Концентрация частиц PM (мг/м³)'
-            : 'Технические параметры DUST');
+        ? 'Концентрация частиц PM (мг/м³)'
+        : 'Технические параметры DUST');
     },
 
     cleanup: function() {
         console.log('DUSTCharts.cleanup()');
-        
+
         if (this.autoUpdateInstance) {
             AutoUpdateManager.destroy('dust');
             this.autoUpdateInstance = null;
@@ -177,7 +177,7 @@ const DUSTCharts = {
             this.chart.destroy();
             this.chart = null;
         }
-        
+
         this.allMeasurements = [];
     },
 
@@ -222,7 +222,7 @@ const DUSTCharts = {
         if (!this.allMeasurements?.length) return;
 
         const measurements = this.allMeasurements;
-        const timestamps = measurements.map(x => new Date(x.dataTimestamp));
+        const timestamps = measurements.map(x => new Date(x.receivedAt));
 
         const timeRange = ChartUtils.getTimeRange(timestamps);
         ChartUtils.updateTimeScaleLabel('dust', timeRange);
@@ -261,7 +261,7 @@ const DUSTCharts = {
                 .map(x => {
                     const value = x[p.property];
                     return {
-                        x: new Date(x.dataTimestamp),
+                        x: new Date(x.receivedAt),
                         y: value != null ? parseFloat(value) : null
                     };
                 })
@@ -338,14 +338,14 @@ const DUSTCharts = {
                 animation: { duration: 300 },
                 interaction: { mode: 'index', intersect: false },
                 plugins: {
-                    legend: { 
-                        display: true, 
-                        position: 'top', 
-                        labels: { 
-                            usePointStyle: true, 
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
                             boxWidth: 8,
                             filter: (item) => !item.text.includes('нет данных')
-                        } 
+                        }
                     },
                     tooltip: {
                         mode: 'index',
@@ -366,10 +366,10 @@ const DUSTCharts = {
                 scales: {
                     x: {
                         type: 'time',
-                        time: { 
-                            unit: cfg.unit, 
-                            displayFormats: cfg.displayFormats, 
-                            tooltipFormat: 'dd.MM.yyyy HH:mm' 
+                        time: {
+                            unit: cfg.unit,
+                            displayFormats: cfg.displayFormats,
+                            tooltipFormat: 'dd.MM.yyyy HH:mm'
                         },
                         title: { display: true, text: 'Дата/время' }
                     },
@@ -382,7 +382,7 @@ const DUSTCharts = {
     updateStatistics: function() {
         const container = $('#dustStatisticsContainer');
         if (!container.length) return;
-        
+
         container.empty();
 
         const selected = this.getSelectedParameters();
@@ -412,10 +412,10 @@ const DUSTCharts = {
             $('#dustLastUpdateTime').text('Нет данных');
             return;
         }
-        
-        const last = measurements[measurements.length-1].dataTimestamp;
+
+        const last = measurements[measurements.length-1].receivedAt;
         $('#dustLastUpdateTime').text(moment(last).format('DD.MM.YYYY HH:mm:ss'));
-        
+
         if (this.autoUpdateInstance) {
             this.autoUpdateInstance.updateLastUpdateTime(last);
         }

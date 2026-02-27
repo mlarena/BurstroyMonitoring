@@ -12,40 +12,40 @@ const IWSCharts = {
 
     // Параметры погоды
     weatherParameters: [
-        { id: 'envTemp',   name: 'Температура',     unit: '°C', color: '#dc3545', property: 'environmentTemperature', visible: true,  order: 1, group: 'weather', icon: 'fa-temperature-high' },
-        { id: 'humidity',  name: 'Влажность',       unit: '%',  color: '#0d6efd', property: 'humidityPercentage',      visible: false, order: 2, group: 'weather', icon: 'fa-tint' },
-        { id: 'dewPoint',  name: 'Точка росы',      unit: '°C', color: '#17a2b8', property: 'dewPoint',                visible: false, order: 3, group: 'weather', icon: 'fa-water' },
-        { id: 'co2',       name: 'CO₂',             unit: 'ppm',color: '#6f42c1', property: 'co2Level',                visible: false, order: 4, group: 'weather', icon: 'fa-wind' }
+        { id: 'envTemp', name: 'Температура', unit: '°C', color: '#dc3545', property: 'environmentTemperature', visible: true, order: 1, group: 'weather', icon: 'fa-temperature-high' },
+        { id: 'humidity', name: 'Влажность', unit: '%', color: '#0d6efd', property: 'humidityPercentage', visible: false, order: 2, group: 'weather', icon: 'fa-tint' },
+        { id: 'dewPoint', name: 'Точка росы', unit: '°C', color: '#17a2b8', property: 'dewPoint', visible: false, order: 3, group: 'weather', icon: 'fa-water' },
+        { id: 'co2', name: 'CO₂', unit: 'ppm',color: '#6f42c1', property: 'co2Level', visible: false, order: 4, group: 'weather', icon: 'fa-wind' }
     ],
 
     // Параметры ветра
     windParameters: [
-        { id: 'windSpeed',    name: 'Скорость ветра', unit: 'м/с', color: '#28a745', property: 'windSpeed',     visible: true,  order: 1, group: 'wind', icon: 'fa-wind' },
-        { id: 'windDirection',name: 'Направление',    unit: '°',   color: '#fd7e14', property: 'windDirection', visible: false, order: 2, group: 'wind', icon: 'fa-compass' },
-        { id: 'windVSound',   name: 'Скорость звука', unit: 'м/с', color: '#20c997', property: 'windVSound',    visible: false, order: 3, group: 'wind', icon: 'fa-volume-up' }
+        { id: 'windSpeed', name: 'Скорость ветра', unit: 'м/с', color: '#28a745', property: 'windSpeed', visible: true, order: 1, group: 'wind', icon: 'fa-wind' },
+        { id: 'windDirection',name: 'Направление', unit: '°', color: '#fd7e14', property: 'windDirection', visible: false, order: 2, group: 'wind', icon: 'fa-compass' },
+        { id: 'windVSound', name: 'Скорость звука', unit: 'м/с', color: '#20c997', property: 'windVSound', visible: false, order: 3, group: 'wind', icon: 'fa-volume-up' }
     ],
 
     // Параметры осадков
     precipitationParameters: [
-        { id: 'precipIntensity', name: 'Интенсивность', unit: 'мм/ч', color: '#0d6efd', property: 'precipitationIntensity', visible: true,  order: 1, group: 'precipitation', icon: 'fa-cloud-rain' },
-        { id: 'precipQuantity',  name: 'Количество',    unit: 'мм',   color: '#17a2b8', property: 'precipitationQuantity',  visible: false, order: 2, group: 'precipitation', icon: 'fa-chart-line' }
+        { id: 'precipIntensity', name: 'Интенсивность', unit: 'мм/ч', color: '#0d6efd', property: 'precipitationIntensity', visible: true, order: 1, group: 'precipitation', icon: 'fa-cloud-rain' },
+        { id: 'precipQuantity', name: 'Количество', unit: 'мм', color: '#17a2b8', property: 'precipitationQuantity', visible: false, order: 2, group: 'precipitation', icon: 'fa-chart-line' }
     ],
 
     // Параметры давления
     pressureParameters: [
-        { id: 'pressureHpa',   name: 'Давление (гПа)', unit: 'гПа', color: '#6610f2', property: 'pressureHpa',     visible: true, order: 1, group: 'pressure', icon: 'fa-thermometer-half' },
-        { id: 'pressureQNH',   name: 'QNH (гПа)',      unit: 'гПа', color: '#6f42c1', property: 'pressureQNHHpa',  visible: false, order: 2, group: 'pressure', icon: 'fa-thermometer-half' },
-        { id: 'pressureMmHg',  name: 'Давление (мм рт.ст.)', unit: 'мм', color: '#e83e8c', property: 'pressureMmHg', visible: false, order: 3, group: 'pressure', icon: 'fa-thermometer-half' }
+        { id: 'pressureHpa', name: 'Давление (гПа)', unit: 'гПа', color: '#6610f2', property: 'pressureHpa', visible: true, order: 1, group: 'pressure', icon: 'fa-thermometer-half' },
+        { id: 'pressureQNH', name: 'QNH (гПа)', unit: 'гПа', color: '#6f42c1', property: 'pressureQNHHpa', visible: false, order: 2, group: 'pressure', icon: 'fa-thermometer-half' },
+        { id: 'pressureMmHg', name: 'Давление (мм рт.ст.)', unit: 'мм', color: '#e83e8c', property: 'pressureMmHg', visible: false, order: 3, group: 'pressure', icon: 'fa-thermometer-half' }
     ],
 
     // Технические параметры
     technicalParameters: [
-        { id: 'supplyVoltage', name: 'Напряжение',      unit: 'В',   color: '#28a745', property: 'supplyVoltage',     visible: true,  order: 1, group: 'technical', icon: 'fa-bolt' },
-        { id: 'status',        name: 'Статус',          unit: '',    color: '#6c757d', property: 'statusOk',          visible: false, order: 2, group: 'technical', icon: 'fa-check-circle' },
-        { id: 'ksp',           name: 'KSP',             unit: '',    color: '#17a2b8', property: 'kspValue',          visible: false, order: 3, group: 'technical', icon: 'fa-microchip' },
-        { id: 'acceleration',  name: 'Ускорение σ',     unit: 'м/с²',color: '#fd7e14', property: 'accelerationStdDev',visible: false, order: 4, group: 'technical', icon: 'fa-wave-square' },
-        { id: 'roll',          name: 'Крен',            unit: '°',   color: '#dc3545', property: 'rollAngle',         visible: false, order: 5, group: 'technical', icon: 'fa-rotate-left' },
-        { id: 'pitch',         name: 'Тангаж',          unit: '°',   color: '#0d6efd', property: 'pitchAngle',        visible: false, order: 6, group: 'technical', icon: 'fa-rotate-right' }
+        { id: 'supplyVoltage', name: 'Напряжение', unit: 'В', color: '#28a745', property: 'supplyVoltage', visible: true, order: 1, group: 'technical', icon: 'fa-bolt' },
+        { id: 'status', name: 'Статус', unit: '', color: '#6c757d', property: 'statusOk', visible: false, order: 2, group: 'technical', icon: 'fa-check-circle' },
+        { id: 'ksp', name: 'KSP', unit: '', color: '#17a2b8', property: 'kspValue', visible: false, order: 3, group: 'technical', icon: 'fa-microchip' },
+        { id: 'acceleration', name: 'Ускорение σ', unit: 'м/с²',color: '#fd7e14', property: 'accelerationStdDev',visible: false, order: 4, group: 'technical', icon: 'fa-wave-square' },
+        { id: 'roll', name: 'Крен', unit: '°', color: '#dc3545', property: 'rollAngle', visible: false, order: 5, group: 'technical', icon: 'fa-rotate-left' },
+        { id: 'pitch', name: 'Тангаж', unit: '°', color: '#0d6efd', property: 'pitchAngle', visible: false, order: 6, group: 'technical', icon: 'fa-rotate-right' }
     ],
 
     init: function(sensorId) {
@@ -54,10 +54,10 @@ const IWSCharts = {
         moment.locale('ru');
 
         this.createParameterRadios();
-        
+
         // Инициализация автообновления через менеджер
         this.initAutoUpdate();
-        
+
         this.loadData(1);
 
         // Обработчик кнопок периода
@@ -163,7 +163,7 @@ const IWSCharts = {
         if (!container.length) return;
 
         container.empty();
-        
+
         parameters.sort((a, b) => a.order - b.order).forEach(p => {
             container.append(ChartUtils.createParameterRadio(p, groupName, 'iws-parameter-radio'));
         });
@@ -176,7 +176,7 @@ const IWSCharts = {
                 p.visible = $(`#${radioId}`).is(':checked');
             });
         };
-        
+
         updateGroup(this.weatherParameters);
         updateGroup(this.windParameters);
         updateGroup(this.precipitationParameters);
@@ -192,7 +192,7 @@ const IWSCharts = {
             'pressure': this.pressureParameters,
             'technical': this.technicalParameters
         };
-        
+
         return groups[this.currentTab]?.filter(p => p.visible) || [];
     },
 
@@ -209,7 +209,7 @@ const IWSCharts = {
 
     cleanup: function() {
         console.log('IWSCharts.cleanup()');
-        
+
         if (this.autoUpdateInstance) {
             AutoUpdateManager.destroy('iws');
             this.autoUpdateInstance = null;
@@ -219,7 +219,7 @@ const IWSCharts = {
             this.chart.destroy();
             this.chart = null;
         }
-        
+
         this.allMeasurements = [];
     },
 
@@ -265,7 +265,7 @@ const IWSCharts = {
         if (!this.allMeasurements?.length) return;
 
         const measurements = this.allMeasurements;
-        const timestamps = measurements.map(x => new Date(x.dataTimestamp));
+        const timestamps = measurements.map(x => new Date(x.receivedAt));
 
         const timeRange = ChartUtils.getTimeRange(timestamps);
         ChartUtils.updateTimeScaleLabel('iws', timeRange);
@@ -304,7 +304,7 @@ const IWSCharts = {
                 .map(m => {
                     const value = m[param.property];
                     return {
-                        x: new Date(m.dataTimestamp),
+                        x: new Date(m.receivedAt),
                         y: value != null ? parseFloat(value) : null
                     };
                 })
@@ -451,7 +451,7 @@ const IWSCharts = {
     updateStatistics: function() {
         const container = $('#iwsStatisticsContainer');
         if (!container.length) return;
-        
+
         container.empty();
 
         const selected = this.getSelectedParameters();
@@ -481,10 +481,10 @@ const IWSCharts = {
             $('#iwsLastUpdateTime').text('Нет данных');
             return;
         }
-        
-        const last = measurements[measurements.length - 1].dataTimestamp;
+
+        const last = measurements[measurements.length - 1].receivedAt;
         $('#iwsLastUpdateTime').text(moment(last).format('DD.MM.YYYY HH:mm:ss'));
-        
+
         if (this.autoUpdateInstance) {
             this.autoUpdateInstance.updateLastUpdateTime(last);
         }
@@ -493,7 +493,7 @@ const IWSCharts = {
 
 $(document).ready(function() {
     console.log('✅ IWS Charts загружен');
-    
+
     $(document).on('sensorChanged', () => {
         if (typeof IWSCharts !== 'undefined') {
             IWSCharts.cleanup();

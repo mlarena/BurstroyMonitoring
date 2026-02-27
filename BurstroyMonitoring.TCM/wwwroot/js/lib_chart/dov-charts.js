@@ -19,7 +19,7 @@ const DOVCharts = {
 
         // Инициализация автообновления через менеджер
         this.initAutoUpdate();
-        
+
         this.loadData(1); // по умолчанию 24ч
 
         // Обработчик кнопок периода
@@ -51,7 +51,7 @@ const DOVCharts = {
         // Обработчик выбора стиля графика (линейный/точечный)
         $('input[name="dovChartStyle"]').off('change').on('change', (e) => {
             this.currentChartStyle = $(e.currentTarget).val();
-            
+
             if (this.currentChartType === 'visibility') {
                 this.renderVisibilityChart({ measurements: this.allMeasurements });
             } else {
@@ -113,7 +113,7 @@ const DOVCharts = {
 
     cleanup: function() {
         console.log('DOVCharts.cleanup()');
-        
+
         if (this.autoUpdateInstance) {
             AutoUpdateManager.destroy('dov');
             this.autoUpdateInstance = null;
@@ -188,8 +188,8 @@ const DOVCharts = {
     updateChartTitle: function() {
         $('#dovChartTitle').text(
             this.currentChartType === 'visibility'
-                ? 'Дальность видимости (метры)'
-                : 'Освещенность (bright_flag)'
+            ? 'Дальность видимости (метры)'
+            : 'Освещенность (bright_flag)'
         );
     },
 
@@ -197,7 +197,7 @@ const DOVCharts = {
         const measurements = data.measurements || [];
         if (!measurements.length) return;
 
-        const timestamps = measurements.map(x => new Date(x.dataTimestamp));
+        const timestamps = measurements.map(x => new Date(x.receivedAt));
         const values = measurements.map(x => parseFloat(x.visibleRange));
 
         const timeRange = ChartUtils.getTimeRange(timestamps);
@@ -210,16 +210,16 @@ const DOVCharts = {
         if (this.visibilityChart) this.visibilityChart.destroy();
 
         const chartType = this.currentChartStyle === 'scatter' ? 'scatter' : 'line';
-        
+
         const datasets = [{
             label: 'Дальность видимости (м)',
-            data: this.currentChartStyle === 'scatter' 
-                ? measurements.map(x => ({ x: new Date(x.dataTimestamp), y: parseFloat(x.visibleRange) }))
-                : values,
+            data: this.currentChartStyle === 'scatter'
+            ? measurements.map(x => ({ x: new Date(x.receivedAt), y: parseFloat(x.visibleRange) }))
+            : values,
             borderColor: 'rgba(23, 162, 184, 1)',
-            backgroundColor: this.currentChartStyle === 'scatter' 
-                ? 'rgba(23, 162, 184, 0.8)'
-                : 'rgba(23, 162, 184, 0.1)',
+            backgroundColor: this.currentChartStyle === 'scatter'
+            ? 'rgba(23, 162, 184, 0.8)'
+            : 'rgba(23, 162, 184, 0.1)',
             borderWidth: 2,
             pointRadius: this.currentChartStyle === 'scatter' ? 5 : 3,
             pointHoverRadius: this.currentChartStyle === 'scatter' ? 8 : 6,
@@ -270,7 +270,7 @@ const DOVCharts = {
         const measurements = data.measurements || [];
         if (!measurements.length) return;
 
-        const timestamps = measurements.map(x => new Date(x.dataTimestamp));
+        const timestamps = measurements.map(x => new Date(x.receivedAt));
         const flags = measurements.map(x => x.brightFlag);
 
         const colors = flags.map(f => {
@@ -295,7 +295,7 @@ const DOVCharts = {
 
         const datasets = [{
             label: 'Флаг яркости',
-            data: measurements.map(x => ({ x: new Date(x.dataTimestamp), y: x.brightFlag })),
+            data: measurements.map(x => ({ x: new Date(x.receivedAt), y: x.brightFlag })),
             backgroundColor: colors,
             borderColor: this.currentChartStyle === 'line' ? 'rgba(23, 162, 184, 0.5)' : 'transparent',
             borderWidth: this.currentChartStyle === 'line' ? 1 : 0,
@@ -368,11 +368,11 @@ const DOVCharts = {
             $('#dovTotalMeasurements').text('0');
             return;
         }
-        
+
         const values = measurements
             .map(x => parseFloat(x.visibleRange))
             .filter(v => !isNaN(v));
-            
+
         if (!values.length) return;
 
         $('#dovMinVisibility').text(Math.min(...values).toFixed(1));
@@ -387,10 +387,10 @@ const DOVCharts = {
             $('#dovLastUpdateTime').text('Нет данных');
             return;
         }
-        
-        const last = measurements[measurements.length-1].dataTimestamp;
+
+        const last = measurements[measurements.length-1].receivedAt;
         $('#dovLastUpdateTime').text(moment(last).format('DD.MM.YYYY HH:mm:ss'));
-        
+
         if (this.autoUpdateInstance) {
             this.autoUpdateInstance.updateLastUpdateTime(last);
         }

@@ -7,6 +7,7 @@ namespace BurstroyMonitoring.Data.Models.ViewModels
     public class IWSMeasurementViewModel
     {
         public int IwsDataId { get; set; }
+        public DateTime ReceivedAt { get; set; }        
         public DateTime DataTimestamp { get; set; }
         public decimal? EnvironmentTemperature { get; set; }
         public decimal? HumidityPercentage { get; set; }

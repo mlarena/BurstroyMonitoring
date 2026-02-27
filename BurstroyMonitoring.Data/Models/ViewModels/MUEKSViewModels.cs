@@ -7,6 +7,7 @@ namespace BurstroyMonitoring.Data.Models.ViewModels
     public class MUEKSMeasurementViewModel
     {
         public int MueksDataId { get; set; }
+        public DateTime ReceivedAt { get; set; }        
         public DateTime DataTimestamp { get; set; }
         public decimal? TemperatureBox { get; set; }
         public decimal? VoltagePowerIn12b { get; set; }

@@ -16,21 +16,17 @@ namespace GraphsAndChartsApp.Controllers
     public class GraphsAndChartsController : Controller
     {
         private readonly ApplicationDbContext _context;
-
         public GraphsAndChartsController(ApplicationDbContext context)
         {
             _context = context;
         }
-
         public async Task<IActionResult> Index()
         {
             var viewModel = new SensorSelectionViewModel();
-
             var monitoringPosts = await _context.MonitoringPosts
                 .Where(mp => mp.IsActive)
                 .OrderBy(mp => mp.Name)
                 .ToListAsync();
-
             viewModel.MonitoringPosts = monitoringPosts
                 .Select(mp => new SelectListItem
                 {
@@ -38,13 +34,11 @@ namespace GraphsAndChartsApp.Controllers
                     Text = mp.Name
                 })
                 .ToList();
-
             viewModel.MonitoringPosts.Insert(0, new SelectListItem
             {
                 Value = "",
                 Text = "Выберите пост мониторинга"
             });
-
             viewModel.Sensors = new List<SelectListItem>
             {
                 new SelectListItem
@@ -53,10 +47,8 @@ namespace GraphsAndChartsApp.Controllers
                     Text = "Сначала выберите пост мониторинга"
                 }
             };
-
             return View(viewModel);
         }
-
         [HttpGet]
         public async Task<IActionResult> GetSensorsByPost(int monitoringPostId)
         {
@@ -66,7 +58,6 @@ namespace GraphsAndChartsApp.Controllers
                 .OrderBy(s => s.SensorType != null ? s.SensorType.SensorTypeName : "")
                 .ThenBy(s => s.EndPointsName)
                 .ToListAsync();
-
             var sensorItems = sensors
                 .Select(s => new SelectListItem
                 {
@@ -74,16 +65,13 @@ namespace GraphsAndChartsApp.Controllers
                     Text = $"{s.SensorType?.SensorTypeName} {s.EndPointsName} {s.SerialNumber}"
                 })
                 .ToList();
-
             sensorItems.Insert(0, new SelectListItem
             {
                 Value = "",
                 Text = "Выберите сенсор"
             });
-
             return Json(sensorItems);
         }
-
         [HttpGet]
         public async Task<IActionResult> GetSensorData(int sensorId)
         {
@@ -91,12 +79,10 @@ namespace GraphsAndChartsApp.Controllers
                 .Include(s => s.SensorType)
                 .Include(s => s.MonitoringPost)
                 .FirstOrDefaultAsync(s => s.Id == sensorId);
-
             if (sensor == null || sensor.SensorType == null)
             {
                 return NotFound();
             }
-
             var viewModel = new SensorViewModel
             {
                 Id = sensor.Id,
@@ -105,7 +91,6 @@ namespace GraphsAndChartsApp.Controllers
                 SerialNumber = sensor.SerialNumber,
                 MonitoringPostName = sensor.MonitoringPost?.Name
             };
-
             return sensor.SensorType.SensorTypeName switch
             {
                 "DSPD" => PartialView("_DSPDPartial", viewModel),
@@ -116,39 +101,37 @@ namespace GraphsAndChartsApp.Controllers
                 _ => PartialView("_DefaultPartial", viewModel)
             };
         }
-
         // ==================== DOV МЕТОДЫ ====================
-        
+       
         [HttpGet]
         public async Task<IActionResult> GetDOVData(int sensorId, int days = 1)
         {
             try
             {
                 var fromDate = DateTime.UtcNow.AddDays(-days);
-                
+               
                 var connectionString = _context.Database.GetConnectionString();
-                
+               
                 var query = @"
-                    SELECT 
+                    SELECT
                         dov_data_id AS DovDataId,
-                         received_at AS ReceivedAt,
-                        data_timestamp AS DataTimestamp,
+                        received_at AS ReceivedAt,
                         visible_range AS VisibleRange,
                         bright_flag AS BrightFlag
-                    FROM public.vw_dov_data_full 
-                    WHERE sensor_id = @sensorId 
+                    FROM public.vw_dov_data_full
+                    WHERE sensor_id = @sensorId
                         AND received_at >= @fromDate
                     ORDER BY received_at ASC";
-                
+               
                 var measurements = new List<DOVMeasurementViewModel>();
-                
+               
                 using (var connection = new NpgsqlConnection(connectionString))
                 {
                     using (var command = new NpgsqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@sensorId", sensorId);
                         command.Parameters.AddWithValue("@fromDate", fromDate);
-                        
+                       
                         await connection.OpenAsync();
                         using (var reader = await command.ExecuteReaderAsync())
                         {
@@ -157,7 +140,7 @@ namespace GraphsAndChartsApp.Controllers
                                 measurements.Add(new DOVMeasurementViewModel
                                 {
                                     DovDataId = reader.GetInt32(reader.GetOrdinal("DovDataId")),
-                                    DataTimestamp = reader.GetDateTime(reader.GetOrdinal("DataTimestamp")),
+                                    ReceivedAt = reader.GetDateTime(reader.GetOrdinal("ReceivedAt")),
                                     VisibleRange = reader.GetDecimal(reader.GetOrdinal("VisibleRange")),
                                     BrightFlag = reader.GetInt32(reader.GetOrdinal("BrightFlag"))
                                 });
@@ -165,12 +148,10 @@ namespace GraphsAndChartsApp.Controllers
                         }
                     }
                 }
-
                 var sensor = await _context.Sensors
                     .Include(s => s.SensorType)
                     .Include(s => s.MonitoringPost)
                     .FirstOrDefaultAsync(s => s.Id == sensorId);
-
                 var viewModel = new DOVDataViewModel
                 {
                     SensorId = sensorId,
@@ -188,23 +169,21 @@ namespace GraphsAndChartsApp.Controllers
                 return StatusCode(500, new { error = "Ошибка при загрузке данных" });
             }
         }
-
         // ==================== DSPD МЕТОДЫ ====================
-        
+       
         [HttpGet]
         public async Task<IActionResult> GetDSPDData(int sensorId, int days = 1)
         {
             try
             {
                 var fromDate = DateTime.UtcNow.AddDays(-days);
-                
+               
                 var connectionString = _context.Database.GetConnectionString();
-                
+               
                 var query = @"
-                    SELECT 
+                    SELECT
                         dspd_data_id AS DspdDataId,
-                         received_at AS ReceivedAt,
-                        data_timestamp AS DataTimestamp,
+                        received_at AS ReceivedAt,
                         grip_coefficient AS GripCoefficient,
                         shake_level AS ShakeLevel,
                         voltage_power AS VoltagePower,
@@ -223,20 +202,20 @@ namespace GraphsAndChartsApp.Controllers
                         gps_latitude AS GpsLatitude,
                         gps_longitude AS GpsLongitude,
                         gps_valid AS GpsValid
-                    FROM public.vw_dspd_data_full 
-                    WHERE sensor_id = @sensorId 
+                    FROM public.vw_dspd_data_full
+                    WHERE sensor_id = @sensorId
                         AND received_at >= @fromDate
                     ORDER BY received_at ASC";
-                
+               
                 var measurements = new List<DSPDMeasurementViewModel>();
-                
+               
                 using (var connection = new NpgsqlConnection(connectionString))
                 {
                     using (var command = new NpgsqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@sensorId", sensorId);
                         command.Parameters.AddWithValue("@fromDate", fromDate);
-                        
+                       
                         await connection.OpenAsync();
                         using (var reader = await command.ExecuteReaderAsync())
                         {
@@ -245,7 +224,7 @@ namespace GraphsAndChartsApp.Controllers
                                 var measurement = new DSPDMeasurementViewModel
                                 {
                                     DspdDataId = reader.GetInt32(reader.GetOrdinal("DspdDataId")),
-                                    DataTimestamp = reader.GetDateTime(reader.GetOrdinal("DataTimestamp")),
+                                    ReceivedAt = reader.GetDateTime(reader.GetOrdinal("ReceivedAt")),
                                     GripCoefficient = GetDecimalOrNull(reader, "GripCoefficient"),
                                     ShakeLevel = GetDecimalOrNull(reader, "ShakeLevel"),
                                     VoltagePower = GetDecimalOrNull(reader, "VoltagePower"),
@@ -265,18 +244,16 @@ namespace GraphsAndChartsApp.Controllers
                                     GpsLongitude = GetDecimalOrNull(reader, "GpsLongitude"),
                                     GpsValid = GetBooleanOrNull(reader, "GpsValid")
                                 };
-                                
+                               
                                 measurements.Add(measurement);
                             }
                         }
                     }
                 }
-
                 var sensor = await _context.Sensors
                     .Include(s => s.SensorType)
                     .Include(s => s.MonitoringPost)
                     .FirstOrDefaultAsync(s => s.Id == sensorId);
-
                 var viewModel = new DSPDDataViewModel
                 {
                     SensorId = sensorId,
@@ -285,7 +262,6 @@ namespace GraphsAndChartsApp.Controllers
                     PostName = sensor?.MonitoringPost?.Name,
                     Measurements = measurements
                 };
-
                 return Json(viewModel);
             }
             catch (Exception ex)
@@ -294,24 +270,20 @@ namespace GraphsAndChartsApp.Controllers
                 return StatusCode(500, new { error = "Ошибка при загрузке данных" });
             }
         }
-
-
         // ==================== DUST МЕТОДЫ ====================
-
         [HttpGet]
         public async Task<IActionResult> GetDUSTData(int sensorId, int days = 1)
         {
             try
             {
                 var fromDate = DateTime.UtcNow.AddDays(-days);
-                
+               
                 var connectionString = _context.Database.GetConnectionString();
-                
+               
                 var query = @"
-                    SELECT 
+                    SELECT
                         dust_data_id AS DustDataId,
                         received_at AS ReceivedAt,
-                        data_timestamp AS DataTimestamp,
                         pm10act AS Pm10Act,
                         pm25act AS Pm25Act,
                         pm1act AS Pm1Act,
@@ -323,20 +295,20 @@ namespace GraphsAndChartsApp.Controllers
                         humidityprobe AS HumidityProbe,
                         laserstatus AS LaserStatus,
                         supplyvoltage AS SupplyVoltage
-                    FROM public.vw_dust_data_full 
-                    WHERE sensor_id = @sensorId 
+                    FROM public.vw_dust_data_full
+                    WHERE sensor_id = @sensorId
                         AND received_at >= @fromDate
                     ORDER BY received_at ASC";
-                
+               
                 var measurements = new List<DUSTMeasurementViewModel>();
-                
+               
                 using (var connection = new NpgsqlConnection(connectionString))
                 {
                     using (var command = new NpgsqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@sensorId", sensorId);
                         command.Parameters.AddWithValue("@fromDate", fromDate);
-                        
+                       
                         await connection.OpenAsync();
                         using (var reader = await command.ExecuteReaderAsync())
                         {
@@ -345,7 +317,7 @@ namespace GraphsAndChartsApp.Controllers
                                 var measurement = new DUSTMeasurementViewModel
                                 {
                                     DustDataId = reader.GetInt32(reader.GetOrdinal("DustDataId")),
-                                    DataTimestamp = reader.GetDateTime(reader.GetOrdinal("DataTimestamp")),
+                                    ReceivedAt = reader.GetDateTime(reader.GetOrdinal("ReceivedAt")),
                                     Pm10Act = GetDecimalOrNull(reader, "Pm10Act"),
                                     Pm25Act = GetDecimalOrNull(reader, "Pm25Act"),
                                     Pm1Act = GetDecimalOrNull(reader, "Pm1Act"),
@@ -358,18 +330,16 @@ namespace GraphsAndChartsApp.Controllers
                                     LaserStatus = GetInt32OrNull(reader, "LaserStatus"),
                                     SupplyVoltage = GetDecimalOrNull(reader, "SupplyVoltage")
                                 };
-                                
+                               
                                 measurements.Add(measurement);
                             }
                         }
                     }
                 }
-
                 var sensor = await _context.Sensors
                     .Include(s => s.SensorType)
                     .Include(s => s.MonitoringPost)
                     .FirstOrDefaultAsync(s => s.Id == sensorId);
-
                 var viewModel = new DUSTDataViewModel
                 {
                     SensorId = sensorId,
@@ -378,7 +348,6 @@ namespace GraphsAndChartsApp.Controllers
                     PostName = sensor?.MonitoringPost?.Name,
                     Measurements = measurements
                 };
-
                 return Json(viewModel);
             }
             catch (Exception ex)
@@ -387,23 +356,20 @@ namespace GraphsAndChartsApp.Controllers
                 return StatusCode(500, new { error = "Ошибка при загрузке данных" });
             }
         }
-
         // ==================== IWS МЕТОДЫ ====================
-
         [HttpGet]
         public async Task<IActionResult> GetIWSData(int sensorId, int days = 1)
         {
             try
             {
                 var fromDate = DateTime.UtcNow.AddDays(-days);
-                
+               
                 var connectionString = _context.Database.GetConnectionString();
-                
+               
                 var query = @"
-                    SELECT 
+                    SELECT
                         iws_data_id AS IwsDataId,
                         received_at AS ReceivedAt,
-                        data_timestamp AS DataTimestamp,
                         environment_temperature AS EnvironmentTemperature,
                         humidity_percentage AS HumidityPercentage,
                         dew_point AS DewPoint,
@@ -429,20 +395,20 @@ namespace GraphsAndChartsApp.Controllers
                         roll_angle AS RollAngle,
                         pitch_angle AS PitchAngle,
                         status_ok AS StatusOk
-                    FROM public.vw_iws_data_full 
-                    WHERE sensor_id = @sensorId 
+                    FROM public.vw_iws_data_full
+                    WHERE sensor_id = @sensorId
                         AND received_at >= @fromDate
                     ORDER BY received_at ASC";
-                
+               
                 var measurements = new List<IWSMeasurementViewModel>();
-                
+               
                 using (var connection = new NpgsqlConnection(connectionString))
                 {
                     using (var command = new NpgsqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@sensorId", sensorId);
                         command.Parameters.AddWithValue("@fromDate", fromDate);
-                        
+                       
                         await connection.OpenAsync();
                         using (var reader = await command.ExecuteReaderAsync())
                         {
@@ -451,53 +417,51 @@ namespace GraphsAndChartsApp.Controllers
                                 var measurement = new IWSMeasurementViewModel
                                 {
                                     IwsDataId = reader.GetInt32(reader.GetOrdinal("IwsDataId")),
-                                    DataTimestamp = reader.GetDateTime(reader.GetOrdinal("DataTimestamp")),
-                                    
+                                    ReceivedAt = reader.GetDateTime(reader.GetOrdinal("ReceivedAt")),
+                                   
                                     EnvironmentTemperature = GetDecimalOrNull(reader, "EnvironmentTemperature"),
                                     HumidityPercentage = GetDecimalOrNull(reader, "HumidityPercentage"),
                                     DewPoint = GetDecimalOrNull(reader, "DewPoint"),
-                                    
+                                   
                                     PressureHpa = GetDecimalOrNull(reader, "PressureHpa"),
                                     PressureQNHHpa = GetDecimalOrNull(reader, "PressureQNHHpa"),
                                     PressureMmHg = GetDecimalOrNull(reader, "PressureMmHg"),
-                                    
+                                   
                                     WindSpeed = GetDecimalOrNull(reader, "WindSpeed"),
                                     WindDirection = GetDecimalOrNull(reader, "WindDirection"),
                                     WindVSound = GetDecimalOrNull(reader, "WindVSound"),
-                                    
+                                   
                                     PrecipitationType = GetInt32OrNull(reader, "PrecipitationType"),
                                     PrecipitationIntensity = GetDecimalOrNull(reader, "PrecipitationIntensity"),
                                     PrecipitationQuantity = GetDecimalOrNull(reader, "PrecipitationQuantity"),
                                     PrecipitationElapsed = GetInt32OrNull(reader, "PrecipitationElapsed"),
                                     PrecipitationPeriod = GetInt32OrNull(reader, "PrecipitationPeriod"),
-                                    
+                                   
                                     Co2Level = GetDecimalOrNull(reader, "Co2Level"),
                                     SupplyVoltage = GetDecimalOrNull(reader, "SupplyVoltage"),
-                                    
+                                   
                                     IwsLatitude = GetDecimalOrNull(reader, "IwsLatitude"),
                                     IwsLongitude = GetDecimalOrNull(reader, "IwsLongitude"),
                                     Altitude = GetDecimalOrNull(reader, "Altitude"),
-                                    
+                                   
                                     KspValue = GetInt32OrNull(reader, "KspValue"),
                                     GpsSpeed = GetDecimalOrNull(reader, "GpsSpeed"),
                                     AccelerationStdDev = GetDecimalOrNull(reader, "AccelerationStdDev"),
                                     RollAngle = GetDecimalOrNull(reader, "RollAngle"),
                                     PitchAngle = GetDecimalOrNull(reader, "PitchAngle"),
-                                    
+                                   
                                     StatusOk = GetInt32OrNull(reader, "StatusOk")
                                 };
-                                
+                               
                                 measurements.Add(measurement);
                             }
                         }
                     }
                 }
-
                 var sensor = await _context.Sensors
                     .Include(s => s.SensorType)
                     .Include(s => s.MonitoringPost)
                     .FirstOrDefaultAsync(s => s.Id == sensorId);
-
                 var viewModel = new IWSDataViewModel
                 {
                     SensorId = sensorId,
@@ -506,7 +470,6 @@ namespace GraphsAndChartsApp.Controllers
                     PostName = sensor?.MonitoringPost?.Name,
                     Measurements = measurements
                 };
-
                 return Json(viewModel);
             }
             catch (Exception ex)
@@ -515,23 +478,20 @@ namespace GraphsAndChartsApp.Controllers
                 return StatusCode(500, new { error = "Ошибка при загрузке данных" });
             }
         }
-
         // ==================== MUEKS МЕТОДЫ ====================
-
         [HttpGet]
         public async Task<IActionResult> GetMUEKSData(int sensorId, int days = 1)
         {
             try
             {
                 var fromDate = DateTime.UtcNow.AddDays(-days);
-                
+               
                 var connectionString = _context.Database.GetConnectionString();
-                
+               
                 var query = @"
-                    SELECT 
+                    SELECT
                         mueks_data_id AS MueksDataId,
                         received_at AS ReceivedAt,
-                        data_timestamp AS DataTimestamp,
                         temperature_box AS TemperatureBox,
                         voltage_power_in_12b AS VoltagePowerIn12b,
                         voltage_out_12b AS VoltageOut12b,
@@ -547,20 +507,20 @@ namespace GraphsAndChartsApp.Controllers
                         tds_tds AS TdsTds,
                         tkosa_t1 AS TkosaT1,
                         tkosa_t3 AS TkosaT3
-                    FROM public.vw_mueks_data_full 
-                    WHERE sensor_id = @sensorId 
+                    FROM public.vw_mueks_data_full
+                    WHERE sensor_id = @sensorId
                         AND received_at >= @fromDate
                     ORDER BY received_at ASC";
-                
+               
                 var measurements = new List<MUEKSMeasurementViewModel>();
-                
+               
                 using (var connection = new NpgsqlConnection(connectionString))
                 {
                     using (var command = new NpgsqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@sensorId", sensorId);
                         command.Parameters.AddWithValue("@fromDate", fromDate);
-                        
+                       
                         await connection.OpenAsync();
                         using (var reader = await command.ExecuteReaderAsync())
                         {
@@ -569,8 +529,8 @@ namespace GraphsAndChartsApp.Controllers
                                 var measurement = new MUEKSMeasurementViewModel
                                 {
                                     MueksDataId = reader.GetInt32(reader.GetOrdinal("MueksDataId")),
-                                    DataTimestamp = reader.GetDateTime(reader.GetOrdinal("DataTimestamp")),
-                                    
+                                    ReceivedAt = reader.GetDateTime(reader.GetOrdinal("ReceivedAt")),
+                                   
                                     TemperatureBox = GetDecimalOrNull(reader, "TemperatureBox"),
                                     VoltagePowerIn12b = GetDecimalOrNull(reader, "VoltagePowerIn12b"),
                                     VoltageOut12b = GetDecimalOrNull(reader, "VoltageOut12b"),
@@ -582,24 +542,22 @@ namespace GraphsAndChartsApp.Controllers
                                     WattHoursAkb = GetDecimalOrNull(reader, "WattHoursAkb"),
                                     VisibleRange = GetDecimalOrNull(reader, "VisibleRange"),
                                     DoorStatus = GetInt32OrNull(reader, "DoorStatus"),
-                                    
+                                   
                                     TdsH = GetStringOrNull(reader, "TdsH"),
                                     TdsTds = GetStringOrNull(reader, "TdsTds"),
                                     TkosaT1 = GetStringOrNull(reader, "TkosaT1"),
                                     TkosaT3 = GetStringOrNull(reader, "TkosaT3")
                                 };
-                                
+                               
                                 measurements.Add(measurement);
                             }
                         }
                     }
                 }
-
                 var sensor = await _context.Sensors
                     .Include(s => s.SensorType)
                     .Include(s => s.MonitoringPost)
                     .FirstOrDefaultAsync(s => s.Id == sensorId);
-
                 var viewModel = new MUEKSDataViewModel
                 {
                     SensorId = sensorId,
@@ -608,7 +566,6 @@ namespace GraphsAndChartsApp.Controllers
                     PostName = sensor?.MonitoringPost?.Name,
                     Measurements = measurements
                 };
-
                 return Json(viewModel);
             }
             catch (Exception ex)
@@ -617,7 +574,6 @@ namespace GraphsAndChartsApp.Controllers
                 return StatusCode(500, new { error = "Ошибка при загрузке данных" });
             }
         }
-
         // Добавьте вспомогательный метод для чтения строк
         private string GetStringOrNull(NpgsqlDataReader reader, string columnName)
         {
@@ -630,13 +586,11 @@ namespace GraphsAndChartsApp.Controllers
             var ordinal = reader.GetOrdinal(columnName);
             return reader.IsDBNull(ordinal) ? (decimal?)null : reader.GetDecimal(ordinal);
         }
-
         private int? GetInt32OrNull(NpgsqlDataReader reader, string columnName)
         {
             var ordinal = reader.GetOrdinal(columnName);
             return reader.IsDBNull(ordinal) ? (int?)null : reader.GetInt32(ordinal);
         }
-
         private bool? GetBooleanOrNull(NpgsqlDataReader reader, string columnName)
         {
             var ordinal = reader.GetOrdinal(columnName);
