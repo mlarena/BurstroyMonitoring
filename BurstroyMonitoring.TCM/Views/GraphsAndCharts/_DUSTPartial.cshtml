@@ -4,26 +4,38 @@
     var sensorId = Model.Id;
 }
 
-                    <!-- АВТООБНОВЛЕНИЕ - используем новый компонент -->
-                    @await Html.PartialAsync("_AutoUpdatePartial", new BurstroyMonitoring.Data.Models.ViewModels.AutoUpdateViewModel 
-                    { 
-                        Prefix = "dust", 
-                        Color = "warning" 
-                    })
-                    
-                    <!-- ВЫБОР ПЕРИОДА -->
-                    <div class="d-flex align-items-center ms-3">
-                        @await Html.PartialAsync("_TimeRangePartial", new { Prefix = "dust", OutlineColor = "warning", ActiveDays = 1 })
+<div class="bsp-chart-sensor-card">
+    <div class="filter-container" style="margin-bottom: var(--spacing-md);">
+        <div class="filter-header">
+            <div class="d-flex align-center flex-wrap" style="gap: var(--spacing-md); width: 100%;">
+                @await Html.PartialAsync("_AutoUpdatePartial", new BurstroyMonitoring.Data.Models.ViewModels.AutoUpdateViewModel 
+                { 
+                    Prefix = "dust", 
+                    Color = "warning" 
+                })
+                
+                <!-- ВЫБОР ПЕРИОДА -->
+                <div class="d-flex align-center">
+                    @await Html.PartialAsync("_TimeRangePartial", new { Prefix = "dust", OutlineColor = "warning", ActiveDays = 1 })
+                </div>
+                
+                <!-- ТИП ГРАФИКА -->
+                <div class="d-flex align-center">
+                    <span class="text-secondary" style="margin-right: var(--spacing-sm); font-size: 14px;">Тип графика:</span>
+                    <div class="btn-group" role="group" id="dustChartTypeRadio" style="display: flex; gap: 2px;">
+                        <input type="radio" class="btn-check" name="dustChartType" id="dustChartTypeLine" value="line" autocomplete="off" checked style="display: none;">
+                        <label class="button button--sm button--secondary" for="dustChartTypeLine" style="border-radius: var(--radius-small) 0 0 var(--radius-small);">Линейный</label>
+                        
+                        <input type="radio" class="btn-check" name="dustChartType" id="dustChartTypeScatter" value="scatter" autocomplete="off" style="display: none;">
+                        <label class="button button--sm button--secondary" for="dustChartTypeScatter" style="border-radius: 0 var(--radius-small) var(--radius-small) 0;">Точечный</label>
                     </div>
-                    
-                    <!-- ТИП ГРАФИКА -->
-                    <div class="d-flex align-items-center ms-3">
-                        <span class="text-muted me-2">Тип графика:</span>
-                        <div class="btn-group" role="group" id="dustChartTypeRadio">
-                            <input type="radio" class="btn-check" name="dustChartType" id="dustChartTypeLine" value="line" autocomplete="off" checked>
-                            <label class="btn btn-outline-warning btn-sm" for="dustChartTypeLine">Линейный</label>
-                            
-                            <input type="radio" class="btn-check" name="dustChartType" id="dustChartTypeScatter" value="scatter" autocomplete="off">
-                            <label class="btn btn-outline-warning btn-sm" for="dustChartTypeScatter">Точечный</label>
-                        </div>
-                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="dustChartContainer" class="w-100" style="min-height: 400px;">
+        <!-- Здесь будет график DUST -->
+        <canvas id="dustChart" class="bsp-chart-canvas"></canvas>
+    </div>
+</div>

@@ -6,22 +6,37 @@
     var toggleId = $"{prefix}AutoUpdateToggle";
     var timerId = $"{prefix}CountdownTimer";
     var color = Model?.Color ?? "secondary";
+    
+    // Определяем класс цвета для бейджа
+    var badgeColorClass = color switch
+    {
+        "danger" => "badge-danger",
+        "success" => "badge-success",
+        "warning" => "badge-warning",
+        "info" => "badge-info",
+        _ => "badge-secondary"
+    };
 }
 
-<div class="d-flex align-items-center ms-3 bsp-chart-auto-update-control" 
+<div class="d-flex align-center bsp-chart-auto-update-control" 
      id="@containerId" 
      data-prefix="@prefix"
-     data-color="@color">
-    <div class="form-check form-switch d-inline-block m-0">
-        <input class="form-check-input bsp-chart-form-check-input" 
-               type="checkbox" 
+     data-color="@color"
+     style="gap: var(--spacing-sm);">
+    
+    <!-- Чекбокс автообновления -->
+    <div class="checkbox-group" style="margin: 0;">
+        <input type="checkbox" 
+               class="bsp-chart-form-check-input" 
                id="@toggleId" 
-               role="switch" 
                data-auto-update-toggle="true"
-               checked>
-        <label class="form-check-label small fw-normal ms-1" for="@toggleId">
+               checked
+               style="width: 18px; height: 18px; margin: 0;">
+        <label for="@toggleId" style="font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
             <i class="fas fa-sync-alt fa-xs"></i> 30с
         </label>
     </div>
-    <span id="@timerId" class="badge bg-secondary ms-2 bsp-chart-countdown-timer">30</span>
+    
+    <!-- Таймер -->
+    <span id="@timerId" class="badge @badgeColorClass bsp-chart-countdown-timer" style="font-size: 11px; padding: 2px 6px;">30</span>
 </div>

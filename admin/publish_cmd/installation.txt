@@ -85,6 +85,8 @@ sudo -u postgres psql -d sensordb_v2 -f /opt/burstroy/tmp/monitoring_posts.sql
 
 SELECT * FROM public."Sensor";
 
+sudo timedatectl set-timezone Europe/Moscow
+
 sudo systemctl start burstroy-monitoring-tcm
 sudo systemctl stop burstroy-monitoring-tcm
 sudo systemctl restart burstroy-monitoring-tcm

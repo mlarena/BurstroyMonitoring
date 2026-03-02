@@ -1,4 +1,15 @@
 dotnet run --project BurstroyMonitoring.TCM/BurstroyMonitoring.TCM.csproj
 dotnet run --project BurstroyMonitoring.Worker/BurstroyMonitoring.Worker.csproj
 
-dotnet build --project BurstroyMonitoring.Worker/BurstroyMonitoring.Worker.csproj
+http://localhost:5282/GraphsAndCharts/GetDOVData?sensorId=1&days=1
+http://localhost:5282/GraphsAndCharts/GetDSPDData?sensorId=5&days=1
+http://localhost:5282/GraphsAndCharts/GetDUSTData?sensorId=4&days=1
+http://localhost:5282/GraphsAndCharts/GetIWSData?sensorId=3&days=1
+http://localhost:5282/GraphsAndCharts/GetMUEKSData?sensorId=2&days=1
+
+
+http://localhost:5282/GraphsAndCharts/GetDOVDataHour?sensorId=1&days=1
+http://localhost:5282/GraphsAndCharts/GetDSPDDataHour?sensorId=5&days=1
+http://localhost:5282/GraphsAndCharts/GetDUSTDataHour?sensorId=4&days=1
+http://localhost:5282/GraphsAndCharts/GetIWSDataHour?sensorId=3&days=1
+http://localhost:5282/GraphsAndCharts/GetMUEKSDataHour?sensorId=2&days=1

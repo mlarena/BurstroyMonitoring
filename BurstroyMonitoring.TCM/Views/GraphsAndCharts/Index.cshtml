@@ -5,52 +5,41 @@
 }
 <link rel="stylesheet" href="~/css/charts.css" asp-append-version="true" />
 
-<div class="container mt-4">
-<!-- <div> -->
-    <div class="card mt-4">
-        <div class="card-header">
-            <h5>Выбор сенсора</h5>
-        </div>
-        <div class="card-body">
-            <form id="sensorForm">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="monitoringPostSelect">Пост мониторинга</label>
-                            <select id="monitoringPostSelect" class="form-control" 
-                                    asp-for="SelectedMonitoringPostId" 
-                                    asp-items="Model.MonitoringPosts">
-                            </select>
-                        </div>
+<div class="view-container" style="max-width: 100%;">
+    <h1 class="view-title">Графики и диаграммы</h1>
+    
+    <div class="filter-container">
+        <div class="filter-content">
+            <form id="sensorForm" class="filter-form">
+                <div class="form-row">
+                    <div class="field-group" style="flex: 1;">
+                        <label for="monitoringPostSelect">Пост мониторинга</label>
+                        <select id="monitoringPostSelect" class="input select" 
+                                asp-for="SelectedMonitoringPostId" 
+                                asp-items="Model.MonitoringPosts">
+                            <option value="">-- Выберите пост --</option>
+                        </select>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="sensorSelect">Сенсор</label>
-                            <select id="sensorSelect" class="form-control" 
-                                    asp-for="SelectedSensorId" 
-                                    asp-items="Model.Sensors" disabled>
-                            </select>
-                        </div>
+                    <div class="field-group" style="flex: 1;">
+                        <label for="sensorSelect">Сенсор</label>
+                        <select id="sensorSelect" class="input select" 
+                                asp-for="SelectedSensorId" 
+                                asp-items="Model.Sensors" disabled>
+                            <option value="">-- Сначала выберите пост --</option>
+                        </select>
                     </div>
                 </div>
             </form>
         </div>
     </div>
 
-    <div id="sensorDataContainer" class="mt-4">
+    <div id="sensorDataContainer" class="w-100" style="margin-top: var(--spacing-lg);">
         <!-- Здесь будут отображаться данные выбранного сенсора -->
     </div>
 </div>
 
 @section Scripts {
-    
-    
-    
     <script src="~/js/lib/chart.js"></script>
-    
-       
-    
-    
     
     <script>
         $(document).ready(function () {
@@ -63,6 +52,7 @@
                     
                     $.getJSON('/GraphsAndCharts/GetSensorsByPost', { monitoringPostId: postId }, function (data) {
                         $('#sensorSelect').empty();
+                       
                         $.each(data, function (index, item) {
                             $('#sensorSelect').append($('<option>', {
                                 value: item.value,
@@ -74,7 +64,7 @@
                     $('#sensorSelect').prop('disabled', true).empty();
                     $('#sensorSelect').append($('<option>', {
                         value: "",
-                        text: "Сначала выберите пост мониторинга"
+                        text: "-- Сначала выберите пост мониторинга --"
                     }));
                     $('#sensorDataContainer').empty();
                 }

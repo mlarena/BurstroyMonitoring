@@ -41,7 +41,7 @@
 .monitoring-filter-container {
     position: absolute;
     top: 20px;
-    left: 20px;
+    left: 80px;
     /* z-index: 1000; */
     display: flex;
     gap: 10px;

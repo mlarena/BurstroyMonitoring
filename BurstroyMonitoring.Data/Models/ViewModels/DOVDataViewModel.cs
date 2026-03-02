@@ -17,11 +17,7 @@ namespace BurstroyMonitoring.Data.Models.ViewModels
     {
         public int DovDataId { get; set; }
         public DateTime ReceivedAt { get; set; }        
-        public DateTime DataTimestamp { get; set; }
         public decimal VisibleRange { get; set; }
-        public int BrightFlag { get; set; }
-        public int? SensorId { get; set; }
-        public string? SerialNumber { get; set; }
-        public string? EndpointName { get; set; }
+       
     }
 }

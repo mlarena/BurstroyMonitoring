@@ -8,7 +8,6 @@ namespace BurstroyMonitoring.Data.Models.ViewModels
     {
         public int DustDataId { get; set; }
         public DateTime ReceivedAt { get; set; }        
-        public DateTime DataTimestamp { get; set; }
         public decimal? Pm10Act { get; set; }
         public decimal? Pm25Act { get; set; }
         public decimal? Pm1Act { get; set; }

@@ -8,7 +8,6 @@ namespace BurstroyMonitoring.Data.Models.ViewModels
     {
         public int IwsDataId { get; set; }
         public DateTime ReceivedAt { get; set; }        
-        public DateTime DataTimestamp { get; set; }
         public decimal? EnvironmentTemperature { get; set; }
         public decimal? HumidityPercentage { get; set; }
         public decimal? DewPoint { get; set; }
@@ -33,7 +32,6 @@ namespace BurstroyMonitoring.Data.Models.ViewModels
         public decimal? AccelerationStdDev { get; set; }
         public decimal? RollAngle { get; set; }
         public decimal? PitchAngle { get; set; }
-        public int? StatusOk { get; set; }
     }
 
     public class IWSDataViewModel

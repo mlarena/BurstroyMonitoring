@@ -1,5 +1,5 @@
 git init
 git add .
-git commit -m "загрузка проекта"
+git commit -m "графики, делаем заново. убрали стили"
 git log --oneline 
 git reset --hard b7192e6

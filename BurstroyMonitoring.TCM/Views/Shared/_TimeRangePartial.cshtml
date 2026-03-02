@@ -3,12 +3,51 @@
     var prefix = Model?.Prefix ?? "";
     var outlineColor = Model?.OutlineColor ?? "primary";
     var activeDays = Model?.ActiveDays ?? 1;
+    
+    // Преобразуем цвет в соответствующий класс для кнопок
+    var buttonClass = outlineColor switch
+    {
+        "danger" => "button--danger",
+        "success" => "button--success",
+        "warning" => "button--warning",
+        "info" => "button--info",
+        _ => "button--secondary"
+    };
 }
-<span class="text-muted me-2"><i class="fas fa-calendar-alt"></i></span>
-<div class="btn-group" role="group" id="@(prefix)TimeRangeButtons">
-    <button type="button" class="btn btn-sm btn-outline-@outlineColor @(activeDays == 1 ? "active" : "")" data-days="1">24ч</button>
-    <button type="button" class="btn btn-sm btn-outline-@outlineColor @(activeDays == 3 ? "active" : "")" data-days="3">3д</button>
-    <button type="button" class="btn btn-sm btn-outline-@outlineColor @(activeDays == 7 ? "active" : "")" data-days="7">7д</button>
-    <button type="button" class="btn btn-sm btn-outline-@outlineColor @(activeDays == 14 ? "active" : "")" data-days="14">14д</button>
-    <button type="button" class="btn btn-sm btn-outline-@outlineColor @(activeDays == 30 ? "active" : "")" data-days="30">30д</button>
+
+<div class="d-flex align-center" style="gap: var(--spacing-sm);">
+    <i class="fas fa-calendar-alt text-secondary" style="font-size: 14px;"></i>
+    
+    <div class="btn-group" role="group" id="@(prefix)TimeRangeButtons" style="display: flex; gap: 2px;">
+        <button type="button" 
+                class="button button--sm @buttonClass @(activeDays == 1 ? "active" : "")" 
+                data-days="1"
+                style="border-radius: var(--radius-small) 0 0 var(--radius-small);">
+            24ч
+        </button>
+        <button type="button" 
+                class="button button--sm @buttonClass @(activeDays == 3 ? "active" : "")" 
+                data-days="3"
+                style="border-radius: 0;">
+            3д
+        </button>
+        <button type="button" 
+                class="button button--sm @buttonClass @(activeDays == 7 ? "active" : "")" 
+                data-days="7"
+                style="border-radius: 0;">
+            7д
+        </button>
+        <button type="button" 
+                class="button button--sm @buttonClass @(activeDays == 14 ? "active" : "")" 
+                data-days="14"
+                style="border-radius: 0;">
+            14д
+        </button>
+        <button type="button" 
+                class="button button--sm @buttonClass @(activeDays == 30 ? "active" : "")" 
+                data-days="30"
+                style="border-radius: 0 var(--radius-small) var(--radius-small) 0;">
+            30д
+        </button>
+    </div>
 </div>

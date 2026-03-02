@@ -4,25 +4,38 @@
     var sensorId = Model.Id;
 }
 
-                    @await Html.PartialAsync("_AutoUpdatePartial", new BurstroyMonitoring.Data.Models.ViewModels.AutoUpdateViewModel 
-                    { 
-                        Prefix = "iws", 
-                        Color = "success" 
-                    })
-                    
-                    <!-- ВЫБОР ПЕРИОДА -->
-                    <div class="d-flex align-items-center ms-3">
-                        @await Html.PartialAsync("_TimeRangePartial", new { Prefix = "iws", OutlineColor = "success", ActiveDays = 1 })
+<div class="bsp-chart-sensor-card">
+    <div class="filter-container" style="margin-bottom: var(--spacing-md);">
+        <div class="filter-header">
+            <div class="d-flex align-center flex-wrap" style="gap: var(--spacing-md); width: 100%;">
+                @await Html.PartialAsync("_AutoUpdatePartial", new BurstroyMonitoring.Data.Models.ViewModels.AutoUpdateViewModel 
+                { 
+                    Prefix = "iws", 
+                    Color = "success" 
+                })
+                
+                <!-- ВЫБОР ПЕРИОДА -->
+                <div class="d-flex align-center">
+                    @await Html.PartialAsync("_TimeRangePartial", new { Prefix = "iws", OutlineColor = "success", ActiveDays = 1 })
+                </div>
+                
+                <!-- ТИП ГРАФИКА -->
+                <div class="d-flex align-center">
+                    <span class="text-secondary" style="margin-right: var(--spacing-sm); font-size: 14px;">Тип графика:</span>
+                    <div class="btn-group" role="group" id="iwsChartTypeRadio" style="display: flex; gap: 2px;">
+                        <input type="radio" class="btn-check" name="iwsChartType" id="iwsChartTypeLine" value="line" autocomplete="off" checked style="display: none;">
+                        <label class="button button--sm button--secondary" for="iwsChartTypeLine" style="border-radius: var(--radius-small) 0 0 var(--radius-small);">Линейный</label>
+                        
+                        <input type="radio" class="btn-check" name="iwsChartType" id="iwsChartTypeScatter" value="scatter" autocomplete="off" style="display: none;">
+                        <label class="button button--sm button--secondary" for="iwsChartTypeScatter" style="border-radius: 0 var(--radius-small) var(--radius-small) 0;">Точечный</label>
                     </div>
-                    
-                    <!-- ТИП ГРАФИКА -->
-                    <div class="d-flex align-items-center ms-3">
-                        <span class="text-muted me-2">Тип графика:</span>
-                        <div class="btn-group" role="group" id="iwsChartTypeRadio">
-                            <input type="radio" class="btn-check" name="iwsChartType" id="iwsChartTypeLine" value="line" autocomplete="off" checked>
-                            <label class="btn btn-outline-success btn-sm" for="iwsChartTypeLine">Линейный</label>
-                            
-                            <input type="radio" class="btn-check" name="iwsChartType" id="iwsChartTypeScatter" value="scatter" autocomplete="off">
-                            <label class="btn btn-outline-success btn-sm" for="iwsChartTypeScatter">Точечный</label>
-                        </div>
-                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="iwsChartContainer" class="w-100" style="min-height: 400px;">
+        <!-- Здесь будет график IWS -->
+        <canvas id="iwsChart" class="bsp-chart-canvas"></canvas>
+    </div>
+</div>

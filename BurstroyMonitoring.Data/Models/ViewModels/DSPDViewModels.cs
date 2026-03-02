@@ -8,7 +8,6 @@ namespace BurstroyMonitoring.Data.Models.ViewModels
     {
         public int DspdDataId { get; set; }
         public DateTime ReceivedAt { get; set; }        
-        public DateTime DataTimestamp { get; set; }
         public decimal? GripCoefficient { get; set; }
         public decimal? ShakeLevel { get; set; }
         public decimal? VoltagePower { get; set; }
@@ -23,10 +22,6 @@ namespace BurstroyMonitoring.Data.Models.ViewModels
         public decimal? RoadAngle { get; set; }
         public decimal? FreezeTemperature { get; set; }
         public decimal? DistanceToSurface { get; set; }
-        public int? CalibrationNeeded { get; set; }
-        public decimal? GpsLatitude { get; set; }
-        public decimal? GpsLongitude { get; set; }
-        public bool? GpsValid { get; set; }
     }
 
     public class DSPDDataViewModel

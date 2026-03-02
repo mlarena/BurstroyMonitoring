@@ -33,6 +33,8 @@
 @import 'pages/_sensors-index.css';
 @import 'pages/_worker-configuration.css';
 
+@import 'pages/_charts.css';
+
 /* ============================================
     ДОПОЛНИТЕЛЬНЫЕ СТИЛИ
     ============================================ */

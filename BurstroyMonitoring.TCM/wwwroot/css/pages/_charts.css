@@ -1,0 +1,234 @@
+/* ============================================
+    ДОПОЛНИТЕЛЬНЫЕ СТИЛИ ДЛЯ ГРАФИКОВ
+    ============================================ */
+
+/* Группа кнопок как в Jira */
+.btn-group {
+    display: inline-flex;
+    border-radius: var(--radius-small);
+    overflow: hidden;
+}
+
+.btn-group .button {
+    border-radius: 0;
+    margin: 0;
+    border-left: none;
+}
+
+.btn-group .button:first-child {
+    border-radius: var(--radius-small) 0 0 var(--radius-small);
+    border-left: 1px solid transparent;
+}
+
+.btn-group .button:last-child {
+    border-radius: 0 var(--radius-small) var(--radius-small) 0;
+}
+
+/* Стили для radio кнопок (скрытых) */
+.btn-check {
+    position: absolute;
+    clip: rect(0,0,0,0);
+    pointer-events: none;
+}
+
+.btn-check:checked + .button {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    border-color: var(--primary-color);
+}
+
+.btn-check:checked + .button--secondary {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    border-color: var(--primary-color);
+}
+
+/* Адаптивность для графиков */
+@media (max-width: 768px) {
+    .filter-header .d-flex {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: var(--spacing-sm) !important;
+    }
+    
+    .btn-group {
+        width: 100%;
+    }
+    
+    .btn-group .button {
+        flex: 1;
+        text-align: center;
+    }
+}
+
+/* ============================================
+    ДОПОЛНИТЕЛЬНЫЕ СТИЛИ ДЛЯ ГРАФИКОВ (продолжение)
+    ============================================ */
+
+/* Стили для кнопок с цветами */
+.button--success {
+    background-color: transparent;
+    color: var(--success-color);
+    border: 1px solid var(--success-border);
+}
+
+.button--success:hover {
+    background-color: var(--success-bg);
+    color: var(--success-color);
+}
+
+.button--success.active {
+    background-color: var(--success-color);
+    color: var(--text-light);
+    border-color: var(--success-color);
+}
+
+.button--danger {
+    background-color: transparent;
+    color: var(--danger-color);
+    border: 1px solid var(--danger-border);
+}
+
+.button--danger:hover {
+    background-color: var(--danger-bg);
+    color: var(--danger-color);
+}
+
+.button--danger.active {
+    background-color: var(--danger-color);
+    color: var(--text-light);
+    border-color: var(--danger-color);
+}
+
+.button--warning {
+    background-color: transparent;
+    color: var(--warning-color);
+    border: 1px solid var(--warning-color);
+}
+
+.button--warning:hover {
+    background-color: var(--warning-bg);
+    color: var(--warning-color);
+}
+
+.button--warning.active {
+    background-color: var(--warning-color);
+    color: var(--text-primary);
+    border-color: var(--warning-color);
+}
+
+.button--info {
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+}
+
+.button--info:hover {
+    background-color: var(--bg-hover);
+    color: var(--primary-color);
+}
+
+.button--info.active {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    border-color: var(--primary-color);
+}
+
+/* Бейджи для разных цветов (дополнение к существующим) */
+.badge-secondary {
+    background-color: var(--text-secondary);
+    color: var(--text-light);
+}
+
+.badge-info {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+}
+
+/* Стили для группы кнопок (btn-group) */
+.btn-group {
+    display: inline-flex;
+    border-radius: var(--radius-small);
+    overflow: hidden;
+}
+
+.btn-group .button {
+    border-radius: 0;
+    margin: 0;
+    border-left: none;
+    position: relative;
+}
+
+.btn-group .button:first-child {
+    border-radius: var(--radius-small) 0 0 var(--radius-small);
+    border-left: 1px solid transparent;
+}
+
+.btn-group .button:last-child {
+    border-radius: 0 var(--radius-small) var(--radius-small) 0;
+}
+
+.btn-group .button + .button {
+    margin-left: -1px; /* Убираем двойную границу */
+}
+
+.btn-group .button:hover {
+    z-index: 1;
+}
+
+.btn-group .button.active {
+    z-index: 2;
+}
+
+/* Стили для чекбокса автообновления */
+.bsp-chart-form-check-input {
+    accent-color: var(--primary-color);
+    cursor: pointer;
+}
+
+.bsp-chart-form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Иконки Font Awesome (если используются) */
+.fas {
+    display: inline-block;
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    line-height: 1;
+}
+
+.fa-sync-alt:before {
+    content: "\f2f1";
+}
+
+.fa-calendar-alt:before {
+    content: "\f073";
+}
+
+.fa-xs {
+    font-size: 0.75em;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    .btn-group {
+        flex-wrap: wrap;
+    }
+    
+    .btn-group .button {
+        flex: 1;
+        min-width: 40px;
+        padding: 0 var(--spacing-xs);
+        font-size: 12px;
+    }
+    
+    .bsp-chart-auto-update-control {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
