@@ -15,7 +15,6 @@ namespace BurstroyMonitoring.Data.Models.ViewModels
 
     public class DOVMeasurementViewModel
     {
-        public int DovDataId { get; set; }
         public DateTime ReceivedAt { get; set; }        
         public decimal VisibleRange { get; set; }
        
