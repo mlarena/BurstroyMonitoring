@@ -23,8 +23,6 @@ namespace BurstroyMonitoring.Data.Models.ViewModels
         public int? PrecipitationPeriod { get; set; }
         public decimal? Co2Level { get; set; }
         public decimal? SupplyVoltage { get; set; }
-        public decimal? IwsLatitude { get; set; }
-        public decimal? IwsLongitude { get; set; }
         public decimal? Altitude { get; set; }
         public decimal? GpsSpeed { get; set; }
         public int? KspValue { get; set; }

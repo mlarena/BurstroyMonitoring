@@ -418,8 +418,6 @@ namespace GraphsAndChartsApp.Controllers
                                     Co2Level = GetDecimalOrNull(reader, "Co2Level"),
                                     SupplyVoltage = GetDecimalOrNull(reader, "SupplyVoltage"),
                                    
-                                    IwsLatitude = GetDecimalOrNull(reader, "IwsLatitude"),
-                                    IwsLongitude = GetDecimalOrNull(reader, "IwsLongitude"),
                                     Altitude = GetDecimalOrNull(reader, "Altitude"),
                                    
                                     KspValue = GetInt32OrNull(reader, "KspValue"),
@@ -1016,27 +1014,30 @@ namespace GraphsAndChartsApp.Controllers
             try
             {
                 var fromDate = DateTime.UtcNow.AddDays(-days);
-               
+                
                 var connectionString = _context.Database.GetConnectionString();
-               
+                
                 var query = @"
-                    SELECT
-                        received_at AS ReceivedAt,
-                        visible_range AS VisibleRange
+                    SELECT 
+                        DATE_TRUNC('hour', received_at) + 
+                        (TRUNC(EXTRACT(MINUTE FROM received_at) / 10) * 10 || ' minutes')::interval AS ReceivedAt,
+                        ROUND(AVG(visible_range)::numeric, 3) AS VisibleRange
                     FROM public.vw_dov_data_full
                     WHERE sensor_id = @sensorId
                         AND received_at >= @fromDate
-                    ORDER BY received_at ASC";
-               
+                    GROUP BY DATE_TRUNC('hour', received_at), 
+                            TRUNC(EXTRACT(MINUTE FROM received_at) / 10)
+                    ORDER BY ReceivedAt ASC";
+                
                 var measurements = new List<DOVMeasurementViewModel>();
-               
+                
                 using (var connection = new NpgsqlConnection(connectionString))
                 {
                     using (var command = new NpgsqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@sensorId", sensorId);
                         command.Parameters.AddWithValue("@fromDate", fromDate);
-                       
+                        
                         await connection.OpenAsync();
                         using (var reader = await command.ExecuteReaderAsync())
                         {
@@ -1051,10 +1052,12 @@ namespace GraphsAndChartsApp.Controllers
                         }
                     }
                 }
+                
                 var sensor = await _context.Sensors
                     .Include(s => s.SensorType)
                     .Include(s => s.MonitoringPost)
                     .FirstOrDefaultAsync(s => s.Id == sensorId);
+                
                 var viewModel = new DOVDataViewModel
                 {
                     SensorId = sensorId,
@@ -1063,56 +1066,61 @@ namespace GraphsAndChartsApp.Controllers
                     PostName = sensor?.MonitoringPost?.Name,
                     Measurements = measurements
                 };
+                
                 Console.WriteLine(Json(viewModel).ToString());
                 return Json(viewModel);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка при загрузке данных DOV: {ex.Message}");
-                return StatusCode(500, new { error = "Ошибка при загрузке данных" });
+                Console.WriteLine($"Ошибка при загрузке данных DOV с 10-минутным интервалом: {ex.Message}");
+                return StatusCode(500, new { error = "Ошибка при загрузке данных с 10-минутным интервалом" });
             }
         }
-       
+
+
         [HttpGet]
         public async Task<IActionResult> GetDSPDDataTenMinuteInterval(int sensorId, int days = 1)
         {
             try
             {
                 var fromDate = DateTime.UtcNow.AddDays(-days);
-               
+                
                 var connectionString = _context.Database.GetConnectionString();
-               
+                
                 var query = @"
-                    SELECT
-                        received_at AS ReceivedAt,
-                        grip_coefficient AS GripCoefficient,
-                        shake_level AS ShakeLevel,
-                        voltage_power AS VoltagePower,
-                        case_temperature AS CaseTemperature,
-                        road_temperature AS RoadTemperature,
-                        water_height AS WaterHeight,
-                        ice_height AS IceHeight,
-                        snow_height AS SnowHeight,
-                        ice_percentage AS IcePercentage,
-                        pgm_percentage AS PgmPercentage,
-                        road_status_code AS RoadStatusCode,
-                        road_angle AS RoadAngle,
-                        freeze_temperature AS FreezeTemperature,
-                        distance_to_surface AS DistanceToSurface
+                    SELECT 
+                        DATE_TRUNC('hour', received_at) + 
+                        (TRUNC(EXTRACT(MINUTE FROM received_at) / 10) * 10 || ' minutes')::interval AS ReceivedAt,
+                        ROUND(AVG(grip_coefficient)::numeric, 3) AS GripCoefficient,
+                        ROUND(AVG(shake_level)::numeric, 3) AS ShakeLevel,
+                        ROUND(AVG(voltage_power)::numeric, 3) AS VoltagePower,
+                        ROUND(AVG(case_temperature)::numeric, 3) AS CaseTemperature,
+                        ROUND(AVG(road_temperature)::numeric, 3) AS RoadTemperature,
+                        ROUND(AVG(water_height)::numeric, 3) AS WaterHeight,
+                        ROUND(AVG(ice_height)::numeric, 3) AS IceHeight,
+                        ROUND(AVG(snow_height)::numeric, 3) AS SnowHeight,
+                        ROUND(AVG(ice_percentage)::numeric, 3) AS IcePercentage,
+                        ROUND(AVG(pgm_percentage)::numeric, 3) AS PgmPercentage,
+                        AVG(road_status_code) AS RoadStatusCode,
+                        ROUND(AVG(road_angle)::numeric, 3) AS RoadAngle,
+                        ROUND(AVG(freeze_temperature)::numeric, 3) AS FreezeTemperature,
+                        ROUND(AVG(distance_to_surface)::numeric, 3) AS DistanceToSurface
                     FROM public.vw_dspd_data_full
                     WHERE sensor_id = @sensorId
                         AND received_at >= @fromDate
-                    ORDER BY received_at ASC";
-               
+                    GROUP BY DATE_TRUNC('hour', received_at), 
+                            TRUNC(EXTRACT(MINUTE FROM received_at) / 10)
+                    ORDER BY ReceivedAt ASC";
+                
                 var measurements = new List<DSPDMeasurementViewModel>();
-               
+                
                 using (var connection = new NpgsqlConnection(connectionString))
                 {
                     using (var command = new NpgsqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@sensorId", sensorId);
                         command.Parameters.AddWithValue("@fromDate", fromDate);
-                       
+                        
                         await connection.OpenAsync();
                         using (var reader = await command.ExecuteReaderAsync())
                         {
@@ -1136,16 +1144,18 @@ namespace GraphsAndChartsApp.Controllers
                                     FreezeTemperature = GetDecimalOrNull(reader, "FreezeTemperature"),
                                     DistanceToSurface = GetDecimalOrNull(reader, "DistanceToSurface")
                                 };
-                               
+                                
                                 measurements.Add(measurement);
                             }
                         }
                     }
                 }
+                
                 var sensor = await _context.Sensors
                     .Include(s => s.SensorType)
                     .Include(s => s.MonitoringPost)
                     .FirstOrDefaultAsync(s => s.Id == sensorId);
+                
                 var viewModel = new DSPDDataViewModel
                 {
                     SensorId = sensorId,
@@ -1154,52 +1164,53 @@ namespace GraphsAndChartsApp.Controllers
                     PostName = sensor?.MonitoringPost?.Name,
                     Measurements = measurements
                 };
+                
                 return Json(viewModel);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка при загрузке данных DSPD: {ex.Message}");
-                return StatusCode(500, new { error = "Ошибка при загрузке данных" });
+                Console.WriteLine($"Ошибка при загрузке данных DSPD с 10-минутным интервалом: {ex.Message}");
+                return StatusCode(500, new { error = "Ошибка при загрузке данных с 10-минутным интервалом" });
             }
         }
-        
+
         [HttpGet]
         public async Task<IActionResult> GetDUSTDataTenMinuteInterval(int sensorId, int days = 1)
         {
             try
             {
                 var fromDate = DateTime.UtcNow.AddDays(-days);
-               
+                
                 var connectionString = _context.Database.GetConnectionString();
-               
+                
                 var query = @"
-                    SELECT
-                        received_at AS ReceivedAt,
-                        pm10act AS Pm10Act,
-                        pm25act AS Pm25Act,
-                        pm1act AS Pm1Act,
-                        pm10awg AS Pm10Awg,
-                        pm25awg AS Pm25Awg,
-                        pm1awg AS Pm1Awg,
-                        flowprobe AS FlowProbe,
-                        temperatureprobe AS TemperatureProbe,
-                        humidityprobe AS HumidityProbe,
-                        laserstatus AS LaserStatus,
-                        supplyvoltage AS SupplyVoltage
+                    SELECT 
+                        DATE_TRUNC('hour', received_at) + 
+                        (TRUNC(EXTRACT(MINUTE FROM received_at) / 10) * 10 || ' minutes')::interval AS ReceivedAt,
+                        ROUND(AVG(pm10act)::numeric, 5) AS Pm10Act,
+                        ROUND(AVG(pm25act)::numeric, 5) AS Pm25Act,
+                        ROUND(AVG(pm1act)::numeric, 5) AS Pm1Act,
+                        ROUND(AVG(pm10awg)::numeric, 5) AS Pm10Awg,
+                        ROUND(AVG(pm25awg)::numeric, 5) AS Pm25Awg,
+                        ROUND(AVG(pm1awg)::numeric, 5) AS Pm1Awg,
+                        ROUND(AVG(flowprobe)::numeric, 5) AS FlowProbe,
+                        ROUND(AVG(temperatureprobe)::numeric, 1) AS TemperatureProbe
                     FROM public.vw_dust_data_full
                     WHERE sensor_id = @sensorId
                         AND received_at >= @fromDate
-                    ORDER BY received_at ASC";
-               
+                    GROUP BY DATE_TRUNC('hour', received_at), 
+                            TRUNC(EXTRACT(MINUTE FROM received_at) / 10)
+                    ORDER BY ReceivedAt ASC";
+                
                 var measurements = new List<DUSTMeasurementViewModel>();
-               
+                
                 using (var connection = new NpgsqlConnection(connectionString))
                 {
                     using (var command = new NpgsqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@sensorId", sensorId);
                         command.Parameters.AddWithValue("@fromDate", fromDate);
-                       
+                        
                         await connection.OpenAsync();
                         using (var reader = await command.ExecuteReaderAsync())
                         {
@@ -1217,16 +1228,18 @@ namespace GraphsAndChartsApp.Controllers
                                     FlowProbe = GetDecimalOrNull(reader, "FlowProbe"),
                                     TemperatureProbe = GetDecimalOrNull(reader, "TemperatureProbe")
                                 };
-                               
+                                
                                 measurements.Add(measurement);
                             }
                         }
                     }
                 }
+                
                 var sensor = await _context.Sensors
                     .Include(s => s.SensorType)
                     .Include(s => s.MonitoringPost)
                     .FirstOrDefaultAsync(s => s.Id == sensorId);
+                
                 var viewModel = new DUSTDataViewModel
                 {
                     SensorId = sensorId,
@@ -1235,65 +1248,63 @@ namespace GraphsAndChartsApp.Controllers
                     PostName = sensor?.MonitoringPost?.Name,
                     Measurements = measurements
                 };
+                
                 return Json(viewModel);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка при загрузке данных DUST: {ex.Message}");
-                return StatusCode(500, new { error = "Ошибка при загрузке данных" });
+                Console.WriteLine($"Ошибка при загрузке данных DUST с 10-минутным интервалом: {ex.Message}");
+                return StatusCode(500, new { error = "Ошибка при загрузке данных с 10-минутным интервалом" });
             }
         }
-      
+
         [HttpGet]
         public async Task<IActionResult> GetIWSDataTenMinuteInterval(int sensorId, int days = 1)
         {
             try
             {
                 var fromDate = DateTime.UtcNow.AddDays(-days);
-               
+                
                 var connectionString = _context.Database.GetConnectionString();
-               
+                
                 var query = @"
-                    SELECT
-                        received_at AS ReceivedAt,
-                        environment_temperature AS EnvironmentTemperature,
-                        humidity_percentage AS HumidityPercentage,
-                        dew_point AS DewPoint,
-                        pressure_hpa AS PressureHpa,
-                        pressure_qnh_hpa AS PressureQNHHpa,
-                        pressure_mmhg AS PressureMmHg,
-                        wind_speed AS WindSpeed,
-                        wind_direction AS WindDirection,
-                        wind_vs_sound AS WindVSound,
-                        precipitation_type AS PrecipitationType,
-                        precipitation_intensity AS PrecipitationIntensity,
-                        precipitation_quantity AS PrecipitationQuantity,
-                        precipitation_elapsed AS PrecipitationElapsed,
-                        precipitation_period AS PrecipitationPeriod,
-                        co2_level AS Co2Level,
-                        supply_voltage AS SupplyVoltage,
-                        iws_latitude AS IwsLatitude,
-                        iws_longitude AS IwsLongitude,
-                        altitude AS Altitude,
-                        ksp_value AS KspValue,
-                        gps_speed AS GpsSpeed,
-                        acceleration_std_dev AS AccelerationStdDev,
-                        roll_angle AS RollAngle,
-                        pitch_angle AS PitchAngle
+                    SELECT 
+                        DATE_TRUNC('hour', received_at) + 
+                        (TRUNC(EXTRACT(MINUTE FROM received_at) / 10) * 10 || ' minutes')::interval AS ReceivedAt,
+                        ROUND(AVG(environment_temperature)::numeric, 3) AS EnvironmentTemperature,
+                        ROUND(AVG(humidity_percentage)::numeric, 3) AS HumidityPercentage,
+                        ROUND(AVG(dew_point)::numeric, 3) AS DewPoint,
+                        ROUND(AVG(pressure_hpa)::numeric, 3) AS PressureHpa,
+                        ROUND(AVG(pressure_qnh_hpa)::numeric, 3) AS PressureQNHHpa,
+                        ROUND(AVG(pressure_mmhg)::numeric, 3) AS PressureMmHg,
+                        ROUND(AVG(wind_speed)::numeric, 3) AS WindSpeed,
+                        ROUND(AVG(wind_direction)::numeric, 3) AS WindDirection,
+                        ROUND(AVG(wind_vs_sound)::numeric, 3) AS WindVSound,
+                        AVG(precipitation_type) AS PrecipitationType,
+                        ROUND(AVG(precipitation_intensity)::numeric, 3) AS PrecipitationIntensity,
+                        ROUND(AVG(precipitation_quantity)::numeric, 3) AS PrecipitationQuantity,
+                        ROUND(AVG(precipitation_elapsed)::numeric, 3) AS PrecipitationElapsed,
+                        ROUND(AVG(precipitation_period)::numeric, 3) AS PrecipitationPeriod,
+                        ROUND(AVG(co2_level)::numeric, 3) AS Co2Level,
+                        ROUND(AVG(supply_voltage)::numeric, 3) AS SupplyVoltage,
+                        ROUND(AVG(ksp_value)::numeric, 3) AS KspValue,
+                        ROUND(AVG(acceleration_std_dev)::numeric, 3) AS AccelerationStdDev
                     FROM public.vw_iws_data_full
                     WHERE sensor_id = @sensorId
                         AND received_at >= @fromDate
-                    ORDER BY received_at ASC";
-               
+                    GROUP BY DATE_TRUNC('hour', received_at), 
+                            TRUNC(EXTRACT(MINUTE FROM received_at) / 10)
+                    ORDER BY ReceivedAt ASC";
+                
                 var measurements = new List<IWSMeasurementViewModel>();
-               
+                
                 using (var connection = new NpgsqlConnection(connectionString))
                 {
                     using (var command = new NpgsqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@sensorId", sensorId);
                         command.Parameters.AddWithValue("@fromDate", fromDate);
-                       
+                        
                         await connection.OpenAsync();
                         using (var reader = await command.ExecuteReaderAsync())
                         {
@@ -1302,48 +1313,43 @@ namespace GraphsAndChartsApp.Controllers
                                 var measurement = new IWSMeasurementViewModel
                                 {
                                     ReceivedAt = reader.GetDateTime(reader.GetOrdinal("ReceivedAt")),
-                                   
+                                    
                                     EnvironmentTemperature = GetDecimalOrNull(reader, "EnvironmentTemperature"),
                                     HumidityPercentage = GetDecimalOrNull(reader, "HumidityPercentage"),
                                     DewPoint = GetDecimalOrNull(reader, "DewPoint"),
-                                   
+                                    
                                     PressureHpa = GetDecimalOrNull(reader, "PressureHpa"),
                                     PressureQNHHpa = GetDecimalOrNull(reader, "PressureQNHHpa"),
                                     PressureMmHg = GetDecimalOrNull(reader, "PressureMmHg"),
-                                   
+                                    
                                     WindSpeed = GetDecimalOrNull(reader, "WindSpeed"),
                                     WindDirection = GetDecimalOrNull(reader, "WindDirection"),
                                     WindVSound = GetDecimalOrNull(reader, "WindVSound"),
-                                   
+                                    
                                     PrecipitationType = GetInt32OrNull(reader, "PrecipitationType"),
                                     PrecipitationIntensity = GetDecimalOrNull(reader, "PrecipitationIntensity"),
                                     PrecipitationQuantity = GetDecimalOrNull(reader, "PrecipitationQuantity"),
                                     PrecipitationElapsed = GetInt32OrNull(reader, "PrecipitationElapsed"),
                                     PrecipitationPeriod = GetInt32OrNull(reader, "PrecipitationPeriod"),
-                                   
+                                    
                                     Co2Level = GetDecimalOrNull(reader, "Co2Level"),
                                     SupplyVoltage = GetDecimalOrNull(reader, "SupplyVoltage"),
-                                   
-                                    IwsLatitude = GetDecimalOrNull(reader, "IwsLatitude"),
-                                    IwsLongitude = GetDecimalOrNull(reader, "IwsLongitude"),
-                                    Altitude = GetDecimalOrNull(reader, "Altitude"),
-                                   
+                                    
                                     KspValue = GetInt32OrNull(reader, "KspValue"),
-                                    GpsSpeed = GetDecimalOrNull(reader, "GpsSpeed"),
-                                    AccelerationStdDev = GetDecimalOrNull(reader, "AccelerationStdDev"),
-                                    RollAngle = GetDecimalOrNull(reader, "RollAngle"),
-                                    PitchAngle = GetDecimalOrNull(reader, "PitchAngle")
+                                    AccelerationStdDev = GetDecimalOrNull(reader, "AccelerationStdDev")
                                 };
-                               
+                                
                                 measurements.Add(measurement);
                             }
                         }
                     }
                 }
+                
                 var sensor = await _context.Sensors
                     .Include(s => s.SensorType)
                     .Include(s => s.MonitoringPost)
                     .FirstOrDefaultAsync(s => s.Id == sensorId);
+                
                 var viewModel = new IWSDataViewModel
                 {
                     SensorId = sensorId,
@@ -1352,15 +1358,17 @@ namespace GraphsAndChartsApp.Controllers
                     PostName = sensor?.MonitoringPost?.Name,
                     Measurements = measurements
                 };
+                
                 return Json(viewModel);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка при загрузке данных IWS: {ex.Message}");
-                return StatusCode(500, new { error = "Ошибка при загрузке данных" });
+                Console.WriteLine($"Ошибка при загрузке данных IWS с 10-минутным интервалом: {ex.Message}");
+                return StatusCode(500, new { error = "Ошибка при загрузке данных с 10-минутным интервалом" });
             }
         }
-       
+
+
         [HttpGet]
         public async Task<IActionResult> GetMUEKSDataTenMinuteInterval(int sensorId, int days = 1)
         {
