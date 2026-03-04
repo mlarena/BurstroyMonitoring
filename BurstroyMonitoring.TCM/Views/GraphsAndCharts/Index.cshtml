@@ -20,7 +20,7 @@
                         </select>
                     </div>
                     <div class="field-group" style="flex: 1;">
-                        <label for="sensorSelect">Сенсор</label>
+                        <label for="sensorSelect">Датчик</label>
                         <select id="sensorSelect" class="input select" 
                                 asp-for="SelectedSensorId" 
                                 asp-items="Model.Sensors" disabled>                          
@@ -32,7 +32,7 @@
     </div>
 
     <div id="sensorDataContainer" class="w-100" style="margin-top: var(--spacing-lg);">
-        <!-- Здесь будут отображаться данные выбранного датчика -->
+        <!-- Здесь будут отображаться данные выбранного сенсора -->
     </div>
 </div>
 
@@ -68,7 +68,7 @@
                 }
             });
 
-            // Загрузка данных датчика
+            // Загрузка данных сенсора
             $('#sensorSelect').change(function () {
                 var sensorId = $(this).val();
                 
