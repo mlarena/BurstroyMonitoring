@@ -13,6 +13,15 @@
                     Prefix = "dust", 
                     Color = "warning" 
                 })
+                <!-- ВЫБОР ИНТЕРВАЛА АГРЕГАЦИИ (НОВЫЙ) -->
+                <div class="d-flex align-center">
+                    @await Html.PartialAsync("_AggregationIntervalPartial", new { 
+                        Prefix = "dust", 
+                        OutlineColor = "secondary", 
+                        ActiveInterval = "hour" 
+                    })
+                </div>
+
                 
                 <!-- ВЫБОР ПЕРИОДА -->
                 <div class="d-flex align-center">

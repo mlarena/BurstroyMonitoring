@@ -13,7 +13,15 @@
                     Prefix = "iws", 
                     Color = "success" 
                 })
-                
+                <!-- ВЫБОР ИНТЕРВАЛА АГРЕГАЦИИ (НОВЫЙ) -->
+                <div class="d-flex align-center">
+                    @await Html.PartialAsync("_AggregationIntervalPartial", new { 
+                        Prefix = "iws", 
+                        OutlineColor = "secondary", 
+                        ActiveInterval = "hour" 
+                    })
+                </div>
+
                 <!-- ВЫБОР ПЕРИОДА -->
                 <div class="d-flex align-center">
                     @await Html.PartialAsync("_TimeRangePartial", new { Prefix = "iws", OutlineColor = "success", ActiveDays = 1 })

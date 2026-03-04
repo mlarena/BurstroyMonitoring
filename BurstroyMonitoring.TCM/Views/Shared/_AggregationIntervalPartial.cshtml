@@ -1,0 +1,44 @@
+@model dynamic
+@{
+    var prefix = Model?.Prefix ?? "";
+    var outlineColor = Model?.OutlineColor ?? "primary";
+    var activeInterval = Model?.ActiveInterval ?? "hour";
+    
+    // Преобразуем цвет в соответствующий класс для кнопок
+    var buttonClass = outlineColor switch
+    {
+        "danger" => "button--danger",
+        "success" => "button--success",
+        "warning" => "button--warning",
+        "info" => "button--info",
+        _ => "button--secondary"
+    };
+}
+
+<div class="d-flex align-center" style="gap: var(--spacing-sm);">
+    <i class="fas fa-chart-line text-secondary" style="font-size: 14px;"></i>
+    
+    <div class="btn-group" role="group" id="@(prefix)AggregationIntervalButtons" style="display: flex; gap: 2px;">
+        <button type="button" 
+                class="button button--sm @buttonClass @(activeInterval == "raw" ? "active" : "")" 
+                data-interval="raw"
+                style="border-radius: var(--radius-small) 0 0 var(--radius-small);"
+                title="Все данные без группировки">
+            Все
+        </button>
+        <button type="button" 
+                class="button button--sm @buttonClass @(activeInterval == "tenminutes" ? "active" : "")" 
+                data-interval="tenminutes"
+                style="border-radius: 0;"
+                title="Усреднение по 10 минутам">
+            10 мин
+        </button>
+        <button type="button" 
+                class="button button--sm @buttonClass @(activeInterval == "hour" ? "active" : "")" 
+                data-interval="hour"
+                style="border-radius: 0 var(--radius-small) var(--radius-small) 0;"
+                title="Усреднение по часам">
+            По часам
+        </button>
+    </div>
+</div>

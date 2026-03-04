@@ -12,7 +12,14 @@
                     Prefix = "dov", 
                     Color = "secondary" 
                 })
-                
+                <!-- ВЫБОР ИНТЕРВАЛА АГРЕГАЦИИ (НОВЫЙ) -->
+                <div class="d-flex align-center">
+                    @await Html.PartialAsync("_AggregationIntervalPartial", new { 
+                        Prefix = "dov", 
+                        OutlineColor = "secondary", 
+                        ActiveInterval = "hour" 
+                    })
+                </div>
                 <!-- ВЫБОР ПЕРИОДА -->
                 <div class="d-flex align-center">
                     @await Html.PartialAsync("_TimeRangePartial", new { Prefix = "dov", OutlineColor = "info", ActiveDays = 1 })
