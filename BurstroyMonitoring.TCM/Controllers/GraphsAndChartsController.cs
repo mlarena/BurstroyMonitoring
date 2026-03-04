@@ -68,7 +68,7 @@ namespace GraphsAndChartsApp.Controllers
             sensorItems.Insert(0, new SelectListItem
             {
                 Value = "",
-                Text = "Выберите сенсор"
+                Text = "Выберите датчик"
             });
             return Json(sensorItems);
         }

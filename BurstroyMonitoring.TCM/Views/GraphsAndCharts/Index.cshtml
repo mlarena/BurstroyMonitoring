@@ -16,16 +16,14 @@
                         <label for="monitoringPostSelect">Пост мониторинга</label>
                         <select id="monitoringPostSelect" class="input select" 
                                 asp-for="SelectedMonitoringPostId" 
-                                asp-items="Model.MonitoringPosts">
-                            <option value="">-- Выберите пост --</option>
+                                asp-items="Model.MonitoringPosts">                           
                         </select>
                     </div>
                     <div class="field-group" style="flex: 1;">
                         <label for="sensorSelect">Сенсор</label>
                         <select id="sensorSelect" class="input select" 
                                 asp-for="SelectedSensorId" 
-                                asp-items="Model.Sensors" disabled>
-                            <option value="">-- Сначала выберите пост --</option>
+                                asp-items="Model.Sensors" disabled>                          
                         </select>
                     </div>
                 </div>
@@ -34,7 +32,7 @@
     </div>
 
     <div id="sensorDataContainer" class="w-100" style="margin-top: var(--spacing-lg);">
-        <!-- Здесь будут отображаться данные выбранного сенсора -->
+        <!-- Здесь будут отображаться данные выбранного датчика -->
     </div>
 </div>
 
@@ -70,7 +68,7 @@
                 }
             });
 
-            // Загрузка данных сенсора
+            // Загрузка данных датчика
             $('#sensorSelect').change(function () {
                 var sensorId = $(this).val();
                 
