@@ -311,6 +311,7 @@ namespace GraphsAndChartsApp.Controllers
                                     Pm25Awg = GetDecimalOrNull(reader, "Pm25Awg"),
                                     Pm1Awg = GetDecimalOrNull(reader, "Pm1Awg"),
                                     FlowProbe = GetDecimalOrNull(reader, "FlowProbe"),
+                                    HumidityProbe = GetDecimalOrNull(reader, "HumidityProbe"),                                    
                                     TemperatureProbe = GetDecimalOrNull(reader, "TemperatureProbe")
                                 };
                                
@@ -734,7 +735,9 @@ namespace GraphsAndChartsApp.Controllers
                         ROUND(AVG(pm25awg)::numeric, 5) AS Pm25Awg,
                         ROUND(AVG(pm1awg)::numeric, 5) AS Pm1Awg,
                         ROUND(AVG(flowprobe)::numeric, 5) AS FlowProbe,
-                        ROUND(AVG(temperatureprobe)::numeric, 1) AS TemperatureProbe
+                        ROUND(AVG(temperatureprobe)::numeric, 1) AS TemperatureProbe,
+                        ROUND(AVG(humidityprobe)::numeric, 1) AS HumidityProbe
+                        
                     FROM public.vw_dust_data_full
                     WHERE sensor_id = @sensorId
                         AND received_at >= @fromDate
@@ -766,6 +769,8 @@ namespace GraphsAndChartsApp.Controllers
                                     Pm1Awg = GetDecimalOrNull(reader, "Pm1Awg"),
                                     FlowProbe = GetDecimalOrNull(reader, "FlowProbe"),
                                     TemperatureProbe = GetDecimalOrNull(reader, "TemperatureProbe"),
+                                        HumidityProbe = GetDecimalOrNull(reader, "HumidityProbe"),                                    
+                                
                                 };
                                 
                                 measurements.Add(measurement);
@@ -1194,7 +1199,9 @@ namespace GraphsAndChartsApp.Controllers
                         ROUND(AVG(pm25awg)::numeric, 5) AS Pm25Awg,
                         ROUND(AVG(pm1awg)::numeric, 5) AS Pm1Awg,
                         ROUND(AVG(flowprobe)::numeric, 5) AS FlowProbe,
-                        ROUND(AVG(temperatureprobe)::numeric, 1) AS TemperatureProbe
+                        ROUND(AVG(temperatureprobe)::numeric, 1) AS TemperatureProbe,
+                        ROUND(AVG(humidityprobe)::numeric, 1) AS HumidityProbe
+                        
                     FROM public.vw_dust_data_full
                     WHERE sensor_id = @sensorId
                         AND received_at >= @fromDate
@@ -1226,7 +1233,9 @@ namespace GraphsAndChartsApp.Controllers
                                     Pm25Awg = GetDecimalOrNull(reader, "Pm25Awg"),
                                     Pm1Awg = GetDecimalOrNull(reader, "Pm1Awg"),
                                     FlowProbe = GetDecimalOrNull(reader, "FlowProbe"),
-                                    TemperatureProbe = GetDecimalOrNull(reader, "TemperatureProbe")
+                                    TemperatureProbe = GetDecimalOrNull(reader, "TemperatureProbe"),
+                                        HumidityProbe = GetDecimalOrNull(reader, "HumidityProbe"),                                    
+                                
                                 };
                                 
                                 measurements.Add(measurement);

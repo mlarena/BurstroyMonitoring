@@ -15,7 +15,7 @@ namespace BurstroyMonitoring.Data.Models.ViewModels
         public decimal? Pm1Awg { get; set; }
         public decimal? FlowProbe { get; set; }
         public decimal? TemperatureProbe { get; set; }
-        // public decimal? HumidityProbe { get; set; }
+        public decimal? HumidityProbe { get; set; }
         // public int? LaserStatus { get; set; }
         // public decimal? SupplyVoltage { get; set; }
     }
