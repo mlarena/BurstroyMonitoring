@@ -2,6 +2,12 @@
 const ChartsCommon = (function() {
     'use strict';
     
+    console.log('ChartsCommon loaded');
+    
+    // Флаг для предотвращения параллельных загрузок
+    let isLoading = false;
+    let lastRequest = {};
+    
     // Карта соответствия типов датчиков и методов
     const methodMap = {
         dov: {
@@ -50,13 +56,18 @@ const ChartsCommon = (function() {
     
     // Обновить информацию о методе в отладочной панели
     function updateMethodInfo(prefix, sensorId, interval, days) {
+        console.log(`updateMethodInfo: ${prefix}, ${sensorId}, ${interval}, ${days}`);
+        
         const methodNameSpan = document.getElementById(`${prefix}MethodName`);
         const paramsSpan = document.getElementById(`${prefix}MethodParams`);
         const urlSpan = document.getElementById(`${prefix}MethodUrl`);
         
-        if (!methodNameSpan || !paramsSpan || !urlSpan) return;
+        if (!methodNameSpan || !paramsSpan || !urlSpan) {
+            console.log(`Elements not found for prefix: ${prefix}`);
+            return;
+        }
         
-        const sensorType = prefix; // prefix совпадает с типом датчика
+        const sensorType = prefix;
         const methodName = getMethodName(sensorType, interval);
         
         if (methodName) {
@@ -64,11 +75,12 @@ const ChartsCommon = (function() {
             paramsSpan.textContent = `sensorId=${sensorId}, days=${days}`;
             urlSpan.textContent = `/GraphsAndCharts/${methodName}?sensorId=${sensorId}&days=${days}`;
             
-            // Добавляем класс для выделения
             const methodInfo = document.getElementById(`${prefix}MethodInfo`);
             if (methodInfo) {
                 methodInfo.style.borderLeftColor = getStatusColor('ready');
             }
+            
+            console.log(`Updated method info: ${methodName}`);
         }
     }
     
@@ -79,15 +91,6 @@ const ChartsCommon = (function() {
             case 'success': return '#28a745';
             case 'error': return '#dc3545';
             default: return '#6c757d';
-        }
-    }
-    
-    // Показать индикатор загрузки
-    function showLoading(prefix) {
-        const statusSpan = document.getElementById(`${prefix}MethodStatus`);
-        if (statusSpan) {
-            statusSpan.innerHTML = 'Загрузка... <span class="loading-indicator"></span>';
-            statusSpan.style.color = '#ffc107';
         }
     }
     
@@ -123,23 +126,50 @@ const ChartsCommon = (function() {
     
     // Загрузить данные и показать результат
     async function loadTestData(prefix, sensorId, interval, days) {
+        console.log(`loadTestData: ${prefix}, ${sensorId}, ${interval}, ${days}`);
+        
+        // Предотвращаем параллельные вызовы
+        if (isLoading) {
+            console.log('Load already in progress, skipping...');
+            return;
+        }
+        
+        // Проверяем на дублирование одинаковых запросов
+        const requestKey = `${prefix}_${sensorId}_${interval}_${days}`;
+        if (lastRequest[requestKey] && (Date.now() - lastRequest[requestKey] < 1000)) {
+            console.log('Duplicate request detected, skipping...');
+            return;
+        }
+        
         const url = buildDataUrl(prefix, interval, sensorId, days);
         if (!url) {
             alert('Не удалось построить URL для запроса');
             return Promise.reject('No URL');
         }
         
+        console.log(`Fetching URL: ${url}`);
+        
         const resultDiv = document.getElementById(`${prefix}TestResult`);
         const preElement = resultDiv?.querySelector('pre');
+        const badge = document.getElementById(`${prefix}ResultBadge`);
         
         if (!resultDiv || !preElement) {
+            console.log(`Result container not found for prefix: ${prefix}`);
             return Promise.reject('Result container not found');
         }
+        
+        isLoading = true;
+        lastRequest[requestKey] = Date.now();
         
         // Показываем результат и индикатор загрузки
         resultDiv.style.display = 'block';
         preElement.textContent = 'Загрузка данных...';
         updateStatus(prefix, 'loading');
+        
+        if (badge) {
+            badge.textContent = 'Загрузка...';
+            badge.style.background = '#ffc107';
+        }
         
         try {
             const response = await fetch(url);
@@ -154,20 +184,26 @@ const ChartsCommon = (function() {
             preElement.textContent = JSON.stringify(data, null, 2);
             
             // Обновляем бейдж с количеством записей
-            const badge = document.getElementById(`${prefix}ResultBadge`);
             if (badge) {
-                badge.textContent = `Записей: ${data.measurements?.length || 0}`;
+                const recordsCount = data.measurements?.length || 0;
+                badge.textContent = `Записей: ${recordsCount}`;
                 badge.style.background = '#28a745';
             }
             
             updateStatus(prefix, 'success', `Загружено ${data.measurements?.length || 0} записей`);
+            
+            // Очищаем старые записи из кэша
+            setTimeout(() => {
+                delete lastRequest[requestKey];
+            }, 2000);
+            
+            console.log('Data loaded successfully');
             return data;
             
         } catch (error) {
             console.error('Error loading data:', error);
             preElement.textContent = `Ошибка загрузки: ${error.message}`;
             
-            const badge = document.getElementById(`${prefix}ResultBadge`);
             if (badge) {
                 badge.textContent = 'Ошибка';
                 badge.style.background = '#dc3545';
@@ -175,11 +211,16 @@ const ChartsCommon = (function() {
             
             updateStatus(prefix, 'error', error.message);
             throw error;
+            
+        } finally {
+            isLoading = false;
         }
     }
-
-
+    
+    // Очистить результат
     function clearResult(prefix) {
+        console.log(`clearResult: ${prefix}`);
+        
         const resultDiv = document.getElementById(`${prefix}TestResult`);
         if (resultDiv) {
             resultDiv.style.display = 'none';
@@ -187,6 +228,11 @@ const ChartsCommon = (function() {
             if (preElement) {
                 preElement.textContent = '';
             }
+        }
+        
+        const badge = document.getElementById(`${prefix}ResultBadge`);
+        if (badge) {
+            badge.textContent = '';
         }
         
         // Сбрасываем статус
@@ -205,18 +251,15 @@ const ChartsCommon = (function() {
             updateMethodInfo(prefix, sensorId, interval, days);
         }
     }
-
-
-
+    
     // Публичный API
     return {
         getMethodName,
         buildDataUrl,
         updateMethodInfo,
         updateStatus,
-        showLoading,
         loadTestData,
-         clearResult
+        clearResult
     };
 })();
 

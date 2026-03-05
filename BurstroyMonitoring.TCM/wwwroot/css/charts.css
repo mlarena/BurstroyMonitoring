@@ -463,3 +463,138 @@ details li {
         justify-content: center;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+/* Стили для интерактивных кнопок */
+.aggregation-btn, .range-btn {
+    transition: all 0.2s ease;
+    cursor: pointer;
+    min-width: 60px;
+}
+
+.aggregation-btn:hover:not(.active):not(:disabled),
+.range-btn:hover:not(.active):not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.aggregation-btn.active,
+.range-btn.active {
+    cursor: default;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    font-weight: 600;
+}
+
+.aggregation-btn:disabled,
+.range-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.aggregation-btn.processing,
+.range-btn.processing {
+    position: relative;
+    padding-right: 30px;
+}
+
+.aggregation-btn.processing::after,
+.range-btn.processing::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    top: calc(50% - 7px);
+    right: 8px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: button-spin 0.8s linear infinite;
+}
+
+@keyframes button-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Улучшенные стили для бейджа результатов */
+#dustResultBadge,
+#iwsResultBadge,
+#mueksResultBadge,
+#dovResultBadge,
+#dspdResultBadge {
+    transition: background-color 0.3s ease;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+/* Анимация появления результатов */
+#dustTestResult,
+#iwsTestResult,
+#mueksTestResult,
+#dovTestResult,
+#dspdTestResult {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Улучшенная читаемость JSON */
+pre {
+    font-family: 'Courier New', monospace;
+    line-height: 1.4;
+    tab-size: 2;
+}
+
+/* Подсказки при наведении */
+.aggregation-btn[title],
+.range-btn[title] {
+    position: relative;
+}
+
+.aggregation-btn[title]:hover::after,
+.range-btn[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 5px;
+    pointer-events: none;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 576px) {
+    .aggregation-btn, .range-btn {
+        min-width: 45px;
+        font-size: 12px;
+        padding: 6px 8px;
+    }
+    
+    .aggregation-btn.processing::after,
+    .range-btn.processing::after {
+        width: 12px;
+        height: 12px;
+        right: 4px;
+    }
+}
