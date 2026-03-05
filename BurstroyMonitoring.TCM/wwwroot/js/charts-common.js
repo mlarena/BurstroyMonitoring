@@ -126,13 +126,15 @@ const ChartsCommon = (function() {
         const url = buildDataUrl(prefix, interval, sensorId, days);
         if (!url) {
             alert('Не удалось построить URL для запроса');
-            return;
+            return Promise.reject('No URL');
         }
         
         const resultDiv = document.getElementById(`${prefix}TestResult`);
         const preElement = resultDiv?.querySelector('pre');
         
-        if (!resultDiv || !preElement) return;
+        if (!resultDiv || !preElement) {
+            return Promise.reject('Result container not found');
+        }
         
         // Показываем результат и индикатор загрузки
         resultDiv.style.display = 'block';
@@ -150,14 +152,33 @@ const ChartsCommon = (function() {
             
             // Форматируем JSON для отображения
             preElement.textContent = JSON.stringify(data, null, 2);
+            
+            // Обновляем бейдж с количеством записей
+            const badge = document.getElementById(`${prefix}ResultBadge`);
+            if (badge) {
+                badge.textContent = `Записей: ${data.measurements?.length || 0}`;
+                badge.style.background = '#28a745';
+            }
+            
             updateStatus(prefix, 'success', `Загружено ${data.measurements?.length || 0} записей`);
+            return data;
             
         } catch (error) {
             console.error('Error loading data:', error);
             preElement.textContent = `Ошибка загрузки: ${error.message}`;
+            
+            const badge = document.getElementById(`${prefix}ResultBadge`);
+            if (badge) {
+                badge.textContent = 'Ошибка';
+                badge.style.background = '#dc3545';
+            }
+            
             updateStatus(prefix, 'error', error.message);
+            throw error;
         }
     }
+
+
     function clearResult(prefix) {
         const resultDiv = document.getElementById(`${prefix}TestResult`);
         if (resultDiv) {
