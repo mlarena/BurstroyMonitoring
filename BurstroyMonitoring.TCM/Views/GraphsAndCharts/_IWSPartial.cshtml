@@ -11,26 +11,20 @@
                 @await Html.PartialAsync("_AutoUpdatePartial", new BurstroyMonitoring.Data.Models.ViewModels.AutoUpdateViewModel 
                 { 
                     Prefix = "iws", 
-                    Color = "success" 
+                    Color = "secondary" 
                 })
                 
                 <!-- ВЫБОР ИНТЕРВАЛА АГРЕГАЦИИ -->
-                <div class="d-flex align-center">
-                    @await Html.PartialAsync("_AggregationIntervalPartial", new { 
-                        Prefix = "iws", 
-                        OutlineColor = "success", 
-                        ActiveInterval = "hour" 
-                    })
-                </div>
+                @await Html.PartialAsync("_AggregationIntervalPartial", new { 
+                    Prefix = "iws", 
+                    ActiveInterval = "hour" 
+                })
                 
                 <!-- ВЫБОР ПЕРИОДА -->
-                <div class="d-flex align-center">
-                    @await Html.PartialAsync("_TimeRangePartial", new { 
-                        Prefix = "iws", 
-                        OutlineColor = "success", 
-                        ActiveDays = 1 
-                    })
-                </div>
+                @await Html.PartialAsync("_TimeRangePartial", new { 
+                    Prefix = "iws", 
+                    ActiveDays = 1 
+                })
                 
                 <!-- ТИП ГРАФИКА -->
                 <div class="d-flex align-center">
@@ -38,13 +32,15 @@
                     <div class="btn-group" role="group" style="display: flex; gap: 2px;">
                         <input type="radio" class="btn-check chart-type-radio" name="iwsChartType" id="iwsChartTypeLine" 
                                value="line" autocomplete="off" checked style="display: none;">
-                        <label class="button button--sm button--success chart-type-label" for="iwsChartTypeLine" 
-                               style="border-radius: var(--radius-small) 0 0 var(--radius-small);">Линейный</label>
+                        <label class="button button--sm button--secondary chart-type-label" for="iwsChartTypeLine" 
+                               style="border-radius: var(--radius-small) 0 0 var(--radius-small);"
+                               title="Линейный график">Линейный</label>
                         
                         <input type="radio" class="btn-check chart-type-radio" name="iwsChartType" id="iwsChartTypeScatter" 
                                value="scatter" autocomplete="off" style="display: none;">
-                        <label class="button button--sm button--success chart-type-label" for="iwsChartTypeScatter" 
-                               style="border-radius: 0 var(--radius-small) var(--radius-small) 0;">Точечный</label>
+                        <label class="button button--sm button--secondary chart-type-label" for="iwsChartTypeScatter" 
+                               style="border-radius: 0 var(--radius-small) var(--radius-small) 0;"
+                               title="Точечный график">Точечный</label>
                     </div>
                 </div>
             </div>
@@ -54,10 +50,10 @@
     <!-- Информационная панель для отладки (заглушка вместо графика) -->
     <div class="debug-panel">
         <h4><i class="fas fa-cloud-sun"></i> Метеостанция IWS</h4>
-        <div class="sensor-info" style="margin-bottom: 15px; padding: 10px; background: #e9ecef; border-radius: 4px;">
-            <p style="margin: 5px 0;"><strong>Точка измерения:</strong> @Model.EndPointsName</p>
-            <p style="margin: 5px 0;"><strong>Серийный номер:</strong> @Model.SerialNumber</p>
-            <p style="margin: 5px 0;"><strong>Пост мониторинга:</strong> @Model.MonitoringPostName</p>
+        <div class="sensor-info">
+            <p><strong>Точка измерения:</strong> @Model.EndPointsName</p>
+            <p><strong>Серийный номер:</strong> @Model.SerialNumber</p>
+            <p><strong>Пост мониторинга:</strong> @Model.MonitoringPostName</p>
         </div>
         
         <div id="iwsMethodInfo" class="method-info">
@@ -70,32 +66,39 @@
         <!-- Дополнительная информация о параметрах IWS -->
         <div style="margin-top: 15px; background: #f8f9fa; border-radius: 4px; padding: 10px; font-size: 12px;">
             <details>
-                <summary style="cursor: pointer; color: #0066cc; font-weight: 600;">📊 Доступные измерения IWS</summary>
-                <ul style="margin-top: 10px; list-style: none; padding-left: 0;">
-                    <li><span class="badge" style="background: #17a2b8;">🌡️</span> Температура, влажность, точка росы</li>
-                    <li><span class="badge" style="background: #28a745;">💨</span> Скорость и направление ветра</li>
-                    <li><span class="badge" style="background: #6f42c1;">📏</span> Атмосферное давление (hPa, mmHg)</li>
-                    <li><span class="badge" style="background: #fd7e14;">☔</span> Осадки (тип, интенсивность, количество)</li>
-                    <li><span class="badge" style="background: #dc3545;">⚡</span> Уровень CO2, напряжение питания</li>
+                <summary style="cursor: pointer; color: #495057; font-weight: 600;">📊 Доступные измерения IWS</summary>
+                <ul style="margin-top: 10px; list-style: none; padding-left: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px;">
+                    <li><span class="badge" style="background: #6c757d;">🌡️</span> Температура</li>
+                    <li><span class="badge" style="background: #6c757d;">💧</span> Влажность</li>
+                    <li><span class="badge" style="background: #6c757d;">💧</span> Точка росы</li>
+                    <li><span class="badge" style="background: #6c757d;">📏</span> Давление (hPa)</li>
+                    <li><span class="badge" style="background: #6c757d;">📏</span> Давление (mmHg)</li>
+                    <li><span class="badge" style="background: #6c757d;">💨</span> Скорость ветра</li>
+                    <li><span class="badge" style="background: #6c757d;">🧭</span> Направление ветра</li>
+                    <li><span class="badge" style="background: #6c757d;">☔</span> Тип осадков</li>
+                    <li><span class="badge" style="background: #6c757d;">📊</span> Интенсивность осадков</li>
+                    <li><span class="badge" style="background: #6c757d;">📈</span> Количество осадков</li>
+                    <li><span class="badge" style="background: #6c757d;">⚡</span> Уровень CO2</li>
                 </ul>
             </details>
         </div>
         
         <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <button class="button button--success test-load-btn" data-sensor-type="iws">
-                <i class="fas fa-play"></i> Загрузить данные
+            <button class="test-load-btn" data-sensor-type="iws">
+                <i class="fas fa-play"></i> Тестовый вызов метода
             </button>
-            <button class="button button--secondary clear-result-btn" data-prefix="iws">
+            <button class="clear-result-btn" data-prefix="iws">
                 <i class="fas fa-times"></i> Очистить
             </button>
         </div>
         
+        <!-- Результат вызова -->
         <div id="iwsTestResult" style="margin-top: 15px; display: none;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <h5 style="margin: 0;">Результат запроса:</h5>
-                <span class="badge" id="iwsResultBadge" style="background: #28a745; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px;"></span>
+                <h5 style="margin: 0;">Результат:</h5>
+                <span class="badge" id="iwsResultBadge" style="background: #28a745;"></span>
             </div>
-            <pre style="background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px; max-height: 400px; overflow: auto; font-size: 12px; font-family: 'Courier New', monospace;"></pre>
+            <pre style="background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px; max-height: 300px; overflow: auto; font-size: 12px;"></pre>
         </div>
     </div>
     

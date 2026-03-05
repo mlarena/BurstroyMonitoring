@@ -11,26 +11,20 @@
                 @await Html.PartialAsync("_AutoUpdatePartial", new BurstroyMonitoring.Data.Models.ViewModels.AutoUpdateViewModel 
                 { 
                     Prefix = "mueks", 
-                    Color = "danger" 
+                    Color = "secondary" 
                 })
                 
                 <!-- ВЫБОР ИНТЕРВАЛА АГРЕГАЦИИ -->
-                <div class="d-flex align-center">
-                    @await Html.PartialAsync("_AggregationIntervalPartial", new { 
-                        Prefix = "mueks", 
-                        OutlineColor = "danger", 
-                        ActiveInterval = "hour" 
-                    })
-                </div>
+                @await Html.PartialAsync("_AggregationIntervalPartial", new { 
+                    Prefix = "mueks", 
+                    ActiveInterval = "hour" 
+                })
                 
                 <!-- ВЫБОР ПЕРИОДА -->
-                <div class="d-flex align-center">
-                    @await Html.PartialAsync("_TimeRangePartial", new { 
-                        Prefix = "mueks", 
-                        OutlineColor = "danger", 
-                        ActiveDays = 1
-                    })
-                </div>
+                @await Html.PartialAsync("_TimeRangePartial", new { 
+                    Prefix = "mueks", 
+                    ActiveDays = 7 
+                })
                 
                 <!-- ТИП ГРАФИКА -->
                 <div class="d-flex align-center">
@@ -38,13 +32,15 @@
                     <div class="btn-group" role="group" style="display: flex; gap: 2px;">
                         <input type="radio" class="btn-check chart-type-radio" name="mueksChartType" id="mueksChartTypeLine" 
                                value="line" autocomplete="off" checked style="display: none;">
-                        <label class="button button--sm button--danger chart-type-label" for="mueksChartTypeLine" 
-                               style="border-radius: var(--radius-small) 0 0 var(--radius-small);">Линейный</label>
+                        <label class="button button--sm button--secondary chart-type-label" for="mueksChartTypeLine" 
+                               style="border-radius: var(--radius-small) 0 0 var(--radius-small);"
+                               title="Линейный график">Линейный</label>
                         
                         <input type="radio" class="btn-check chart-type-radio" name="mueksChartType" id="mueksChartTypeScatter" 
                                value="scatter" autocomplete="off" style="display: none;">
-                        <label class="button button--sm button--danger chart-type-label" for="mueksChartTypeScatter" 
-                               style="border-radius: 0 var(--radius-small) var(--radius-small) 0;">Точечный</label>
+                        <label class="button button--sm button--secondary chart-type-label" for="mueksChartTypeScatter" 
+                               style="border-radius: 0 var(--radius-small) var(--radius-small) 0;"
+                               title="Точечный график">Точечный</label>
                     </div>
                 </div>
             </div>
@@ -54,10 +50,10 @@
     <!-- Информационная панель для отладки (заглушка вместо графика) -->
     <div class="debug-panel">
         <h4><i class="fas fa-server"></i> Контроллер MUEKS</h4>
-        <div class="sensor-info" style="margin-bottom: 15px; padding: 10px; background: #e9ecef; border-radius: 4px;">
-            <p style="margin: 5px 0;"><strong>Точка измерения:</strong> @Model.EndPointsName</p>
-            <p style="margin: 5px 0;"><strong>Серийный номер:</strong> @Model.SerialNumber</p>
-            <p style="margin: 5px 0;"><strong>Пост мониторинга:</strong> @Model.MonitoringPostName</p>
+        <div class="sensor-info">
+            <p><strong>Точка измерения:</strong> @Model.EndPointsName</p>
+            <p><strong>Серийный номер:</strong> @Model.SerialNumber</p>
+            <p><strong>Пост мониторинга:</strong> @Model.MonitoringPostName</p>
         </div>
         
         <div id="mueksMethodInfo" class="method-info">
@@ -70,38 +66,39 @@
         <!-- Дополнительная информация о параметрах MUEKS -->
         <div style="margin-top: 15px; background: #f8f9fa; border-radius: 4px; padding: 10px; font-size: 12px;">
             <details>
-                <summary style="cursor: pointer; color: #dc3545; font-weight: 600;">⚡ Параметры электропитания и состояния</summary>
+                <summary style="cursor: pointer; color: #495057; font-weight: 600;">⚡ Параметры электропитания и состояния</summary>
                 <ul style="margin-top: 10px; list-style: none; padding-left: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px;">
-                    <li><span class="badge" style="background: #dc3545;">🔋</span> TemperatureBox</li>
-                    <li><span class="badge" style="background: #dc3545;">⚡</span> VoltagePowerIn12b</li>
-                    <li><span class="badge" style="background: #dc3545;">📊</span> VoltageOut12b</li>
-                    <li><span class="badge" style="background: #dc3545;">📈</span> CurrentOut12b</li>
-                    <li><span class="badge" style="background: #dc3545;">📉</span> CurrentOut48b</li>
-                    <li><span class="badge" style="background: #dc3545;">🔋</span> VoltageAkb</li>
-                    <li><span class="badge" style="background: #dc3545;">⚡</span> CurrentAkb</li>
-                    <li><span class="badge" style="background: #dc3545;">💡</span> Sensor220b</li>
-                    <li><span class="badge" style="background: #dc3545;">📊</span> WattHoursAkb</li>
-                    <li><span class="badge" style="background: #dc3545;">👁️</span> VisibleRange</li>
-                    <li><span class="badge" style="background: #dc3545;">🚪</span> DoorStatus</li>
+                    <li><span class="badge" style="background: #6c757d;">🌡️</span> TemperatureBox</li>
+                    <li><span class="badge" style="background: #6c757d;">⚡</span> VoltagePowerIn12b</li>
+                    <li><span class="badge" style="background: #6c757d;">📊</span> VoltageOut12b</li>
+                    <li><span class="badge" style="background: #6c757d;">📈</span> CurrentOut12b</li>
+                    <li><span class="badge" style="background: #6c757d;">📉</span> CurrentOut48b</li>
+                    <li><span class="badge" style="background: #6c757d;">🔋</span> VoltageAkb</li>
+                    <li><span class="badge" style="background: #6c757d;">⚡</span> CurrentAkb</li>
+                    <li><span class="badge" style="background: #6c757d;">💡</span> Sensor220b</li>
+                    <li><span class="badge" style="background: #6c757d;">📊</span> WattHoursAkb</li>
+                    <li><span class="badge" style="background: #6c757d;">👁️</span> VisibleRange</li>
+                    <li><span class="badge" style="background: #6c757d;">🚪</span> DoorStatus</li>
                 </ul>
             </details>
         </div>
         
         <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <button class="button button--danger test-load-btn" data-sensor-type="mueks">
-                <i class="fas fa-play"></i> Загрузить данные
+            <button class="test-load-btn" data-sensor-type="mueks">
+                <i class="fas fa-play"></i> Тестовый вызов метода
             </button>
-            <button class="button button--secondary clear-result-btn" data-prefix="mueks">
+            <button class="clear-result-btn" data-prefix="mueks">
                 <i class="fas fa-times"></i> Очистить
             </button>
         </div>
         
+        <!-- Результат вызова -->
         <div id="mueksTestResult" style="margin-top: 15px; display: none;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <h5 style="margin: 0;">Результат запроса:</h5>
-                <span class="badge" id="mueksResultBadge" style="background: #28a745; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px;"></span>
+                <h5 style="margin: 0;">Результат:</h5>
+                <span class="badge" id="mueksResultBadge" style="background: #28a745;"></span>
             </div>
-            <pre style="background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px; max-height: 400px; overflow: auto; font-size: 12px; font-family: 'Courier New', monospace;"></pre>
+            <pre style="background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px; max-height: 300px; overflow: auto; font-size: 12px;"></pre>
         </div>
     </div>
     

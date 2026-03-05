@@ -150,45 +150,118 @@
     font-size: 0.7rem;
 }
 
+/* ========== ОБЩИЕ СТИЛИ ДЛЯ КНОПОК ========== */
+/* Единый стиль для всех кнопок управления (агрегация, период, тип графика) */
 
+/* Базовый стиль для кнопок */
+.aggregation-btn, 
+.range-btn,
+.chart-type-label {
+    transition: all 0.2s ease;
+    cursor: pointer;
+    min-width: 60px;
+    font-size: 13px;
+    padding: 6px 12px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #495057;
+    font-weight: 400;
+    text-align: center;
+    user-select: none;
+}
 
+/* Состояние при наведении */
+.aggregation-btn:hover:not(.active):not(:disabled),
+.range-btn:hover:not(.active):not(:disabled),
+.chart-type-label:hover {
+    background-color: #e9ecef;
+    border-color: #ced4da;
+    color: #212529;
+}
 
+/* Активное состояние (выбранная кнопка) */
+.aggregation-btn.active,
+.range-btn.active,
+.chart-type-radio:checked + .chart-type-label {
+    background-color: #e9ecef !important;
+    border-color: #ced4da !important;
+    color: #212529 !important;
+    font-weight: 500;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    cursor: default;
+}
 
+/* Отключенное состояние */
+.aggregation-btn:disabled,
+.range-btn:disabled,
+.chart-type-label.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
 
+/* Состояние загрузки (processing) */
+.aggregation-btn.processing,
+.range-btn.processing {
+    position: relative;
+    padding-right: 30px;
+    pointer-events: none;
+    opacity: 0.8;
+}
 
+.aggregation-btn.processing::after,
+.range-btn.processing::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    top: calc(50% - 7px);
+    right: 8px;
+    border: 2px solid rgba(0,0,0,0.1);
+    border-top-color: #495057;
+    border-radius: 50%;
+    animation: button-spin 0.8s linear infinite;
+}
 
+@keyframes button-spin {
+    to { transform: rotate(360deg); }
+}
 
+/* Стили для радио-кнопок типа графика (скрыты, работаем через label) */
+.btn-check {
+    position: absolute;
+    clip: rect(0,0,0,0);
+    pointer-events: none;
+}
 
+/* Группы кнопок */
+.btn-group {
+    display: inline-flex;
+    gap: 1px;
+}
 
+.btn-group .aggregation-btn,
+.btn-group .range-btn,
+.btn-group .chart-type-label {
+    border-radius: 0;
+    margin: 0;
+}
 
+.btn-group .aggregation-btn:first-child,
+.btn-group .range-btn:first-child,
+.btn-group .chart-type-label:first-child {
+    border-top-left-radius: var(--radius-small, 4px);
+    border-bottom-left-radius: var(--radius-small, 4px);
+}
 
+.btn-group .aggregation-btn:last-child,
+.btn-group .range-btn:last-child,
+.btn-group .chart-type-label:last-child {
+    border-top-right-radius: var(--radius-small, 4px);
+    border-bottom-right-radius: var(--radius-small, 4px);
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* Существующие стили остаются, добавляем новые */
-
-/* Debug panel styles */
+/* ========== DEBUG PANEL STYLES ========== */
 .debug-panel {
     background: #f8f9fa;
     border-radius: 8px;
@@ -252,34 +325,21 @@
     font-size: 12px;
 }
 
-/* Активное состояние кнопок */
-.interval-btn.active,
-.range-btn.active {
-    background-color: var(--button-primary-bg, #007bff) !important;
-    color: white !important;
-    border-color: var(--button-primary-bg, #007bff) !important;
+/* Стили для кнопки очистки */
+.clear-result-btn {
+    background: transparent;
+    border: 1px solid #6c757d;
+    color: #6c757d;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
 }
 
-/* Стили для разных цветовых схем */
-.button--success.active {
-    background-color: #28a745 !important;
-    border-color: #28a745 !important;
-}
-
-.button--danger.active {
-    background-color: #dc3545 !important;
-    border-color: #dc3545 !important;
-}
-
-.button--warning.active {
-    background-color: #ffc107 !important;
-    color: #212529 !important;
-    border-color: #ffc107 !important;
-}
-
-.button--info.active {
-    background-color: #17a2b8 !important;
-    border-color: #17a2b8 !important;
+.clear-result-btn:hover {
+    background: #6c757d;
+    color: white;
 }
 
 /* Pre-форматирование для JSON */
@@ -287,6 +347,9 @@ pre {
     margin: 0;
     white-space: pre-wrap;
     word-wrap: break-word;
+    font-family: 'Courier New', monospace;
+    line-height: 1.4;
+    tab-size: 2;
 }
 
 /* Индикатор загрузки */
@@ -305,36 +368,6 @@ pre {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
-
-/* Адаптивность для мобильных */
-@media (max-width: 768px) {
-    .debug-panel {
-        padding: 15px;
-    }
-    
-    .method-info p {
-        font-size: 12px;
-    }
-    
-    .method-info strong {
-        min-width: 70px;
-    }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* Дополнительные стили для новых парциалов */
 
 /* Стили для информационных блоков */
 .sensor-info {
@@ -367,6 +400,7 @@ details {
 details summary {
     font-weight: 600;
     padding: 4px 0;
+    color: #495057;
 }
 
 details summary:hover {
@@ -396,135 +430,6 @@ details li {
     color: white;
 }
 
-/* Кнопка очистки */
-.clear-result-btn {
-    background: transparent;
-    border: 1px solid #6c757d;
-    color: #6c757d;
-}
-
-.clear-result-btn:hover {
-    background: #6c757d;
-    color: white;
-}
-
-/* Стили для метода name */
-.method-name {
-    color: #0066cc;
-    font-weight: 600;
-    background: #e7f1ff;
-    padding: 2px 6px;
-    border-radius: 4px;
-}
-
-/* Анимация для кнопок */
-.test-load-btn, .clear-result-btn {
-    transition: all 0.2s ease;
-}
-
-.test-load-btn:active {
-    transform: scale(0.98);
-}
-
-/* Стили для результатов */
-#dustTestResult pre,
-#iwsTestResult pre,
-#mueksTestResult pre {
-    border: 1px solid #444;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-
-/* Индикаторы типов датчиков */
-.bsp-chart-sensor-card[data-sensor-type="dust"] .method-info {
-    border-left-color: #ffc107;
-}
-
-.bsp-chart-sensor-card[data-sensor-type="iws"] .method-info {
-    border-left-color: #28a745;
-}
-
-.bsp-chart-sensor-card[data-sensor-type="mueks"] .method-info {
-    border-left-color: #dc3545;
-}
-
-/* Адаптивность для мобильных */
-@media (max-width: 576px) {
-    .sensor-info strong {
-        min-width: 100px;
-        font-size: 13px;
-    }
-    
-    details ul {
-        grid-template-columns: 1fr !important;
-    }
-    
-    .test-load-btn, .clear-result-btn {
-        flex: 1;
-        justify-content: center;
-    }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-/* Стили для интерактивных кнопок */
-.aggregation-btn, .range-btn {
-    transition: all 0.2s ease;
-    cursor: pointer;
-    min-width: 60px;
-}
-
-.aggregation-btn:hover:not(.active):not(:disabled),
-.range-btn:hover:not(.active):not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.aggregation-btn.active,
-.range-btn.active {
-    cursor: default;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
-    font-weight: 600;
-}
-
-.aggregation-btn:disabled,
-.range-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.aggregation-btn.processing,
-.range-btn.processing {
-    position: relative;
-    padding-right: 30px;
-}
-
-.aggregation-btn.processing::after,
-.range-btn.processing::after {
-    content: '';
-    position: absolute;
-    width: 14px;
-    height: 14px;
-    top: calc(50% - 7px);
-    right: 8px;
-    border: 2px solid rgba(255,255,255,0.3);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: button-spin 0.8s linear infinite;
-}
-
-@keyframes button-spin {
-    to { transform: rotate(360deg); }
-}
-
 /* Улучшенные стили для бейджа результатов */
 #dustResultBadge,
 #iwsResultBadge,
@@ -552,21 +457,16 @@ details li {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Улучшенная читаемость JSON */
-pre {
-    font-family: 'Courier New', monospace;
-    line-height: 1.4;
-    tab-size: 2;
-}
-
 /* Подсказки при наведении */
 .aggregation-btn[title],
-.range-btn[title] {
+.range-btn[title],
+.chart-type-label[title] {
     position: relative;
 }
 
 .aggregation-btn[title]:hover::after,
-.range-btn[title]:hover::after {
+.range-btn[title]:hover::after,
+.chart-type-label[title]:hover::after {
     content: attr(title);
     position: absolute;
     bottom: 100%;
@@ -583,9 +483,61 @@ pre {
     pointer-events: none;
 }
 
+/* Индикаторы типов датчиков для method-info */
+.bsp-chart-sensor-card[data-sensor-type="dust"] .method-info {
+    border-left-color: #ffc107;
+}
+
+.bsp-chart-sensor-card[data-sensor-type="iws"] .method-info {
+    border-left-color: #28a745;
+}
+
+.bsp-chart-sensor-card[data-sensor-type="mueks"] .method-info {
+    border-left-color: #dc3545;
+}
+
+.bsp-chart-sensor-card[data-sensor-type="dov"] .method-info {
+    border-left-color: #6c757d;
+}
+
+.bsp-chart-sensor-card[data-sensor-type="dspd"] .method-info {
+    border-left-color: #28a745;
+}
+
 /* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .debug-panel {
+        padding: 15px;
+    }
+    
+    .method-info p {
+        font-size: 12px;
+    }
+    
+    .method-info strong {
+        min-width: 70px;
+    }
+}
+
 @media (max-width: 576px) {
-    .aggregation-btn, .range-btn {
+    .sensor-info strong {
+        min-width: 100px;
+        font-size: 13px;
+    }
+    
+    details ul {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .test-load-btn, 
+    .clear-result-btn {
+        flex: 1;
+        justify-content: center;
+    }
+    
+    .aggregation-btn, 
+    .range-btn,
+    .chart-type-label {
         min-width: 45px;
         font-size: 12px;
         padding: 6px 8px;
@@ -597,4 +549,26 @@ pre {
         height: 12px;
         right: 4px;
     }
+}
+
+/* Добавьте в раздел с кнопками */
+
+.button--secondary {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #495057;
+}
+
+.button--secondary:hover:not(:disabled) {
+    background-color: #e9ecef;
+    border-color: #ced4da;
+    color: #212529;
+}
+
+.button--secondary.active {
+    background-color: #e9ecef !important;
+    border-color: #ced4da !important;
+    color: #212529 !important;
+    font-weight: 500;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
 }

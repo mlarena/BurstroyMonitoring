@@ -11,26 +11,20 @@
                 @await Html.PartialAsync("_AutoUpdatePartial", new BurstroyMonitoring.Data.Models.ViewModels.AutoUpdateViewModel 
                 { 
                     Prefix = "dspd", 
-                    Color = "success" 
+                    Color = "secondary" 
                 })
                 
                 <!-- ВЫБОР ИНТЕРВАЛА АГРЕГАЦИИ -->
-                <div class="d-flex align-center">
-                    @await Html.PartialAsync("_AggregationIntervalPartial", new { 
-                        Prefix = "dspd", 
-                        OutlineColor = "success", 
-                        ActiveInterval = "hour" 
-                    })
-                </div>
+                @await Html.PartialAsync("_AggregationIntervalPartial", new { 
+                    Prefix = "dspd", 
+                    ActiveInterval = "hour" 
+                })
                 
                 <!-- ВЫБОР ПЕРИОДА -->
-                <div class="d-flex align-center">
-                    @await Html.PartialAsync("_TimeRangePartial", new { 
-                        Prefix = "dspd", 
-                        OutlineColor = "success", 
-                        ActiveDays = 1 
-                    })
-                </div>
+                @await Html.PartialAsync("_TimeRangePartial", new { 
+                    Prefix = "dspd", 
+                    ActiveDays = 1 
+                })
                 
                 <!-- ТИП ГРАФИКА -->
                 <div class="d-flex align-center">
@@ -39,12 +33,14 @@
                         <input type="radio" class="btn-check chart-type-radio" name="dspdChartType" id="dspdChartTypeLine" 
                                value="line" autocomplete="off" checked style="display: none;">
                         <label class="button button--sm button--secondary chart-type-label" for="dspdChartTypeLine" 
-                               style="border-radius: var(--radius-small) 0 0 var(--radius-small);">Линейный</label>
+                               style="border-radius: var(--radius-small) 0 0 var(--radius-small);"
+                               title="Линейный график">Линейный</label>
                         
                         <input type="radio" class="btn-check chart-type-radio" name="dspdChartType" id="dspdChartTypeScatter" 
                                value="scatter" autocomplete="off" style="display: none;">
                         <label class="button button--sm button--secondary chart-type-label" for="dspdChartTypeScatter" 
-                               style="border-radius: 0 var(--radius-small) var(--radius-small) 0;">Точечный</label>
+                               style="border-radius: 0 var(--radius-small) var(--radius-small) 0;"
+                               title="Точечный график">Точечный</label>
                     </div>
                 </div>
             </div>
@@ -53,21 +49,53 @@
     
     <!-- Информационная панель для отладки (заглушка вместо графика) -->
     <div class="debug-panel">
-        <h4>Информация о вызовах методов (DSPD)</h4>
+        <h4><i class="fas fa-road"></i> Датчик DSPD (дорожные условия)</h4>
+        <div class="sensor-info">
+            <p><strong>Точка измерения:</strong> @Model.EndPointsName</p>
+            <p><strong>Серийный номер:</strong> @Model.SerialNumber</p>
+            <p><strong>Пост мониторинга:</strong> @Model.MonitoringPostName</p>
+        </div>
+        
         <div id="dspdMethodInfo" class="method-info">
-            <p><strong>Метод:</strong> <span id="dspdMethodName">GetDSPDDataHour</span></p>
+            <p><strong>Метод:</strong> <span id="dspdMethodName" class="method-name">GetDSPDDataHour</span></p>
             <p><strong>Параметры:</strong> <span id="dspdMethodParams">sensorId=@sensorId, days=1</span></p>
             <p><strong>URL:</strong> <span id="dspdMethodUrl">/GraphsAndCharts/GetDSPDDataHour?sensorId=@sensorId&days=1</span></p>
             <p><strong>Статус:</strong> <span id="dspdMethodStatus" style="color: #28a745;">Готов к загрузке</span></p>
         </div>
         
-        <button class="button button--success test-load-btn" data-sensor-type="dspd">
-            <i class="fas fa-play"></i> Тестовый вызов метода
-        </button>
+        <!-- Дополнительная информация о параметрах DSPD -->
+        <div style="margin-top: 15px; background: #f8f9fa; border-radius: 4px; padding: 10px; font-size: 12px;">
+            <details>
+                <summary style="cursor: pointer; color: #495057; font-weight: 600;">📊 Параметры дорожных условий</summary>
+                <ul style="margin-top: 10px; list-style: none; padding-left: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px;">
+                    <li><span class="badge" style="background: #6c757d;">⚡</span> Коэффициент сцепления</li>
+                    <li><span class="badge" style="background: #6c757d;">📊</span> Уровень вибрации</li>
+                    <li><span class="badge" style="background: #6c757d;">🌡️</span> Температура корпуса</li>
+                    <li><span class="badge" style="background: #6c757d;">🌡️</span> Температура дороги</li>
+                    <li><span class="badge" style="background: #6c757d;">💧</span> Высота воды</li>
+                    <li><span class="badge" style="background: #6c757d;">❄️</span> Высота льда</li>
+                    <li><span class="badge" style="background: #6c757d;">⛄</span> Высота снега</li>
+                    <li><span class="badge" style="background: #6c757d;">📈</span> Процент льда</li>
+                </ul>
+            </details>
+        </div>
         
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button class="test-load-btn" data-sensor-type="dspd">
+                <i class="fas fa-play"></i> Тестовый вызов метода
+            </button>
+            <button class="clear-result-btn" data-prefix="dspd">
+                <i class="fas fa-times"></i> Очистить
+            </button>
+        </div>
+        
+        <!-- Результат вызова -->
         <div id="dspdTestResult" style="margin-top: 15px; display: none;">
-            <h5>Результат:</h5>
-            <pre style="background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px; max-height: 300px; overflow: auto;"></pre>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h5 style="margin: 0;">Результат:</h5>
+                <span class="badge" id="dspdResultBadge" style="background: #28a745;"></span>
+            </div>
+            <pre style="background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px; max-height: 300px; overflow: auto; font-size: 12px;"></pre>
         </div>
     </div>
     

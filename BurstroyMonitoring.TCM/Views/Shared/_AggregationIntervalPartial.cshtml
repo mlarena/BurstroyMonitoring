@@ -1,18 +1,8 @@
 @model dynamic
 @{
     var prefix = Model?.Prefix ?? "";
-    var outlineColor = Model?.OutlineColor ?? "primary";
+    // Убираем OutlineColor, используем фиксированный класс
     var activeInterval = Model?.ActiveInterval ?? "hour";
-    
-    // Преобразуем цвет в соответствующий класс для кнопок
-    var buttonClass = outlineColor switch
-    {
-        "danger" => "button--danger",
-        "success" => "button--success",
-        "warning" => "button--warning",
-        "info" => "button--info",
-        _ => "button--secondary"
-    };
 }
 
 <div class="d-flex align-center aggregation-interval-control" 
@@ -24,7 +14,7 @@
     
     <div class="btn-group aggregation-btn-group" role="group" style="display: flex; gap: 2px;">
         <button type="button" 
-                class="button button--sm @buttonClass aggregation-btn @(activeInterval == "raw" ? "active" : "")" 
+                class="button button--sm button--secondary aggregation-btn @(activeInterval == "raw" ? "active" : "")" 
                 data-interval="raw"
                 data-prefix="@prefix"
                 style="border-radius: var(--radius-small) 0 0 var(--radius-small);"
@@ -32,7 +22,7 @@
             Все
         </button>
         <button type="button" 
-                class="button button--sm @buttonClass aggregation-btn @(activeInterval == "tenminutes" ? "active" : "")" 
+                class="button button--sm button--secondary aggregation-btn @(activeInterval == "tenminutes" ? "active" : "")" 
                 data-interval="tenminutes"
                 data-prefix="@prefix"
                 style="border-radius: 0;"
@@ -40,7 +30,7 @@
             10 мин
         </button>
         <button type="button" 
-                class="button button--sm @buttonClass aggregation-btn @(activeInterval == "hour" ? "active" : "")" 
+                class="button button--sm button--secondary aggregation-btn @(activeInterval == "hour" ? "active" : "")" 
                 data-interval="hour"
                 data-prefix="@prefix"
                 style="border-radius: 0 var(--radius-small) var(--radius-small) 0;"
