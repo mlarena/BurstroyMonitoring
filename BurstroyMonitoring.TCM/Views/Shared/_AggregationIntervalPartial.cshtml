@@ -15,26 +15,28 @@
     };
 }
 
-<div class="d-flex align-center" style="gap: var(--spacing-sm);">
+<div class="d-flex align-center aggregation-interval-control" style="gap: var(--spacing-sm);" 
+     data-prefix="@prefix" data-active-interval="@activeInterval">
     <i class="fas fa-chart-line text-secondary" style="font-size: 14px;"></i>
+    <span class="text-secondary" style="margin-right: var(--spacing-sm); font-size: 14px;">Агрегация:</span>
     
-    <div class="btn-group" role="group" id="@(prefix)AggregationIntervalButtons" style="display: flex; gap: 2px;">
+    <div class="btn-group" role="group" style="display: flex; gap: 2px;">
         <button type="button" 
-                class="button button--sm @buttonClass @(activeInterval == "raw" ? "active" : "")" 
+                class="button button--sm @buttonClass interval-btn @(activeInterval == "raw" ? "active" : "")" 
                 data-interval="raw"
                 style="border-radius: var(--radius-small) 0 0 var(--radius-small);"
                 title="Все данные без группировки">
             Все
         </button>
         <button type="button" 
-                class="button button--sm @buttonClass @(activeInterval == "tenminutes" ? "active" : "")" 
+                class="button button--sm @buttonClass interval-btn @(activeInterval == "tenminutes" ? "active" : "")" 
                 data-interval="tenminutes"
                 style="border-radius: 0;"
                 title="Усреднение по 10 минутам">
             10 мин
         </button>
         <button type="button" 
-                class="button button--sm @buttonClass @(activeInterval == "hour" ? "active" : "")" 
+                class="button button--sm @buttonClass interval-btn @(activeInterval == "hour" ? "active" : "")" 
                 data-interval="hour"
                 style="border-radius: 0 var(--radius-small) var(--radius-small) 0;"
                 title="Усреднение по часам">

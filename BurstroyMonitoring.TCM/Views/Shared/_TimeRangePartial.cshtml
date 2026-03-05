@@ -15,36 +15,38 @@
     };
 }
 
-<div class="d-flex align-center" style="gap: var(--spacing-sm);">
+<div class="d-flex align-center time-range-control" style="gap: var(--spacing-sm);"
+     data-prefix="@prefix" data-active-days="@activeDays">
     <i class="fas fa-calendar-alt text-secondary" style="font-size: 14px;"></i>
+    <span class="text-secondary" style="margin-right: var(--spacing-sm); font-size: 14px;">Период:</span>
     
-    <div class="btn-group" role="group" id="@(prefix)TimeRangeButtons" style="display: flex; gap: 2px;">
+    <div class="btn-group" role="group" style="display: flex; gap: 2px;">
         <button type="button" 
-                class="button button--sm @buttonClass @(activeDays == 1 ? "active" : "")" 
+                class="button button--sm @buttonClass range-btn @(activeDays == 1 ? "active" : "")" 
                 data-days="1"
                 style="border-radius: var(--radius-small) 0 0 var(--radius-small);">
             24ч
         </button>
         <button type="button" 
-                class="button button--sm @buttonClass @(activeDays == 3 ? "active" : "")" 
+                class="button button--sm @buttonClass range-btn @(activeDays == 3 ? "active" : "")" 
                 data-days="3"
                 style="border-radius: 0;">
             3д
         </button>
         <button type="button" 
-                class="button button--sm @buttonClass @(activeDays == 7 ? "active" : "")" 
+                class="button button--sm @buttonClass range-btn @(activeDays == 7 ? "active" : "")" 
                 data-days="7"
                 style="border-radius: 0;">
             7д
         </button>
         <button type="button" 
-                class="button button--sm @buttonClass @(activeDays == 14 ? "active" : "")" 
+                class="button button--sm @buttonClass range-btn @(activeDays == 14 ? "active" : "")" 
                 data-days="14"
                 style="border-radius: 0;">
             14д
         </button>
         <button type="button" 
-                class="button button--sm @buttonClass @(activeDays == 30 ? "active" : "")" 
+                class="button button--sm @buttonClass range-btn @(activeDays == 30 ? "active" : "")" 
                 data-days="30"
                 style="border-radius: 0 var(--radius-small) var(--radius-small) 0;">
             30д

@@ -1,10 +1,10 @@
 @model BurstroyMonitoring.Data.Models.ViewModels.SensorViewModel
-
 @{
     var sensorId = Model.Id;
+    var sensorType = Model.SensorTypeName.ToLower();
 }
 
-<div class="bsp-chart-sensor-card">
+<div class="bsp-chart-sensor-card" data-sensor-id="@sensorId" data-sensor-type="@sensorType">
     <div class="filter-container" style="margin-bottom: var(--spacing-md);">
         <div class="filter-header">
             <div class="d-flex align-center flex-wrap" style="gap: var(--spacing-md); width: 100%;">
@@ -14,37 +14,64 @@
                     Color = "success" 
                 })
                 
-                <!-- ВЫБОР ИНТЕРВАЛА АГРЕГАЦИИ (НОВЫЙ) -->
+                <!-- ВЫБОР ИНТЕРВАЛА АГРЕГАЦИИ -->
                 <div class="d-flex align-center">
                     @await Html.PartialAsync("_AggregationIntervalPartial", new { 
                         Prefix = "dspd", 
-                        OutlineColor = "secondary", 
+                        OutlineColor = "success", 
                         ActiveInterval = "hour" 
                     })
                 </div>
-
+                
                 <!-- ВЫБОР ПЕРИОДА -->
                 <div class="d-flex align-center">
-                    @await Html.PartialAsync("_TimeRangePartial", new { Prefix = "dspd", OutlineColor = "success", ActiveDays = 1 })
+                    @await Html.PartialAsync("_TimeRangePartial", new { 
+                        Prefix = "dspd", 
+                        OutlineColor = "success", 
+                        ActiveDays = 1 
+                    })
                 </div>
                 
                 <!-- ТИП ГРАФИКА -->
                 <div class="d-flex align-center">
                     <span class="text-secondary" style="margin-right: var(--spacing-sm); font-size: 14px;">Тип графика:</span>
-                    <div class="btn-group" role="group" id="dspdChartTypeRadio" style="display: flex; gap: 2px;">
-                        <input type="radio" class="btn-check" name="dspdChartType" id="dspdChartTypeLine" value="line" autocomplete="off" checked style="display: none;">
-                        <label class="button button--sm button--secondary" for="dspdChartTypeLine" style="border-radius: var(--radius-small) 0 0 var(--radius-small);">Линейный</label>
+                    <div class="btn-group" role="group" style="display: flex; gap: 2px;">
+                        <input type="radio" class="btn-check chart-type-radio" name="dspdChartType" id="dspdChartTypeLine" 
+                               value="line" autocomplete="off" checked style="display: none;">
+                        <label class="button button--sm button--secondary chart-type-label" for="dspdChartTypeLine" 
+                               style="border-radius: var(--radius-small) 0 0 var(--radius-small);">Линейный</label>
                         
-                        <input type="radio" class="btn-check" name="dspdChartType" id="dspdChartTypeScatter" value="scatter" autocomplete="off" style="display: none;">
-                        <label class="button button--sm button--secondary" for="dspdChartTypeScatter" style="border-radius: 0 var(--radius-small) var(--radius-small) 0;">Точечный</label>
+                        <input type="radio" class="btn-check chart-type-radio" name="dspdChartType" id="dspdChartTypeScatter" 
+                               value="scatter" autocomplete="off" style="display: none;">
+                        <label class="button button--sm button--secondary chart-type-label" for="dspdChartTypeScatter" 
+                               style="border-radius: 0 var(--radius-small) var(--radius-small) 0;">Точечный</label>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     
-    <div id="dspdChartContainer" class="w-100" style="min-height: 400px;">
-        <!-- Здесь будет график DSPD -->
+    <!-- Информационная панель для отладки (заглушка вместо графика) -->
+    <div class="debug-panel">
+        <h4>Информация о вызовах методов (DSPD)</h4>
+        <div id="dspdMethodInfo" class="method-info">
+            <p><strong>Метод:</strong> <span id="dspdMethodName">GetDSPDDataHour</span></p>
+            <p><strong>Параметры:</strong> <span id="dspdMethodParams">sensorId=@sensorId, days=1</span></p>
+            <p><strong>URL:</strong> <span id="dspdMethodUrl">/GraphsAndCharts/GetDSPDDataHour?sensorId=@sensorId&days=1</span></p>
+            <p><strong>Статус:</strong> <span id="dspdMethodStatus" style="color: #28a745;">Готов к загрузке</span></p>
+        </div>
+        
+        <button class="button button--success test-load-btn" data-sensor-type="dspd">
+            <i class="fas fa-play"></i> Тестовый вызов метода
+        </button>
+        
+        <div id="dspdTestResult" style="margin-top: 15px; display: none;">
+            <h5>Результат:</h5>
+            <pre style="background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px; max-height: 300px; overflow: auto;"></pre>
+        </div>
+    </div>
+    
+    <div id="dspdChartContainer" class="w-100" style="min-height: 400px; display: none;">
         <canvas id="dspdChart" class="bsp-chart-canvas"></canvas>
     </div>
 </div>

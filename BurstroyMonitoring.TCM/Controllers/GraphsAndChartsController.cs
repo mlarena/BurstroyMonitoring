@@ -71,6 +71,7 @@ namespace GraphsAndChartsApp.Controllers
                 Value = "",
                 Text = "Выберите датчик"
             });
+            Console.WriteLine($"GetSensorsByPost called with monitoringPostId: {monitoringPostId}");
             return Json(sensorItems);
         }
         [HttpGet]
@@ -160,7 +161,7 @@ namespace GraphsAndChartsApp.Controllers
                     PostName = sensor?.MonitoringPost?.Name,
                     Measurements = measurements
                 };
-                Console.WriteLine(Json(viewModel).ToString());
+                Console.WriteLine($"GetDOVData called with sensorId: {sensorId}, days: {days}");
                 return Json(viewModel);
             }
             catch (Exception ex)
@@ -251,6 +252,7 @@ namespace GraphsAndChartsApp.Controllers
                     PostName = sensor?.MonitoringPost?.Name,
                     Measurements = measurements
                 };
+                Console.WriteLine($"GetDSPDData called with sensorId: {sensorId}, days: {days}");
                 return Json(viewModel);
             }
             catch (Exception ex)
@@ -333,6 +335,7 @@ namespace GraphsAndChartsApp.Controllers
                     PostName = sensor?.MonitoringPost?.Name,
                     Measurements = measurements
                 };
+                Console.WriteLine($"GetDUSTData called with sensorId: {sensorId}, days: {days}");
                 return Json(viewModel);
             }
             catch (Exception ex)
@@ -446,6 +449,7 @@ namespace GraphsAndChartsApp.Controllers
                     PostName = sensor?.MonitoringPost?.Name,
                     Measurements = measurements
                 };
+                Console.WriteLine($"GetIWSData called with sensorId: {sensorId}, days: {days}");
                 return Json(viewModel);
             }
             catch (Exception ex)
@@ -540,6 +544,7 @@ namespace GraphsAndChartsApp.Controllers
                     PostName = sensor?.MonitoringPost?.Name,
                     Measurements = measurements
                 };
+                Console.WriteLine($"GetMUEKSData called with sensorId: {sensorId}, days: {days}");
                 return Json(viewModel);
             }
             catch (Exception ex)
@@ -611,7 +616,7 @@ namespace GraphsAndChartsApp.Controllers
                     Measurements = measurements
                 };
                 
-                Console.WriteLine(Json(viewModel).ToString());
+                Console.WriteLine($"GetDOVDataHour called with sensorId: {sensorId}, days: {days}");
                 return Json(viewModel);
             }
             catch (Exception ex)
@@ -707,6 +712,7 @@ namespace GraphsAndChartsApp.Controllers
                     Measurements = measurements
                 };
                 
+                Console.WriteLine($"GetDSPDDataHour called with sensorId: {sensorId}, days: {days}");
                 return Json(viewModel);
             }
             catch (Exception ex)
@@ -794,6 +800,7 @@ namespace GraphsAndChartsApp.Controllers
                     Measurements = measurements
                 };
                 
+                Console.WriteLine($"GetDUSTDataHour called with sensorId: {sensorId}, days: {days}");
                 return Json(viewModel);
             }
             catch (Exception ex)
@@ -902,6 +909,7 @@ namespace GraphsAndChartsApp.Controllers
                     Measurements = measurements
                 };
                 
+                Console.WriteLine($"GetIWSDataHour called with sensorId: {sensorId}, days: {days}");
                 return Json(viewModel);
             }
             catch (Exception ex)
@@ -1000,6 +1008,7 @@ namespace GraphsAndChartsApp.Controllers
                     Measurements = measurements
                 };
                 
+                Console.WriteLine($"GetMUEKSDataHour called with sensorId: {sensorId}, days: {days}");
                 return Json(viewModel);
             }
             catch (Exception ex)
@@ -1073,7 +1082,7 @@ namespace GraphsAndChartsApp.Controllers
                     Measurements = measurements
                 };
                 
-                Console.WriteLine(Json(viewModel).ToString());
+                Console.WriteLine($"GetDOVDataTenMinuteInterval called with sensorId: {sensorId}, days: {days}");
                 return Json(viewModel);
             }
             catch (Exception ex)
@@ -1171,6 +1180,7 @@ namespace GraphsAndChartsApp.Controllers
                     Measurements = measurements
                 };
                 
+                Console.WriteLine($"GetDSPDDataTenMinuteInterval called with sensorId: {sensorId}, days: {days}");
                 return Json(viewModel);
             }
             catch (Exception ex)
@@ -1259,6 +1269,7 @@ namespace GraphsAndChartsApp.Controllers
                     Measurements = measurements
                 };
                 
+                Console.WriteLine($"GetDUSTDataTenMinuteInterval called with sensorId: {sensorId}, days: {days}");
                 return Json(viewModel);
             }
             catch (Exception ex)
@@ -1369,6 +1380,7 @@ namespace GraphsAndChartsApp.Controllers
                     Measurements = measurements
                 };
                 
+                Console.WriteLine($"GetIWSDataTenMinuteInterval called with sensorId: {sensorId}, days: {days}");
                 return Json(viewModel);
             }
             catch (Exception ex)
@@ -1465,6 +1477,7 @@ namespace GraphsAndChartsApp.Controllers
                     PostName = sensor?.MonitoringPost?.Name,
                     Measurements = measurements
                 };
+                Console.WriteLine($"GetMUEKSDataTenMinuteInterval called with sensorId: {sensorId}, days: {days}");
                 return Json(viewModel);
             }
             catch (Exception ex)

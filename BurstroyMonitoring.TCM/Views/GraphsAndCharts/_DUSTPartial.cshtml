@@ -1,10 +1,10 @@
 @model BurstroyMonitoring.Data.Models.ViewModels.SensorViewModel
-
 @{
     var sensorId = Model.Id;
+    var sensorType = Model.SensorTypeName.ToLower();
 }
 
-<div class="bsp-chart-sensor-card">
+<div class="bsp-chart-sensor-card" data-sensor-id="@sensorId" data-sensor-type="@sensorType">
     <div class="filter-container" style="margin-bottom: var(--spacing-md);">
         <div class="filter-header">
             <div class="d-flex align-center flex-wrap" style="gap: var(--spacing-md); width: 100%;">
@@ -13,38 +13,79 @@
                     Prefix = "dust", 
                     Color = "warning" 
                 })
-                <!-- ВЫБОР ИНТЕРВАЛА АГРЕГАЦИИ (НОВЫЙ) -->
+                
+                <!-- ВЫБОР ИНТЕРВАЛА АГРЕГАЦИИ -->
                 <div class="d-flex align-center">
                     @await Html.PartialAsync("_AggregationIntervalPartial", new { 
                         Prefix = "dust", 
-                        OutlineColor = "secondary", 
+                        OutlineColor = "warning", 
                         ActiveInterval = "hour" 
                     })
                 </div>
-
                 
                 <!-- ВЫБОР ПЕРИОДА -->
                 <div class="d-flex align-center">
-                    @await Html.PartialAsync("_TimeRangePartial", new { Prefix = "dust", OutlineColor = "warning", ActiveDays = 1 })
+                    @await Html.PartialAsync("_TimeRangePartial", new { 
+                        Prefix = "dust", 
+                        OutlineColor = "warning", 
+                        ActiveDays = 1 
+                    })
                 </div>
                 
                 <!-- ТИП ГРАФИКА -->
                 <div class="d-flex align-center">
                     <span class="text-secondary" style="margin-right: var(--spacing-sm); font-size: 14px;">Тип графика:</span>
-                    <div class="btn-group" role="group" id="dustChartTypeRadio" style="display: flex; gap: 2px;">
-                        <input type="radio" class="btn-check" name="dustChartType" id="dustChartTypeLine" value="line" autocomplete="off" checked style="display: none;">
-                        <label class="button button--sm button--secondary" for="dustChartTypeLine" style="border-radius: var(--radius-small) 0 0 var(--radius-small);">Линейный</label>
+                    <div class="btn-group" role="group" style="display: flex; gap: 2px;">
+                        <input type="radio" class="btn-check chart-type-radio" name="dustChartType" id="dustChartTypeLine" 
+                               value="line" autocomplete="off" checked style="display: none;">
+                        <label class="button button--sm button--warning chart-type-label" for="dustChartTypeLine" 
+                               style="border-radius: var(--radius-small) 0 0 var(--radius-small);">Линейный</label>
                         
-                        <input type="radio" class="btn-check" name="dustChartType" id="dustChartTypeScatter" value="scatter" autocomplete="off" style="display: none;">
-                        <label class="button button--sm button--secondary" for="dustChartTypeScatter" style="border-radius: 0 var(--radius-small) var(--radius-small) 0;">Точечный</label>
+                        <input type="radio" class="btn-check chart-type-radio" name="dustChartType" id="dustChartTypeScatter" 
+                               value="scatter" autocomplete="off" style="display: none;">
+                        <label class="button button--sm button--warning chart-type-label" for="dustChartTypeScatter" 
+                               style="border-radius: 0 var(--radius-small) var(--radius-small) 0;">Точечный</label>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     
-    <div id="dustChartContainer" class="w-100" style="min-height: 400px;">
-        <!-- Здесь будет график DUST -->
+    <!-- Информационная панель для отладки (заглушка вместо графика) -->
+    <div class="debug-panel">
+        <h4><i class="fas fa-microchip"></i> Датчик DUST (пылемер)</h4>
+        <div class="sensor-info" style="margin-bottom: 15px; padding: 10px; background: #e9ecef; border-radius: 4px;">
+            <p style="margin: 5px 0;"><strong>Точка измерения:</strong> @Model.EndPointsName</p>
+            <p style="margin: 5px 0;"><strong>Серийный номер:</strong> @Model.SerialNumber</p>
+            <p style="margin: 5px 0;"><strong>Пост мониторинга:</strong> @Model.MonitoringPostName</p>
+        </div>
+        
+        <div id="dustMethodInfo" class="method-info">
+            <p><strong>Метод:</strong> <span id="dustMethodName" class="method-name">GetDUSTDataHour</span></p>
+            <p><strong>Параметры:</strong> <span id="dustMethodParams">sensorId=@sensorId, days=1</span></p>
+            <p><strong>URL:</strong> <span id="dustMethodUrl">/GraphsAndCharts/GetDUSTDataHour?sensorId=@sensorId&days=1</span></p>
+            <p><strong>Статус:</strong> <span id="dustMethodStatus" style="color: #28a745;">Готов к загрузке</span></p>
+        </div>
+        
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button class="button button--warning test-load-btn" data-sensor-type="dust">
+                <i class="fas fa-play"></i> Загрузить данные
+            </button>
+            <button class="button button--secondary clear-result-btn" data-prefix="dust">
+                <i class="fas fa-times"></i> Очистить
+            </button>
+        </div>
+        
+        <div id="dustTestResult" style="margin-top: 15px; display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h5 style="margin: 0;">Результат запроса:</h5>
+                <span class="badge" id="dustResultBadge" style="background: #28a745; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px;"></span>
+            </div>
+            <pre style="background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px; max-height: 400px; overflow: auto; font-size: 12px; font-family: 'Courier New', monospace;"></pre>
+        </div>
+    </div>
+    
+    <div id="dustChartContainer" class="w-100" style="min-height: 400px; display: none;">
         <canvas id="dustChart" class="bsp-chart-canvas"></canvas>
     </div>
 </div>

@@ -1,9 +1,10 @@
 @model BurstroyMonitoring.Data.Models.ViewModels.SensorViewModel
 @{
     var sensorId = Model.Id;
+    var sensorType = Model.SensorTypeName.ToLower();
 }
 
-<div class="bsp-chart-sensor-card">
+<div class="bsp-chart-sensor-card" data-sensor-id="@sensorId" data-sensor-type="@sensorType">
     <div class="filter-container" style="margin-bottom: var(--spacing-md);">
         <div class="filter-header">
             <div class="d-flex align-center flex-wrap" style="gap: var(--spacing-md); width: 100%;">
@@ -12,7 +13,8 @@
                     Prefix = "dov", 
                     Color = "secondary" 
                 })
-                <!-- ВЫБОР ИНТЕРВАЛА АГРЕГАЦИИ (НОВЫЙ) -->
+                
+                <!-- ВЫБОР ИНТЕРВАЛА АГРЕГАЦИИ -->
                 <div class="d-flex align-center">
                     @await Html.PartialAsync("_AggregationIntervalPartial", new { 
                         Prefix = "dov", 
@@ -20,104 +22,58 @@
                         ActiveInterval = "hour" 
                     })
                 </div>
+                
                 <!-- ВЫБОР ПЕРИОДА -->
                 <div class="d-flex align-center">
-                    @await Html.PartialAsync("_TimeRangePartial", new { Prefix = "dov", OutlineColor = "info", ActiveDays = 1 })
+                    @await Html.PartialAsync("_TimeRangePartial", new { 
+                        Prefix = "dov", 
+                        OutlineColor = "secondary", 
+                        ActiveDays = 1 
+                    })
                 </div>
                 
                 <!-- ТИП ГРАФИКА -->
                 <div class="d-flex align-center">
                     <span class="text-secondary" style="margin-right: var(--spacing-sm); font-size: 14px;">Тип графика:</span>
-                    <div class="btn-group" role="group" id="dovChartStyleRadio" style="display: flex; gap: 2px;">
-                        <input type="radio" class="btn-check" name="dovChartStyle" id="dovChartStyleLine" value="line" autocomplete="off" checked style="display: none;">
-                        <label class="button button--sm button--secondary" for="dovChartStyleLine" style="border-radius: var(--radius-small) 0 0 var(--radius-small);">Линейный</label>
+                    <div class="btn-group" role="group" style="display: flex; gap: 2px;">
+                        <input type="radio" class="btn-check chart-type-radio" name="dovChartStyle" id="dovChartStyleLine" 
+                               value="line" autocomplete="off" checked style="display: none;">
+                        <label class="button button--sm button--secondary chart-type-label" for="dovChartStyleLine" 
+                               style="border-radius: var(--radius-small) 0 0 var(--radius-small);">Линейный</label>
                         
-                        <input type="radio" class="btn-check" name="dovChartStyle" id="dovChartStyleScatter" value="scatter" autocomplete="off" style="display: none;">
-                        <label class="button button--sm button--secondary" for="dovChartStyleScatter" style="border-radius: 0 var(--radius-small) var(--radius-small) 0;">Точечный</label>
+                        <input type="radio" class="btn-check chart-type-radio" name="dovChartStyle" id="dovChartStyleScatter" 
+                               value="scatter" autocomplete="off" style="display: none;">
+                        <label class="button button--sm button--secondary chart-type-label" for="dovChartStyleScatter" 
+                               style="border-radius: 0 var(--radius-small) var(--radius-small) 0;">Точечный</label>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     
-    <div id="dovChartContainer" class="w-100" style="min-height: 400px;">
-        <!-- Здесь будет график DOV -->
-        <canvas id="dovChart" class="bsp-chart-canvas"></canvas>
-         <div class="container">
-        <h2 style="text-align: center;">Простой график: линейный / точечный</h2>
-        
-        <div class="buttons">
-            <button id="btnLine" class="active">Линейный</button>
-            <button id="btnScatter">Точечный</button>
+    <!-- Информационная панель для отладки (заглушка вместо графика) -->
+    <div class="debug-panel" style="background: #f5f5f5; border-radius: 8px; padding: 20px; margin: 10px 0;">
+        <h4 style="margin-top: 0; color: #333;">Информация о вызовах методов (DOV)</h4>
+        <div id="dovMethodInfo" class="method-info" style="background: white; border-radius: 4px; padding: 15px; border-left: 4px solid #6c757d;">
+            <p><strong>Метод:</strong> <span id="dovMethodName">GetDOVDataHour</span></p>
+            <p><strong>Параметры:</strong> <span id="dovMethodParams">sensorId=@sensorId, days=1</span></p>
+            <p><strong>URL:</strong> <span id="dovMethodUrl">/GraphsAndCharts/GetDOVDataHour?sensorId=@sensorId&days=1</span></p>
+            <p><strong>Статус:</strong> <span id="dovMethodStatus" style="color: #28a745;">Готов к загрузке</span></p>
         </div>
         
-        <canvas id="myChart" style="width:100%; max-width:600px; height:400px;"></canvas>
+        <!-- Кнопка для тестирования загрузки -->
+        <button class="button button--primary test-load-btn" data-sensor-type="dov" style="margin-top: 15px;">
+            <i class="fas fa-play"></i> Тестовый вызов метода
+        </button>
+        
+        <!-- Результат вызова -->
+        <div id="dovTestResult" style="margin-top: 15px; display: none;">
+            <h5>Результат:</h5>
+            <pre style="background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px; max-height: 300px; overflow: auto; font-size: 12px;"></pre>
+        </div>
     </div>
+    
+    <div id="dovChartContainer" class="w-100" style="min-height: 400px; display: none;">
+        <canvas id="dovChart" class="bsp-chart-canvas"></canvas>
     </div>
 </div>
-
- <script>
-        // Тестовые данные
-        const data = {
-            labels: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн'],
-            datasets: [{
-                label: 'Тестовые данные',
-                data: [12, 19, 8, 15, 25, 22],
-                borderColor: 'rgba(75, 192, 192, 1)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                tension: 0.3, // небольшое сглаживание
-                pointRadius: 5, // размер точек
-                pointHoverRadius: 8,
-                fill: false
-            }]
-        };
-
-        // Конфигурация по умолчанию (линейный график)
-        const config = {
-            type: 'line',
-            data: data,
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        };
-
-        // Создаем график
-        const ctx = document.getElementById('myChart').getContext('2d');
-        const myChart = new Chart(ctx, config);
-
-        // Функция для обновления типа графика
-        function updateChartType(type) {
-            myChart.config.type = type;
-            myChart.update();
-            
-            // Обновляем активную кнопку
-            document.getElementById('btnLine').classList.remove('active');
-            document.getElementById('btnScatter').classList.remove('active');
-            
-            if (type === 'line') {
-                document.getElementById('btnLine').classList.add('active');
-            } else {
-                document.getElementById('btnScatter').classList.add('active');
-            }
-        }
-
-        // Обработчики кнопок
-        document.getElementById('btnLine').addEventListener('click', function() {
-            updateChartType('line');
-        });
-
-        document.getElementById('btnScatter').addEventListener('click', function() {
-            updateChartType('scatter');
-        });
-    </script>

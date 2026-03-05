@@ -149,3 +149,317 @@
 .bsp-chart-countdown-timer {
     font-size: 0.7rem;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Существующие стили остаются, добавляем новые */
+
+/* Debug panel styles */
+.debug-panel {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 15px 0;
+    border: 1px solid #dee2e6;
+}
+
+.debug-panel h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #495057;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.method-info {
+    background: white;
+    border-radius: 6px;
+    padding: 15px;
+    border-left: 4px solid #6c757d;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.method-info p {
+    margin: 8px 0;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+}
+
+.method-info strong {
+    color: #495057;
+    min-width: 80px;
+    display: inline-block;
+}
+
+.method-info .method-name {
+    color: #0066cc;
+    font-weight: 600;
+}
+
+.test-load-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.test-load-btn:hover {
+    background: #0056b3;
+}
+
+.test-load-btn i {
+    font-size: 12px;
+}
+
+/* Активное состояние кнопок */
+.interval-btn.active,
+.range-btn.active {
+    background-color: var(--button-primary-bg, #007bff) !important;
+    color: white !important;
+    border-color: var(--button-primary-bg, #007bff) !important;
+}
+
+/* Стили для разных цветовых схем */
+.button--success.active {
+    background-color: #28a745 !important;
+    border-color: #28a745 !important;
+}
+
+.button--danger.active {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+}
+
+.button--warning.active {
+    background-color: #ffc107 !important;
+    color: #212529 !important;
+    border-color: #ffc107 !important;
+}
+
+.button--info.active {
+    background-color: #17a2b8 !important;
+    border-color: #17a2b8 !important;
+}
+
+/* Pre-форматирование для JSON */
+pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* Индикатор загрузки */
+.loading-indicator {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .debug-panel {
+        padding: 15px;
+    }
+    
+    .method-info p {
+        font-size: 12px;
+    }
+    
+    .method-info strong {
+        min-width: 70px;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Дополнительные стили для новых парциалов */
+
+/* Стили для информационных блоков */
+.sensor-info {
+    background: #e9ecef;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 15px;
+    border-left: 4px solid #6c757d;
+}
+
+.sensor-info p {
+    margin: 8px 0;
+    font-size: 14px;
+}
+
+.sensor-info strong {
+    color: #495057;
+    min-width: 120px;
+    display: inline-block;
+}
+
+/* Стили для details/summary */
+details {
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 8px 12px;
+    background: white;
+}
+
+details summary {
+    font-weight: 600;
+    padding: 4px 0;
+}
+
+details summary:hover {
+    color: #0056b3;
+}
+
+details ul {
+    margin-top: 10px;
+    border-top: 1px dashed #dee2e6;
+    padding-top: 10px;
+}
+
+details li {
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Бейджи для списка измерений */
+.badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: white;
+}
+
+/* Кнопка очистки */
+.clear-result-btn {
+    background: transparent;
+    border: 1px solid #6c757d;
+    color: #6c757d;
+}
+
+.clear-result-btn:hover {
+    background: #6c757d;
+    color: white;
+}
+
+/* Стили для метода name */
+.method-name {
+    color: #0066cc;
+    font-weight: 600;
+    background: #e7f1ff;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* Анимация для кнопок */
+.test-load-btn, .clear-result-btn {
+    transition: all 0.2s ease;
+}
+
+.test-load-btn:active {
+    transform: scale(0.98);
+}
+
+/* Стили для результатов */
+#dustTestResult pre,
+#iwsTestResult pre,
+#mueksTestResult pre {
+    border: 1px solid #444;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Индикаторы типов датчиков */
+.bsp-chart-sensor-card[data-sensor-type="dust"] .method-info {
+    border-left-color: #ffc107;
+}
+
+.bsp-chart-sensor-card[data-sensor-type="iws"] .method-info {
+    border-left-color: #28a745;
+}
+
+.bsp-chart-sensor-card[data-sensor-type="mueks"] .method-info {
+    border-left-color: #dc3545;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 576px) {
+    .sensor-info strong {
+        min-width: 100px;
+        font-size: 13px;
+    }
+    
+    details ul {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .test-load-btn, .clear-result-btn {
+        flex: 1;
+        justify-content: center;
+    }
+}
