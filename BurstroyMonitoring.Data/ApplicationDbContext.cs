@@ -27,6 +27,9 @@ namespace BurstroyMonitoring.Data
         public DbSet<SensorError> SensorError { get; set; }
         public DbSet<WorkerConfiguration> WorkerConfigurations { get; set; }
 
+        // Авторизация
+        public DbSet<User> Users { get; set; }
+
         // Представления (VIEW)
         public DbSet<VwMueksDataFull> VwMueksDataFull { get; set; }
         public DbSet<VwIwsDataFull> VwIwsDataFull { get; set; }
