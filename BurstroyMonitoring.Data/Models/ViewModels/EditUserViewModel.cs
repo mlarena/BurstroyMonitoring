@@ -1,0 +1,18 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace BurstroyMonitoring.Data.Models.ViewModels
+{
+    public class EditUserViewModel
+    {
+        public int Id { get; set; }
+
+        [Required]
+        [StringLength(100, ErrorMessage = "Username cannot be longer than 100 characters.")]
+        public string UserName { get; set; } 
+
+        [Required]
+        [StringLength(50, ErrorMessage = "Role cannot be longer than 50 characters.")]
+        public string Role { get; set; }
+
+    }
+}

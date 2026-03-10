@@ -1,0 +1,120 @@
+/* ============================================
+   СТИЛИ ДЛЯ АДМИНИСТРАТИВНЫХ СТРАНИЦ
+   ============================================ */
+
+/* Контейнер для административных форм */
+.admin-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: var(--spacing-xxl);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-xlarge);
+    box-shadow: var(--shadow-medium);
+}
+
+/* Заголовок административной страницы */
+.admin-title {
+    margin-bottom: var(--spacing-xl);
+    color: var(--text-primary);
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Карточка пользователя в списке */
+.user-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.user-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-large);
+}
+
+/* Бейджи для ролей */
+.role-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.role-badge--admin {
+    background: var(--danger-color);
+    color: var(--text-light);
+}
+
+.role-badge--user {
+    background: var(--primary-color);
+    color: var(--text-light);
+}
+
+.role-badge--inactive {
+    background: var(--text-muted);
+    color: var(--text-light);
+    opacity: 0.7;
+}
+
+/* Статистика пользователей */
+.users-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+}
+
+.stat-card {
+    background: var(--bg-primary);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-large);
+    text-align: center;
+    border: 1px solid var(--border-color);
+}
+
+.stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--primary-color);
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-top: var(--spacing-xs);
+}
+
+/* Действия с пользователями */
+.user-actions {
+    display: flex;
+    gap: var(--spacing-xs);
+    flex-wrap: wrap;
+}
+
+.user-actions .button {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    min-width: 36px;
+    height: 32px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .admin-container {
+        padding: var(--spacing-lg);
+    }
+    
+    .users-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .user-actions {
+        flex-direction: column;
+    }
+    
+    .user-actions .button {
+        width: 100%;
+    }
+}
