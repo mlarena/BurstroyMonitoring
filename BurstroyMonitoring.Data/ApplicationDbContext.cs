@@ -116,24 +116,27 @@ namespace BurstroyMonitoring.Data
 
                 if (entry.State == EntityState.Modified)
                 {
-                    // СОЗДАЕМ КОПИИ ЗНАЧЕНИЙ СЕЙЧАС, ДО СОХРАНЕНИЯ
                     var originalValues = new Dictionary<string, object?>();
                     var currentValues = new Dictionary<string, object?>();
+                    
+                    // Получаем значения из базы данных, если они не загружены или если мы хотим быть уверены
+                    var databaseValues = await entry.GetDatabaseValuesAsync(cancellationToken);
                     
                     foreach (var property in entry.Properties)
                     {
                         if (property.Metadata.Name.Contains("Password", StringComparison.OrdinalIgnoreCase))
                             continue;
 
-                        // ВАЖНО: Используем OriginalValue - это значение, которое было при загрузке из БД
-                        var originalValue = property.OriginalValue;
+                        // Если есть значения из БД, берем их как оригинальные
+                        var originalValue = databaseValues != null 
+                            ? databaseValues[property.Metadata.Name] 
+                            : property.OriginalValue;
+                            
                         var currentValue = property.CurrentValue;
 
-                        // Создаем глубокие копии для сложных типов
                         originalValues[property.Metadata.Name] = CloneValue(originalValue);
                         currentValues[property.Metadata.Name] = CloneValue(currentValue);
 
-                        // Диагностика
                         _logger?.LogDebug("Property {Prop}: Original={Original}, Current={Current}, IsModified={IsModified}", 
                             property.Metadata.Name, originalValue, currentValue, property.IsModified);
                     }

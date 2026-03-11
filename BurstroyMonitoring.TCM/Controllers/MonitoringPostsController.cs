@@ -172,14 +172,21 @@ namespace BurstroyMonitoring.TCM.Controllers
             {
                 try
                 {
-                    // Преобразуем CreatedAt в UTC, если оно не в UTC
-                    if (monitoringPost.CreatedAt.HasValue && monitoringPost.CreatedAt.Value.Kind != DateTimeKind.Utc)
+                    var existingPost = await _context.MonitoringPosts.FindAsync(id);
+                    if (existingPost == null)
                     {
-                        monitoringPost.CreatedAt = monitoringPost.CreatedAt.Value.ToUniversalTime();
+                        return NotFound();
                     }
-                    
-                    monitoringPost.UpdatedAt = DateTime.UtcNow;
-                    _context.Update(monitoringPost);
+
+                    // Обновляем только нужные поля
+                    existingPost.Name = monitoringPost.Name;
+                    existingPost.Description = monitoringPost.Description;
+                    existingPost.Longitude = monitoringPost.Longitude;
+                    existingPost.Latitude = monitoringPost.Latitude;
+                    existingPost.IsMobile = monitoringPost.IsMobile;
+                    existingPost.IsActive = monitoringPost.IsActive;
+                    existingPost.UpdatedAt = DateTime.UtcNow;
+
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
