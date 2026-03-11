@@ -23,7 +23,7 @@
                 <!-- ВЫБОР ПЕРИОДА -->
                 @await Html.PartialAsync("_TimeRangePartial", new { 
                     Prefix = "mueks", 
-                    ActiveDays = 7 
+                    ActiveDays = 1 
                 })
                 
                 <!-- ТИП ГРАФИКА -->
@@ -47,62 +47,56 @@
         </div>
     </div>
     
-    <!-- Информационная панель для отладки (заглушка вместо графика) -->
-    <div class="debug-panel">
-        <h4><i class="fas fa-server"></i> Контроллер MUEKS</h4>
-        <div class="sensor-info">
-            <p><strong>Точка измерения:</strong> @Model.EndPointsName</p>
-            <p><strong>Серийный номер:</strong> @Model.SerialNumber</p>
-            <p><strong>Пост мониторинга:</strong> @Model.MonitoringPostName</p>
-        </div>
-        
-        <div id="mueksMethodInfo" class="method-info">
-            <p><strong>Метод:</strong> <span id="mueksMethodName" class="method-name">GetMUEKSDataHour</span></p>
-            <p><strong>Параметры:</strong> <span id="mueksMethodParams">sensorId=@sensorId, days=7</span></p>
-            <p><strong>URL:</strong> <span id="mueksMethodUrl">/GraphsAndCharts/GetMUEKSDataHour?sensorId=@sensorId&days=7</span></p>
-            <p><strong>Статус:</strong> <span id="mueksMethodStatus" style="color: #28a745;">Готов к загрузке</span></p>
-        </div>
-        
-        <!-- Дополнительная информация о параметрах MUEKS -->
-        <div style="margin-top: 15px; background: #f8f9fa; border-radius: 4px; padding: 10px; font-size: 12px;">
-            <details>
-                <summary style="cursor: pointer; color: #495057; font-weight: 600;">⚡ Параметры электропитания и состояния</summary>
-                <ul style="margin-top: 10px; list-style: none; padding-left: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px;">
-                    <li><span class="badge" style="background: #6c757d;">🌡️</span> TemperatureBox</li>
-                    <li><span class="badge" style="background: #6c757d;">⚡</span> VoltagePowerIn12b</li>
-                    <li><span class="badge" style="background: #6c757d;">📊</span> VoltageOut12b</li>
-                    <li><span class="badge" style="background: #6c757d;">📈</span> CurrentOut12b</li>
-                    <li><span class="badge" style="background: #6c757d;">📉</span> CurrentOut48b</li>
-                    <li><span class="badge" style="background: #6c757d;">🔋</span> VoltageAkb</li>
-                    <li><span class="badge" style="background: #6c757d;">⚡</span> CurrentAkb</li>
-                    <li><span class="badge" style="background: #6c757d;">💡</span> Sensor220b</li>
-                    <li><span class="badge" style="background: #6c757d;">📊</span> WattHoursAkb</li>
-                    <li><span class="badge" style="background: #6c757d;">👁️</span> VisibleRange</li>
-                    <li><span class="badge" style="background: #6c757d;">🚪</span> DoorStatus</li>
-                </ul>
-            </details>
-        </div>
-        
-        <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <button class="test-load-btn" data-sensor-type="mueks">
-                <i class="fas fa-play"></i> Тестовый вызов метода
-            </button>
-            <button class="clear-result-btn" data-prefix="mueks">
-                <i class="fas fa-times"></i> Очистить
-            </button>
-        </div>
-        
-        <!-- Результат вызова -->
-        <div id="mueksTestResult" style="margin-top: 15px; display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <h5 style="margin: 0;">Результат:</h5>
-                <span class="badge" id="mueksResultBadge" style="background: #28a745;"></span>
+                <!-- ВЫБОР ПАРАМЕТРА (КНОПКИ) -->
+                <div class="d-flex align-center flex-wrap" style="gap: 5px; width: 100%; margin-top: 10px;">
+                    <span class="text-secondary" style="margin-right: var(--spacing-sm); font-size: 14px;">Параметр:</span>
+                    <div class="btn-group mueks-parameter-group" role="group" style="display: flex; gap: 2px; flex-wrap: wrap;">
+                        <input type="radio" class="btn-check mueks-param-radio" name="mueksParam" id="mueksParamTemp-@sensorId" value="temperatureBox" checked style="display: none;">
+                        <label class="button button--sm button--secondary" for="mueksParamTemp-@sensorId">Темп. бокса °С</label>
+
+                        <input type="radio" class="btn-check mueks-param-radio" name="mueksParam" id="mueksParamVoltIn-@sensorId" value="voltagePowerIn12b" style="display: none;">
+                        <label class="button button--sm button--secondary" for="mueksParamVoltIn-@sensorId">Напр. вход 12В</label>
+
+                        <input type="radio" class="btn-check mueks-param-radio" name="mueksParam" id="mueksParamVoltOut-@sensorId" value="voltageOut12b" style="display: none;">
+                        <label class="button button--sm button--secondary" for="mueksParamVoltOut-@sensorId">Напр. выход 12В</label>
+
+                        <input type="radio" class="btn-check mueks-param-radio" name="mueksParam" id="mueksParamVoltAkb-@sensorId" value="voltageAkb" style="display: none;">
+                        <label class="button button--sm button--secondary" for="mueksParamVoltAkb-@sensorId">Напр. АКБ</label>
+
+                        <input type="radio" class="btn-check mueks-param-radio" name="mueksParam" id="mueksParamCurr12-@sensorId" value="currentOut12b" style="display: none;">
+                        <label class="button button--sm button--secondary" for="mueksParamCurr12-@sensorId">Ток 12В</label>
+
+                        <input type="radio" class="btn-check mueks-param-radio" name="mueksParam" id="mueksParamCurr48-@sensorId" value="currentOut48b" style="display: none;">
+                        <label class="button button--sm button--secondary" for="mueksParamCurr48-@sensorId">Ток 48В</label>
+
+                        <input type="radio" class="btn-check mueks-param-radio" name="mueksParam" id="mueksParamCurrAkb-@sensorId" value="currentAkb" style="display: none;">
+                        <label class="button button--sm button--secondary" for="mueksParamCurrAkb-@sensorId">Ток АКБ</label>
+
+                        <input type="radio" class="btn-check mueks-param-radio" name="mueksParam" id="mueksParamWatt-@sensorId" value="wattHoursAkb" style="display: none;">
+                        <label class="button button--sm button--secondary" for="mueksParamWatt-@sensorId">Вт*ч АКБ</label>
+
+                        <input type="radio" class="btn-check mueks-param-radio" name="mueksParam" id="mueksParamVis-@sensorId" value="visibleRange" style="display: none;">
+                        <label class="button button--sm button--secondary" for="mueksParamVis-@sensorId">Видимость м</label>
+
+                        <input type="radio" class="btn-check mueks-param-radio" name="mueksParam" id="mueksParam220-@sensorId" value="sensor220b" style="display: none;">
+                        <label class="button button--sm button--secondary" for="mueksParam220-@sensorId">Сеть 220В</label>
+                    </div>
+                </div>
             </div>
-            <pre style="background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px; max-height: 300px; overflow: auto; font-size: 12px;"></pre>
         </div>
     </div>
     
-    <div id="mueksChartContainer" class="w-100" style="min-height: 400px; display: none;">
-        <canvas id="mueksChart" class="bsp-chart-canvas"></canvas>
+    <!-- Один большой график MUEKS -->
+    <div class="chart-main-wrapper" style="background: white; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; height: 500px; margin-top: 20px;">
+        <canvas id="mueks-main-chart-@sensorId"></canvas>
     </div>
+
+    <script src="~/js/chartComponents/mueks-charts.js"></script>
+    <script>
+        $(document).ready(function() {
+            if (typeof initMUEKSCharts === 'function') {
+                initMUEKSCharts(@sensorId);
+            }
+        });
+    </script>
 </div>

@@ -23,8 +23,8 @@
         <!-- Filters -->
         <div class="filter-container">
             <form method="get" class="filter-form">
-                <div class="form-row">
-                    <div class="field-group" style="flex: 1;">
+                <div class="form-row" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
+                    <div class="field-group" style="flex: 0 1 100px;">
                         <label class="control-label">Тип</label>
                         <select class="input select" name="type">
                             <option value="">Все</option>
@@ -33,7 +33,7 @@
                         </select>
                     </div>
 
-                    <div class="field-group" style="flex: 1;">
+                    <div class="field-group" style="flex: 0 1 150px;">
                         <label class="control-label">Пользователь</label>
                         <select class="input select" name="userName">
                             <option value="">Все</option>
@@ -44,8 +44,8 @@
                         </select>
                     </div>
 
-                    <div class="field-group" style="flex: 1;">
-                        <label class="control-label">IP адрес (только действия)</label>
+                    <div class="field-group" style="flex: 0 1 150px;">
+                        <label class="control-label">IP адрес</label>
                         <select class="input select" name="ipAddress">
                             <option value="">Все</option>
                             @foreach (var ip in Model.IpAddresses)
@@ -54,11 +54,9 @@
                             }
                         </select>
                     </div>
-                </div>
 
-                <div class="form-row">
-                    <div class="field-group" style="flex: 1;">
-                        <label class="control-label">Сущность (только изменения)</label>
+                    <div class="field-group" style="flex: 1 1 180px;">
+                        <label class="control-label">Сущность</label>
                         <select class="input select" name="entityType">
                             <option value="">Все</option>
                             @foreach (var t in Model.EntityTypes)
@@ -68,8 +66,8 @@
                         </select>
                     </div>
 
-                    <div class="field-group" style="flex: 1;">
-                        <label class="control-label">Тип изменения (только изменения)</label>
+                    <div class="field-group" style="flex: 1 1 180px;">
+                        <label class="control-label">Тип изменения</label>
                         <select class="input select" name="changeType">
                             <option value="">Все</option>
                             @foreach (var t in Model.ChangeTypes)
@@ -79,17 +77,17 @@
                         </select>
                     </div>
 
-                    <div class="field-group" style="flex: 1;">
+                    <div class="field-group" style="flex: 0 1 180px;">
                         <label class="control-label">С даты</label>
                         <input type="datetime-local" name="from" class="input" value="@(Model.From?.ToString("yyyy-MM-ddTHH:mm"))" />
                     </div>
 
-                    <div class="field-group" style="flex: 1;">
+                    <div class="field-group" style="flex: 0 1 180px;">
                         <label class="control-label">По дату</label>
                         <input type="datetime-local" name="to" class="input" value="@(Model.To?.ToString("yyyy-MM-ddTHH:mm"))" />
                     </div>
 
-                    <div class="field-group" style="display: flex; align-items: flex-end;">
+                    <div class="field-group">
                         <button type="submit" class="button button--primary">Применить</button>
                     </div>
                 </div>

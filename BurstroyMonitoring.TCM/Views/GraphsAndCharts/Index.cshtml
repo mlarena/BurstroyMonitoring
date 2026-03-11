@@ -31,61 +31,15 @@
         </div>
     </div>
 
-    <div id="sensorDataContainer" class="w-100" style="margin-top: var(--spacing-lg);">
+    <div id="chartContainer" class="w-100" style="margin-top: var(--spacing-lg);">
         <!-- Здесь будут отображаться данные выбранного сенсора -->
     </div>
 </div>
 
 @section Scripts {
-    <script src="~/js/lib/jquery.min.js"></script>
-    <script src="~/js/lib/chart.js"></script>
-    <!-- Скрипты для графиков и диаграмм -->
-    <script src="~/js/charts-common.js"></script>
-    <script src="~/js/charts-aggregation.js"></script>
-    <script src="~/js/charts-timerange.js"></script>
-    <script src="~/js/charts-init.js"></script>
-
-    <script>
-        $(document).ready(function () {
-            // Каскадные списки
-            $('#monitoringPostSelect').change(function () {
-                var postId = $(this).val();
-                
-                if (postId) {
-                    $('#sensorSelect').prop('disabled', false);
-                    
-                    $.getJSON('/GraphsAndCharts/GetSensorsByPost', { monitoringPostId: postId }, function (data) {
-                        $('#sensorSelect').empty();
-                       
-                        $.each(data, function (index, item) {
-                            $('#sensorSelect').append($('<option>', {
-                                value: item.value,
-                                text: item.text
-                            }));
-                        });
-                    });
-                } else {
-                    $('#sensorSelect').prop('disabled', true).empty();
-                    $('#sensorSelect').append($('<option>', {
-                        value: "",
-                        text: "-- Сначала выберите пост мониторинга --"
-                    }));
-                    $('#sensorDataContainer').empty();
-                }
-            });
-
-            // Загрузка данных сенсора
-            $('#sensorSelect').change(function () {
-                var sensorId = $(this).val();
-                
-                if (sensorId) {
-                    $.get('/GraphsAndCharts/GetSensorData', { sensorId: sensorId }, function (data) {
-                        $('#sensorDataContainer').html(data);
-                    });
-                } else {
-                    $('#sensorDataContainer').empty();
-                }
-            });
-        });
-    </script>
+    <script src="/js/lib/chart.js"></script>
+    <script src="/js/lib/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="/js/chartComponents/chart-utils.js"></script>
+    <script src="/js/chartComponents/auto-update.js"></script>
+    <script src="/js/graphs-and-charts.js"></script>
 }

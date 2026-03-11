@@ -11,7 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 
-namespace GraphsAndChartsApp.Controllers
+namespace BurstroyMonitoring.TCM.Controllers
 {
     public class GraphsAndChartsController : Controller
     {

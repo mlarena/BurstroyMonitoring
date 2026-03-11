@@ -1,0 +1,8 @@
+@model BurstroyMonitoring.Data.Models.ViewModels.AutoUpdateViewModel
+
+<div class="d-flex align-center">
+    <div class="checkbox-group" style="display: flex; align-items: center; gap: 8px;">
+        <input type="checkbox" class="auto-update-checkbox" id="auto-update-@(Model.Prefix)" style="width: 18px; height: 18px; cursor: pointer;" />
+        <label for="auto-update-@(Model.Prefix)" style="font-size: 14px; cursor: pointer; user-select: none;">Автообновление (60с)</label>
+    </div>
+</div>

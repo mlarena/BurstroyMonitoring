@@ -47,36 +47,17 @@
         </div>
     </div>
     
-    <!-- Информационная панель для отладки (заглушка вместо графика) -->
-    <div class="debug-panel">
-        <h4>Информация о вызовах методов (DOV)</h4>
-        <div id="dovMethodInfo" class="method-info">
-            <p><strong>Метод:</strong> <span id="dovMethodName" class="method-name">GetDOVDataHour</span></p>
-            <p><strong>Параметры:</strong> <span id="dovMethodParams">sensorId=@sensorId, days=1</span></p>
-            <p><strong>URL:</strong> <span id="dovMethodUrl">/GraphsAndCharts/GetDOVDataHour?sensorId=@sensorId&days=1</span></p>
-            <p><strong>Статус:</strong> <span id="dovMethodStatus" style="color: #28a745;">Готов к загрузке</span></p>
-        </div>
-        
-        <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <button class="test-load-btn" data-sensor-type="dov">
-                <i class="fas fa-play"></i> Тестовый вызов метода
-            </button>
-            <button class="clear-result-btn" data-prefix="dov">
-                <i class="fas fa-times"></i> Очистить
-            </button>
-        </div>
-        
-        <!-- Результат вызова -->
-        <div id="dovTestResult" style="margin-top: 15px; display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <h5 style="margin: 0;">Результат:</h5>
-                <span class="badge" id="dovResultBadge" style="background: #28a745;"></span>
-            </div>
-            <pre style="background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px; max-height: 300px; overflow: auto; font-size: 12px;"></pre>
-        </div>
+    <!-- Один большой график DOV -->
+    <div class="chart-main-wrapper" style="background: white; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; height: 500px; margin-top: 20px;">
+        <canvas id="dov-main-chart-@sensorId"></canvas>
     </div>
-    
-    <div id="dovChartContainer" class="w-100" style="min-height: 400px; display: none;">
-        <canvas id="dovChart" class="bsp-chart-canvas"></canvas>
-    </div>
+
+    <script src="~/js/chartComponents/dov-charts.js"></script>
+    <script>
+        $(document).ready(function() {
+            if (typeof initDOVCharts === 'function') {
+                initDOVCharts(@sensorId);
+            }
+        });
+    </script>
 </div>

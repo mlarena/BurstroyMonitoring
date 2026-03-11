@@ -8,6 +8,54 @@
     <div class="filter-container" style="margin-bottom: var(--spacing-md);">
         <div class="filter-header">
             <div class="d-flex align-center flex-wrap" style="gap: var(--spacing-md); width: 100%;">
+                <!-- ВЫБОР ПАРАМЕТРА (КНОПКИ) -->
+                <div class="d-flex align-center flex-wrap" style="gap: 5px; width: 100%; margin-top: 10px;">
+                    <span class="text-secondary" style="margin-right: var(--spacing-sm); font-size: 14px;">Параметр:</span>
+                    <div class="btn-group iws-parameter-group" role="group" style="display: flex; gap: 2px; flex-wrap: wrap;">
+                        <input type="radio" class="btn-check iws-param-radio" name="iwsParam" id="iwsParamTemp-@sensorId" value="environmentTemperature" checked style="display: none;">
+                        <label class="button button--sm button--secondary" for="iwsParamTemp-@sensorId">Темп. воздуха ℃</label>
+
+                        <input type="radio" class="btn-check iws-param-radio" name="iwsParam" id="iwsParamHum-@sensorId" value="humidityPercentage" style="display: none;">
+                        <label class="button button--sm button--secondary" for="iwsParamHum-@sensorId">Влажность %</label>
+
+                        <input type="radio" class="btn-check iws-param-radio" name="iwsParam" id="iwsParamDew-@sensorId" value="dewPoint" style="display: none;">
+                        <label class="button button--sm button--secondary" for="iwsParamDew-@sensorId">Точка росы ℃</label>
+
+                        <input type="radio" class="btn-check iws-param-radio" name="iwsParam" id="iwsParamPressHpa-@sensorId" value="pressureHpa" style="display: none;">
+                        <label class="button button--sm button--secondary" for="iwsParamPressHpa-@sensorId">Давление гПа</label>
+
+                        <input type="radio" class="btn-check iws-param-radio" name="iwsParam" id="iwsParamPressMm-@sensorId" value="pressureMmHg" style="display: none;">
+                        <label class="button button--sm button--secondary" for="iwsParamPressMm-@sensorId">Давление мм.рт.ст</label>
+
+                        <input type="radio" class="btn-check iws-param-radio" name="iwsParam" id="iwsParamWindSp-@sensorId" value="windSpeed" style="display: none;">
+                        <label class="button button--sm button--secondary" for="iwsParamWindSp-@sensorId">Скорость ветра м/с</label>
+
+                        <input type="radio" class="btn-check iws-param-radio" name="iwsParam" id="iwsParamWindDir-@sensorId" value="windDirection" style="display: none;">
+                        <label class="button button--sm button--secondary" for="iwsParamWindDir-@sensorId">Направление ветра º</label>
+
+                        <input type="radio" class="btn-check iws-param-radio" name="iwsParam" id="iwsParamWindV-@sensorId" value="windVSound" style="display: none;">
+                        <label class="button button--sm button--secondary" for="iwsParamWindV-@sensorId">Скорость звука м/с</label>
+
+                        <input type="radio" class="btn-check iws-param-radio" name="iwsParam" id="iwsParamPrecType-@sensorId" value="precipitationType" style="display: none;">
+                        <label class="button button--sm button--secondary" for="iwsParamPrecType-@sensorId">Тип осадков</label>
+
+                        <input type="radio" class="btn-check iws-param-radio" name="iwsParam" id="iwsParamPrecInt-@sensorId" value="precipitationIntensity" style="display: none;">
+                        <label class="button button--sm button--secondary" for="iwsParamPrecInt-@sensorId">Интенсивность осадков мм/час</label>
+
+                        <input type="radio" class="btn-check iws-param-radio" name="iwsParam" id="iwsParamPrecQty-@sensorId" value="precipitationQuantity" style="display: none;">
+                        <label class="button button--sm button--secondary" for="iwsParamPrecQty-@sensorId">Осадки за сутки мм</label>
+
+                        <input type="radio" class="btn-check iws-param-radio" name="iwsParam" id="iwsParamCO2-@sensorId" value="co2Level" style="display: none;">
+                        <label class="button button--sm button--secondary" for="iwsParamCO2-@sensorId">CO2 ppm</label>
+
+                        <input type="radio" class="btn-check iws-param-radio" name="iwsParam" id="iwsParamVolt-@sensorId" value="supplyVoltage" style="display: none;">
+                        <label class="button button--sm button--secondary" for="iwsParamVolt-@sensorId">Напряжение В</label>
+
+                        <input type="radio" class="btn-check iws-param-radio" name="iwsParam" id="iwsParamAcc-@sensorId" value="accelerationStdDev" style="display: none;">
+                        <label class="button button--sm button--secondary" for="iwsParamAcc-@sensorId">Вибрации g</label>
+                    </div>
+                </div>
+
                 @await Html.PartialAsync("_AutoUpdatePartial", new BurstroyMonitoring.Data.Models.ViewModels.AutoUpdateViewModel 
                 { 
                     Prefix = "iws", 
@@ -28,7 +76,7 @@
                 
                 <!-- ТИП ГРАФИКА -->
                 <div class="d-flex align-center">
-                    <span class="text-secondary" style="margin-right: var(--spacing-sm); font-size: 14px;">Тип графика:</span>
+                    <span class="text-secondary" style="margin-right: var(--spacing-sm); font-size: 14px;">Тип:</span>
                     <div class="btn-group" role="group" style="display: flex; gap: 2px;">
                         <input type="radio" class="btn-check chart-type-radio" name="iwsChartType" id="iwsChartTypeLine" 
                                value="line" autocomplete="off" checked style="display: none;">
@@ -47,62 +95,17 @@
         </div>
     </div>
     
-    <!-- Информационная панель для отладки (заглушка вместо графика) -->
-    <div class="debug-panel">
-        <h4><i class="fas fa-cloud-sun"></i> Метеостанция IWS</h4>
-        <div class="sensor-info">
-            <p><strong>Точка измерения:</strong> @Model.EndPointsName</p>
-            <p><strong>Серийный номер:</strong> @Model.SerialNumber</p>
-            <p><strong>Пост мониторинга:</strong> @Model.MonitoringPostName</p>
-        </div>
-        
-        <div id="iwsMethodInfo" class="method-info">
-            <p><strong>Метод:</strong> <span id="iwsMethodName" class="method-name">GetIWSDataHour</span></p>
-            <p><strong>Параметры:</strong> <span id="iwsMethodParams">sensorId=@sensorId, days=1</span></p>
-            <p><strong>URL:</strong> <span id="iwsMethodUrl">/GraphsAndCharts/GetIWSDataHour?sensorId=@sensorId&days=1</span></p>
-            <p><strong>Статус:</strong> <span id="iwsMethodStatus" style="color: #28a745;">Готов к загрузке</span></p>
-        </div>
-        
-        <!-- Дополнительная информация о параметрах IWS -->
-        <div style="margin-top: 15px; background: #f8f9fa; border-radius: 4px; padding: 10px; font-size: 12px;">
-            <details>
-                <summary style="cursor: pointer; color: #495057; font-weight: 600;">📊 Доступные измерения IWS</summary>
-                <ul style="margin-top: 10px; list-style: none; padding-left: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px;">
-                    <li><span class="badge" style="background: #6c757d;">🌡️</span> Температура</li>
-                    <li><span class="badge" style="background: #6c757d;">💧</span> Влажность</li>
-                    <li><span class="badge" style="background: #6c757d;">💧</span> Точка росы</li>
-                    <li><span class="badge" style="background: #6c757d;">📏</span> Давление (hPa)</li>
-                    <li><span class="badge" style="background: #6c757d;">📏</span> Давление (mmHg)</li>
-                    <li><span class="badge" style="background: #6c757d;">💨</span> Скорость ветра</li>
-                    <li><span class="badge" style="background: #6c757d;">🧭</span> Направление ветра</li>
-                    <li><span class="badge" style="background: #6c757d;">☔</span> Тип осадков</li>
-                    <li><span class="badge" style="background: #6c757d;">📊</span> Интенсивность осадков</li>
-                    <li><span class="badge" style="background: #6c757d;">📈</span> Количество осадков</li>
-                    <li><span class="badge" style="background: #6c757d;">⚡</span> Уровень CO2</li>
-                </ul>
-            </details>
-        </div>
-        
-        <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <button class="test-load-btn" data-sensor-type="iws">
-                <i class="fas fa-play"></i> Тестовый вызов метода
-            </button>
-            <button class="clear-result-btn" data-prefix="iws">
-                <i class="fas fa-times"></i> Очистить
-            </button>
-        </div>
-        
-        <!-- Результат вызова -->
-        <div id="iwsTestResult" style="margin-top: 15px; display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <h5 style="margin: 0;">Результат:</h5>
-                <span class="badge" id="iwsResultBadge" style="background: #28a745;"></span>
-            </div>
-            <pre style="background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px; max-height: 300px; overflow: auto; font-size: 12px;"></pre>
-        </div>
+    <!-- Один большой график IWS -->
+    <div class="chart-main-wrapper" style="background: white; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; height: 500px; margin-top: 20px;">
+        <canvas id="iws-main-chart-@sensorId"></canvas>
     </div>
-    
-    <div id="iwsChartContainer" class="w-100" style="min-height: 400px; display: none;">
-        <canvas id="iwsChart" class="bsp-chart-canvas"></canvas>
-    </div>
+
+    <script src="~/js/chartComponents/iws-charts.js"></script>
+    <script>
+        $(document).ready(function() {
+            if (typeof initIWSCharts === 'function') {
+                initIWSCharts(@sensorId);
+            }
+        });
+    </script>
 </div>
