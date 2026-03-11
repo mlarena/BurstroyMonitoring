@@ -76,6 +76,10 @@ namespace BurstroyMonitoring.TCM.Controllers
                 query = sortDesc ? query.OrderByDescending(s => s.SerialNumber) 
                                 : query.OrderBy(s => s.SerialNumber);
                 break;
+            case "endpointsname":
+                query = sortDesc ? query.OrderByDescending(s => s.EndPointsName) 
+                                : query.OrderBy(s => s.EndPointsName);
+                break;
             case "sensortype":
             case "type":
                 query = sortDesc ? 
