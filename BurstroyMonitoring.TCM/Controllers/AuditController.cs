@@ -4,10 +4,12 @@ using BurstroyMonitoring.Data.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using BurstroyMonitoring.TCM.Attributes;
 
 namespace BurstroyMonitoring.TCM.Controllers;
 
 [Authorize(Roles = "Admin")]
+[SkipLogging("Исключаем весь контроллер по умолчанию")]
 public sealed class AuditController : Controller
 {
     private readonly ApplicationDbContext _context;

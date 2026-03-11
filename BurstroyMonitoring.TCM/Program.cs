@@ -4,14 +4,13 @@ using BurstroyMonitoring.TCM.Services;
 using Serilog;
 using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Authorization;
 using BurstroyMonitoring.TCM.Filters;
 using System.Globalization;
 using BurstroyMonitoring.Data.Models;
+using Microsoft.AspNetCore.Mvc;
 
 // Установите инвариантную культуру для всего приложения
 var cultureInfo = new CultureInfo("en-US");
@@ -41,19 +40,55 @@ try
     Log.Information("Starting Burstroy Monitoring UI on {Platform}", 
         RuntimeInformation.OSDescription);
 
-    // Добавление сервисов
+    // ВАЖНО: Добавляем HttpContextAccessor ПЕРЕД регистрацией DbContext и фильтров
+    builder.Services.AddHttpContextAccessor();
+
+    // Настройка контекста базы данных с правильной передачей HttpContextAccessor
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    
+    if (string.IsNullOrEmpty(connectionString))
+    {
+        Log.Warning("Connection string is not configured. Using development connection.");
+        connectionString = "Host=localhost;Database=sensordb_new;Username=postgres;Password=12345678";
+    }
+    
+   // Регистрация DbContext с IHttpContextAccessor и ILogger
+    builder.Services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
+    {
+        options.UseNpgsql(connectionString);
+        if (builder.Environment.IsDevelopment())
+        {
+            options.EnableSensitiveDataLogging();
+            options.EnableDetailedErrors();
+        }
+    }, ServiceLifetime.Scoped);
+
+    // Явная регистрация фабрики
+    builder.Services.AddScoped<ApplicationDbContext>(serviceProvider =>
+    {
+        var options = serviceProvider.GetRequiredService<DbContextOptions<ApplicationDbContext>>();
+        var httpContextAccessor = serviceProvider.GetService<IHttpContextAccessor>();
+        var logger = serviceProvider.GetRequiredService<ILogger<ApplicationDbContext>>();
+        
+        return new ApplicationDbContext(options, httpContextAccessor!, logger);
+    });
+
+    // ИСПРАВЛЕНИЕ 3: Регистрируем фильтр ПОСЛЕ регистрации DbContext
+    builder.Services.AddScoped<UserActionLogFilter>();
+
+    // Добавление сервисов MVC с глобальным фильтром
     builder.Services.AddControllersWithViews(options =>
     {
         // Добавляем фильтр логирования глобально
         options.Filters.Add<UserActionLogFilter>();
+        
+        // Добавляем обработку антифорджери токенов
+        options.Filters.Add<AutoValidateAntiforgeryTokenAttribute>();
     })
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
-
-    // Регистрация фильтра как Scoped
-    builder.Services.AddScoped<UserActionLogFilter>();
 
     // Поддержка сессий:
     builder.Services.AddDistributedMemoryCache();
@@ -86,26 +121,9 @@ try
             });
     });
 
-    // Добавляем HttpContextAccessor для доступа к HttpContext в сервисах
-    builder.Services.AddHttpContextAccessor();
-
     // Регистрация сервисов
     builder.Services.AddScoped<IExportService, ExportService>();
     builder.Services.AddScoped<IAuthService, AuthService>();
-
-    // Настройка контекста базы данных
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    
-    if (string.IsNullOrEmpty(connectionString))
-    {
-        Log.Warning("Connection string is not configured. Using development connection.");
-        connectionString = "Host=localhost;Database=sensordb_new;Username=postgres;Password=12345678";
-    }
-    
-    builder.Services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
-    {
-        options.UseNpgsql(connectionString);
-    }, ServiceLifetime.Scoped);
 
     // Настройка аутентификации JWT
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -128,16 +146,12 @@ try
             {
                 OnChallenge = context =>
                 {
-                    // Пропускаем дефолтную логику
                     context.HandleResponse();
-                    
-                    // Перенаправляем на страницу логина
                     context.Response.Redirect("/Auth/Login");
                     return Task.CompletedTask;
                 },
                 OnForbidden = context =>
                 {
-                    // Перенаправляем на страницу логина при недостаточных правах
                     context.Response.Redirect("/Auth/Login");
                     return Task.CompletedTask;
                 }
@@ -166,13 +180,13 @@ try
                 Log.Information("Successfully connected to the database: {Database}", 
                     dbContext.Database.GetDbConnection().Database);
                 
-                // Применяем миграции (можно закомментировать, если не нужно автоматическое применение)
-                // dbContext.Database.Migrate();
+                // ИСПРАВЛЕНИЕ 4: Применяем миграции для создания таблицы AuditLogs
+                await dbContext.Database.MigrateAsync();
                 
                 // Создаем суперпользователя, если его нет
                 var authService = scope.ServiceProvider.GetRequiredService<IAuthService>();
                 
-                if (!dbContext.Users.Any(u => u.UserName == "su"))
+                if (!await dbContext.Users.AnyAsync(u => u.UserName == "su"))
                 {
                     var (hash, salt) = authService.HashPassword("su");
                     
@@ -188,6 +202,8 @@ try
                     await dbContext.SaveChangesAsync();
                     Log.Information("Superuser 'su' created successfully");
                 }
+                
+   
             }
             else
             {
@@ -222,14 +238,14 @@ try
     {
         app.UseExceptionHandler("/Home/Error");
         app.UseHsts();
-        
-        // В продакшене используем HTTPS
         app.UseHttpsRedirection();
     }
 
     app.UseStaticFiles();
     app.UseRouting();
     app.UseCors("AllowAll");
+    
+    // ИСПРАВЛЕНИЕ 6: Session ДО Authentication
     app.UseSession();
 
     // Middleware для добавления токена из сессии в заголовок Authorization
@@ -335,22 +351,32 @@ try
         try
         {
             var canConnect = await dbContext.Database.CanConnectAsync();
+            
+            // ИСПРАВЛЕНИЕ 7: Проверяем работу логирования
+            var auditLogsCount = 0;
+            if (canConnect)
+            {
+                auditLogsCount = await dbContext.AuditLogs.CountAsync();
+            }
+            
             return Results.Ok(new 
             { 
                 status = canConnect ? "healthy" : "degraded",
                 database = canConnect ? "connected" : "disconnected",
                 authentication = "enabled",
+                auditLogsCount = auditLogsCount,
                 timestamp = DateTime.UtcNow,
                 platform = RuntimeInformation.OSDescription
             });
         }
-        catch
+        catch (Exception ex)
         {
             return Results.Ok(new 
             { 
                 status = "unhealthy",
                 database = "error",
                 authentication = "enabled",
+                error = ex.Message,
                 timestamp = DateTime.UtcNow
             });
         }

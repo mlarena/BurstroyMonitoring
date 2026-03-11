@@ -1,25 +1,29 @@
 using Microsoft.EntityFrameworkCore;
 using BurstroyMonitoring.Data.Models;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking; 
 using System.Text.Json;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.Logging; // Добавлено для ILogger
 
 namespace BurstroyMonitoring.Data
 {
     public class ApplicationDbContext : DbContext
     {
         private readonly IHttpContextAccessor? _httpContextAccessor;
+        private readonly ILogger<ApplicationDbContext>? _logger;
 
-       public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IHttpContextAccessor httpContextAccessor)
+        public ApplicationDbContext(
+            DbContextOptions<ApplicationDbContext> options, 
+            IHttpContextAccessor httpContextAccessor,
+            ILogger<ApplicationDbContext> logger)
             : base(options)
         {
             _httpContextAccessor = httpContextAccessor;
+            _logger = logger;
         }
 
-         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
         }
@@ -87,24 +91,10 @@ namespace BurstroyMonitoring.Data
             modelBuilder.Entity<VwSensorErrorsFull>()
                 .HasNoKey()
                 .ToView("vw_sensor_errors_full");
-
-           
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            // Автоматическая установка времени для определенных полей
-            // var entries = ChangeTracker.Entries()
-            //     .Where(e => e.Entity is SensorError && e.State == EntityState.Added);
-
-            // foreach (var entry in entries)
-            // {
-            //     if (entry.Entity is SensorError error)
-            //     {
-            //         error.CreatedAt = DateTime.UtcNow;
-            //     }
-            // }
-
             // Получаем информацию о пользователе
             string? userName = null;
             int? userId = null;
@@ -117,21 +107,52 @@ namespace BurstroyMonitoring.Data
                     userId = parsedUserId;
             }
 
-            // Отслеживаем изменения до сохранения
-            var entries = ChangeTracker.Entries()
-                .Where(e => e.State == EntityState.Added || 
-                           e.State == EntityState.Modified || 
-                           e.State == EntityState.Deleted)
-                .Where(e => e.Entity is not AuditLog) // не логируем аудит-логи
-                .ToList();
+            // ВАЖНО: Сохраняем копии оригинальных значений ДО любых изменений
+            var auditEntries = new List<(EntityEntry Entry, Dictionary<string, object?> OriginalValues, Dictionary<string, object?> CurrentValues)>();
+
+            foreach (var entry in ChangeTracker.Entries())
+            {
+                if (entry.Entity is AuditLog) continue;
+
+                if (entry.State == EntityState.Modified)
+                {
+                    // СОЗДАЕМ КОПИИ ЗНАЧЕНИЙ СЕЙЧАС, ДО СОХРАНЕНИЯ
+                    var originalValues = new Dictionary<string, object?>();
+                    var currentValues = new Dictionary<string, object?>();
+                    
+                    foreach (var property in entry.Properties)
+                    {
+                        if (property.Metadata.Name.Contains("Password", StringComparison.OrdinalIgnoreCase))
+                            continue;
+
+                        // ВАЖНО: Используем OriginalValue - это значение, которое было при загрузке из БД
+                        var originalValue = property.OriginalValue;
+                        var currentValue = property.CurrentValue;
+
+                        // Создаем глубокие копии для сложных типов
+                        originalValues[property.Metadata.Name] = CloneValue(originalValue);
+                        currentValues[property.Metadata.Name] = CloneValue(currentValue);
+
+                        // Диагностика
+                        _logger?.LogDebug("Property {Prop}: Original={Original}, Current={Current}, IsModified={IsModified}", 
+                            property.Metadata.Name, originalValue, currentValue, property.IsModified);
+                    }
+
+                    auditEntries.Add((entry, originalValues, currentValues));
+                }
+                else if (entry.State == EntityState.Added || entry.State == EntityState.Deleted)
+                {
+                    auditEntries.Add((entry, null, null));
+                }
+            }
 
             // Список для аудита изменений
             var changeAuditLogs = new List<AuditLog>();
 
-            // Логируем изменения
-            foreach (var entry in entries)
+            // Создаем логи на основе сохраненных копий
+            foreach (var (entry, originalValues, currentValues) in auditEntries)
             {
-                var log = CreateChangeAuditLog(entry, userName, userId);
+                var log = CreateChangeAuditLog(entry, userName, userId, originalValues, currentValues);
                 if (log != null)
                 {
                     changeAuditLogs.Add(log);
@@ -144,15 +165,26 @@ namespace BurstroyMonitoring.Data
                 await AuditLogs.AddAsync(log, cancellationToken);
             }
 
-            return await base.SaveChangesAsync(cancellationToken);
+            // Сохраняем все изменения
+            var result = await base.SaveChangesAsync(cancellationToken);
+            
+            _logger?.LogInformation("Saved {ChangeLogCount} change logs, total changes: {Result}", 
+                changeAuditLogs.Count, result);
+                
+            return result;
         }
 
-        private AuditLog? CreateChangeAuditLog(EntityEntry entry, string? userName, int? userId)
+        private AuditLog? CreateChangeAuditLog(
+            EntityEntry entry, 
+            string? userName, 
+            int? userId,
+            Dictionary<string, object?>? originalValues,
+            Dictionary<string, object?>? currentValues)
         {
             var entityType = entry.Entity.GetType().Name;
             var entityId = GetEntityId(entry);
             
-            // Пропускаем логирование сущности аудита (и любых сущностей логов, если останутся)
+            // Пропускаем логирование сущности аудита
             if (entityType.Contains("Log", StringComparison.OrdinalIgnoreCase) ||
                 entityType.Contains("Audit", StringComparison.OrdinalIgnoreCase))
                 return null;
@@ -174,45 +206,131 @@ namespace BurstroyMonitoring.Data
                 switch (entry.State)
                 {
                     case EntityState.Added:
-                        log.NewValues = JsonSerializer.Serialize(entry.CurrentValues.ToObject());
+                        log.NewValues = SerializeToJson(entry.CurrentValues);
+                        _logger?.LogInformation("ADDED: {EntityType}", entityType);
                         break;
 
                     case EntityState.Deleted:
-                        log.OriginalValues = JsonSerializer.Serialize(entry.OriginalValues.ToObject());
+                        log.OriginalValues = SerializeToJson(entry.OriginalValues);
+                        _logger?.LogInformation("DELETED: {EntityType} Id: {EntityId}", entityType, entityId);
                         break;
 
                     case EntityState.Modified:
-                        var original = entry.OriginalValues.ToObject();
-                        var current = entry.CurrentValues.ToObject();
-                        
-                        log.OriginalValues = JsonSerializer.Serialize(original);
-                        log.NewValues = JsonSerializer.Serialize(current);
-                        
-                        // Определяем какие свойства изменились
-                        var changedProps = entry.Properties
-                            .Where(p => p.IsModified && !p.Metadata.Name.Contains("Password", StringComparison.OrdinalIgnoreCase))
-                            .Select(p => new
+                        if (originalValues == null || currentValues == null)
+                        {
+                            _logger?.LogWarning("Modified entity {EntityType} has null value dictionaries", entityType);
+                            return null;
+                        }
+
+                        var changedProps = new List<object>();
+
+                        foreach (var kvp in originalValues)
+                        {
+                            var propName = kvp.Key;
+                            var originalValue = kvp.Value;
+                            var currentValue = currentValues.ContainsKey(propName) ? currentValues[propName] : null;
+
+                            // Проверяем, изменилось ли значение
+                            if (!Equals(originalValue, currentValue))
                             {
-                                Property = p.Metadata.Name,
-                                OldValue = p.OriginalValue?.ToString(),
-                                NewValue = p.CurrentValue?.ToString()
-                            })
-                            .ToList();
+                                changedProps.Add(new
+                                {
+                                    Property = propName,
+                                    OldValue = originalValue?.ToString(),
+                                    NewValue = currentValue?.ToString()
+                                });
+                                
+                                _logger?.LogInformation("CHANGE DETECTED: {Property}: '{Original}' -> '{Current}'", 
+                                    propName, originalValue, currentValue);
+                            }
+                        }
+
+                        var jsonOptions = new JsonSerializerOptions 
+                        { 
+                            WriteIndented = false,
+                            ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles
+                        };
+                        
+                        log.OriginalValues = JsonSerializer.Serialize(originalValues, jsonOptions);
+                        log.NewValues = JsonSerializer.Serialize(currentValues, jsonOptions);
                         
                         if (changedProps.Any())
                         {
-                            log.ChangedProperties = JsonSerializer.Serialize(changedProps);
+                            log.ChangedProperties = JsonSerializer.Serialize(changedProps, jsonOptions);
+                            _logger?.LogInformation("MODIFIED: {EntityType} Id: {EntityId}, Changed {Count} properties", 
+                                entityType, entityId, changedProps.Count);
+                        }
+                        else
+                        {
+                            _logger?.LogInformation("MODIFIED: {EntityType} Id: {EntityId} - No actual changes detected", 
+                                entityType, entityId);
+                            // Если нет реальных изменений, не создаем лог
+                            return null;
                         }
                         break;
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error creating change log: {ex.Message}");
+                _logger?.LogError(ex, "Error creating change log for {EntityType}", entityType);
                 return null;
             }
 
             return log;
+        }
+
+        private object? CloneValue(object? value)
+        {
+            if (value == null) return null;
+            
+            var type = value.GetType();
+            
+            // Для примитивных типов и строк возвращаем как есть
+            if (type.IsPrimitive || type == typeof(string) || type.IsEnum)
+                return value;
+            
+            // Для DateTime создаем копию
+            if (value is DateTime dateTime)
+                return new DateTime(dateTime.Ticks, dateTime.Kind);
+            
+            // Для byte[] создаем копию
+            if (value is byte[] bytes)
+            {
+                var copy = new byte[bytes.Length];
+                Array.Copy(bytes, copy, bytes.Length);
+                return copy;
+            }
+            
+            // Для других ссылочных типов пробуем сериализовать/десериализовать
+            try
+            {
+                var json = JsonSerializer.Serialize(value);
+                return JsonSerializer.Deserialize(json, type);
+            }
+            catch
+            {
+                return value.ToString();
+            }
+        }
+
+        private string SerializeToJson(PropertyValues propertyValues)
+        {
+            var dict = new Dictionary<string, object?>();
+            foreach (var property in propertyValues.Properties)
+            {
+                if (property.Name.Contains("Password", StringComparison.OrdinalIgnoreCase))
+                    continue;
+                
+                dict[property.Name] = CloneValue(propertyValues[property]);
+            }
+            
+            var options = new JsonSerializerOptions 
+            { 
+                WriteIndented = false,
+                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles
+            };
+            
+            return JsonSerializer.Serialize(dict, options);
         }
 
         private int? GetEntityId(EntityEntry entry)
@@ -228,10 +346,7 @@ namespace BurstroyMonitoring.Data
                     return idProperty.CurrentValue as int?;
                 }
             }
-            catch
-            {
-                // Игнорируем ошибки
-            }
+            catch { }
             return null;
         }
     }

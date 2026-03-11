@@ -8,11 +8,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
+using BurstroyMonitoring.TCM.Attributes;
 
 namespace BurstroyMonitoring.TCM.Controllers
 {
     // Разрешаем доступ без авторизации ко всем методам этого контроллера
     [AllowAnonymous]
+    [SkipLogging("Исключаем весь контроллер по умолчанию")]
     public class AuthController : Controller
     {
         private readonly ApplicationDbContext _context;

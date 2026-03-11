@@ -1,64 +1,65 @@
 @model BurstroyMonitoring.TCM.Controllers.RegisterModel
 
+@{
+    ViewData["Title"] = "Регистрация";
+    Layout = null; // Отключаем основной макет для страницы регистрации
+}
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Register - BurstroyMonitoring.TCM</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <meta name="color-scheme" content="light dark" />
+    <title>@ViewData["Title"] - Мониторинг датчиков</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/password-toggle.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="~/css/password-toggle.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body class="bg-light">
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="text-center">Register</h2>
-                    </div>
-                    <div class="card-body">
-                        <form asp-action="Register" method="post">
-                            <div asp-validation-summary="All" class="text-danger"></div>
-                            <div class="form-group mb-3">
-                                <label asp-for="UserName" class="control-label"></label>
-                                <input asp-for="UserName" class="form-control" />
-                                <span asp-validation-for="UserName" class="text-danger"></span>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label asp-for="Password" class="control-label"></label>
-                                <div class="password-toggle">
-                                    <input asp-for="Password" type="password" class="form-control" />
-                                    <button type="button" class="toggle-btn" tabindex="-1">
-                                        <i class="bi bi-eye-slash"></i>
-                                    </button>
-                                </div>
-                                <span asp-validation-for="Password" class="text-danger"></span>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label asp-for="Role" class="control-label"></label>
-                                <select asp-for="Role" class="form-control">
-                                    <option value="">Select role...</option>
-                                    <option value="User">User</option>
-                                    <option value="Admin">Admin</option>
-                                </select>
-                                <span asp-validation-for="Role" class="text-danger"></span>
-                            </div>
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary">Register</button>
-                               
-                            </div>
-                        </form>
-                    </div>
+<body class="theme-light" style="background: var(--bg-primary);">
+    <div class="main-content" style="display: flex; align-items: center; min-height: 100vh; padding-top: 0;">
+        <div class="view-container" style="max-width: 450px; margin: 0 auto;">
+            <h1 class="view-title text-center">Регистрация</h1>
+
+            <form asp-action="Register" method="post" class="form-container" style="box-shadow: none; padding: 0;">
+                <div asp-validation-summary="All" class="validation-summary-errors"></div>
+
+                <div class="field-group">
+                    <label asp-for="UserName" class="control-label required"></label>
+                    <input asp-for="UserName" class="input" placeholder="Введите имя пользователя" />
+                    <span asp-validation-for="UserName" class="field-validation-error"></span>
                 </div>
-            </div>
+
+                <div class="field-group">
+                    <label asp-for="Password" class="control-label required"></label>
+                    <div class="password-toggle">
+                        <input asp-for="Password" type="password" class="input" placeholder="Введите пароль" />
+                        <button type="button" class="toggle-btn" tabindex="-1">
+                            <i class="bi bi-eye-slash"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="Password" class="field-validation-error"></span>
+                    <small class="coordinates-hint">Пароль должен быть не менее 6 символов.</small>
+                </div>
+
+                <div class="field-group">
+                    <label asp-for="Role" class="control-label required"></label>
+                    <select asp-for="Role" class="input select">
+                        <option value="">Выберите роль...</option>
+                        <option value="User">User</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                    <span asp-validation-for="Role" class="field-validation-error"></span>
+                </div>
+
+                <div class="form-actions" style="justify-content: center;">
+                    <button type="submit" class="button button--primary" style="min-width: 200px;">Зарегистрироваться</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
     <script src="~/js/password-toggle.js"></script>

@@ -83,6 +83,7 @@ namespace BurstroyMonitoring.TCM.Filters
             int? userId = null;
             if (userIdClaim != null && int.TryParse(userIdClaim, out var parsed))
                 userId = parsed;
+            
             var userName = context.HttpContext.User.Identity?.Name ?? "Unknown";
             
             // Получаем название контроллера и действия

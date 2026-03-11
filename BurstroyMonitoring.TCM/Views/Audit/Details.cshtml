@@ -6,244 +6,293 @@
     ViewData["Title"] = "Детали аудита";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="mb-0">Детали аудита</h2>
-    <a asp-action="Index" class="btn btn-primary">Назад к списку</a>
-</div>
-
-@if (Model.Type == AuditLogType.Action && Model.Log != null)
-{
-    var log = Model.Log;
-    <div class="card">
-        <div class="card-header">
-            <span class="badge bg-info me-2">Действие</span>
-            <strong>@log.Action</strong>
+<div class="main-content">
+    <div class="view-container">
+        <div class="table-header">
+            <h1 class="view-title" style="margin-bottom: 0;">Детали аудита</h1>
+            <a asp-action="Index" class="button button--secondary">Назад к списку</a>
         </div>
-        <div class="card-body">
-            <dl class="row">
-                <dt class="col-sm-3">ID записи</dt>
-                <dd class="col-sm-9">@log.Id</dd>
 
-                <dt class="col-sm-3">Время</dt>
-                <dd class="col-sm-9">@log.Timestamp.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss.fff")</dd>
-
-                <dt class="col-sm-3">Пользователь</dt>
-                <dd class="col-sm-9">@log.UserName (ID: @(log.UserId?.ToString() ?? "—"))</dd>
-
-                <dt class="col-sm-3">HTTP метод</dt>
-                <dd class="col-sm-9">@log.HttpMethod</dd>
-
-                <dt class="col-sm-3">URL</dt>
-                <dd class="col-sm-9">@log.Url</dd>
-
-                <dt class="col-sm-3">IP адрес</dt>
-                <dd class="col-sm-9">@log.IpAddress</dd>
-
-                <dt class="col-sm-3">User Agent</dt>
-                <dd class="col-sm-9"><small>@log.UserAgent</small></dd>
-
-                <dt class="col-sm-3">Успешно</dt>
-                <dd class="col-sm-9">
-                    @if (log.IsSuccess == true)
-                    {
-                        <span class="badge bg-success">OK</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-danger">Ошибка</span>
-                    }
-                </dd>
-
-                <dt class="col-sm-3">Время выполнения</dt>
-                <dd class="col-sm-9">@log.ExecutionTimeMs мс</dd>
-
-                @if (log.TargetId.HasValue)
-                {
-                    <dt class="col-sm-3">TargetId</dt>
-                    <dd class="col-sm-9">@log.TargetId</dd>
-                }
-
-                <dt class="col-sm-3">Details</dt>
-                <dd class="col-sm-9"><pre class="bg-light p-2 mb-0">@log.Details</pre></dd>
-            </dl>
-        </div>
-    </div>
-}
-else if (Model.Type == AuditLogType.Change && Model.Log != null)
-{
-    var log = Model.Log;
-    <div class="card mb-3">
-        <div class="card-header">
-            <span class="badge bg-warning text-dark me-2">Изменение</span>
-            <strong>@log.EntityType</strong>
-        </div>
-        <div class="card-body">
-            <dl class="row">
-                <dt class="col-sm-3">ID записи</dt>
-                <dd class="col-sm-9">@log.Id</dd>
-
-                <dt class="col-sm-3">Время</dt>
-                <dd class="col-sm-9">@log.Timestamp.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss.fff")</dd>
-
-                <dt class="col-sm-3">Пользователь</dt>
-                <dd class="col-sm-9">@((log.UserName ?? "System")) @if (log.UserId.HasValue) { <span class="text-muted">(ID: @log.UserId)</span> }</dd>
-
-                <dt class="col-sm-3">Сущность</dt>
-                <dd class="col-sm-9">@log.EntityType</dd>
-
-                <dt class="col-sm-3">EntityId</dt>
-                <dd class="col-sm-9">@((log.EntityId?.ToString()) ?? "—")</dd>
-
-                <dt class="col-sm-3">Тип изменения</dt>
-                <dd class="col-sm-9">@log.ChangeType</dd>
-            </dl>
-        </div>
-    </div>
-
-    @if (log.ChangeType == "Added" && !string.IsNullOrEmpty(log.NewValues))
-    {
-        <div class="card mb-3">
-            <div class="card-header bg-success text-white"><strong>Новые данные</strong></div>
-            <div class="card-body">
-                @{
-                    var newData = JsonSerializer.Deserialize<Dictionary<string, object>>(log.NewValues);
-                }
-                @if (newData != null)
-                {
-                    <table class="table table-sm table-striped mb-0">
-                        <thead><tr><th>Поле</th><th>Значение</th></tr></thead>
-                        <tbody>
-                        @foreach (var item in newData)
-                        {
-                            <tr><td><strong>@item.Key</strong></td><td>@item.Value?.ToString()</td></tr>
-                        }
-                        </tbody>
-                    </table>
-                }
-                else
-                {
-                    <pre class="bg-light p-3 mb-0">@log.NewValues</pre>
-                }
-            </div>
-        </div>
-    }
-
-    @if (log.ChangeType == "Deleted" && !string.IsNullOrEmpty(log.OriginalValues))
-    {
-        <div class="card mb-3">
-            <div class="card-header bg-danger text-white"><strong>Удалённые данные</strong></div>
-            <div class="card-body">
-                @{
-                    var originalData = JsonSerializer.Deserialize<Dictionary<string, object>>(log.OriginalValues);
-                }
-                @if (originalData != null)
-                {
-                    <table class="table table-sm table-striped mb-0">
-                        <thead><tr><th>Поле</th><th>Значение</th></tr></thead>
-                        <tbody>
-                        @foreach (var item in originalData)
-                        {
-                            <tr><td><strong>@item.Key</strong></td><td>@item.Value?.ToString()</td></tr>
-                        }
-                        </tbody>
-                    </table>
-                }
-                else
-                {
-                    <pre class="bg-light p-3 mb-0">@log.OriginalValues</pre>
-                }
-            </div>
-        </div>
-    }
-
-    @if (log.ChangeType == "Modified")
-    {
-        @if (!string.IsNullOrEmpty(log.ChangedProperties))
+        @if (Model.Type == AuditLogType.Action && Model.Log != null)
         {
-            <div class="card mb-3">
-                <div class="card-header bg-warning"><strong>Изменённые поля</strong></div>
-                <div class="card-body">
-                    @{
-                        var changes = JsonSerializer.Deserialize<List<JsonElement>>(log.ChangedProperties);
-                    }
-                    @if (changes != null && changes.Any())
-                    {
-                        <table class="table table-sm table-striped mb-0">
-                            <thead><tr><th>Поле</th><th>Старое</th><th>Новое</th></tr></thead>
-                            <tbody>
-                            @foreach (var change in changes)
+            var log = Model.Log;
+            <div class="details-section">
+                <div class="details-section-title">
+                    <span class="lozenge lozenge--warning" style="margin-right: 8px;">Действие</span>
+                    <strong>@log.Action</strong>
+                </div>
+
+                <div class="details-table">
+                    <div class="details-row">
+                        <div class="details-label">ID записи</div>
+                        <div class="details-value">@log.Id</div>
+                    </div>
+
+                    <div class="details-row">
+                        <div class="details-label">Время</div>
+                        <div class="details-value">@log.Timestamp.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss.fff")</div>
+                    </div>
+
+                    <div class="details-row">
+                        <div class="details-label">Пользователь</div>
+                        <div class="details-value">@log.UserName (ID: @(log.UserId?.ToString() ?? "—"))</div>
+                    </div>
+
+                    <div class="details-row">
+                        <div class="details-label">HTTP метод</div>
+                        <div class="details-value">@log.HttpMethod</div>
+                    </div>
+
+                    <div class="details-row">
+                        <div class="details-label">URL</div>
+                        <div class="details-value">@log.Url</div>
+                    </div>
+
+                    <div class="details-row">
+                        <div class="details-label">IP адрес</div>
+                        <div class="details-value">@log.IpAddress</div>
+                    </div>
+
+                    <div class="details-row">
+                        <div class="details-label">User Agent</div>
+                        <div class="details-value"><small>@log.UserAgent</small></div>
+                    </div>
+
+                    <div class="details-row">
+                        <div class="details-label">Успешно</div>
+                        <div class="details-value">
+                            @if (log.IsSuccess == true)
                             {
-                                <tr>
-                                    <td><strong>@change.GetProperty("Property").GetString()</strong></td>
-                                    <td class="text-danger">@change.GetProperty("OldValue").GetString()</td>
-                                    <td class="text-success">@change.GetProperty("NewValue").GetString()</td>
-                                </tr>
+                                <span class="lozenge lozenge--success">OK</span>
                             }
-                            </tbody>
-                        </table>
+                            else
+                            {
+                                <span class="lozenge lozenge--error">Ошибка</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="details-row">
+                        <div class="details-label">Время выполнения</div>
+                        <div class="details-value">@log.ExecutionTimeMs мс</div>
+                    </div>
+
+                    @if (log.TargetId.HasValue)
+                    {
+                        <div class="details-row">
+                            <div class="details-label">TargetId</div>
+                            <div class="details-value">@log.TargetId</div>
+                        </div>
                     }
+
+                    <div class="details-row">
+                        <div class="details-label">Details</div>
+                        <div class="details-value">
+                            <pre style="margin: 0; background: var(--bg-primary); padding: 10px; border-radius: var(--radius-medium);">@log.Details</pre>
+                        </div>
+                    </div>
                 </div>
             </div>
         }
+        else if (Model.Type == AuditLogType.Change && Model.Log != null)
+        {
+            var log = Model.Log;
+            <div class="details-section">
+                <div class="details-section-title">
+                    <span class="lozenge lozenge--warning" style="background-color: var(--warning-bg); color: var(--warning-color); margin-right: 8px;">Изменение</span>
+                    <strong>@log.EntityType</strong>
+                </div>
 
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card mb-3">
-                    <div class="card-header bg-secondary text-white"><strong>До</strong></div>
-                    <div class="card-body">
-                        @{
-                            var originalData = JsonSerializer.Deserialize<Dictionary<string, object>>(log.OriginalValues ?? "{}");
-                        }
-                        @if (originalData != null && originalData.Any())
-                        {
-                            <table class="table table-sm table-striped mb-0">
-                                <thead><tr><th>Поле</th><th>Значение</th></tr></thead>
-                                <tbody>
-                                @foreach (var item in originalData)
-                                {
-                                    <tr><td><strong>@item.Key</strong></td><td>@item.Value?.ToString()</td></tr>
-                                }
-                                </tbody>
-                            </table>
-                        }
-                        else
-                        {
-                            <div class="text-muted">Нет данных</div>
-                        }
+                <div class="details-table">
+                    <div class="details-row">
+                        <div class="details-label">ID записи</div>
+                        <div class="details-value">@log.Id</div>
+                    </div>
+
+                    <div class="details-row">
+                        <div class="details-label">Время</div>
+                        <div class="details-value">@log.Timestamp.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss.fff")</div>
+                    </div>
+
+                    <div class="details-row">
+                        <div class="details-label">Пользователь</div>
+                        <div class="details-value">
+                            @(log.UserName ?? "System")
+                            @if (log.UserId.HasValue)
+                            {
+                                <span class="text-muted">(ID: @log.UserId)</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="details-row">
+                        <div class="details-label">Сущность</div>
+                        <div class="details-value">@log.EntityType</div>
+                    </div>
+
+                    <div class="details-row">
+                        <div class="details-label">EntityId</div>
+                        <div class="details-value">@(log.EntityId?.ToString() ?? "—")</div>
+                    </div>
+
+                    <div class="details-row">
+                        <div class="details-label">Тип изменения</div>
+                        <div class="details-value">@log.ChangeType</div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card mb-3">
-                    <div class="card-header bg-info text-white"><strong>После</strong></div>
-                    <div class="card-body">
+
+            @if (log.ChangeType == "Added" && !string.IsNullOrEmpty(log.NewValues))
+            {
+                <div class="details-section">
+                    <h3 class="details-section-title" style="color: var(--success-color);">Новые данные</h3>
+                    <div class="details-table">
                         @{
-                            var newData = JsonSerializer.Deserialize<Dictionary<string, object>>(log.NewValues ?? "{}");
+                            var newData = JsonSerializer.Deserialize<Dictionary<string, object>>(log.NewValues);
                         }
-                        @if (newData != null && newData.Any())
+                        @if (newData != null)
                         {
-                            <table class="table table-sm table-striped mb-0">
-                                <thead><tr><th>Поле</th><th>Значение</th></tr></thead>
-                                <tbody>
-                                @foreach (var item in newData)
-                                {
-                                    <tr><td><strong>@item.Key</strong></td><td>@item.Value?.ToString()</td></tr>
-                                }
-                                </tbody>
-                            </table>
+                            @foreach (var item in newData)
+                            {
+                                <div class="details-row">
+                                    <div class="details-label"><strong>@item.Key</strong></div>
+                                    <div class="details-value">@item.Value?.ToString()</div>
+                                </div>
+                            }
                         }
                         else
                         {
-                            <div class="text-muted">Нет данных</div>
+                            <div class="details-row">
+                                <div class="details-value">
+                                    <pre style="margin: 0; background: var(--bg-primary); padding: 10px;">@log.NewValues</pre>
+                                </div>
+                            </div>
                         }
                     </div>
                 </div>
-            </div>
-        </div>
-    }
-}
-else
-{
-    <div class="alert alert-warning">Запись не найдена</div>
-}
+            }
 
+            @if (log.ChangeType == "Deleted" && !string.IsNullOrEmpty(log.OriginalValues))
+            {
+                <div class="details-section">
+                    <h3 class="details-section-title" style="color: var(--danger-color);">Удалённые данные</h3>
+                    <div class="details-table">
+                        @{
+                            var originalData = JsonSerializer.Deserialize<Dictionary<string, object>>(log.OriginalValues);
+                        }
+                        @if (originalData != null)
+                        {
+                            @foreach (var item in originalData)
+                            {
+                                <div class="details-row">
+                                    <div class="details-label"><strong>@item.Key</strong></div>
+                                    <div class="details-value">@item.Value?.ToString()</div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="details-row">
+                                <div class="details-value">
+                                    <pre style="margin: 0; background: var(--bg-primary); padding: 10px;">@log.OriginalValues</pre>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (log.ChangeType == "Modified")
+            {
+                @if (!string.IsNullOrEmpty(log.ChangedProperties))
+                {
+                    <div class="details-section">
+                        <h3 class="details-section-title" style="color: var(--warning-color);">Изменённые поля</h3>
+                        <div class="details-table">
+                            @{
+                                var changes = JsonSerializer.Deserialize<List<JsonElement>>(log.ChangedProperties);
+                            }
+                            @if (changes != null && changes.Any())
+                            {
+                                <div class="details-row details-row--header">
+                                    <div class="details-label">Поле</div>
+                                    <div class="details-value">Старое → Новое</div>
+                                </div>
+                                @foreach (var change in changes)
+                                {
+                                    <div class="details-row">
+                                        <div class="details-label"><strong>@change.GetProperty("Property").GetString()</strong></div>
+                                        <div class="details-value">
+                                            <span class="text-danger">@change.GetProperty("OldValue").GetString()</span> 
+                                            → 
+                                            <span class="text-success">@change.GetProperty("NewValue").GetString()</span>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                }
+
+                <div class="details-section">
+                    <div style="display: flex; gap: var(--spacing-lg);">
+                        <div style="flex: 1;">
+                            <h3 class="details-section-title" style="color: var(--text-secondary);">До</h3>
+                            <div class="details-table">
+                                @{
+                                    var originalData = JsonSerializer.Deserialize<Dictionary<string, object>>(log.OriginalValues ?? "{}");
+                                }
+                                @if (originalData != null && originalData.Any())
+                                {
+                                    @foreach (var item in originalData)
+                                    {
+                                        <div class="details-row">
+                                            <div class="details-label"><strong>@item.Key</strong></div>
+                                            <div class="details-value">@item.Value?.ToString()</div>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="details-row">
+                                        <div class="details-value text-muted">Нет данных</div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div style="flex: 1;">
+                            <h3 class="details-section-title" style="color: var(--primary-color);">После</h3>
+                            <div class="details-table">
+                                @{
+                                    var newData = JsonSerializer.Deserialize<Dictionary<string, object>>(log.NewValues ?? "{}");
+                                }
+                                @if (newData != null && newData.Any())
+                                {
+                                    @foreach (var item in newData)
+                                    {
+                                        <div class="details-row">
+                                            <div class="details-label"><strong>@item.Key</strong></div>
+                                            <div class="details-value">@item.Value?.ToString()</div>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="details-row">
+                                        <div class="details-value text-muted">Нет данных</div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="alert-warning" style="padding: var(--spacing-lg);">
+                <strong>⚠️ Запись не найдена</strong>
+            </div>
+        }
+    </div>
+</div>
