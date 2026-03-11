@@ -143,15 +143,16 @@
                     Карта мониторинга
                 </a>
 
-                <a asp-controller="SensorErrors" asp-action="Index"
-                   class="nav-btn @(currentController == "SensorErrors" ? "active" : "")"
-                   title="Ошибки датчиков: Журнал ошибок системы">
-                    Ошибки
-                </a>
+                
 
                 @if (User.IsInRole("Admin"))
                 {
                     <!-- Административные пункты меню для роли Admin -->
+                    <a asp-controller="SensorErrors" asp-action="Index"
+                        class="nav-btn @(currentController == "SensorErrors" ? "active" : "")"
+                        title="Ошибки датчиков: Журнал ошибок системы">
+                            Ошибки
+                    </a>
                     <a asp-controller="Admin" asp-action="Index"
                        class="nav-btn @(currentController == "Admin" ? "active" : "")"
                        title="Управление пользователями">
