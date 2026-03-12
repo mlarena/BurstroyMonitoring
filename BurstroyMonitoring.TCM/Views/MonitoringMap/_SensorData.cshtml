@@ -119,6 +119,13 @@
     @* Сохраняем временную метку в ViewBag для заголовка *@
     ViewBag.Timestamp = timestampStr;
     
+    <div class="sensor-info-header hidden" 
+         data-post-name="@ViewData["PostName"]" 
+         data-sensor-type="@ViewData["SensorTypeName"]" 
+         data-endpoint="@ViewData["EndPointsName"]" 
+         data-received="@timestampStr">
+    </div>
+    
     @* Фильтруем параметры для отображения (исключаем ID и временные метки) *@
     var displayParams = data.Where(x => 
         !x.Key.Contains("ReceivedAt") && 
@@ -129,6 +136,79 @@
         !x.Key.Contains("SensorId") && 
         !x.Key.Contains("id") && 
         !x.Key.Contains("sensor_id")).ToList();
+
+    // Словарь переводов
+    var translations = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    {
+        // DSPD
+        { "UPower", "Питание, В" },
+        { "NeedCalibration", "Калибровка" },
+        { "AngleToRoad", "Угол, °" },
+        { "Shake", "Вибрация, g" },
+        { "TemperatureRoad", "Т дороги, °С" },
+        { "HeightIce", "Лед, мм" },
+        { "HeightSnow", "Снег, мм" },
+        { "HeightH2O", "Вода, мм" },
+        { "RoadStatus", "Статус дороги" },
+        { "PercentPGM", "ПГМ, %" },
+        { "TemperatureFreezePGM", "Т замерз. ПГМ, °С" },
+        { "PercentICE", "Лед/Снег, %" },
+        { "Grip", "Сцепление" },
+        { "TemperatureCase", "Т оптики, °С" },
+        { "GPSLatitude", "Широта (GPS)" },
+        { "GPSLongitude", "Долгота (GPS)" },
+        { "DistanceToSurface", "Расст. до дор., мм" },
+        { "SnowdriftIntence", "Рост сугроба, мм/ч" },
+        { "SnowdriftHeight", "Выс. сугроба, мм" },
+        
+        // IWS
+        { "EnvTemperature", "Т возд., ℃" },
+        { "Humidity", "Влажн., %" },
+        { "DewPoint", "Т т.росы, ℃" },
+        { "PressureHPa", "Давл., гПа" },
+        { "PressureMmHg", "Давл., мм.рт.ст" },
+        { "WindSpeed", "Ветер, м/с" },
+        { "WindDirection", "Напр. ветра, º" },
+        { "WindVSound", "Ск. звука, м/с" },
+        { "PrecipitationType", "Тип осадков" },
+        { "PrecipitationIntensity", "Интенс. осадков, мм/ч" },
+        { "PrecipitationQuantity", "Осадки/сут, мм" },
+        { "PrecipitationElapsed", "Время сброса" },
+        { "PrecipitationPeriod", "Период сброса, мин" },
+        { "CO2Level", "CO2, ppm" },
+        { "SupplyVoltage", "Питание, В" },
+        { "Latitude", "Широта" },
+        { "Longitude", "Долгота" },
+        { "Altitude", "Высота, м" },
+        { "KSP", "Спутники" },
+        { "AccelerationStDev", "Вибрация, g" },
+        { "Roll", "Крен, º" },
+        { "Pitch", "Тангаж, º" },
+        { "WeAreFine", "Исправность" },
+
+        // DOV
+        { "VisibleRange", "Видимость, м" },
+        { "BrightFlag", "Яркость" },
+
+        // DUST
+        { "PM10Act", "PM10 (текущ), мг/м³" },
+        { "PM10AWG", "PM10 (сред), мг/м³" },
+        { "PM1Act", "PM1.0 (текущ), мг/м³" },
+        { "PM1AWG", "PM1.0 (сред), мг/м³" },
+        { "PM25Act", "PM2.5 (текущ), мг/м³" },
+        { "PM25AWG", "PM2.5 (сред), мг/м³" },
+        { "FlowProbe", "Поток" },
+        { "TemperatureProbe", "Т зонда" },
+        { "HumidityProbe", "Влажн. зонда" },
+        { "LaserStatus", "Лазер" }
+    };
+
+    // Если тип датчика DOV, оставляем только VisibleRange
+    var sensorTypeName = ViewData["SensorTypeName"] as string;
+    if (sensorTypeName != null && sensorTypeName.Equals("DOV", StringComparison.OrdinalIgnoreCase))
+    {
+        displayParams = displayParams.Where(x => x.Key.Equals("VisibleRange", StringComparison.OrdinalIgnoreCase)).ToList();
+    }
     
     <div class="sensor-data-container">
         <table class="sensor-data-table">
@@ -136,7 +216,8 @@
             <tr class="parameters-row">
                 @foreach (var item in displayParams)
                 {
-                    <td>@item.Key</td>
+                    var header = translations.ContainsKey(item.Key) ? translations[item.Key] : item.Key;
+                    <td>@header</td>
                 }
             </tr>
             

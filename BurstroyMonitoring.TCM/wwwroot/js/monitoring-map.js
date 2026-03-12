@@ -1,7 +1,6 @@
 // Глобальные переменные
 let map;
 let markers = [];
-let isDetailsCollapsed = false;
 let isExpanded = false;
 let searchTimeout = null;
 let selectedAutocompleteIndex = -1;
@@ -11,17 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initMap();
     loadMapData();
     initSearch();
-    
-    // Инициализация панели деталей
-    const panel = document.getElementById('monitoringDetailsPanel');
-    const clearButton = panel?.querySelector('.monitoring-button.monitoring-button-secondary');
-    
-    if (panel && !isDetailsCollapsed) {
-        panel.style.height = 'calc(100% - 20px)';
-        if (clearButton) {
-            clearButton.style.display = 'inline-flex';
-        }
-    }
     
     // ОТЛАДКА: Проверяем все датчики в DOM после загрузки
     setTimeout(() => {
@@ -215,9 +203,6 @@ function selectPost(id, lat, lng) {
     // Перемещаем карту к выбранному посту
     map.setView([lat, lng], 13);
     
-    // Показываем детали поста
-    showDetails(id, 'post');
-    
     // Подсвечиваем маркер
     highlightMarker(id, 'post');
 }
@@ -316,17 +301,35 @@ function addPostMarker(post) {
         .bindPopup(`
             <div style="font-size: 13px;">
                 <b>${post.name}</b><br/>
-                ${post.description || ''}<br/>
                 Датчиков: ${post.sensorCount}<br/>
                 ${post.isMobile ? 'Мобильный' : 'Стационарный'}<br/>
                 <span style="color: ${post.isActive ? '#28a745' : '#dc3545'};">
                     ${post.isActive ? 'Активен' : 'Неактивен'}
                 </span>
+                <hr style="margin: 5px 0;"/>
+                <div class="popup-sensor-list">
+                    ${post.sensors && post.sensors.length > 0 ? 
+                        post.sensors.map(s => `
+                            <div class="popup-sensor-item" 
+                                 onclick="showSensorDetailsFromPopup(${s.id}, ${s.sensorTypeId}, '${s.endPointsName}')"
+                                 style="cursor: pointer; color: #333; margin-bottom: 3px; transition: color 0.2s;">
+                                <i class="fas fa-microchip"></i> <span class="sensor-link-text">${s.sensorTypeName}: ${s.endPointsName}</span>
+                            </div>
+                        `).join('') : 
+                        '<i>Нет датчиков</i>'
+                    }
+                </div>
             </div>
+            <style>
+                .popup-sensor-item:hover .sensor-link-text {
+                    color: #2196f3;
+                    text-decoration: underline;
+                }
+            </style>
         `);
 
     marker.on('click', function() {
-        showDetails(post.id, 'post');
+        map.panTo([post.latitude, post.longitude]);
     });
 
     markers.push({ marker, type: 'post', data: post });
@@ -370,7 +373,8 @@ function addSensorMarker(sensor) {
         `);
 
     marker.on('click', function() {
-        showDetails(sensor.id, 'sensor');
+        map.panTo([sensor.latitude, sensor.longitude]);
+        showSensorDetailsFromPopup(sensor.id, sensor.sensorTypeId, sensor.name);
     });
 
     markers.push({ marker, type: 'sensor', data: sensor });
@@ -403,53 +407,82 @@ function clearMarkers() {
     markers = [];
 }
 
-async function showDetails(id, type) {
-    try {
-        // Раскрываем панель, если она свернута
-        if (isDetailsCollapsed) {
-            toggleDetailsPanel();
-        }
-        
-        const response = await fetch(`/MonitoringMap/GetDetails?id=${id}&type=${type}`);
-        if (response.ok) {
-            const html = await response.text();
-            document.getElementById('monitoringDetailsContent').innerHTML = html;
-            
-            // Показываем панель, если скрыта
-            const panel = document.getElementById('monitoringDetailsPanel');
-            panel.classList.remove('hidden');
-            
-            // Загружаем данные датчиков, если это пост
-            if (type === 'post') {
-                await loadSensorData(id);
-            }
-        }
-    } catch (error) {
-        console.error('Ошибка загрузки деталей:', error);
+// Функция для показа данных датчика из попапа или при клике на маркер датчика
+async function showSensorDetailsFromPopup(sensorId, sensorTypeId, sensorName) {
+    // Показываем панель
+    const panel = document.getElementById('sensorDataPanel');
+    if (panel) {
+        panel.classList.remove('hidden');
     }
-}
 
-async function loadSensorData(postId) {
+    // Показываем загрузку
+    const sensorContent = document.getElementById('sensorDataContent');
+    sensorContent.innerHTML = `
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i> Загрузка данных датчика...
+        </div>
+    `;
+    
     try {
-        const response = await fetch(`/MonitoringMap/GetSensorData?postId=${postId}`);
+        const response = await fetch(`/MonitoringMap/GetLatestSensorData?sensorId=${sensorId}&sensorTypeId=${sensorTypeId}`);
+        
         if (response.ok) {
             const html = await response.text();
-            const sensorList = document.getElementById('sensorList');
-            if (sensorList) {
-                sensorList.innerHTML = html;
+            
+            // Создаем временный контейнер для парсинга HTML
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            
+            // Извлекаем данные из скрытого заголовка в PartialView
+            const infoHeader = tempDiv.querySelector('.sensor-info-header');
+            let postName = '', sensorType = '', endpoint = '', received = '';
+            
+            if (infoHeader) {
+                postName = infoHeader.getAttribute('data-post-name') || '';
+                sensorType = infoHeader.getAttribute('data-sensor-type') || '';
+                endpoint = infoHeader.getAttribute('data-endpoint') || '';
+                received = infoHeader.getAttribute('data-received') || '';
             }
+            
+            // Обновляем заголовок
+            const sensorTitle = document.getElementById('sensorTitle');
+            if (sensorTitle) {
+                sensorTitle.innerHTML = `
+                    <span style="color: #fff; font-weight: bold;">${postName}</span> | 
+                    <span style="color: #e0e0e0;">${sensorType}</span>: 
+                    <span style="color: #fff;">${endpoint}</span>
+                    <span style="margin-left: 15px; font-size: 0.9em; color: #d1d1d1;">
+                        <i class="far fa-clock"></i> ${received}
+                    </span>
+                `;
+            }
+            
+            sensorContent.innerHTML = html;
+        } else {
+            sensorContent.innerHTML = `
+                <div class="no-data-message">
+                    <i class="fas fa-exclamation-triangle"></i> Ошибка загрузки данных
+                </div>
+            `;
         }
     } catch (error) {
-        console.error('Ошибка загрузки данных датчиков:', error);
-        const sensorList = document.getElementById('sensorList');
-        if (sensorList) {
-            sensorList.innerHTML = '<span class="text-danger">Ошибка загрузки данных датчиков</span>';
-        }
+        console.error('Ошибка:', error);
+        sensorContent.innerHTML = `
+            <div class="no-data-message">
+                <i class="fas fa-times-circle"></i> Ошибка соединения
+            </div>
+        `;
     }
 }
 
 // Функция для показа данных датчика
 async function showSensorDetails(sensorId, element) {
+    // Показываем панель
+    const panel = document.getElementById('sensorDataPanel');
+    if (panel) {
+        panel.classList.remove('hidden');
+    }
+
     // Снимаем активный класс со всех элементов
     document.querySelectorAll('.monitoring-sensor-item').forEach(item => {
         item.classList.remove('active');
@@ -524,6 +557,11 @@ function clearSensorData(event) {
         event.stopPropagation();
     }
     
+    const panel = document.getElementById('sensorDataPanel');
+    if (panel) {
+        panel.classList.add('hidden');
+    }
+    
     const sensorContent = document.getElementById('sensorDataContent');
     sensorContent.innerHTML = `
         <div class="monitoring-no-selection">
@@ -536,62 +574,6 @@ function clearSensorData(event) {
     const sensorTitle = document.getElementById('sensorTitle');
     if (sensorTitle) {
         sensorTitle.innerHTML = 'Данные датчика';
-    }
-}
-
-function clearDetails(event) {
-    if (event) {
-        event.stopPropagation();
-    }
-    
-    document.getElementById('monitoringDetailsContent').innerHTML = `
-        <div class="monitoring-no-selection">
-            <i class="fas fa-mouse-pointer"></i>
-            <p>Выберите объект на карте для просмотра деталей</p>
-        </div>
-    `;
-}
-
-function toggleDetailsPanel() {
-    const panel = document.getElementById('monitoringDetailsPanel');
-    const content = document.getElementById('monitoringDetailsContent');
-    const clearButton = panel.querySelector('.monitoring-button.monitoring-button-secondary');
-    
-    if (isDetailsCollapsed) {
-        // Раскрываем панель
-        panel.classList.remove('collapsed');
-        content.classList.remove('collapsed');
-        
-        // Показываем кнопку очистки
-        if (clearButton) {
-            clearButton.style.display = 'inline-flex';
-        }
-        
-        // Восстанавливаем сохраненную высоту или используем стандартную
-        if (window.savedPanelHeight) {
-            panel.style.height = window.savedPanelHeight;
-        } else {
-            panel.style.height = 'calc(100% - 20px)';
-        }
-        
-        isDetailsCollapsed = false;
-    } else {
-        // Сворачиваем панель
-        panel.classList.add('collapsed');
-        content.classList.add('collapsed');
-        
-        // Скрываем кнопку очистки
-        if (clearButton) {
-            clearButton.style.display = 'none';
-        }
-        
-        // Сохраняем текущую высоту перед сворачиванием
-        window.savedPanelHeight = panel.style.height || 'calc(100% - 20px)';
-        
-        // Устанавливаем высоту 50px
-        panel.style.height = '50px';
-        
-        isDetailsCollapsed = true;
     }
 }
 

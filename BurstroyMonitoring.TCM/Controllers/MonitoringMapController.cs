@@ -53,7 +53,13 @@ namespace BurstroyMonitoring.TCM.Controllers
                     Longitude = p.Longitude,
                     IsMobile = p.IsMobile,
                     IsActive = p.IsActive,
-                    SensorCount = p.Sensors.Count // Считаем все датчики
+                    SensorCount = p.Sensors.Count, // Считаем все датчики
+                    Sensors = p.Sensors.Select(s => new {
+                        s.Id,
+                        s.EndPointsName,
+                        SensorTypeName = s.SensorType != null ? s.SensorType.SensorTypeName : "",
+                        s.SensorTypeId
+                    }).ToList()
                 })
                 .ToListAsync();
 
@@ -82,24 +88,6 @@ namespace BurstroyMonitoring.TCM.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetDetails(int id, string type)
-        {
-            if (type == "post")
-            {
-                var post = await _context.MonitoringPosts
-                    .Include(p => p.Sensors) // Убираем фильтр Where(s => s.IsActive)
-                    .FirstOrDefaultAsync(p => p.Id == id);
-
-                if (post == null)
-                    return NotFound();
-
-                return PartialView("_PostDetails", post);
-            }
-           
-            return NotFound();
-        }
-
-        [HttpGet]
         public async Task<IActionResult> SearchPosts(string query)
         {
             if (string.IsNullOrWhiteSpace(query) || query.Length < 2)
@@ -123,40 +111,25 @@ namespace BurstroyMonitoring.TCM.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetSensorData(int postId)
-        {
-            var sensors = await _context.Sensors
-                .Include(s => s.SensorType)
-                .Where(s => s.MonitoringPostId == postId) // Убираем фильтр s.IsActive
-                .Select(s => new 
-                {
-                    Id = s.Id,
-                    EndPointsName = s.EndPointsName,
-                    SerialNumber = s.SerialNumber,
-                    Url = s.Url,
-                    IsActive = s.IsActive,
-                    SensorTypeId = s.SensorTypeId,
-                    SensorTypeName = s.SensorType != null ? s.SensorType.SensorTypeName : ""
-                })
-                .ToListAsync();
-
-            return PartialView("_SensorList", sensors);
-        }
-
-        [HttpGet]
         public async Task<IActionResult> GetLatestSensorData(int sensorId, int sensorTypeId)
         {
             try
             {
-                // Получаем имя типа датчика из базы данных
-                var sensorType = await _context.SensorTypes
-                    .FirstOrDefaultAsync(st => st.Id == sensorTypeId);
-                
-                string sensorTypeName = sensorType?.SensorTypeName ?? "Unknown";
+                // Получаем информацию о датчике, его типе и посте
+                var sensor = await _context.Sensors
+                    .Include(s => s.SensorType)
+                    .Include(s => s.MonitoringPost)
+                    .FirstOrDefaultAsync(s => s.Id == sensorId);
+
+                if (sensor == null)
+                    return NotFound();
+
+                string sensorTypeName = sensor.SensorType?.SensorTypeName ?? "Unknown";
+                string postName = sensor.MonitoringPost?.Name ?? "Без поста";
+                string endPointsName = sensor.EndPointsName;
                 
                 Console.WriteLine($"=== ЗАПРОС ДАННЫХ ДАТЧИКА ===");
-                Console.WriteLine($"SensorId: {sensorId}, SensorTypeId: {sensorTypeId}, SensorTypeName: {sensorTypeName}");
-                Console.WriteLine($"Timestamp: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+                Console.WriteLine($"SensorId: {sensorId}, Post: {postName}, Type: {sensorTypeName}, Endpoint: {endPointsName}");
 
                 dynamic latestData = null;
 
@@ -325,9 +298,13 @@ namespace BurstroyMonitoring.TCM.Controllers
                         WriteIndented = true,
                         PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
                     };
-                    
-                    string json = System.Text.Json.JsonSerializer.Serialize(latestData, jsonOptions);
-                    Console.WriteLine(json);
+
+                    ViewData["PostName"] = postName;
+                    ViewData["SensorTypeName"] = sensorTypeName;
+                    ViewData["EndPointsName"] = endPointsName;
+                    ViewData["ReceivedAt"] = latestData.ReceivedAt;
+
+                    return PartialView("_SensorData", latestData);
                 }
                 else
                 {
