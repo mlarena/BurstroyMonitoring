@@ -1,0 +1,110 @@
+
+Данные сгруппирование по часам
+http://localhost:5282/GraphsAndCharts/GetIWSDataHour?sensorId=6&days=1
+{
+sensorId: 6,
+serialNumber: "9F:6B:DC:B2",
+endpointName: "iws_local_Москва",
+postName: "Москва",
+measurements: [
+{
+receivedAt: "2026-03-12T09:00:00Z",
+environmentTemperature: 11.39,
+humidityPercentage: 54.56,
+dewPoint: 2.545,
+pressureHpa: 1000.005,
+pressureQNHHpa: 1021.585,
+pressureMmHg: 750.065,
+windSpeed: 0.465,
+windDirection: 191.69,
+windVSound: 341.22,
+precipitationType: 0,
+precipitationIntensity: 0,
+precipitationQuantity: 0.3,
+precipitationElapsed: 596,
+precipitationPeriod: 1440,
+co2Level: null,
+supplyVoltage: 45.45,
+altitude: null,
+gpsSpeed: null,
+kspValue: 14,
+accelerationStdDev: 0,
+rollAngle: null,
+pitchAngle: null
+}
+...
+]
+}
+
+Данные сгруппирование по 10 минут
+http://localhost:5282/GraphsAndCharts/GetIWSDataTenMinuteInterval?sensorId=6&days=1
+{
+sensorId: 6,
+serialNumber: "9F:6B:DC:B2",
+endpointName: "iws_local_Москва",
+postName: "Москва",
+measurements: [
+{
+receivedAt: "2026-03-12T09:50:00Z",
+environmentTemperature: 11.39,
+humidityPercentage: 54.56,
+dewPoint: 2.545,
+pressureHpa: 1000.005,
+pressureQNHHpa: 1021.585,
+pressureMmHg: 750.065,
+windSpeed: 0.465,
+windDirection: 191.69,
+windVSound: 341.22,
+precipitationType: 0,
+precipitationIntensity: 0,
+precipitationQuantity: 0.3,
+precipitationElapsed: 596,
+precipitationPeriod: 1440,
+co2Level: null,
+supplyVoltage: 45.45,
+altitude: null,
+gpsSpeed: null,
+kspValue: 14,
+accelerationStdDev: 0,
+rollAngle: null,
+pitchAngle: null
+}
+...
+]
+}
+Данные без группировки
+http://localhost:5282/GraphsAndCharts/GetIWSData?sensorId=6&days=1
+{
+sensorId: 6,
+serialNumber: "9F:6B:DC:B2",
+endpointName: "iws_local_Москва",
+postName: "Москва",
+measurements: [
+{
+receivedAt: "2026-03-12T09:56:09.726101Z",
+environmentTemperature: 11.4,
+humidityPercentage: 54.82,
+dewPoint: 2.62,
+pressureHpa: 1000,
+pressureQNHHpa: 1021.58,
+pressureMmHg: 750.06,
+windSpeed: 0.32,
+windDirection: 167.28,
+windVSound: 341.28,
+precipitationType: 0,
+precipitationIntensity: 0,
+precipitationQuantity: 0.3,
+precipitationElapsed: 595,
+precipitationPeriod: 1440,
+co2Level: null,
+supplyVoltage: 45.5,
+altitude: 173,
+gpsSpeed: 0,
+kspValue: 14,
+accelerationStdDev: 0,
+rollAngle: 1.3,
+pitchAngle: 1.2
+}
+...
+]
+}

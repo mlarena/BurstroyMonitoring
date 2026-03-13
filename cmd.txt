@@ -7,21 +7,21 @@ dotnet run --project BurstroyMonitoring.TCM/BurstroyMonitoring.TCM.csproj
 
 Данные сгруппирование по часам
 http://localhost:5282/GraphsAndCharts/GetDOVDataHour?sensorId=1&days=1
-http://localhost:5282/GraphsAndCharts/GetDSPDDataHour?sensorId=5&days=1
+http://localhost:5282/GraphsAndCharts/GetDSPDDataHour?sensorId=3&days=1
 http://localhost:5282/GraphsAndCharts/GetDUSTDataHour?sensorId=4&days=1
 http://localhost:5282/GraphsAndCharts/GetIWSDataHour?sensorId=3&days=1
 http://localhost:5282/GraphsAndCharts/GetMUEKSDataHour?sensorId=2&days=1
 
 Данные сгруппирование по 10 минут
 http://localhost:5282/GraphsAndCharts/GetDOVDataTenMinuteInterval?sensorId=1&days=1
-http://localhost:5282/GraphsAndCharts/GetDSPDDataTenMinuteInterval?sensorId=5&days=1
+http://localhost:5282/GraphsAndCharts/GetDSPDDataTenMinuteInterval?sensorId=3&days=1
 http://localhost:5282/GraphsAndCharts/GetDUSTDataTenMinuteInterval?sensorId=4&days=1
 http://localhost:5282/GraphsAndCharts/GetIWSDataTenMinuteInterval?sensorId=3&days=1
 http://localhost:5282/GraphsAndCharts/GetMUEKSDataTenMinuteInterval?sensorId=2&days=1
 
 Данные без группировки
 http://localhost:5282/GraphsAndCharts/GetDOVData?sensorId=1&days=1
-http://localhost:5282/GraphsAndCharts/GetDSPDData?sensorId=5&days=1
+http://localhost:5282/GraphsAndCharts/GetDSPDData?sensorId=3&days=1
 http://localhost:5282/GraphsAndCharts/GetDUSTData?sensorId=4&days=1
 http://localhost:5282/GraphsAndCharts/GetIWSData?sensorId=3&days=1
 http://localhost:5282/GraphsAndCharts/GetMUEKSData?sensorId=2&days=1

@@ -1,0 +1,70 @@
+
+Данные сгруппирование по часам
+http://localhost:5282/GraphsAndCharts/GetDUSTDataHour?sensorId=4&days=1
+{
+sensorId: 4,
+serialNumber: "41:39:31:35:30:08:0E:08",
+endpointName: "dust_local_Москва",
+postName: "Москва",
+measurements: [
+{
+receivedAt: "2026-02-12T07:00:00Z",
+pm10Act: 14.812,
+pm25Act: 11.2436,
+pm1Act: 7.0172,
+pm10Awg: 14.812,
+pm25Awg: 11.2436,
+pm1Awg: 7.0172,
+flowProbe: 1.0236,
+temperatureProbe: 28.1,
+humidityProbe: 11.2
+}
+...
+]
+}
+Данные сгруппирование по 10 минут
+http://localhost:5282/GraphsAndCharts/GetDUSTDataTenMinuteInterval?sensorId=4&days=1
+{
+sensorId: 4,
+serialNumber: "41:39:31:35:30:08:0E:08",
+endpointName: "dust_local_Москва",
+postName: "Москва",
+measurements: [
+{
+receivedAt: "2026-02-21T09:40:00Z",
+pm10Act: 4.196,
+pm25Act: 3.204,
+pm1Act: 1.432,
+pm10Awg: 4.196,
+pm25Awg: 3.204,
+pm1Awg: 1.432,
+flowProbe: 0.914,
+temperatureProbe: 28,
+humidityProbe: 11
+}
+...
+]
+}
+
+Данные без группировки
+http://localhost:5282/GraphsAndCharts/GetDUSTData?sensorId=4&days=1
+{
+sensorId: 4,
+serialNumber: "41:39:31:35:30:08:0E:08",
+endpointName: "dust_local_Москва",
+postName: "Москва",
+measurements: [
+{
+receivedAt: "2026-02-12T07:10:52.363261Z",
+pm10Act: 14.38,
+pm25Act: 11.87,
+pm1Act: 7.31,
+pm10Awg: 14.38,
+pm25Awg: 11.87,
+pm1Awg: 7.31,
+flowProbe: 0.98,
+temperatureProbe: 28.03,
+humidityProbe: 11.05
+}...
+]
+}

@@ -1,0 +1,88 @@
+
+Данные сгруппирование по часам
+http://localhost:5282/GraphsAndCharts/GetMUEKSDataHour?sensorId=5&days=1
+{
+sensorId: 5,
+serialNumber: "88:00:00:0B:88:CE:8B:28",
+endpointName: "mueks_local_Москва",
+postName: "Москва",
+measurements: [
+{
+receivedAt: "2026-03-12T09:00:00Z",
+temperatureBox: 46,
+voltagePowerIn12b: 30.28,
+voltageOut12b: 30.07,
+voltageAkb: 27,
+currentOut12b: 0.32,
+currentOut48b: 0.28,
+currentAkb: 0,
+wattHoursAkb: 64.11,
+visibleRange: null,
+sensor220b: 1,
+doorStatus: null,
+tdsH: null,
+tdsTds: null,
+tkosaT1: null,
+tkosaT3: null
+}
+...
+]
+}
+Данные сгруппирование по 10 минут
+http://localhost:5282/GraphsAndCharts/GetMUEKSDataTenMinuteInterval?sensorId=5&days=1
+{
+sensorId: 5,
+serialNumber: "88:00:00:0B:88:CE:8B:28",
+endpointName: "mueks_local_Москва",
+postName: "Москва",
+measurements: [
+{
+receivedAt: "2026-03-12T10:00:10.639071Z",
+temperatureBox: 46,
+voltagePowerIn12b: 30.23,
+voltageOut12b: 30.07,
+voltageAkb: 27,
+currentOut12b: 0.32,
+currentOut48b: 0.29,
+currentAkb: 0.01,
+wattHoursAkb: 64.11,
+visibleRange: 32033,
+sensor220b: 1,
+doorStatus: null,
+tdsH: null,
+tdsTds: null,
+tkosaT1: null,
+tkosaT3: null
+}
+...
+]
+}
+Данные без группировки
+http://localhost:5282/GraphsAndCharts/GetMUEKSData?sensorId=5&days=1
+{
+sensorId: 5,
+serialNumber: "88:00:00:0B:88:CE:8B:28",
+endpointName: "mueks_local_Москва",
+postName: "Москва",
+measurements: [
+{
+receivedAt: "2026-03-12T10:00:10.639071Z",
+temperatureBox: 46,
+voltagePowerIn12b: 30.23,
+voltageOut12b: 30.07,
+voltageAkb: 27,
+currentOut12b: 0.32,
+currentOut48b: 0.29,
+currentAkb: 0.01,
+wattHoursAkb: 64.11,
+visibleRange: 32033,
+sensor220b: 1,
+doorStatus: null,
+tdsH: null,
+tdsTds: null,
+tkosaT1: null,
+tkosaT3: null
+}
+...
+]
+}

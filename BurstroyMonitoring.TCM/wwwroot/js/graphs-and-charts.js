@@ -13,7 +13,7 @@ $(document).ready(function () {
         }
 
         $.get('/GraphsAndCharts/GetSensorsByPost', { monitoringPostId: postId }, function (sensors) {
-            let options = '<option value="">Выберите датчик</option>';
+            let options = '';
             sensors.forEach(sensor => {
                 // В ответе приходят объекты SelectListItem (Value и Text)
                 const id = sensor.value || sensor.Value;

@@ -1,0 +1,84 @@
+Данные сгруппирование по часам
+http://localhost:5282/GraphsAndCharts/GetDSPDDataHour?sensorId=3&days=1
+{
+sensorId: 3,
+serialNumber: "E1:40:50:03:EC:DE:E8:12",
+endpointName: "dspd_m_local_Москва",
+postName: "Москва",
+measurements: [
+{
+receivedAt: "2026-03-12T09:00:00Z",
+gripCoefficient: 0.6,
+shakeLevel: 0.004,
+voltagePower: 12.46,
+caseTemperature: 13.103,
+roadTemperature: 11.786,
+waterHeight: 0.103,
+iceHeight: 0,
+snowHeight: 0,
+icePercentage: 0,
+pgmPercentage: 0,
+roadStatusCode: 2,
+roadAngle: 67.131,
+freezeTemperature: 0,
+distanceToSurface: 22146.585
+}
+...
+]
+}
+Данные сгруппирование по 10 минут
+http://localhost:5282/GraphsAndCharts/GetDSPDDataTenMinuteInterval?sensorId=3&days=1
+{
+sensorId: 3,
+serialNumber: "E1:40:50:03:EC:DE:E8:12",
+endpointName: "dspd_m_local_Москва",
+postName: "Москва",
+measurements: [
+{
+receivedAt: "2026-03-12T09:10:00Z",
+gripCoefficient: 0.6,
+shakeLevel: 0.008,
+voltagePower: 12.458,
+caseTemperature: 12.31,
+roadTemperature: 11.193,
+waterHeight: 0.12,
+iceHeight: 0,
+snowHeight: 0,
+icePercentage: 0,
+pgmPercentage: 0,
+roadStatusCode: 2,
+roadAngle: 67.145,
+freezeTemperature: 0,
+distanceToSurface: 20846.75
+}
+...
+]
+}
+Данные без группировки
+http://localhost:5282/GraphsAndCharts/GetDSPDData?sensorId=3&days=1
+{
+sensorId: 3,
+serialNumber: "E1:40:50:03:EC:DE:E8:12",
+endpointName: "dspd_m_local_Москва",
+postName: "Москва",
+measurements: [
+{
+receivedAt: "2026-03-12T09:12:16.214481Z",
+gripCoefficient: 0.6,
+shakeLevel: 0.01,
+voltagePower: 12.42,
+caseTemperature: 12.21,
+roadTemperature: 11.19,
+waterHeight: 0.12,
+iceHeight: 0,
+snowHeight: 0,
+icePercentage: 0,
+pgmPercentage: 0,
+roadStatusCode: 2,
+roadAngle: 67.12,
+freezeTemperature: 0,
+distanceToSurface: 20835.97
+}
+...
+]
+}
