@@ -1,0 +1,266 @@
+{
+  "DOV": {
+    "visibleRange": {
+      "name": "Дальность видимости",
+      "unit": "м"
+    }
+  },
+  "DSPD": {
+    "gripCoefficient": {
+      "name": "Коэффициент сцепления",
+      "unit": ""
+    },
+    "shakeLevel": {
+      "name": "Уровень вибрации",
+      "unit": "g"
+    },
+    "voltagePower": {
+      "name": "Напряжение питания",
+      "unit": "В"
+    },
+    "caseTemperature": {
+      "name": "Температура внутри корпуса",
+      "unit": "°C"
+    },
+    "roadTemperature": {
+      "name": "Температура дорожного покрытия",
+      "unit": "°C"
+    },
+    "waterHeight": {
+      "name": "Высота слоя воды",
+      "unit": "мм"
+    },
+    "iceHeight": {
+      "name": "Высота слоя льда",
+      "unit": "мм"
+    },
+    "snowHeight": {
+      "name": "Высота слоя снега",
+      "unit": "мм"
+    },
+    "icePercentage": {
+      "name": "Процент обледенения",
+      "unit": "%"
+    },
+    "pgmPercentage": {
+      "name": "Процент реагента",
+      "unit": "%"
+    },
+    "roadStatusCode": {
+      "name": "Код состояния дороги",
+      "unit": ""
+    },
+    "roadAngle": {
+      "name": "Угол наклона дороги",
+      "unit": "°"
+    },
+    "freezeTemperature": {
+      "name": "Температура замерзания",
+      "unit": "°C"
+    },
+    "distanceToSurface": {
+      "name": "Расстояние до поверхности",
+      "unit": "мм"
+    }
+  },
+  "DUST": {
+    "pm10Act": {
+      "name": "Концентрация PM10",
+      "unit": "мкг/м³"
+    },
+    "pm25Act": {
+      "name": "Концентрация PM2.5",
+      "unit": "мкг/м³"
+    },
+    "pm1Act": {
+      "name": "Концентрация PM1",
+      "unit": "мкг/м³"
+    },
+    "pm10Awg": {
+      "name": "Концентрация PM10 средняя",
+      "unit": "мкг/м³"
+    },
+    "pm25Awg": {
+      "name": "Концентрация PM2.5 средняя",
+      "unit": "мкг/м³"
+    },
+    "pm1Awg": {
+      "name": "Концентрация PM1 средняя",
+      "unit": "мкг/м³"
+    },
+    "flowProbe": {
+      "name": "Расход воздуха через пробоотборник",
+      "unit": "л/мин"
+    },
+    "temperatureProbe": {
+      "name": "Температура пробоотборника",
+      "unit": "°C"
+    },
+    "humidityProbe": {
+      "name": "Влажность пробоотборника",
+      "unit": "%"
+    }
+  },
+  "MUEKS": {
+    "temperatureBox": {
+      "name": "Температура внутри шкафа",
+      "unit": "°C"
+    },
+    "voltagePowerIn12b": {
+      "name": "Входное напряжение 12В",
+      "unit": "В"
+    },
+    "voltageOut12b": {
+      "name": "Выходное напряжение 12В",
+      "unit": "В"
+    },
+    "voltageAkb": {
+      "name": "Напряжение аккумуляторной батареи",
+      "unit": "В"
+    },
+    "currentOut12b": {
+      "name": "Выходной ток 12В",
+      "unit": "А"
+    },
+    "currentOut48b": {
+      "name": "Выходной ток 48В",
+      "unit": "А"
+    },
+    "currentAkb": {
+      "name": "Ток аккумуляторной батареи",
+      "unit": "А"
+    },
+    "wattHoursAkb": {
+      "name": "Емкость аккумуляторной батареи",
+      "unit": "Вт·ч"
+    },
+    "visibleRange": {
+      "name": "Метеорологическая дальность видимости",
+      "unit": "м"
+    },
+    "sensor220b": {
+      "name": "Наличие питания 220В",
+      "unit": ""
+    },
+    "doorStatus": {
+      "name": "Состояние двери",
+      "unit": ""
+    },
+    "tdsH": {
+      "name": "Высота от датчика",
+      "unit": "м"
+    },
+    "tdsTds": {
+      "name": "Общая минерализация (TDS)",
+      "unit": "ppm"
+    },
+    "tkosaT1": {
+      "name": "Температура T1 (датчик КОСА)",
+      "unit": "°C"
+    },
+    "tkosaT3": {
+      "name": "Температура T3 (датчик КОСА)",
+      "unit": "°C"
+    }
+  },
+  "IWS": {
+    "environmentTemperature": {
+      "name": "Температура воздуха",
+      "unit": "°C"
+    },
+    "humidityPercentage": {
+      "name": "Относительная влажность воздуха",
+      "unit": "%"
+    },
+    "dewPoint": {
+      "name": "Точка росы",
+      "unit": "°C"
+    },
+    "pressureHpa": {
+      "name": "Атмосферное давление (гПа)",
+      "unit": "гПа"
+    },
+    "pressureQNHHpa": {
+      "name": "Давление, приведенное к уровню моря (QNH)",
+      "unit": "гПа"
+    },
+    "pressureMmHg": {
+      "name": "Атмосферное давление (мм рт. ст.)",
+      "unit": "мм рт. ст."
+    },
+    "windSpeed": {
+      "name": "Скорость ветра",
+      "unit": "м/с"
+    },
+    "windDirection": {
+      "name": "Направление ветра",
+      "unit": "°"
+    },
+    "windVSound": {
+      "name": "Скорость звука",
+      "unit": "м/с"
+    },
+    "precipitationType": {
+      "name": "Тип осадков",
+      "unit": "",
+      "values": {
+        "0": "Отсутствуют",
+        "51": "Морось",
+        "96": "Дождь",
+        "103": "Ледяной дождь",
+        "105": "Снег с дождём",
+        "112": "Снег",
+        "144": "Град",
+        "255": "Неизвестный тип"
+      }
+    },
+    "precipitationIntensity": {
+      "name": "Интенсивность осадков",
+      "unit": "мм/ч"
+    },
+    "precipitationQuantity": {
+      "name": "Количество осадков",
+      "unit": "мм"
+    },
+    "precipitationElapsed": {
+      "name": "Накопленное время осадков",
+      "unit": "мин"
+    },
+    "precipitationPeriod": {
+      "name": "Период накопления осадков",
+      "unit": "мин"
+    },
+    "co2Level": {
+      "name": "Уровень CO2",
+      "unit": "ppm"
+    },
+    "supplyVoltage": {
+      "name": "Напряжение питания",
+      "unit": "В"
+    },
+    "altitude": {
+      "name": "Высота над уровнем моря",
+      "unit": "м"
+    },
+    "gpsSpeed": {
+      "name": "Скорость (GPS)",
+      "unit": "м/с"
+    },
+    "kspValue": {
+      "name": "Значение КСП (контроль состояния покрытия)",
+      "unit": ""
+    },
+    "accelerationStdDev": {
+      "name": "Среднеквадратичное отклонение ускорения",
+      "unit": "м/с²"
+    },
+    "rollAngle": {
+      "name": "Угол крена",
+      "unit": "°"
+    },
+    "pitchAngle": {
+      "name": "Угол тангажа",
+      "unit": "°"
+    }
+  }
+}
