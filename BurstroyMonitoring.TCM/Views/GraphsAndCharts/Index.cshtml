@@ -57,8 +57,14 @@
             </div>
         </div>
 
-        <div class="group-selector" id="groupSelector">
-            <!-- Кнопки будут добавлены через JS -->
+        <div class="group-selector-container">
+            <div class="group-selector" id="groupSelector">
+                <!-- Кнопки будут добавлены через JS -->
+            </div>
+            <div id="sensorSubSelectContainer" class="sensor-sub-select" style="display: none;">
+                <label for="sensorSubSelect">Устройство:</label>
+                <select id="sensorSubSelect" class="input select small-select"></select>
+            </div>
         </div>
 
         <div class="stats-panel" id="statsPanel">
@@ -104,19 +110,44 @@
                         const postId = $('#monitoringPostSelect').val();
                         if (postId) {
                             $.get('/GraphsAndCharts/GetSensorsByPost', { monitoringPostId: postId }, function (data) {
-                                // Ищем датчик, у которого в названии (text) есть ключ группы
-                                const sensor = data.find(s => s.text.toUpperCase().includes(key.toUpperCase()));
-                                if (sensor) {
-                                    console.log(`Found sensor for group ${key}:`, sensor);
-                                    chartManager.loadData(sensor.value, key, chartManager.currentDays, chartManager.currentInterval);
+                                // Ищем все датчики этой группы
+                                const groupSensors = data.filter(s => s.text.toUpperCase().includes(key.toUpperCase()));
+                                
+                                if (groupSensors.length > 0) {
+                                    const subSelectContainer = $('#sensorSubSelectContainer');
+                                    const subSelect = $('#sensorSubSelect');
+                                    
+                                    if (groupSensors.length > 1) {
+                                        // Если датчиков несколько, показываем выпадающий список
+                                        subSelect.empty();
+                                        groupSensors.forEach(s => {
+                                            subSelect.append($('<option>', { value: s.value, text: s.text }));
+                                        });
+                                        subSelectContainer.show();
+                                        
+                                        // Загружаем данные первого из списка
+                                        chartManager.loadData(groupSensors[0].value, key, chartManager.currentDays, chartManager.currentInterval);
+                                    } else {
+                                        // Если датчик один, скрываем список и загружаем данные
+                                        subSelectContainer.hide();
+                                        chartManager.loadData(groupSensors[0].value, key, chartManager.currentDays, chartManager.currentInterval);
+                                    }
                                 } else {
                                     console.warn(`No sensor found for group ${key} on post ${postId}`);
+                                    $('#sensorSubSelectContainer').hide();
                                     chartManager.chartData = [];
                                     chartManager.render();
                                 }
                             });
                         }
                     });
+            });
+
+            // Обработчик смены конкретного датчика в группе
+            $('#sensorSubSelect').change(function() {
+                const sensorId = $(this).val();
+                console.log(`Sub-sensor changed: ${sensorId}`);
+                chartManager.loadData(sensorId, chartManager.currentGroup, chartManager.currentDays, chartManager.currentInterval);
             });
 
             $('#monitoringPostSelect').change(function () {
@@ -156,7 +187,8 @@
                                 d3.selectAll(".group-btn").classed("active", false);
                                 d3.select("#btn-group-" + chartManager.currentGroup).classed("active", true);
                                 
-                                chartManager.loadData(firstSensor.value, chartManager.currentGroup, chartManager.currentDays, chartManager.currentInterval);
+                                // Имитируем клик по кнопке группы для инициализации списка под-датчиков
+                                d3.select("#btn-group-" + chartManager.currentGroup).dispatch("click");
                             });
                         } else {
                             console.warn("No sensors found for this post");
