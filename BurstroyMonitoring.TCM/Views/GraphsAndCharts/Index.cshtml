@@ -8,8 +8,8 @@
 <div class="view-container" style="max-width: 100%;">
     <h1 class="view-title">Графики и диаграммы</h1>
     
-    <div class="filter-container">
-        <div class="filter-content">
+    <div class="main-filter-container">
+        <div class="main-filter-content">
             <form id="sensorForm" class="filter-form">
                 <div class="form-row">
                     <div class="field-group" style="flex: 1;">
@@ -19,27 +19,175 @@
                                 asp-items="Model.MonitoringPosts">                           
                         </select>
                     </div>
-                    <div class="field-group" style="flex: 1;">
-                        <label for="sensorSelect">Датчик</label>
-                        <select id="sensorSelect" class="input select" 
-                                asp-for="SelectedSensorId" 
-                                asp-items="Model.Sensors" disabled>                          
-                        </select>
-                    </div>
                 </div>
             </form>
         </div>
     </div>
 
-    <div id="chartContainer" class="w-100" style="margin-top: var(--spacing-lg);">
-        <!-- Здесь будут отображаться данные выбранного сенсора -->
+    <div id="chartDashboard" class="dashboard" style="display: none; margin-top: var(--spacing-lg);">
+        <div class="filters-container">
+            <!-- Период -->
+            <div class="d-flex align-center time-range-control" data-active-days="1">
+                <span class="filter-label">📅 Период:</span>
+                <div class="btn-group range-btn-group">
+                    <button type="button" class="filter-btn range-btn active" data-days="1">24ч</button>
+                    <button type="button" class="filter-btn range-btn" data-days="3">3д</button>
+                    <button type="button" class="filter-btn range-btn" data-days="7">7д</button>
+                    <button type="button" class="filter-btn range-btn" data-days="14">14д</button>
+                    <button type="button" class="filter-btn range-btn" data-days="30">30д</button>
+                </div>
+            </div>
+
+            <!-- Агрегация -->
+            <div class="d-flex align-center aggregation-interval-control" data-active-interval="hour">
+                <span class="filter-label">📈 Агрегация:</span>
+                <div class="btn-group aggregation-btn-group">
+                    <button type="button" class="filter-btn aggregation-btn" data-interval="raw">Все</button>
+                    <button type="button" class="filter-btn aggregation-btn" data-interval="tenminutes">10 мин</button>
+                    <button type="button" class="filter-btn aggregation-btn active" data-interval="hour">По часам</button>
+                </div>
+            </div>
+
+            <!-- Настройка подсказки -->
+            <div class="d-flex align-center tooltip-control">
+                <label style="cursor: pointer; font-size: 0.85rem; color: #5c7f9c; display: inline-flex; align-items: center; gap: 8px; font-weight: 600;">
+                    <input type="checkbox" id="showAllMetrics" checked> 
+                    Все метрики в подсказке
+                </label>
+            </div>
+        </div>
+
+        <div class="group-selector" id="groupSelector">
+            <!-- Кнопки будут добавлены через JS -->
+        </div>
+
+        <div class="stats-panel" id="statsPanel">
+            <div class="stats-header">
+                <div class="stats-title">📋 Текущие значения (наведите на точку)</div>
+                <button type="button" class="reset-btn" id="resetFilterBtn">Показать все графики</button>
+            </div>
+            <div class="stats-grid" id="statsGrid">
+                <!-- Заполняется через JS -->
+            </div>
+        </div>
+
+        <div class="chart-wrapper">
+            <div id="tooltip" class="tooltip"></div>
+            <svg id="chart" width="1200" height="600" viewBox="0 0 1200 600" style="width: 100%; height: auto;"></svg>
+        </div>
     </div>
 </div>
 
 @section Scripts {
-    <script src="/js/lib/chart.js"></script>
-    <script src="/js/lib/chartjs-adapter-date-fns.bundle.min.js"></script>
-    <script src="/js/chartComponents/chart-utils.js"></script>
-    <script src="/js/chartComponents/auto-update.js"></script>
-    <script src="/js/graphs-and-charts.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="~/js/chartComponents/chart-utils.js" asp-append-version="true"></script>
+    <script>
+        $(document).ready(function () {
+            console.log("Page ready, initializing UI...");
+            const chartManager = new ChartManager("#chart", "#tooltip", "#statsGrid");
+
+            // Инициализация кнопок групп
+            const groupSelector = d3.select("#groupSelector");
+            Object.keys(metricsGroups).forEach(key => {
+                groupSelector.append("button")
+                    .attr("class", "group-btn")
+                    .attr("id", "btn-group-" + key)
+                    .text(key)
+                    .on("click", function() {
+                        const key = d3.select(this).text();
+                        console.log(`Group button clicked: ${key}`);
+                        chartManager.currentGroup = key;
+                        chartManager.activeMetricKey = null;
+                        d3.selectAll(".group-btn").classed("active", false);
+                        d3.select(this).classed("active", true);
+                        
+                        const postId = $('#monitoringPostSelect').val();
+                        if (postId) {
+                            $.get('/GraphsAndCharts/GetSensorsByPost', { monitoringPostId: postId }, function (data) {
+                                // Ищем датчик, у которого в названии (text) есть ключ группы
+                                const sensor = data.find(s => s.text.toUpperCase().includes(key.toUpperCase()));
+                                if (sensor) {
+                                    console.log(`Found sensor for group ${key}:`, sensor);
+                                    chartManager.loadData(sensor.value, key, chartManager.currentDays, chartManager.currentInterval);
+                                } else {
+                                    console.warn(`No sensor found for group ${key} on post ${postId}`);
+                                    chartManager.chartData = [];
+                                    chartManager.render();
+                                }
+                            });
+                        }
+                    });
+            });
+
+            $('#monitoringPostSelect').change(function () {
+                const postId = $(this).val();
+                console.log(`Monitoring post changed: ${postId}`);
+                if (postId) {
+                    $.get('/GraphsAndCharts/GetSensorsByPost', { monitoringPostId: postId }, function (data) {
+                        console.log("Sensors for post:", data);
+                        if (data && data.length > 1) {
+                            // Показываем дашборд
+                            $('#chartDashboard').show();
+                            
+                            // Обновляем видимость кнопок групп на основе доступных датчиков
+                            const availableGroups = new Set();
+                            data.forEach(s => {
+                                Object.keys(metricsGroups).forEach(groupKey => {
+                                    if (s.text.toUpperCase().includes(groupKey)) {
+                                        availableGroups.add(groupKey);
+                                    }
+                                });
+                            });
+                            
+                            console.log("Available groups for this post:", Array.from(availableGroups));
+                            
+                            d3.selectAll(".group-btn").each(function() {
+                                const btn = d3.select(this);
+                                const group = btn.text();
+                                btn.style("display", availableGroups.has(group) ? "inline-block" : "none");
+                            });
+
+                            // Берем первый реальный датчик
+                            const firstSensor = data[1];
+                            $.get('/GraphsAndCharts/GetSensorData', { sensorId: firstSensor.value }, function (sensorInfo) {
+                                console.log("Initial sensor info:", sensorInfo);
+                                chartManager.currentGroup = sensorInfo.sensorTypeName;
+                                
+                                d3.selectAll(".group-btn").classed("active", false);
+                                d3.select("#btn-group-" + chartManager.currentGroup).classed("active", true);
+                                
+                                chartManager.loadData(firstSensor.value, chartManager.currentGroup, chartManager.currentDays, chartManager.currentInterval);
+                            });
+                        } else {
+                            console.warn("No sensors found for this post");
+                            $('#chartDashboard').hide();
+                        }
+                    });
+                } else {
+                    $('#chartDashboard').hide();
+                }
+            });
+
+            $('.range-btn').click(function() {
+                $('.range-btn').removeClass('active');
+                $(this).addClass('active');
+                const days = $(this).data('days');
+                console.log(`Range changed: ${days} days`);
+                chartManager.loadData(chartManager.currentSensorId, chartManager.currentGroup, days, chartManager.currentInterval);
+            });
+
+            $('.aggregation-btn').click(function() {
+                $('.aggregation-btn').removeClass('active');
+                $(this).addClass('active');
+                const interval = $(this).data('interval');
+                console.log(`Aggregation changed: ${interval}`);
+                chartManager.loadData(chartManager.currentSensorId, chartManager.currentGroup, chartManager.currentDays, interval);
+            });
+
+            $('#resetFilterBtn').click(function() {
+                console.log("Reset filter clicked");
+                chartManager.resetFilter();
+            });
+        });
+    </script>
 }

@@ -93,15 +93,7 @@ namespace BurstroyMonitoring.TCM.Controllers
                 SerialNumber = sensor.SerialNumber,
                 MonitoringPostName = sensor.MonitoringPost?.Name
             };
-            return sensor.SensorType.SensorTypeName switch
-            {
-                "DSPD" => PartialView("_DSPDPartial", viewModel),
-                "IWS" => PartialView("_IWSPartial", viewModel),
-                "DOV" => PartialView("_DOVPartial", viewModel),
-                "DUST" => PartialView("_DUSTPartial", viewModel),
-                "MUEKS" => PartialView("_MUEKSPartial", viewModel),
-                _ => PartialView("_DefaultPartial", viewModel)
-            };
+            return Json(viewModel);
         }
 
 
