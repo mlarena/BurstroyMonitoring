@@ -5,696 +5,180 @@
     var filter = ViewBag.Filter as DataFilterViewModel ?? new DataFilterViewModel();
     var availableFields = ViewBag.AvailableFields as List<string> ?? new List<string>();
     var serialNumbers = ViewBag.SerialNumbers as List<string> ?? new List<string>();
-    var endpointNames = ViewBag.EndpointNames as List<string> ?? new List<string>();
     var totalCount = ViewBag.TotalCount as int? ?? 0;
     var displayedCount = Model.Count();
-    
-    // Словарь для отображения русских названий полей
-    var fieldDisplayNames = new Dictionary<string, string>
-    {
-        ["DustDataId"] = "ID данных",
-        ["ReceivedAt"] = "Время получения",
-        ["DataTimestamp"] = "Метка времени",
-        ["PM10Act"] = "PM10 (текущее)",
-        ["PM25Act"] = "PM2.5 (текущее)",
-        ["PM1Act"] = "PM1.0 (текущее)",
-        ["PM10AWG"] = "PM10 (среднее)",
-        ["PM25AWG"] = "PM2.5 (среднее)",
-        ["PM1AWG"] = "PM1.0 (среднее)",
-        ["FlowProbe"] = "Поток датчика",
-        ["TemperatureProbe"] = "Температура датчика",
-        ["HumidityProbe"] = "Влажность датчика",
-        ["LaserStatus"] = "Статус лазера",
-        ["SupplyVoltage"] = "Напряжение питания",
-        ["SensorLongitude"] = "Долгота датчика",
-        ["SensorLatitude"] = "Широта датчика",
-        ["SerialNumber"] = "Серийный номер",
-        ["EndpointName"] = "Конечная точка",
-        ["SensorUrl"] = "URL датчика",
-        ["CheckIntervalSeconds"] = "Интервал проверки (сек)",
-        ["LastActivityUtc"] = "Последняя активность",
-        ["SensorIsActive"] = "Датчик активен",
-        ["SensorTypeName"] = "Тип датчика",
-        ["SensorTypeDescription"] = "Описание типа",
-        ["PostName"] = "Имя поста",
-        ["PostDescription"] = "Описание поста",
-        ["PostIsMobile"] = "Мобильный пост",
-        ["PostIsActive"] = "Пост активен"
-    };
-    
-    // Формируем строку с примененными фильтрами
-    var appliedFilters = new List<string>();
-    
-    if (filter.StartDate.HasValue)
-    {
-        appliedFilters.Add($"С: {filter.StartDate.Value.ToString("dd.MM.yyyy HH:mm")}");
-    }
-    
-    if (filter.EndDate.HasValue)
-    {
-        appliedFilters.Add($"По: {filter.EndDate.Value.ToString("dd.MM.yyyy HH:mm")}");
-    }
-    
-    if (!string.IsNullOrEmpty(filter.SerialNumber))
-    {
-        appliedFilters.Add($"Серийный №: {filter.SerialNumber}");
-    }
-    
-    if (!string.IsNullOrEmpty(filter.EndpointName))
-    {
-        appliedFilters.Add($"Конечная точка: {filter.EndpointName}");
-    }
-    
-    if (filter.SensorIsActive.HasValue)
-    {
-        appliedFilters.Add($"Датчик активен: {(filter.SensorIsActive.Value ? "Да" : "Нет")}");
-    }
-    
-    if (filter.PostIsActive.HasValue)
-    {
-        appliedFilters.Add($"Пост активен: {(filter.PostIsActive.Value ? "Да" : "Нет")}");
-    }
-    
-    if (!string.IsNullOrEmpty(filter.PageSize))
-    {
-        var pageSizeText = filter.PageSize == "all" ? "Всё" : $"Первые {filter.PageSize}";
-        appliedFilters.Add($"Выводить: {pageSizeText}");
-    }
-    
-    var appliedFiltersText = appliedFilters.Any() ? string.Join("; ", appliedFilters) : "Фильтры не применены";
+    var fieldDisplayNames = ViewBag.ColumnNames as Dictionary<string, string> ?? new Dictionary<string, string>();
 }
 
-<div class="main-content">
-    <div class="view-container">
-        <h1 class="view-title">Просмотр и экспорт данных DUST</h1>
-        
-        <!-- Сообщения -->
-        @if (TempData["Message"] != null)
-        {
-            <div class="alert alert-success m-2">
-                <div class="alert-content">
-                    @TempData["Message"]
-                    <button type="button" class="alert-close" onclick="this.parentElement.parentElement.style.display='none'">×</button>
-                </div>
+<div class="container-fluid">
+    <h1 class="h3 mb-3">Просмотр и экспорт данных DUST</h1>
+    
+    <div class="card mb-3 shadow-sm">
+        <div class="card-header bg-light py-2 d-flex justify-content-between align-items-center cursor-pointer" 
+             data-bs-toggle="collapse" data-bs-target="#filterCollapse">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-filter text-primary"></i>
+                <h3 class="h6 mb-0">Фильтры и настройки</h3>
             </div>
-        }
+        </div>
         
-        @if (TempData["ErrorMessage"] != null)
-        {
-            <div class="alert alert-error m-2">
-                <div class="alert-content">
-                    @TempData["ErrorMessage"]
-                    <button type="button" class="alert-close" onclick="this.parentElement.parentElement.style.display='none'">×</button>
-                </div>
-            </div>
-        }
-        
-        <!-- Форма фильтров -->
-        <div class="filter-container m-2">
-            <div class="filter-header d-flex align-center justify-between cursor-pointer" id="filterHeader">
-                <div class="d-flex align-center gap-2">
-                    <div class="filter-toggle-icon">
-                        <svg id="filterToggleIcon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                            <path id="filterTogglePath" d="M12 5L8 9L4 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                        </svg>
-                    </div>
-                    <h3 class="filter-title m-0">Фильтры и настройки отображения</h3>
-                </div>
-                <div class="applied-filters-text text-muted" id="appliedFiltersText">
-                    @appliedFiltersText
-                </div>
-            </div>
-            
-            <div class="filter-content" id="filterContent">
-                <form method="get" id="filterForm" class="filter-form mt-3">
-                    <!-- Все фильтры в одной строке -->
-                    <div class="form-row d-flex align-end gap-2">
-                        <!-- Начальная дата -->
-                        <div class="field-group" style="width: 180px;">
-                            <label class="control-label">Начальная дата</label>
-                            <input type="datetime-local" class="input" name="StartDate" 
+        <div class="collapse show" id="filterCollapse">
+            <div class="card-body p-3">
+                <form method="get" id="filterForm">
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold mb-1">С даты</label>
+                            <input type="datetime-local" class="form-control form-control-sm" name="StartDate" 
                                    value="@(filter.StartDate?.ToString("yyyy-MM-ddTHH:mm"))">
                         </div>
-                        
-                        <!-- Конечная дата -->
-                        <div class="field-group" style="width: 180px;">
-                            <label class="control-label">Конечная дата</label>
-                            <input type="datetime-local" class="input" name="EndDate" 
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold mb-1">По дату</label>
+                            <input type="datetime-local" class="form-control form-control-sm" name="EndDate" 
                                    value="@(filter.EndDate?.ToString("yyyy-MM-ddTHH:mm"))">
                         </div>
-                        
-                        <!-- Серийный номер -->
-                        <div class="field-group" style="width: 200px;">
-                            <label class="control-label">Серийный номер</label>
-                            <select class="input select" name="SerialNumber">
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold mb-1">S/N</label>
+                            <select class="form-select form-select-sm" name="SerialNumber">
                                 <option value="">Все</option>
-                                @foreach (var serial in serialNumbers)
-                                {
-                                    <option value="@serial" selected="@(serial == filter.SerialNumber)">@serial</option>
+                                @foreach (var serial in serialNumbers) {
+                                    <option value="@serial" selected="@(serial == filter.SerialNumber ? "selected" : null)">@serial</option>
                                 }
                             </select>
                         </div>
-                        
-                        <!-- Конечная точка -->
-                        <div class="field-group" style="width: 200px;">
-                            <label class="control-label">Конечная точка</label>
-                            <select class="input select" name="EndpointName">
-                                <option value="">Все</option>
-                                @foreach (var endpoint in endpointNames)
-                                {
-                                    <option value="@endpoint" selected="@(endpoint == filter.EndpointName)">@endpoint</option>
-                                }
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold mb-1">Выводить по</label>
+                            <select class="form-select form-select-sm" name="PageSize">
+                                <option value="10" selected="@(filter.PageSize == "10" ? "selected" : null)">10</option>
+                                <option value="100" selected="@(filter.PageSize == "100" ? "selected" : null)">100</option>
+                                <option value="all" selected="@(filter.PageSize == "all" ? "selected" : null)">Всё</option>
                             </select>
                         </div>
-                        
-                        <!-- Активный датчик -->
-                        <div class="field-group" style="width: 150px;">
-                            <label class="control-label">Активный датчик</label>
-                            <select class="input select" name="SensorIsActive">
-                                <option value="">Все</option>
-                                <option value="true" selected="@(filter.SensorIsActive == true)">Да</option>
-                                <option value="false" selected="@(filter.SensorIsActive == false)">Нет</option>
-                            </select>
-                        </div>
-                        
-                        <!-- Активный пост -->
-                        <div class="field-group" style="width: 150px;">
-                            <label class="control-label">Активный пост</label>
-                            <select class="input select" name="PostIsActive">
-                                <option value="">Все</option>
-                                <option value="true" selected="@(filter.PostIsActive == true)">Да</option>
-                                <option value="false" selected="@(filter.PostIsActive == false)">Нет</option>
-                            </select>
-                        </div>
-                        
-                        <!-- Выводить по -->
-                        <div class="field-group" style="width: 150px;">
-                            <label class="control-label">Выводить по</label>
-                            <select class="input select" name="PageSize">
-                                <option value="10" selected="@(filter.PageSize == "10")">Первые 10</option>
-                                <option value="100" selected="@(filter.PageSize == "100")">Первые 100</option>
-                                <option value="all" selected="@(filter.PageSize == "all" || filter.PageSize == "всё")">Всё (@totalCount)</option>
-                            </select>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary btn-sm w-100">Применить</button>
                         </div>
                     </div>
                     
-                    <!-- Выбор полей -->
-                    <div class="field-group mt-3">
-                        <label class="control-label mb-2">Выберите поля для отображения:</label>
-                        
-                        <div class="checkbox-group-header mb-2">
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="selectAllFields" class="checkbox-input">
-                                <label for="selectAllFields" class="checkbox-label" id="selectAllLabel">
-                                    <span class="checkbox-custom"></span>
-                                    Выбрать все
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <div class="fields-grid" id="fieldsContainer">
-                            <div class="fields-table d-flex gap-3">
-                                <!-- Колонка 1 -->
-                                <div class="fields-column column-with-border">
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" class="checkbox-input field-checkbox" name="SelectedFields" value="DustDataId" id="field_DustDataId" @(filter.SelectedFields.Contains("DustDataId") ? "checked" : "")>
-                                        <label for="field_DustDataId" class="checkbox-label">ID данных</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" class="checkbox-input field-checkbox" name="SelectedFields" value="ReceivedAt" id="field_ReceivedAt" @(filter.SelectedFields.Contains("ReceivedAt") ? "checked" : "")>
-                                        <label for="field_ReceivedAt" class="checkbox-label">Время получения</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" class="checkbox-input field-checkbox" name="SelectedFields" value="DataTimestamp" id="field_DataTimestamp" @(filter.SelectedFields.Contains("DataTimestamp") ? "checked" : "")>
-                                        <label for="field_DataTimestamp" class="checkbox-label">Метка времени</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" class="checkbox-input field-checkbox" name="SelectedFields" value="PM10Act" id="field_PM10Act" @(filter.SelectedFields.Contains("PM10Act") ? "checked" : "")>
-                                        <label for="field_PM10Act" class="checkbox-label">PM10 (текущее)</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" class="checkbox-input field-checkbox" name="SelectedFields" value="PM25Act" id="field_PM25Act" @(filter.SelectedFields.Contains("PM25Act") ? "checked" : "")>
-                                        <label for="field_PM25Act" class="checkbox-label">PM2.5 (текущее)</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" class="checkbox-input field-checkbox" name="SelectedFields" value="PM1Act" id="field_PM1Act" @(filter.SelectedFields.Contains("PM1Act") ? "checked" : "")>
-                                        <label for="field_PM1Act" class="checkbox-label">PM1.0 (текущее)</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" class="checkbox-input field-checkbox" name="SelectedFields" value="PM10AWG" id="field_PM10AWG" @(filter.SelectedFields.Contains("PM10AWG") ? "checked" : "")>
-                                        <label for="field_PM10AWG" class="checkbox-label">PM10 (среднее)</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" class="checkbox-input field-checkbox" name="SelectedFields" value="PM25AWG" id="field_PM25AWG" @(filter.SelectedFields.Contains("PM25AWG") ? "checked" : "")>
-                                        <label for="field_PM25AWG" class="checkbox-label">PM2.5 (среднее)</label>
+                    <div class="mb-0">
+                        <label class="form-label small fw-bold mb-2">Поля для отображения:</label>
+                        <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-2">
+                            @foreach (var field in availableFields) {
+                                <div class="col">
+                                    <div class="form-check">
+                                        <input class="form-check-input field-checkbox" type="checkbox" 
+                                               name="SelectedFields" value="@field" id="field_@field"
+                                               @(filter.SelectedFields.Contains(field) ? "checked" : "")>
+                                        <label class="form-check-label small text-truncate w-100" for="field_@field" title="@field">
+                                            @{
+                                                string displayName = field;
+                                                if (fieldDisplayNames != null) {
+                                                    var kvp = fieldDisplayNames.FirstOrDefault(x => x.Key.Equals(field, StringComparison.OrdinalIgnoreCase));
+                                                    if (!string.IsNullOrEmpty(kvp.Value)) displayName = kvp.Value;
+                                                }
+                                            }
+                                            @displayName
+                                        </label>
                                     </div>
                                 </div>
-                                
-                                <!-- Колонка 2 -->
-                                <div class="fields-column column-with-border">
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" class="checkbox-input field-checkbox" name="SelectedFields" value="PM1AWG" id="field_PM1AWG" @(filter.SelectedFields.Contains("PM1AWG") ? "checked" : "")>
-                                        <label for="field_PM1AWG" class="checkbox-label">PM1.0 (среднее)</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" class="checkbox-input field-checkbox" name="SelectedFields" value="FlowProbe" id="field_FlowProbe" @(filter.SelectedFields.Contains("FlowProbe") ? "checked" : "")>
-                                        <label for="field_FlowProbe" class="checkbox-label">Поток датчика</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" class="checkbox-input field-checkbox" name="SelectedFields" value="TemperatureProbe" id="field_TemperatureProbe" @(filter.SelectedFields.Contains("TemperatureProbe") ? "checked" : "")>
-                                        <label for="field_TemperatureProbe" class="checkbox-label">Температура датчика</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" class="checkbox-input field-checkbox" name="SelectedFields" value="HumidityProbe" id="field_HumidityProbe" @(filter.SelectedFields.Contains("HumidityProbe") ? "checked" : "")>
-                                        <label for="field_HumidityProbe" class="checkbox-label">Влажность датчика</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" class="checkbox-input field-checkbox" name="SelectedFields" value="LaserStatus" id="field_LaserStatus" @(filter.SelectedFields.Contains("LaserStatus") ? "checked" : "")>
-                                        <label for="field_LaserStatus" class="checkbox-label">Статус лазера</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" class="checkbox-input field-checkbox" name="SelectedFields" value="SupplyVoltage" id="field_SupplyVoltage" @(filter.SelectedFields.Contains("SupplyVoltage") ? "checked" : "")>
-                                        <label for="field_SupplyVoltage" class="checkbox-label">Напряжение питания</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" class="checkbox-input field-checkbox" name="SelectedFields" value="SensorLongitude" id="field_SensorLongitude" @(filter.SelectedFields.Contains("SensorLongitude") ? "checked" : "")>
-                                        <label for="field_SensorLongitude" class="checkbox-label">Долгота датчика</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" class="checkbox-input field-checkbox" name="SelectedFields" value="SensorLatitude" id="field_SensorLatitude" @(filter.SelectedFields.Contains("SensorLatitude") ? "checked" : "")>
-                                        <label for="field_SensorLatitude" class="checkbox-label">Широта датчика</label>
-                                    </div>
-                                </div>
-                                
-                                <!-- Колонка 3 -->
-                                <div class="fields-column">
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" class="checkbox-input field-checkbox" name="SelectedFields" value="SerialNumber" id="field_SerialNumber" @(filter.SelectedFields.Contains("SerialNumber") ? "checked" : "")>
-                                        <label for="field_SerialNumber" class="checkbox-label">Серийный номер</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" class="checkbox-input field-checkbox" name="SelectedFields" value="EndpointName" id="field_EndpointName" @(filter.SelectedFields.Contains("EndpointName") ? "checked" : "")>
-                                        <label for="field_EndpointName" class="checkbox-label">Конечная точка</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" class="checkbox-input field-checkbox" name="SelectedFields" value="SensorUrl" id="field_SensorUrl" @(filter.SelectedFields.Contains("SensorUrl") ? "checked" : "")>
-                                        <label for="field_SensorUrl" class="checkbox-label">URL датчика</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" class="checkbox-input field-checkbox" name="SelectedFields" value="CheckIntervalSeconds" id="field_CheckIntervalSeconds" @(filter.SelectedFields.Contains("CheckIntervalSeconds") ? "checked" : "")>
-                                        <label for="field_CheckIntervalSeconds" class="checkbox-label">Интервал проверки (сек)</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" class="checkbox-input field-checkbox" name="SelectedFields" value="LastActivityUtc" id="field_LastActivityUtc" @(filter.SelectedFields.Contains("LastActivityUtc") ? "checked" : "")>
-                                        <label for="field_LastActivityUtc" class="checkbox-label">Последняя активность</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" class="checkbox-input field-checkbox" name="SelectedFields" value="SensorIsActive" id="field_SensorIsActive" @(filter.SelectedFields.Contains("SensorIsActive") ? "checked" : "")>
-                                        <label for="field_SensorIsActive" class="checkbox-label">Датчик активен</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" class="checkbox-input field-checkbox" name="SelectedFields" value="SensorTypeName" id="field_SensorTypeName" @(filter.SelectedFields.Contains("SensorTypeName") ? "checked" : "")>
-                                        <label for="field_SensorTypeName" class="checkbox-label">Тип датчика</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" class="checkbox-input field-checkbox" name="SelectedFields" value="SensorTypeDescription" id="field_SensorTypeDescription" @(filter.SelectedFields.Contains("SensorTypeDescription") ? "checked" : "")>
-                                        <label for="field_SensorTypeDescription" class="checkbox-label">Описание типа</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" class="checkbox-input field-checkbox" name="SelectedFields" value="PostName" id="field_PostName" @(filter.SelectedFields.Contains("PostName") ? "checked" : "")>
-                                        <label for="field_PostName" class="checkbox-label">Имя поста</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" class="checkbox-input field-checkbox" name="SelectedFields" value="PostDescription" id="field_PostDescription" @(filter.SelectedFields.Contains("PostDescription") ? "checked" : "")>
-                                        <label for="field_PostDescription" class="checkbox-label">Описание поста</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" class="checkbox-input field-checkbox" name="SelectedFields" value="PostIsMobile" id="field_PostIsMobile" @(filter.SelectedFields.Contains("PostIsMobile") ? "checked" : "")>
-                                        <label for="field_PostIsMobile" class="checkbox-label">Мобильный пост</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" class="checkbox-input field-checkbox" name="SelectedFields" value="PostIsActive" id="field_PostIsActive" @(filter.SelectedFields.Contains("PostIsActive") ? "checked" : "")>
-                                        <label for="field_PostIsActive" class="checkbox-label">Пост активен</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Кнопки действий -->
-                    <div class="form-actions mt-3">
-                        <button type="submit" class="button button--primary">Применить фильтры</button>
-                        <a href="@Url.Action("Reset")" class="button button--secondary">Сбросить все фильтры</a>
-                        <a href="@Url.Action("DataViewer")" class="button button--secondary">Обновить</a>
-                        
-                        <div class="records-info ml-auto">
-                            Показано: @displayedCount из @totalCount записей
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Форма экспорта -->
-        <div class="card m-2">
-            <div class="card-header">
-                <h3 class="card-title">Экспорт данных</h3>
-            </div>
-            <div class="card-body">
-                <form method="post" asp-action="Export" id="exportForm">
-                    <input type="hidden" name="StartDate" value="@filter.StartDate" />
-                    <input type="hidden" name="EndDate" value="@filter.EndDate" />
-                    <input type="hidden" name="SerialNumber" value="@filter.SerialNumber" />
-                    <input type="hidden" name="EndpointName" value="@filter.EndpointName" />
-                    <input type="hidden" name="SensorIsActive" value="@filter.SensorIsActive" />
-                    <input type="hidden" name="PostIsActive" value="@filter.PostIsActive" />
-                    <input type="hidden" name="PageSize" value="@filter.PageSize" />
-                    
-                    <!-- Скрытые поля для выбранных полей -->
-                    <div id="hiddenFields">
-                        @foreach (var field in filter.SelectedFields)
-                        {
-                            <input type="hidden" name="SelectedFields" value="@field" />
-                        }
-                    </div>
-                    
-                    <div class="export-actions d-flex align-center justify-between mt-2">
-                        <div class="export-buttons d-flex gap-2">
-                            <button type="submit" name="format" value="excel" class="button button--success">
-                                <span class="button-icon excel-icon">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M21.17 3.25Q21.5 3.25 21.76 3.5 22 3.74 22 4.08V19.92Q22 20.26 21.76 20.5 21.5 20.75 21.17 20.75H7.83Q7.5 20.75 7.24 20.5 7 20.26 7 19.92V17H2.83Q2.5 17 2.24 16.76 2 16.5 2 16.17V7.83Q2 7.5 2.24 7.24 2.5 7 2.83 7H7V4.08Q7 3.74 7.24 3.5 7.5 3.25 7.83 3.25M7 13.06L8.18 15.28H9.97L8 12.06L9.93 8.89H8.22L7 10.9L5.82 8.89H4.09L6 12.06L4 15.28H5.81M20.75 19.5V17H8.25V19.5M20.75 15.75V12.63H12V15.75M20.75 11.38V8.25H12V11.38M20.75 7V4.5H8.25V7Z"/>
-                                    </svg>
-                                </span>
-                                Экспорт в Excel
-                            </button>
-                            <button type="submit" name="format" value="csv" class="button button--info">
-                                <span class="button-icon">📋</span>
-                                Экспорт в CSV
-                            </button>
-                        </div>
-                        
-                        <div class="export-option">
-                            <label class="checkbox-item" style="margin: 0;">
-                                <input type="checkbox" id="exportAllData" name="ExportAllData" value="true" class="checkbox-input">
-                                <span class="checkbox-custom"></span>
-                                <span class="checkbox-label">Экспортировать все данные (независимо от "Выводить по")</span>
-                            </label>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-        
-        <!-- Таблица данных -->
-        <div class="m-2">
-            <div class="table-header">
-                <h3>Результаты</h3>
-                <span class="records-count">(@displayedCount записей)</span>
-            </div>
-            
-            <div class="table-responsive">
-                <!-- Заголовок таблицы -->
-                <div class="overflow-x-auto" id="tableHeaderScroll">
-                    <table class="table table-bordered">
-                        <thead>
-                           <tr>
-                                @{
-                                    int fieldIndex = 0;
-                                    foreach (var field in filter.SelectedFields)
-                                    {
-                                        var displayName = fieldDisplayNames.ContainsKey(field) 
-                                            ? fieldDisplayNames[field] 
-                                            : field;
-                                        var cellClass = fieldIndex < filter.SelectedFields.Count() - 1 ? "cell-with-border" : "";
-                                        <th class="@cellClass" style="min-width: 150px; white-space: nowrap;">@displayName</th>
-                                        fieldIndex++;
-                                    }
-                                }
-                            </tr>
-                        </thead>
-                    </table>
-                </div>
-                
-                <!-- Основная таблица с данными -->
-                <div class="overflow-x-auto" id="tableBodyScroll" style="max-height: 600px;">
-                    <table class="table table-bordered">
-                        <tbody>
-                            @foreach (var item in Model)
-                            {
-                                <tr>
-                                    @{
-                                        int cellIndex = 0;
-                                        foreach (var field in filter.SelectedFields)
-                                        {
-                                            var cellClass = cellIndex < filter.SelectedFields.Count() - 1 ? "cell-with-border" : "";
-                                            <td class="@cellClass" style="min-width: 150px;">@GetPropertyValue(item, field)</td>
-                                            cellIndex++;
-                                        }
-                                    }
-                                </tr>
                             }
-                        </tbody>
-                    </table>
-                </div>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="small text-muted">
+            Найдено: <strong>@totalCount</strong>, показано: <strong>@displayedCount</strong>
+        </div>
+        <div class="btn-group btn-group-sm">
+            <button type="button" class="btn btn-outline-success" onclick="exportData('excel', false)">
+                <i class="bi bi-file-earmark-excel me-1"></i> Excel (тек.)
+            </button>
+            <button type="button" class="btn btn-success" onclick="exportData('excel', true)">
+                <i class="bi bi-file-earmark-excel me-1"></i> Excel (все)
+            </button>
+            <button type="button" class="btn btn-outline-secondary" onclick="exportData('csv', false)">
+                <i class="bi bi-file-earmark-spreadsheet me-1"></i> CSV (тек.)
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="exportData('csv', true)">
+                <i class="bi bi-file-earmark-spreadsheet me-1"></i> CSV (все)
+            </button>
+        </div>
+    </div>
+
+    <div class="table-responsive shadow-sm rounded border" style="max-height: 600px;">
+        <table class="table table-sm table-hover table-striped align-middle mb-0" style="font-size: 0.75rem;">
+            <thead class="table-light sticky-top">
+                <tr>
+                    @foreach (var field in filter.SelectedFields) {
+                        <th class="text-nowrap">
+                            @{
+                                string headerName = field;
+                                if (fieldDisplayNames != null) {
+                                    var kvp = fieldDisplayNames.FirstOrDefault(x => x.Key.Equals(field, StringComparison.OrdinalIgnoreCase));
+                                    if (!string.IsNullOrEmpty(kvp.Value)) headerName = kvp.Value;
+                                }
+                            }
+                            @headerName
+                        </th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model) {
+                    <tr>
+                        @foreach (var field in filter.SelectedFields) {
+                            <td class="text-nowrap">
+                                @{
+                                    var property = item.GetType().GetProperty(field);
+                                    var value = property?.GetValue(item);
+                                    if (value is DateTime dt) { @dt.ToLocalTime().ToString("dd.MM.yyyy HH:mm") }
+                                    else if (value is bool b) { @(b ? "Да" : "Нет") }
+                                    else if (value is double d) { @d.ToString("F2") }
+                                    else if (value is decimal dec) { @dec.ToString("F2") }
+                                    else { @(value?.ToString() ?? "—") }
+                                }
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
 
-@section Scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('[JS] Форма загружена');
-            
-            // 1. Сворачивание/разворачивание блока фильтров
-            const filterHeader = document.getElementById('filterHeader');
-            const filterContent = document.getElementById('filterContent');
-            const filterToggleIcon = document.getElementById('filterToggleIcon');
-            const filterTogglePath = document.getElementById('filterTogglePath');
-            const appliedFiltersText = document.getElementById('appliedFiltersText');
-            
-            const isFilterCollapsed = localStorage.getItem('dustFilterCollapsed') === 'true';
-            
-            if (isFilterCollapsed) {
-                filterContent.classList.add('collapsed');
-                filterToggleIcon.classList.add('collapsed');
-                filterTogglePath.setAttribute('d', 'M4 8L8 4L12 8');
-                appliedFiltersText.style.display = 'block';
-            } else {
-                appliedFiltersText.style.display = 'none';
-            }
-            
-            filterHeader.addEventListener('click', function() {
-                const isCollapsed = filterContent.classList.contains('collapsed');
-                
-                if (isCollapsed) {
-                    filterContent.classList.remove('collapsed');
-                    filterToggleIcon.classList.remove('collapsed');
-                    filterTogglePath.setAttribute('d', 'M12 5L8 9L4 5');
-                    appliedFiltersText.style.display = 'none';
-                    localStorage.setItem('dustFilterCollapsed', 'false');
-                } else {
-                    filterContent.classList.add('collapsed');
-                    filterToggleIcon.classList.add('collapsed');
-                    filterTogglePath.setAttribute('d', 'M4 8L8 4L12 8');
-                    appliedFiltersText.style.display = 'block';
-                    localStorage.setItem('dustFilterCollapsed', 'true');
-                }
-            });
-            
-            // 2. Синхронизация прокрутки таблиц
-            const headerScroll = document.getElementById('tableHeaderScroll');
-            const bodyScroll = document.getElementById('tableBodyScroll');
-            
-            if (headerScroll && bodyScroll) {
-                headerScroll.addEventListener('scroll', function() {
-                    bodyScroll.scrollLeft = headerScroll.scrollLeft;
-                });
-                
-                bodyScroll.addEventListener('scroll', function() {
-                    headerScroll.scrollLeft = bodyScroll.scrollLeft;
-                });
-            }
-            
-            // 3. Обработка кнопки "Выбрать все"
-            const selectAllCheckbox = document.getElementById('selectAllFields');
-            const selectAllLabel = document.getElementById('selectAllLabel');
-            const fieldCheckboxes = document.querySelectorAll('.field-checkbox');
-            
-            function updateSelectAllText() {
-                const allChecked = Array.from(fieldCheckboxes).every(cb => cb.checked);
-                const someChecked = Array.from(fieldCheckboxes).some(cb => cb.checked);
-                
-                selectAllCheckbox.checked = allChecked;
-                selectAllCheckbox.indeterminate = someChecked && !allChecked;
-                
-                if (allChecked) {
-                    selectAllLabel.textContent = 'Снять все выделения';
-                } else {
-                    selectAllLabel.textContent = 'Выбрать все';
-                }
-            }
-            
-            updateSelectAllText();
-            
-            selectAllCheckbox.addEventListener('change', function() {
-                const isChecked = this.checked;
-                console.log(`[JS] Выбрать все: ${isChecked}`);
-                
-                fieldCheckboxes.forEach(checkbox => {
-                    checkbox.checked = isChecked;
-                });
-                
-                updateSelectAllText();
-                updateHiddenFields();
-            });
-            
-            // 4. Обработчики для отдельных чекбоксов
-            fieldCheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    console.log(`[JS] Изменен чекбокс: ${this.value} = ${this.checked}`);
-                    updateSelectAllText();
-                    updateHiddenFields();
-                });
-            });
-            
-            // 5. Обновление скрытых полей
-            function updateHiddenFields() {
-                const hiddenFieldsContainer = document.getElementById('hiddenFields');
-                hiddenFieldsContainer.innerHTML = '';
-                
-                const checkedBoxes = document.querySelectorAll('.field-checkbox:checked');
-                console.log(`[JS] Обновление скрытых полей, выбрано: ${checkedBoxes.length}`);
-                
-                checkedBoxes.forEach(checkbox => {
-                    const hiddenInput = document.createElement('input');
-                    hiddenInput.type = 'hidden';
-                    hiddenInput.name = 'SelectedFields';
-                    hiddenInput.value = checkbox.value;
-                    hiddenFieldsContainer.appendChild(hiddenInput);
-                });
-            }
-            
-            // 6. Обработка формы экспорта
-            const exportForm = document.getElementById('exportForm');
-            const exportAllCheckbox = document.getElementById('exportAllData');
-            
-            if (exportForm) {
-                exportForm.addEventListener('submit', function(e) {
-                    const checkedBoxes = document.querySelectorAll('.field-checkbox:checked');
-                    console.log(`[JS] Отправка формы экспорта, выбрано полей: ${checkedBoxes.length}`);
-                    
-                    if (checkedBoxes.length === 0) {
-                        e.preventDefault();
-                        alert('Пожалуйста, выберите хотя бы одно поле для экспорта');
-                        console.log('[JS] Экспорт отменен: не выбраны поля');
-                        return false;
-                    }
-                    
-                    if (exportAllCheckbox && exportAllCheckbox.checked) {
-                        console.log('[JS] Экспорт ВСЕХ данных (игнорируя пагинацию)');
-                    }
-                    
-                    console.log('[JS] Форма экспорта отправляется...');
-                    return true;
-                });
-            }
-            
-            // 7. Автосохранение фильтра
-            fieldCheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    setTimeout(saveFilterToSession, 500);
-                });
-            });
-            
-            document.querySelectorAll('select').forEach(select => {
-                select.addEventListener('change', function() {
-                    setTimeout(saveFilterToSession, 500);
-                });
-            });
-            
-            document.querySelectorAll('input[type="datetime-local"]').forEach(input => {
-                input.addEventListener('change', function() {
-                    setTimeout(saveFilterToSession, 500);
-                });
-            });
-            
-            function saveFilterToSession() {
-                const formData = new FormData(document.getElementById('filterForm'));
-                const selectedFields = [];
-                
-                document.querySelectorAll('.field-checkbox:checked').forEach(cb => {
-                    selectedFields.push(cb.value);
-                });
-                
-                fetch('@Url.Action("SaveFilter", "DustData")', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        StartDate: formData.get('StartDate'),
-                        EndDate: formData.get('EndDate'),
-                        SerialNumber: formData.get('SerialNumber'),
-                        EndpointName: formData.get('EndpointName'),
-                        SensorIsActive: formData.get('SensorIsActive'),
-                        PostIsActive: formData.get('PostIsActive'),
-                        PageSize: formData.get('PageSize'),
-                        SelectedFields: selectedFields
-                    })
-                }).then(response => {
-                    if (response.ok) {
-                        console.log('[JS] Фильтр сохранен в сессии');
-                    }
-                });
-            }
-            
-            // Инициализация
-            updateHiddenFields();
-            
-            setTimeout(() => {
-                const headerTable = headerScroll ? headerScroll.querySelector('table') : null;
-                if (headerTable) {
-                    headerTable.style.visibility = 'visible';
-                }
-            }, 100);
-        });
-    </script>
-}
+<script>
+    function exportData(format, all) {
+        const form = document.getElementById('filterForm');
+        const tempForm = document.createElement('form');
+        tempForm.method = 'POST';
+        tempForm.action = '@Url.Action("Export")';
+        
+        const formData = new FormData(form);
+        for (const [key, value] of formData.entries()) {
+            const input = document.createElement('input');
+            input.type = 'hidden'; input.name = key; input.value = value;
+            tempForm.appendChild(input);
+        }
+        
+        const formatInput = document.createElement('input');
+        formatInput.type = 'hidden'; formatInput.name = 'format'; formatInput.value = format;
+        tempForm.appendChild(formatInput);
+        
+        const allInput = document.createElement('input');
+        allInput.type = 'hidden'; allInput.name = 'exportAllData'; allInput.value = all;
+        tempForm.appendChild(allInput);
 
-@functions {
-    public string GetPropertyValue(VwDustDataFull item, string propertyName)
-    {
-        var property = item.GetType().GetProperty(propertyName);
-        if (property == null) return "";
-        
-        var value = property.GetValue(item);
-        
-        // Особые случаи
-        if (propertyName == "LaserStatus" && value is int intLaserValue)
-        {
-            return intLaserValue == 1 ? "Включен" : intLaserValue == 0 ? "Выключен" : "Неизвестно";
+        const token = document.querySelector('input[name="__RequestVerificationToken"]');
+        if (token) {
+            const tokenInput = document.createElement('input');
+            tokenInput.type = 'hidden'; tokenInput.name = '__RequestVerificationToken'; tokenInput.value = token.value;
+            tempForm.appendChild(tokenInput);
         }
         
-        // Форматирование дат
-        if (value is DateTime dateTimeValue)
-        {
-            return dateTimeValue.ToString("dd.MM.yyyy HH:mm");
-        }
-        
-        // Для булевых значений
-        if (value is bool boolValue)
-        {
-            return boolValue ? "Да" : "Нет";
-        }
-        
-        // Для NULL значений
-        if (value == null)
-        {
-            return "";
-        }
-        
-        return value.ToString();
+        document.body.appendChild(tempForm);
+        tempForm.submit();
+        document.body.removeChild(tempForm);
     }
-}
+</script>

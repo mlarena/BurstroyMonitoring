@@ -147,6 +147,7 @@ namespace BurstroyMonitoring.TCM.Controllers
             ViewBag.SerialNumbers = serialNumbers;
             ViewBag.EndpointNames = endpointNames;
             ViewBag.TotalCount = totalCount;
+            ViewBag.ColumnNames = GetRussianColumnNames();
 
             return View(resultData);
         }

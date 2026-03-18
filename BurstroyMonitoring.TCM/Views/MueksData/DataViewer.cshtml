@@ -5,26 +5,9 @@
     var filter = ViewBag.Filter as DataFilterViewModel ?? new DataFilterViewModel();
     var availableFields = ViewBag.AvailableFields as List<string> ?? new List<string>();
     var serialNumbers = ViewBag.SerialNumbers as List<string> ?? new List<string>();
-    var endpointNames = ViewBag.EndpointNames as List<string> ?? new List<string>();
     var totalCount = ViewBag.TotalCount as int? ?? 0;
     var displayedCount = Model.Count();
-    
-    var fieldDisplayNames = new Dictionary<string, string>
-    {
-        ["MueksDataId"] = "ID",
-        ["ReceivedAt"] = "Время получения",
-        ["TemperatureBox"] = "Темп. бокса",
-        ["VoltageAkb"] = "Напряжение АКБ",
-        ["VisibleRange"] = "Видимость",
-        ["SerialNumber"] = "S/N",
-        ["EndpointName"] = "Точка",
-        ["PostName"] = "Пост"
-    };
-
-    var appliedFilters = new List<string>();
-    if (filter.StartDate.HasValue) appliedFilters.Add($"С: {filter.StartDate.Value:dd.MM.yyyy HH:mm}");
-    if (filter.EndDate.HasValue) appliedFilters.Add($"По: {filter.EndDate.Value:dd.MM.yyyy HH:mm}");
-    var appliedFiltersText = appliedFilters.Any() ? string.Join("; ", appliedFilters) : "Фильтры не применены";
+    var fieldDisplayNames = ViewBag.ColumnNames as Dictionary<string, string> ?? new Dictionary<string, string>();
 }
 
 <div class="container-fluid">
@@ -36,9 +19,6 @@
             <div class="d-flex align-items-center gap-2">
                 <i class="bi bi-filter text-primary"></i>
                 <h3 class="h6 mb-0">Фильтры и настройки</h3>
-            </div>
-            <div class="small text-muted text-truncate ms-3 d-none d-md-block" style="max-width: 500px;">
-                @appliedFiltersText
             </div>
         </div>
         
@@ -60,8 +40,7 @@
                             <label class="form-label small fw-bold mb-1">S/N</label>
                             <select class="form-select form-select-sm" name="SerialNumber">
                                 <option value="">Все</option>
-                                @foreach (var serial in serialNumbers)
-                                {
+                                @foreach (var serial in serialNumbers) {
                                     <option value="@serial" selected="@(serial == filter.SerialNumber ? "selected" : null)">@serial</option>
                                 }
                             </select>
@@ -81,16 +60,22 @@
                     
                     <div class="mb-0">
                         <label class="form-label small fw-bold mb-2">Поля для отображения:</label>
-                        <div class="row row-cols-2 row-cols-md-4 g-2">
-                            @foreach (var field in availableFields)
-                            {
+                        <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-2">
+                            @foreach (var field in availableFields) {
                                 <div class="col">
                                     <div class="form-check">
                                         <input class="form-check-input field-checkbox" type="checkbox" 
                                                name="SelectedFields" value="@field" id="field_@field"
                                                @(filter.SelectedFields.Contains(field) ? "checked" : "")>
-                                        <label class="form-check-label small text-truncate w-100" for="field_@field">
-                                            @(fieldDisplayNames.ContainsKey(field) ? fieldDisplayNames[field] : field)
+                                        <label class="form-check-label small text-truncate w-100" for="field_@field" title="@field">
+                                            @{
+                                                string displayName = field;
+                                                if (fieldDisplayNames != null) {
+                                                    var kvp = fieldDisplayNames.FirstOrDefault(x => x.Key.Equals(field, StringComparison.OrdinalIgnoreCase));
+                                                    if (!string.IsNullOrEmpty(kvp.Value)) displayName = kvp.Value;
+                                                }
+                                            }
+                                            @displayName
                                         </label>
                                     </div>
                                 </div>
@@ -107,27 +92,43 @@
             Найдено: <strong>@totalCount</strong>, показано: <strong>@displayedCount</strong>
         </div>
         <div class="btn-group btn-group-sm">
-            <button type="button" class="btn btn-outline-success" onclick="exportData('Excel')">Excel</button>
-            <button type="button" class="btn btn-outline-danger" onclick="exportData('Pdf')">PDF</button>
+            <button type="button" class="btn btn-outline-success" onclick="exportData('excel', false)">
+                <i class="bi bi-file-earmark-excel me-1"></i> Excel (тек.)
+            </button>
+            <button type="button" class="btn btn-success" onclick="exportData('excel', true)">
+                <i class="bi bi-file-earmark-excel me-1"></i> Excel (все)
+            </button>
+            <button type="button" class="btn btn-outline-secondary" onclick="exportData('csv', false)">
+                <i class="bi bi-file-earmark-spreadsheet me-1"></i> CSV (тек.)
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="exportData('csv', true)">
+                <i class="bi bi-file-earmark-spreadsheet me-1"></i> CSV (все)
+            </button>
         </div>
     </div>
 
-    <div class="table-responsive shadow-sm rounded border">
-        <table class="table table-sm table-hover table-striped align-middle mb-0" style="font-size: 0.8rem;">
-            <thead class="table-light">
+    <div class="table-responsive shadow-sm rounded border" style="max-height: 600px;">
+        <table class="table table-sm table-hover table-striped align-middle mb-0" style="font-size: 0.75rem;">
+            <thead class="table-light sticky-top">
                 <tr>
-                    @foreach (var field in filter.SelectedFields)
-                    {
-                        <th class="text-nowrap">@(fieldDisplayNames.ContainsKey(field) ? fieldDisplayNames[field] : field)</th>
+                    @foreach (var field in filter.SelectedFields) {
+                        <th class="text-nowrap">
+                            @{
+                                string headerName = field;
+                                if (fieldDisplayNames != null) {
+                                    var kvp = fieldDisplayNames.FirstOrDefault(x => x.Key.Equals(field, StringComparison.OrdinalIgnoreCase));
+                                    if (!string.IsNullOrEmpty(kvp.Value)) headerName = kvp.Value;
+                                }
+                            }
+                            @headerName
+                        </th>
                     }
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model)
-                {
+                @foreach (var item in Model) {
                     <tr>
-                        @foreach (var field in filter.SelectedFields)
-                        {
+                        @foreach (var field in filter.SelectedFields) {
                             <td class="text-nowrap">
                                 @{
                                     var property = item.GetType().GetProperty(field);
@@ -135,6 +136,7 @@
                                     if (value is DateTime dt) { @dt.ToLocalTime().ToString("dd.MM.yyyy HH:mm") }
                                     else if (value is bool b) { @(b ? "Да" : "Нет") }
                                     else if (value is double d) { @d.ToString("F2") }
+                                    else if (value is decimal dec) { @dec.ToString("F2") }
                                     else { @(value?.ToString() ?? "—") }
                                 }
                             </td>
@@ -147,11 +149,36 @@
 </div>
 
 <script>
-    function exportData(type) {
+    function exportData(format, all) {
         const form = document.getElementById('filterForm');
-        const originalAction = form.action;
-        form.action = '/MueksData/ExportTo' + type;
-        form.submit();
-        form.action = originalAction;
+        const tempForm = document.createElement('form');
+        tempForm.method = 'POST';
+        tempForm.action = '@Url.Action("Export")';
+        
+        const formData = new FormData(form);
+        for (const [key, value] of formData.entries()) {
+            const input = document.createElement('input');
+            input.type = 'hidden'; input.name = key; input.value = value;
+            tempForm.appendChild(input);
+        }
+        
+        const formatInput = document.createElement('input');
+        formatInput.type = 'hidden'; formatInput.name = 'format'; formatInput.value = format;
+        tempForm.appendChild(formatInput);
+        
+        const allInput = document.createElement('input');
+        allInput.type = 'hidden'; allInput.name = 'exportAllData'; allInput.value = all;
+        tempForm.appendChild(allInput);
+
+        const token = document.querySelector('input[name="__RequestVerificationToken"]');
+        if (token) {
+            const tokenInput = document.createElement('input');
+            tokenInput.type = 'hidden'; tokenInput.name = '__RequestVerificationToken'; tokenInput.value = token.value;
+            tempForm.appendChild(tokenInput);
+        }
+        
+        document.body.appendChild(tempForm);
+        tempForm.submit();
+        document.body.removeChild(tempForm);
     }
 </script>

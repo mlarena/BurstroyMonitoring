@@ -106,23 +106,11 @@
                                                     }
                                                 </li>
                                             }
-                                            @if (Model.Sensors.Count > 5)
-                                            {
-                                                <li class="list-group-item py-1 text-center text-muted bg-light" style="font-size: 0.7rem;">
-                                                    ... и еще @(Model.Sensors.Count - 5) датчиков
-                                                </li>
-                                            }
                                         </ul>
                                     }
                                     else
                                     {
-                                        <div class="d-flex align-items-center gap-2">
-                                            <span class="text-muted small">Нет датчиков</span>
-                                            <a href="@Url.Action("Create", "Sensors", new { monitoringPostId = Model.Id })" 
-                                               class="btn btn-outline-primary btn-sm py-0 px-2" style="font-size: 0.75rem;">
-                                                + Добавить
-                                            </a>
-                                        </div>
+                                        <span class="text-muted small">Нет датчиков</span>
                                     }
                                 </td>
                             </tr>

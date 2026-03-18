@@ -4,463 +4,93 @@
     ViewData["Title"] = "Подробности о данных DUST";
 }
 
-<div class="details-container">
-    <h1 class="form-title">Подробности о данных DUST</h1>
-
-    <!-- Основные поля (всегда отображаются) -->
-    <div class="details-section">
-        <h3 class="details-section-title">Основная информация</h3>
-
-        <div class="details-table">
-            <!-- Дата получения -->
-            <div class="details-row">
-                <div class="details-label">Дата получения</div>
-                <div class="details-value">
-                    @if (Model.ReceivedAt.HasValue)
-                    {
-                        <span>@Model.ReceivedAt.Value.ToString("dd.MM.yyyy HH:mm:ss")</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">Не указано</span>
-                    }
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white py-2 d-flex justify-content-between align-items-center">
+                    <h1 class="h5 mb-0">Подробности о данных DUST</h1>
+                    <span class="badge bg-light text-dark">ID: @Model.DustDataId</span>
                 </div>
-            </div>
+                <div class="card-body p-0">
+                    <table class="table table-sm mb-0">
+                        <tbody>
+                            <tr class="table-light"><th colspan="2" class="ps-3 py-2">Основная информация</th></tr>
+                            <tr>
+                                <th class="ps-3" style="width: 40%;">Дата получения</th>
+                                <td class="ps-3">@(Model.ReceivedAt?.ToString("dd.MM.yyyy HH:mm:ss") ?? "—")</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Серийный номер</th>
+                                <td class="ps-3 fw-bold">@Model.SerialNumber</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Конечная точка</th>
+                                <td class="ps-3">@Model.EndpointName</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3 text-primary">Концентрация PM (текущ)</th>
+                                <td class="ps-3 fw-bold text-primary">
+                                    PM10: @(Model.PM10Act?.ToString("F2") ?? "—"), 
+                                    PM2.5: @(Model.PM25Act?.ToString("F2") ?? "—"), 
+                                    PM1: @(Model.PM1Act?.ToString("F2") ?? "—")
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Температура / Влажность</th>
+                                <td class="ps-3">
+                                    @(Model.TemperatureProbe?.ToString("F1") ?? "—")°C / @(Model.HumidityProbe?.ToString("F1") ?? "—")%
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Статус лазера</th>
+                                <td class="ps-3">
+                                    @if (Model.LaserStatus > 0) { <span class="badge bg-success fw-normal">OK (@Model.LaserStatus)</span> }
+                                    else { <span class="badge bg-danger fw-normal">Ошибка (@Model.LaserStatus)</span> }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Пост</th>
+                                <td class="ps-3">@Model.PostName</td>
+                            </tr>
+                        </tbody>
+                    </table>
 
-            <!-- Серийный номер -->
-            <div class="details-row">
-                <div class="details-label">Серийный номер</div>
-                <div class="details-value">
-                    @if (!string.IsNullOrEmpty(Model.SerialNumber))
-                    {
-                        <span class="highlight-value">@Model.SerialNumber</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">-</span>
-                    }
+                    <div class="collapse" id="additionalFields">
+                        <table class="table table-sm mb-0 border-top">
+                            <tbody>
+                                <tr class="table-light"><th colspan="2" class="ps-3 py-2">Технические данные</th></tr>
+                                <tr>
+                                    <th class="ps-3" style="width: 40%;">PM (среднее)</th>
+                                    <td class="ps-3 small">
+                                        PM10: @(Model.PM10AWG?.ToString("F2") ?? "—"), 
+                                        PM2.5: @(Model.PM25AWG?.ToString("F2") ?? "—"), 
+                                        PM1: @(Model.PM1AWG?.ToString("F2") ?? "—")
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="ps-3">Расход пробы</th>
+                                    <td class="ps-3 small">@(Model.FlowProbe?.ToString("F2") ?? "—")</td>
+                                </tr>
+                                <tr>
+                                    <th class="ps-3">Напряжение питания</th>
+                                    <td class="ps-3 small">@(Model.SupplyVoltage?.ToString("F1") ?? "—")V</td>
+                                </tr>
+                                <tr>
+                                    <th class="ps-3">URL API</th>
+                                    <td class="ps-3 small text-break">@Model.SensorUrl</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
-
-            <!-- Конечная точка -->
-            <div class="details-row">
-                <div class="details-label">Конечная точка</div>
-                <div class="details-value">
-                    @if (!string.IsNullOrEmpty(Model.EndpointName))
-                    {
-                        <span class="highlight-value">@Model.EndpointName</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">-</span>
-                    }
-                </div>
-            </div>
-
-            <!-- Текущие значения PM -->
-            <div class="details-row">
-                <div class="details-label">Текущие значения PM (мкг/м³)</div>
-                <div class="details-value">
-                    @if (Model.PM10Act.HasValue || Model.PM25Act.HasValue || Model.PM1Act.HasValue)
-                    {
-                        <span class="highlight-value">
-                            PM10: @(Model.PM10Act?.ToString("F2") ?? "-"), 
-                            PM2.5: @(Model.PM25Act?.ToString("F2") ?? "-"), 
-                            PM1: @(Model.PM1Act?.ToString("F2") ?? "-")
-                        </span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">-</span>
-                    }
-                </div>
-            </div>
-
-            <!-- Средние значения PM -->
-            <div class="details-row">
-                <div class="details-label">Средние значения PM (мкг/м³)</div>
-                <div class="details-value">
-                    @if (Model.PM10AWG.HasValue || Model.PM25AWG.HasValue || Model.PM1AWG.HasValue)
-                    {
-                        <span>
-                            PM10: @(Model.PM10AWG?.ToString("F2") ?? "-"), 
-                            PM2.5: @(Model.PM25AWG?.ToString("F2") ?? "-"), 
-                            PM1: @(Model.PM1AWG?.ToString("F2") ?? "-")
-                        </span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">-</span>
-                    }
-                </div>
-            </div>
-
-            <!-- Температура датчика -->
-            <div class="details-row">
-                <div class="details-label">Температура датчика</div>
-                <div class="details-value">
-                    @if (Model.TemperatureProbe.HasValue)
-                    {
-                        <span class="highlight-value">@Model.TemperatureProbe.Value.ToString("F1")°C</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">-</span>
-                    }
-                </div>
-            </div>
-
-            <!-- Влажность датчика -->
-            <div class="details-row">
-                <div class="details-label">Влажность датчика</div>
-                <div class="details-value">
-                    @if (Model.HumidityProbe.HasValue)
-                    {
-                        <span class="highlight-value">@Model.HumidityProbe.Value.ToString("F1")%</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">-</span>
-                    }
-                </div>
-            </div>
-
-            <!-- Расход пробы -->
-            <div class="details-row">
-                <div class="details-label">Расход пробы</div>
-                <div class="details-value">
-                    @if (Model.FlowProbe.HasValue)
-                    {
-                        <span>@Model.FlowProbe.Value.ToString("F2")</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">-</span>
-                    }
-                </div>
-            </div>
-
-            <!-- Статус лазера -->
-            <div class="details-row">
-                <div class="details-label">Статус лазера</div>
-                <div class="details-value">
-                    @if (Model.LaserStatus.HasValue)
-                    {
-                        @if (Model.LaserStatus > 0)
-                        {
-                            <span class="lozenge lozenge--success highlight-value">@Model.LaserStatus</span>
-                        }
-                        else
-                        {
-                            <span class="lozenge lozenge--error">@Model.LaserStatus</span>
-                        }
-                    }
-                    else
-                    {
-                        <span class="text-muted">-</span>
-                    }
-                </div>
-            </div>
-
-            <!-- Напряжение питания -->
-            <div class="details-row">
-                <div class="details-label">Напряжение питания</div>
-                <div class="details-value">
-                    @if (Model.SupplyVoltage.HasValue)
-                    {
-                        <span>@Model.SupplyVoltage.Value.ToString("F1")V</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">-</span>
-                    }
-                </div>
-            </div>
-
-            <!-- URL датчика -->
-            <div class="details-row">
-                <div class="details-label">URL датчика</div>
-                <div class="details-value">
-                    @if (!string.IsNullOrEmpty(Model.SensorUrl))
-                    {
-                        <a href="@Model.SensorUrl" target="_blank" class="highlight-link">
-                            @Model.SensorUrl
-                        </a>
-                    }
-                    else
-                    {
-                        <span class="text-muted">-</span>
-                    }
-                </div>
-            </div>
-
-            <!-- Тип датчика -->
-            <div class="details-row">
-                <div class="details-label">Тип датчика</div>
-                <div class="details-value">
-                    @if (!string.IsNullOrEmpty(Model.SensorTypeName))
-                    {
-                        <span>@Model.SensorTypeName</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">-</span>
-                    }
-                </div>
-            </div>
-
-            <!-- Пост мониторинга -->
-            <div class="details-row">
-                <div class="details-label">Пост мониторинга</div>
-                <div class="details-value">
-                    @if (!string.IsNullOrEmpty(Model.PostName))
-                    {
-                        <span>@Model.PostName</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">Не привязан</span>
-                    }
+                <div class="card-footer bg-light d-flex justify-content-between py-2">
+                    <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">Назад</a>
+                    <button class="btn btn-outline-info btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#additionalFields">
+                        Тех. данные
+                    </button>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Дополнительные поля (сворачиваемые) -->
-    <div class="details-section">
-        <button type="button" id="toggleAdditionalBtn" class="button button--sm button--secondary toggle-section-btn"
-                onclick="toggleAdditionalFields()" style="margin-bottom: 15px;">
-            📄 Показать дополнительные поля
-        </button>
-
-        <div id="additionalFields" style="display: none;">
-            <h3 class="details-section-title">Дополнительная информация</h3>
-
-            <div class="details-table">
-                <!-- ID данных -->
-                <div class="details-row">
-                    <div class="details-label">ID данных</div>
-                    <div class="details-value">@Model.DustDataId</div>
-                </div>
-
-                <!-- Метка времени данных -->
-                <div class="details-row">
-                    <div class="details-label">Метка времени данных</div>
-                    <div class="details-value">
-                        @if (Model.DataTimestamp.HasValue)
-                        {
-                            <span>@Model.DataTimestamp.Value.ToString("dd.MM.yyyy HH:mm:ss")</span>
-                        }
-                        else
-                        {
-                            <span class="text-muted">Не указано</span>
-                        }
-                    </div>
-                </div>
-
-                <!-- Описание типа датчика -->
-                <div class="details-row">
-                    <div class="details-label">Описание типа датчика</div>
-                    <div class="details-value">
-                        @if (!string.IsNullOrEmpty(Model.SensorTypeDescription))
-                        {
-                            <span>@Model.SensorTypeDescription</span>
-                        }
-                        else
-                        {
-                            <span class="text-muted">-</span>
-                        }
-                    </div>
-                </div>
-
-                <!-- Описание поста -->
-                <div class="details-row">
-                    <div class="details-label">Описание поста</div>
-                    <div class="details-value">
-                        @if (!string.IsNullOrEmpty(Model.PostDescription))
-                        {
-                            <span>@Model.PostDescription</span>
-                        }
-                        else
-                        {
-                            <span class="text-muted">-</span>
-                        }
-                    </div>
-                </div>
-
-                <!-- Координаты датчика -->
-                <div class="details-row">
-                    <div class="details-label">Координаты датчика</div>
-                    <div class="details-value">
-                        @if (Model.SensorLongitude.HasValue && Model.SensorLatitude.HasValue)
-                        {
-                            <span>@Model.SensorLongitude.Value.ToString("F6"), @Model.SensorLatitude.Value.ToString("F6")</span>
-                            <br />
-                            <small>
-                                <a href="https://www.google.com/maps?q=@Model.SensorLatitude.Value,@Model.SensorLongitude.Value"
-                                   target="_blank" style="color: var(--primary-color); text-decoration: none;">
-                                    📍 Открыть в Google Maps
-                                </a>
-                            </small>
-                        }
-                        else
-                        {
-                            <span class="text-muted">Не указаны</span>
-                        }
-                    </div>
-                </div>
-
-                <!-- Интервал проверки -->
-                <div class="details-row">
-                    <div class="details-label">Интервал проверки</div>
-                    <div class="details-value">
-                        @if (Model.CheckIntervalSeconds.HasValue)
-                        {
-                            <span>@Model.CheckIntervalSeconds секунд</span>
-                            <small style="color: var(--text-secondary); margin-left: 8px;">
-                                (@(Model.CheckIntervalSeconds / 60) минут)
-                            </small>
-                        }
-                        else
-                        {
-                            <span class="text-muted">-</span>
-                        }
-                    </div>
-                </div>
-
-                <!-- Последняя активность -->
-                <div class="details-row">
-                    <div class="details-label">Последняя активность</div>
-                    <div class="details-value">
-                        @if (Model.LastActivityUtc.HasValue)
-                        {
-                            <span>@Model.LastActivityUtc.Value.ToString("dd.MM.yyyy HH:mm:ss") UTC</span>
-                            <br />
-                            <small style="color: var(--text-secondary);">
-                                @{
-                                    var timeAgo = DateTime.UtcNow - Model.LastActivityUtc.Value;
-                                    if (timeAgo.TotalDays >= 1)
-                                    {
-                                        <span>@((int)timeAgo.TotalDays) дней назад</span>
-                                    }
-                                    else if (timeAgo.TotalHours >= 1)
-                                    {
-                                        <span>@((int)timeAgo.TotalHours) часов назад</span>
-                                    }
-                                    else if (timeAgo.TotalMinutes >= 1)
-                                    {
-                                        <span>@((int)timeAgo.TotalMinutes) минут назад</span>
-                                    }
-                                    else
-                                    {
-                                        <span>Только что</span>
-                                    }
-                                }
-                            </small>
-                        }
-                        else
-                        {
-                            <span class="text-muted">Нет данных</span>
-                        }
-                    </div>
-                </div>
-
-                <!-- Статус датчика -->
-                <div class="details-row">
-                    <div class="details-label">Статус датчика</div>
-                    <div class="details-value">
-                        @if (Model.SensorIsActive.HasValue)
-                        {
-                            @if (Model.SensorIsActive == true)
-                            {
-                                <span class="lozenge lozenge--success">Активен</span>
-                            }
-                            else
-                            {
-                                <span class="lozenge lozenge--error">Неактивен</span>
-                            }
-                        }
-                        else
-                        {
-                            <span class="text-muted">-</span>
-                        }
-                    </div>
-                </div>
-
-                <!-- Тип поста -->
-                <div class="details-row">
-                    <div class="details-label">Тип поста</div>
-                    <div class="details-value">
-                        @if (Model.PostIsMobile.HasValue)
-                        {
-                            @if (Model.PostIsMobile == true)
-                            {
-                                <span class="lozenge">Мобильный</span>
-                            }
-                            else
-                            {
-                                <span class="lozenge">Стационарный</span>
-                            }
-                        }
-                        else
-                        {
-                            <span class="text-muted">-</span>
-                        }
-                    </div>
-                </div>
-
-                <!-- Статус поста -->
-                <div class="details-row">
-                    <div class="details-label">Статус поста</div>
-                    <div class="details-value">
-                        @if (Model.PostIsActive.HasValue)
-                        {
-                            @if (Model.PostIsActive == true)
-                            {
-                                <span class="lozenge lozenge--success">Активен</span>
-                            }
-                            else
-                            {
-                                <span class="lozenge lozenge--error">Неактивен</span>
-                            }
-                        }
-                        else
-                        {
-                            <span class="text-muted">-</span>
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="details-actions">
-        <a asp-action="Index" class="button button--secondary">Назад к списку</a>
     </div>
 </div>
-
-@section Scripts {
-    <script>
-        let isAdditionalExpanded = false;
-
-        function toggleAdditionalFields() {
-            const additionalFields = document.getElementById('additionalFields');
-            const toggleBtn = document.getElementById('toggleAdditionalBtn');
-
-            if (!isAdditionalExpanded) {
-                additionalFields.style.display = 'block';
-                toggleBtn.textContent = '📄 Скрыть дополнительные поля';
-                isAdditionalExpanded = true;
-            } else {
-                additionalFields.style.display = 'none';
-                toggleBtn.textContent = '📄 Показать дополнительные поля';
-                isAdditionalExpanded = false;
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            // Можно добавить дополнительные действия при загрузке, если нужно
-        });
-    </script>
-
-}
