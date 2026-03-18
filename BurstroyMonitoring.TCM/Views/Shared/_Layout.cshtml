@@ -72,6 +72,9 @@
                         <li class="nav-item">
                             <a class="nav-link @(currentController == "MonitoringMap" ? "active" : "")" asp-controller="MonitoringMap" asp-action="Index">Карта</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(currentController == "Cameras" ? "active" : "")" asp-controller="Cameras" asp-action="Index">Камеры</a>
+                        </li>
 
                         @if (User.IsInRole("Admin"))
                         {

@@ -29,10 +29,10 @@
         </div>
     </div>
 
-    <div class="monitoring-map-container" style="height: calc(100vh - 140px);">
+    <div class="monitoring-map-container" style="height: calc(100vh - 140px); position: relative; overflow: hidden;">
         <div id="monitoring-map" style="height: 100%; width: 100%;"></div>
         
-        <!-- Панель данных датчика (абсолютное позиционирование внутри контейнера карты) -->
+        <!-- Панель данных датчика -->
         <div class="sensor-data-section hidden shadow-lg border rounded" id="sensorDataPanel" 
              style="position: absolute; top: 10px; right: 10px; z-index: 1000; width: 350px; max-height: 90%; background: var(--bs-body-bg); overflow-y: auto;">
             <div class="card border-0">
@@ -52,11 +52,6 @@
 </div>
 
 <style>
-    /* Корректировка для полноэкранной карты */
-    .monitoring-map-container {
-        position: relative;
-        overflow: hidden;
-    }
     .monitoring-autocomplete {
         position: absolute;
         top: 100%;
@@ -68,47 +63,16 @@
         overflow-y: auto;
     }
     .hidden { display: none !important; }
+
+    /* ГАРАНТИРОВАННОЕ СКРЫТИЕ АТРИБУЦИИ LEAFLET */
+    .leaflet-control-attribution, 
+    .leaflet-bottom.leaflet-right {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
 </style>
-
-    <div class="monitoring-map-container">
-        <div class="monitoring-map-section">
-            <div class="monitoring-map-card">
-                <!-- Контейнер с фильтрами и поиском -->
-                <div class="monitoring-filter-container">
-                    <div class="monitoring-search-container">
-                        <input type="text" 
-                               class="monitoring-search-input" 
-                               id="postSearch" 
-                               placeholder="Введите название поста для поиска...">
-                        <div class="monitoring-autocomplete" id="autocompleteResults"></div>
-                    </div>
-                    <button class="monitoring-control-button" onclick="toggleExpand()" title="Развернуть/свернуть карту">
-                        <i class="fas fa-expand"></i> <span>Развернуть</span>
-                    </button>
-                </div>
-
-                <!-- Карта -->
-                <div id="monitoring-map"></div>
-
-               
-
-                
-                <!-- Панель данных датчика -->
-                <div class="sensor-data-section hidden" id="sensorDataPanel">
-                    <div class="sensor-data-header" id="sensorDataHeader">
-                        <h3><i class="fas fa-microchip"></i> <span id="sensorTitle">Данные датчика</span></h3>
-                    </div>
-                    <div class="sensor-data-content" id="sensorDataContent">
-                        <div class="monitoring-no-selection">
-                            <i class="fas fa-chart-line"></i>
-                            <p>Нажмите на датчик в списке для просмотра данных</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 @section Scripts {
     <script src="~/js/leaflet.js"></script>

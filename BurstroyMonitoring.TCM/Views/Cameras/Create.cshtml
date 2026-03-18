@@ -1,0 +1,66 @@
+@{
+    ViewData["Title"] = "Подключить камеру";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white py-2">
+                    <h1 class="h5 mb-0">Подключить новую камеру</h1>
+                </div>
+                <div class="card-body p-3">
+                    <form>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Название камеры</label>
+                            <input type="text" class="form-control form-control-sm" placeholder="Напр: Входная группа" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Пост мониторинга</label>
+                            <select class="form-select form-select-sm">
+                                <option value="">-- Выберите пост --</option>
+                                <option value="1">Пост №1</option>
+                                <option value="2">Пост №2</option>
+                            </select>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-8">
+                                <label class="form-label small fw-bold">IP адрес / URL потока</label>
+                                <input type="text" class="form-control form-control-sm" placeholder="rtsp://admin:password@192.168.1.100:554/stream" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold">Порт</label>
+                                <input type="number" class="form-control form-control-sm" value="554" />
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Логин</label>
+                                <input type="text" class="form-control form-control-sm" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Пароль</label>
+                                <input type="password" class="form-control form-control-sm" />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="isPtz" checked>
+                                <label class="form-check-label small" for="isPtz">Поддержка PTZ (управление поворотом)</label>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Отмена</a>
+                            <button type="button" class="btn btn-primary btn-sm px-4">Подключить</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
