@@ -4,250 +4,108 @@
     ViewData["Title"] = "Подробности о данных MUEKS";
 }
 
-<div class="details-container">
-    <h1 class="form-title">Подробности о данных MUEKS</h1>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white py-2 d-flex justify-content-between align-items-center">
+                    <h1 class="h5 mb-0">Подробности о данных MUEKS</h1>
+                    <span class="badge bg-light text-dark">ID: @Model.MueksDataId</span>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-sm mb-0">
+                        <tbody>
+                            <tr class="table-light"><th colspan="2" class="ps-3 py-2">Основная информация</th></tr>
+                            <tr>
+                                <th class="ps-3" style="width: 40%;">Дата получения</th>
+                                <td class="ps-3">@(Model.ReceivedAt?.ToString("dd.MM.yyyy HH:mm:ss") ?? "—")</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Серийный номер</th>
+                                <td class="ps-3 fw-bold">@Model.SerialNumber</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Конечная точка</th>
+                                <td class="ps-3">@Model.EndpointName</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3 text-primary">Температура бокса</th>
+                                <td class="ps-3 fw-bold text-primary">@(Model.TemperatureBox?.ToString("F1") ?? "—")°C</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3 text-success">Напряжение АКБ</th>
+                                <td class="ps-3 fw-bold text-success">@(Model.VoltageAkb?.ToString("F1") ?? "—")V</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Видимость</th>
+                                <td class="ps-3 fw-bold">@(Model.VisibleRange?.ToString("F0") ?? "—") м</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Статус двери</th>
+                                <td class="ps-3">
+                                    @if (Model.DoorStatus == 1) { <span class="badge bg-danger fw-normal">Открыта</span> }
+                                    else if (Model.DoorStatus == 0) { <span class="badge bg-success fw-normal">Закрыта</span> }
+                                    else { <span class="text-muted">—</span> }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
 
-    <!-- Основные поля (всегда отображаются) -->
-    <div class="details-section">
-        <h3 class="details-section-title">Основная информация</h3>
-
-        <div class="details-table">
-            <!-- Заголовок таблицы (можно оставить или убрать) -->
-            <!--
-            <div class="details-row details-row--header">
-                <div class="details-label">Параметр</div>
-                <div class="details-value">Значение</div>
-            </div>
-            -->
-
-            <!-- Дата получения -->
-            <div class="details-row">
-                <div class="details-label">Дата получения</div>
-                <div class="details-value">
-                    @if (Model.ReceivedAt.HasValue)
-                    {
-                        <span>@Model.ReceivedAt.Value.ToString("dd.MM.yyyy HH:mm:ss")</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">Не указано</span>
-                    }
+                    <div class="collapse" id="additionalFields">
+                        <table class="table table-sm mb-0 border-top">
+                            <tbody>
+                                <tr class="table-light"><th colspan="2" class="ps-3 py-2">Электропитание и тех. данные</th></tr>
+                                <tr>
+                                    <th class="ps-3" style="width: 40%;">Питание 12B (вход)</th>
+                                    <td class="ps-3 small">@(Model.VoltagePowerIn12B?.ToString("F1") ?? "—")V</td>
+                                </tr>
+                                <tr>
+                                    <th class="ps-3">Выход 12B (U/I)</th>
+                                    <td class="ps-3 small">@(Model.VoltageOut12B?.ToString("F1") ?? "—")V / @(Model.CurrentOut12B?.ToString("F2") ?? "—")A</td>
+                                </tr>
+                                <tr>
+                                    <th class="ps-3">Выход 48B (I)</th>
+                                    <td class="ps-3 small">@(Model.CurrentOut48B?.ToString("F2") ?? "—")A</td>
+                                </tr>
+                                <tr>
+                                    <th class="ps-3">Ток АКБ</th>
+                                    <td class="ps-3 small">@(Model.CurrentAkb?.ToString("F2") ?? "—")A</td>
+                                </tr>
+                                <tr>
+                                    <th class="ps-3">Вт·ч АКБ</th>
+                                    <td class="ps-3 small">@(Model.WattHoursAkb?.ToString("F0") ?? "—")</td>
+                                </tr>
+                                <tr>
+                                    <th class="ps-3">Датчик 220B</th>
+                                    <td class="ps-3 small">@Model.Sensor220B</td>
+                                </tr>
+                                <tr class="table-light"><th colspan="2" class="ps-3 py-2">Прочее</th></tr>
+                                <tr>
+                                    <th class="ps-3">TDS (H/Val)</th>
+                                    <td class="ps-3 small">@Model.TdsH / @Model.TdsTds</td>
+                                </tr>
+                                <tr>
+                                    <th class="ps-3">Ткоса (T1/T3)</th>
+                                    <td class="ps-3 small">@Model.TkosaT1 / @Model.TkosaT3</td>
+                                </tr>
+                                <tr>
+                                    <th class="ps-3">URL API</th>
+                                    <td class="ps-3 small text-break">@Model.SensorUrl</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-light d-flex justify-content-between py-2">
+                    <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">Назад</a>
+                    <button class="btn btn-outline-info btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#additionalFields">
+                        Тех. данные
+                    </button>
                 </div>
             </div>
-
-            <!-- Серийный номер -->
-            <div class="details-row">
-                <div class="details-label">Серийный номер</div>
-                <div class="details-value">
-                    @if (!string.IsNullOrEmpty(Model.SerialNumber))
-                    {
-                        <span class="highlight-value">@Model.SerialNumber</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">-</span>
-                    }
-                </div>
-            </div>
-
-            <!-- Конечная точка -->
-            <div class="details-row">
-                <div class="details-label">Конечная точка</div>
-                <div class="details-value">
-                    @if (!string.IsNullOrEmpty(Model.EndpointName))
-                    {
-                        <span class="highlight-value">@Model.EndpointName</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">-</span>
-                    }
-                </div>
-            </div>
-
-            <!-- Температура бокса -->
-            <div class="details-row">
-                <div class="details-label">Температура бокса</div>
-                <div class="details-value">
-                    @if (Model.TemperatureBox.HasValue)
-                    {
-                        <span class="highlight-value">@Model.TemperatureBox.Value.ToString("F1")°C</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">-</span>
-                    }
-                </div>
-            </div>
-
-            <!-- Напряжение питания 12B -->
-            <div class="details-row">
-                <div class="details-label">Напряжение питания 12B</div>
-                <div class="details-value">
-                    @if (Model.VoltagePowerIn12B.HasValue)
-                    {
-                        <span class="highlight-value">@Model.VoltagePowerIn12B.Value.ToString("F1")V</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">-</span>
-                    }
-                </div>
-            </div>
-
-            <!-- Выходное напряжение 12B -->
-            <div class="details-row">
-                <div class="details-label">Выходное напряжение 12B</div>
-                <div class="details-value">
-                    @if (Model.VoltageOut12B.HasValue)
-                    {
-                        <span>@Model.VoltageOut12B.Value.ToString("F1")V</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">-</span>
-                    }
-                </div>
-            </div>
-
-            <!-- Выходной ток 12B -->
-            <div class="details-row">
-                <div class="details-label">Выходной ток 12B</div>
-                <div class="details-value">
-                    @if (Model.CurrentOut12B.HasValue)
-                    {
-                        <span>@Model.CurrentOut12B.Value.ToString("F2")A</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">-</span>
-                    }
-                </div>
-            </div>
-
-            <!-- Выходной ток 48B -->
-            <div class="details-row">
-                <div class="details-label">Выходной ток 48B</div>
-                <div class="details-value">
-                    @if (Model.CurrentOut48B.HasValue)
-                    {
-                        <span>@Model.CurrentOut48B.Value.ToString("F2")A</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">-</span>
-                    }
-                </div>
-            </div>
-
-            <!-- Напряжение АКБ -->
-            <div class="details-row">
-                <div class="details-label">Напряжение АКБ</div>
-                <div class="details-value">
-                    @if (Model.VoltageAkb.HasValue)
-                    {
-                        <span class="highlight-value">@Model.VoltageAkb.Value.ToString("F1")V</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">-</span>
-                    }
-                </div>
-            </div>
-
-            <!-- Ток АКБ -->
-            <div class="details-row">
-                <div class="details-label">Ток АКБ</div>
-                <div class="details-value">
-                    @if (Model.CurrentAkb.HasValue)
-                    {
-                        <span>@Model.CurrentAkb.Value.ToString("F2")A</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">-</span>
-                    }
-                </div>
-            </div>
-
-            <!-- Датчик 220B -->
-            <div class="details-row">
-                <div class="details-label">Датчик 220B</div>
-                <div class="details-value">
-                    @if (Model.Sensor220B.HasValue)
-                    {
-                        <span>@Model.Sensor220B.Value</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">-</span>
-                    }
-                </div>
-            </div>
-
-            <!-- Вт-часы АКБ -->
-            <div class="details-row">
-                <div class="details-label">Вт-часы АКБ</div>
-                <div class="details-value">
-                    @if (Model.WattHoursAkb.HasValue)
-                    {
-                        <span>@Model.WattHoursAkb.Value.ToString("F0") Вт·ч</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">-</span>
-                    }
-                </div>
-            </div>
-
-            <!-- Видимость -->
-            <div class="details-row">
-                <div class="details-label">Видимость</div>
-                <div class="details-value">
-                    @if (Model.VisibleRange.HasValue)
-                    {
-                        <span class="highlight-value">@Model.VisibleRange.Value.ToString("F0") м</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">-</span>
-                    }
-                </div>
-            </div>
-
-            <!-- Статус двери -->
-            <div class="details-row">
-                <div class="details-label">Статус двери</div>
-                <div class="details-value">
-                    @if (Model.DoorStatus.HasValue)
-                    {
-                        @if (Model.DoorStatus == 1)
-                        {
-                            <span class="lozenge lozenge--error highlight-value">Открыта</span>
-                        }
-                        else
-                        {
-                            <span class="lozenge lozenge--success">Закрыта</span>
-                        }
-                    }
-                    else
-                    {
-                        <span class="text-muted">-</span>
-                    }
-                </div>
-            </div>
-
-            <!-- TDS H -->
-            <div class="details-row">
-                <div class="details-label">TDS H</div>
-                <div class="details-value">
-                    @if (!string.IsNullOrEmpty(Model.TdsH))
-                    {
-                        <span>@Model.TdsH</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">-</span>
+        </div>
+    </div>
+</div>
                     }
                 </div>
             </div>

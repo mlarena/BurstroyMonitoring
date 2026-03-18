@@ -2,82 +2,133 @@
     ViewData["Title"] = "Главная страница";
 }
 
-<div class="home-container">
-    
-    <div class="text-center">
-        <h1 class="view-title">Система мониторинга датчиков</h1>
-      
-        
-        <div class="home-content">
-            <div class="quick-links">
-                <a asp-controller="MonitoringPosts" asp-action="Index" class="button button--primary button--lg">
-                    Посты мониторинга
+<div class="container py-4">
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold text-primary">Система мониторинга датчиков</h1>
+        <p class="lead text-muted">Централизованное управление и анализ данных телеметрии</p>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <a asp-controller="MonitoringPosts" asp-action="Index" class="btn btn-primary w-100 py-3 shadow-sm">
+                <div class="h4 mb-1">🏢</div>
+                Посты мониторинга
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a asp-controller="SensorTypes" asp-action="Index" class="btn btn-primary w-100 py-3 shadow-sm">
+                <div class="h4 mb-1">🔧</div>
+                Типы датчиков
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a asp-controller="Sensors" asp-action="Index" class="btn btn-primary w-100 py-3 shadow-sm">
+                <div class="h4 mb-1">📡</div>
+                Датчики
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a asp-controller="WorkerConfiguration" asp-action="Index" class="btn btn-primary w-100 py-3 shadow-sm">
+                <div class="h4 mb-1">⚙️</div>
+                Настройки
+            </a>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <h4 class="border-bottom pb-2 mb-4">Данные и аналитика</h4>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            <div class="col">
+                <a asp-controller="MonitoringMap" asp-action="Index" class="card h-100 text-decoration-none shadow-sm hover-shadow transition">
+                    <div class="card-body text-center">
+                        <div class="display-6 mb-2">🗺️</div>
+                        <h5 class="card-title text-dark">Карта мониторинга</h5>
+                        <p class="card-text small text-muted">Интерактивная карта постов и датчиков</p>
+                    </div>
                 </a>
-                <a asp-controller="SensorTypes" asp-action="Index" class="button button--primary button--lg">
-                    Типы датчиков
-                </a>
-                <a asp-controller="Sensors" asp-action="Index" class="button button--primary button--lg">
-                    Датчики
-                </a>
-                <a asp-controller="WorkerConfiguration" asp-action="Index" class="button button--primary button--lg">
-                    Настройки
-                </a>                
             </div>
-            
-            <div class="data-links">
-                <h4>Данные датчиков:</h4>
-                <div class="data-grid">
-                    <a asp-controller="MonitoringMap" asp-action="Index" class="data-card">
-                        <div class="data-card-icon">🗺️</div>
-                        <div class="data-card-title">Карта мониторинга</div>
-                        <div class="data-card-desc">Интерактивная карта постов и датчиков</div>
-                    </a>
-                    <a asp-controller="GraphsAndCharts" asp-action="Index" class="data-card">
-                        <div class="data-card-icon">📊</div>
-                        <div class="data-card-title">Графики и диаграммы</div>
-                        <div class="data-card-desc">Визуализация данных датчиков</div>
-                    </a>
-                    <a asp-controller="MueksData" asp-action="Index" class="data-card">
-                        <div class="data-card-icon">📡</div>
-                        <div class="data-card-title">Данные MUEKS</div>
-                        <div class="data-card-desc">Температура, напряжение, видимость</div>
-                    </a>
-                    
-                    <a asp-controller="IwsData" asp-action="Index" class="data-card">
-                        <div class="data-card-icon">🌡️</div>
-                        <div class="data-card-title">Данные IWS</div>
-                        <div class="data-card-desc">Погодные условия, давление, ветер</div>
-                    </a>
-                    
-                    <a asp-controller="DspdData" asp-action="Index" class="data-card">
-                        <div class="data-card-icon">🛣️</div>
-                        <div class="data-card-title">Данные DSPD</div>
-                        <div class="data-card-desc">Состояние дороги, сцепление</div>
-                    </a>
-                    
-                    <a asp-controller="DovData" asp-action="Index" class="data-card">
-                        <div class="data-card-icon">👁️</div>
-                        <div class="data-card-title">Данные DOV</div>
-                        <div class="data-card-desc">Видимость, яркость</div>
-                    </a>
-            
-                    <a asp-controller="DustData" asp-action="Index" class="data-card">
-                        <div class="data-card-icon">💨</div>
-                        <div class="data-card-title">Данные DUST</div>
-                        <div class="data-card-desc">Концентрация пыли, PM частицы</div>
-                    </a>
-                    <a asp-controller="SensorResults" asp-action="Index" class="data-card">
-                        <div class="data-card-icon">✅</div>
-                        <div class="data-card-title">Результаты проверок</div>
-                        <div class="data-card-desc">Статусы и время ответа</div>
-                    </a>
-                    <a asp-controller="SensorErrors" asp-action="Index" class="data-card">
-                        <div class="data-card-icon">⚠️</div>
-                        <div class="data-card-title">Ошибки</div>
-                        <div class="data-card-desc">Журнал ошибок датчиков</div>
-                    </a>
-                </div>
+            <div class="col">
+                <a asp-controller="GraphsAndCharts" asp-action="Index" class="card h-100 text-decoration-none shadow-sm hover-shadow transition">
+                    <div class="card-body text-center">
+                        <div class="display-6 mb-2">📊</div>
+                        <h5 class="card-title text-dark">Графики</h5>
+                        <p class="card-text small text-muted">Визуализация данных датчиков</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col">
+                <a asp-controller="MueksData" asp-action="Index" class="card h-100 text-decoration-none shadow-sm hover-shadow transition">
+                    <div class="card-body text-center">
+                        <div class="display-6 mb-2">📡</div>
+                        <h5 class="card-title text-dark">MUEKS</h5>
+                        <p class="card-text small text-muted">Температура, напряжение, видимость</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col">
+                <a asp-controller="IwsData" asp-action="Index" class="card h-100 text-decoration-none shadow-sm hover-shadow transition">
+                    <div class="card-body text-center">
+                        <div class="display-6 mb-2">🌡️</div>
+                        <h5 class="card-title text-dark">IWS</h5>
+                        <p class="card-text small text-muted">Погодные условия, давление, ветер</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col">
+                <a asp-controller="DspdData" asp-action="Index" class="card h-100 text-decoration-none shadow-sm hover-shadow transition">
+                    <div class="card-body text-center">
+                        <div class="display-6 mb-2">🛣️</div>
+                        <h5 class="card-title text-dark">DSPD</h5>
+                        <p class="card-text small text-muted">Состояние дороги, сцепление</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col">
+                <a asp-controller="DovData" asp-action="Index" class="card h-100 text-decoration-none shadow-sm hover-shadow transition">
+                    <div class="card-body text-center">
+                        <div class="display-6 mb-2">👁️</div>
+                        <h5 class="card-title text-dark">DOV</h5>
+                        <p class="card-text small text-muted">Видимость, яркость</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col">
+                <a asp-controller="DustData" asp-action="Index" class="card h-100 text-decoration-none shadow-sm hover-shadow transition">
+                    <div class="card-body text-center">
+                        <div class="display-6 mb-2">💨</div>
+                        <h5 class="card-title text-dark">DUST</h5>
+                        <p class="card-text small text-muted">Концентрация пыли, PM частицы</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col">
+                <a asp-controller="SensorResults" asp-action="Index" class="card h-100 text-decoration-none shadow-sm hover-shadow transition border-success-subtle">
+                    <div class="card-body text-center">
+                        <div class="display-6 mb-2">✅</div>
+                        <h5 class="card-title text-dark">Результаты</h5>
+                        <p class="card-text small text-muted">Статусы и время ответа</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col">
+                <a asp-controller="SensorErrors" asp-action="Index" class="card h-100 text-decoration-none shadow-sm hover-shadow transition border-danger-subtle">
+                    <div class="card-body text-center">
+                        <div class="display-6 mb-2">⚠️</div>
+                        <h5 class="card-title text-dark">Ошибки</h5>
+                        <p class="card-text small text-muted">Журнал ошибок датчиков</p>
+                    </div>
+                </a>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .hover-shadow:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    }
+    .transition {
+        transition: all 0.3s ease;
+    }
+</style>

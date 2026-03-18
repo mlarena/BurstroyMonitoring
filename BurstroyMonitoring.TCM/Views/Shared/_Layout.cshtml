@@ -9,179 +9,119 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="color-scheme" content="light dark" />
     <title>@ViewData["Title"] - Мониторинг датчиков</title>
-    <link rel="stylesheet" href="~/css/site.css" />
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @RenderSection("Styles", required: false)
 </head>
-<body>
-    <!-- Шапка сайта -->
-    <header class="site-header">
-        <div class="header-container">
-            <div class="header-left"></div> <!-- Пустой div для баланса -->
-            <h1>Типовой Центр Мониторинга</h1>
-            <div class="d-flex align-center gap-2">
-                @if (User.Identity?.IsAuthenticated == true)
-                {
-                    <span class="text-light" style="font-size: 14px;">@User.Identity.Name</span>
-                    <form asp-controller="Auth" asp-action="Logout" method="post" class="d-inline" id="logoutForm">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="button button--sm" style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3);">
-                            Выйти
-                        </button>
-                    </form>
-                }
-                <button id="theme-toggle" class="bsp-theme-toggle" title="Правый клик для сброса к системной теме">
-                    Загрузка...
+<body class="d-flex flex-column min-vh-100">
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm py-1">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">ТЦМ</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
                 </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index">Главная</a>
+                        </li>
+                        
+                        <li class="nav-item dropdown">
+                            @{
+                                var currentController = ViewContext.RouteData.Values["Controller"]?.ToString();
+                                var isDictionariesActive = new[] { "MonitoringPosts", "SensorTypes", "Sensors", "WorkerConfiguration" }.Contains(currentController);
+                            }
+                            <a class="nav-link dropdown-toggle @(isDictionariesActive ? "active" : "")" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Справочники
+                            </a>
+                            <ul class="dropdown-menu shadow">
+                                <li><a class="dropdown-item @(currentController == "MonitoringPosts" ? "active" : "")" asp-controller="MonitoringPosts" asp-action="Index">Посты мониторинга</a></li>
+                                <li><a class="dropdown-item @(currentController == "SensorTypes" ? "active" : "")" asp-controller="SensorTypes" asp-action="Index">Типы датчиков</a></li>
+                                <li><a class="dropdown-item @(currentController == "Sensors" ? "active" : "")" asp-controller="Sensors" asp-action="Index">Датчики</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item @(currentController == "WorkerConfiguration" ? "active" : "")" asp-controller="WorkerConfiguration" asp-action="Index">Настройки</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            @{
+                                var dataControllers = new[] { "MueksData", "IwsData", "DspdData", "DovData", "DustData" };
+                                var isDataActive = dataControllers.Contains(currentController);
+                            }
+                            <a class="nav-link dropdown-toggle @(isDataActive ? "active" : "")" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Данные
+                            </a>
+                            <ul class="dropdown-menu shadow">
+                                <li><a class="dropdown-item @(currentController == "MueksData" ? "active" : "")" asp-controller="MueksData" asp-action="Index">MUEKS</a></li>
+                                <li><a class="dropdown-item @(currentController == "IwsData" ? "active" : "")" asp-controller="IwsData" asp-action="Index">IWS</a></li>
+                                <li><a class="dropdown-item @(currentController == "DspdData" ? "active" : "")" asp-controller="DspdData" asp-action="Index">DSPD</a></li>
+                                <li><a class="dropdown-item @(currentController == "DovData" ? "active" : "")" asp-controller="DovData" asp-action="Index">DOV</a></li>
+                                <li><a class="dropdown-item @(currentController == "DustData" ? "active" : "")" asp-controller="DustData" asp-action="Index">DUST</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link @(currentController == "SensorResults" ? "active" : "")" asp-controller="SensorResults" asp-action="Index">Результаты</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(currentController == "GraphsAndCharts" ? "active" : "")" asp-controller="GraphsAndCharts" asp-action="Index">Графики</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(currentController == "MonitoringMap" ? "active" : "")" asp-controller="MonitoringMap" asp-action="Index">Карта</a>
+                        </li>
+
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item dropdown border-start ms-lg-2 ps-lg-2">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Админ
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end shadow">
+                                    <li><a class="dropdown-item @(currentController == "SensorErrors" ? "active" : "")" asp-controller="SensorErrors" asp-action="Index">Ошибки</a></li>
+                                    <li><a class="dropdown-item @(currentController == "Admin" ? "active" : "")" asp-controller="Admin" asp-action="Index">Пользователи</a></li>
+                                    <li><a class="dropdown-item @(currentController == "Audit" ? "active" : "")" asp-controller="Audit" asp-action="Index">Аудит</a></li>
+                                </ul>
+                            </li>
+                        }
+                    </ul>
+                    
+                    <div class="d-flex align-items-center gap-3">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <span class="navbar-text text-light small d-none d-xl-inline">@User.Identity.Name</span>
+                            <form asp-controller="Auth" asp-action="Logout" method="post" class="m-0">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-outline-light btn-sm">Выйти</button>
+                            </form>
+                        }
+                        <button id="theme-toggle" class="btn btn-sm btn-outline-light border-0 fs-5" title="Переключить тему">
+                            ...
+                        </button>
+                    </div>
+                </div>
             </div>
-        </div>
+        </nav>
     </header>
 
-    @if (User.Identity?.IsAuthenticated == true)
-    {
-        <!-- Основная навигация -->
-        <div class="topbar-navigation">
-            <nav class="topbar-nav">
-                <a asp-controller="Home" asp-action="Index"
-                   class="nav-btn @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")"
-                   title="Главная страница системы мониторинга">
-                    Главная
-                </a>
+    <main class="flex-grow-1 container-fluid py-3">
+        @RenderBody()
+    </main>
 
-                <!-- Выпадающее меню Справочники -->
-                <div class="dropdown">
-                    @{
-                        var currentController = ViewContext.RouteData.Values["Controller"]?.ToString();
-                        var isDictionariesActive = currentController == "MonitoringPosts" ||
-                                                   currentController == "SensorTypes" ||
-                                                   currentController == "Sensors" ||
-                                                   currentController == "WorkerConfiguration";
-                    }
-                    <button class="dropdown-btn @(isDictionariesActive ? "active" : "")"
-                            title="Управление справочниками системы">
-                        Справочники
-                    </button>
-                    <div class="dropdown-content">
-                        <a asp-controller="MonitoringPosts" asp-action="Index"
-                           class="@(currentController == "MonitoringPosts" ? "active" : "")"
-                           title="Управление постами мониторинга">
-                            Посты мониторинга
-                        </a>
-                        <a asp-controller="SensorTypes" asp-action="Index"
-                           class="@(currentController == "SensorTypes" ? "active" : "")"
-                           title="Управление типами датчиков">
-                            Типы датчиков
-                        </a>
-                        <a asp-controller="Sensors" asp-action="Index"
-                           class="@(currentController == "Sensors" ? "active" : "")"
-                           title="Управление датчиками">
-                            Датчики
-                        </a>
-                        <a asp-controller="WorkerConfiguration" asp-action="Index"
-                           class="@(currentController == "WorkerConfiguration" ? "active" : "")"
-                           title="Настройки системы мониторинга">
-                            Настройки
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Выпадающее меню "Данные датчиков" -->
-                <div class="dropdown">
-                    @{
-                        var dataControllers = new[] { "MueksData", "IwsData", "DspdData", "DovData", "DustData" };
-                        var isDataActive = dataControllers.Contains(currentController);
-                    }
-                    <button class="dropdown-btn @(isDataActive ? "active" : "")"
-                            title="Данные с различных типов датчиков">
-                        Данные датчиков
-                    </button>
-                    <div class="dropdown-content">
-                        <a asp-controller="MueksData" asp-action="Index"
-                           class="@(currentController == "MueksData" ? "active" : "")"
-                           title="Данные MUEKS: Температура, напряжение, видимость">
-                            Данные MUEKS
-                        </a>
-                        <a asp-controller="IwsData" asp-action="Index"
-                           class="@(currentController == "IwsData" ? "active" : "")"
-                           title="Данные IWS: Погодные условия, давление, ветер">
-                            Данные IWS
-                        </a>
-                        <a asp-controller="DspdData" asp-action="Index"
-                           class="@(currentController == "DspdData" ? "active" : "")"
-                           title="Данные DSPD: Состояние дороги, сцепление">
-                            Данные DSPD
-                        </a>
-                        <a asp-controller="DovData" asp-action="Index"
-                           class="@(currentController == "DovData" ? "active" : "")"
-                           title="Данные DOV: Видимость, яркость">
-                            Данные DOV
-                        </a>
-                        <a asp-controller="DustData" asp-action="Index"
-                           class="@(currentController == "DustData" ? "active" : "")"
-                           title="Данные DUST: Концентрация пыли, PM частицы">
-                            Данные DUST
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Остальные пункты меню -->
-                <a asp-controller="SensorResults" asp-action="Index"
-                   class="nav-btn @(currentController == "SensorResults" ? "active" : "")"
-                   title="Результаты проверок датчиков: Статусы и время ответа">
-                    Результаты
-                </a>
-
-                <a asp-controller="GraphsAndCharts" asp-action="Index"
-                   class="nav-btn @(currentController == "GraphsAndCharts" ? "active" : "")"
-                   title="Графики и диаграммы: Визуализация данных датчиков">
-                    Графики
-                </a>
-
-                <a asp-controller="MonitoringMap" asp-action="Index"
-                   class="nav-btn @(currentController == "MonitoringMap" ? "active" : "")"
-                   title="Карта мониторинга">
-                    Карта мониторинга
-                </a>
-
-                
-
-                @if (User.IsInRole("Admin"))
-                {
-                    <!-- Административные пункты меню для роли Admin -->
-                    <a asp-controller="SensorErrors" asp-action="Index"
-                        class="nav-btn @(currentController == "SensorErrors" ? "active" : "")"
-                        title="Ошибки датчиков: Журнал ошибок системы">
-                            Ошибки
-                    </a>
-                    <a asp-controller="Admin" asp-action="Index"
-                       class="nav-btn @(currentController == "Admin" ? "active" : "")"
-                       title="Управление пользователями">
-                        Admin
-                    </a>
-
-                    <a asp-controller="Audit" asp-action="Index"
-                       class="nav-btn @(currentController == "Audit" ? "active" : "")"
-                       title="Журнал аудита действий и изменений">
-                        Аудит
-                    </a>
-                }
-            </nav>
+    <footer class="footer mt-auto py-2 bg-body-tertiary border-top">
+        <div class="container-fluid text-center">
+            <span class="text-muted small">&copy; @DateTime.Now.Year - BurstroyMonitoring.TCM</span>
         </div>
-    }
-
-    <!-- Основной контент -->
-    <div class="main-content">
-        <main>
-            @RenderBody()
-        </main>
-    </div>
+    </footer>
     
     <script src="/js/lib/jquery.min.js"></script>
+    <script src="/js/lib/bootstrap.bundle.min.js"></script>
     <script src="/js/lib/jquery.validate.min.js"></script>
     <script src="/js/lib/jquery.validate.unobtrusive.min.js"></script>
     <script src="/js/site.js" asp-append-version="true"></script>
     <script src="/js/coordinateValidation.js" asp-append-version="true"></script>
-    @RenderSection("Styles", required: false)
     @RenderSection("Scripts", required: false)
 </body>
 </html>

@@ -4,250 +4,66 @@
     ViewData["Title"] = "Подробности о результате проверки датчика";
 }
 
-<div class="details-container">
-    <h1 class="form-title">Подробности о результате проверки датчика</h1>
-
-    <div class="details-table">
-        <!-- ID результата -->
-        <div class="details-row">
-            <div class="details-label">ID результата</div>
-            <div class="details-value">@Model.ResultId</div>
-        </div>
-
-        <!-- Время проверки -->
-        <div class="details-row">
-            <div class="details-label">Время проверки</div>
-            <div class="details-value">
-                @if (Model.CheckedAt.HasValue)
-                {
-                    <span>@Model.CheckedAt.Value.ToString("dd.MM.yyyy HH:mm:ss")</span>
-                }
-                else
-                {
-                    <span class="text-muted">Не указано</span>
-                }
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white py-2 d-flex justify-content-between align-items-center">
+                    <h1 class="h5 mb-0">Результат проверки датчика</h1>
+                    <span class="badge bg-light text-dark">ID: @Model.ResultId</span>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-sm mb-0">
+                        <tbody>
+                            <tr class="table-light"><th colspan="2" class="ps-3 py-2">Результат</th></tr>
+                            <tr>
+                                <th class="ps-3" style="width: 40%;">Время проверки</th>
+                                <td class="ps-3">@(Model.CheckedAt?.ToString("dd.MM.yyyy HH:mm:ss") ?? "—")</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Статус</th>
+                                <td class="ps-3">
+                                    @if (Model.IsSuccess == true) { <span class="badge bg-success fw-normal">Успешно</span> }
+                                    else { <span class="badge bg-danger fw-normal">Ошибка</span> }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">HTTP Код / Время</th>
+                                <td class="ps-3">
+                                    <span class="badge bg-light text-dark border fw-normal">@Model.StatusCode</span>
+                                    <span class="ms-2 small text-muted">@Model.ResponseTimeMs мс</span>
+                                </td>
+                            </tr>
+                            <tr class="table-light"><th colspan="2" class="ps-3 py-2">Датчик</th></tr>
+                            <tr>
+                                <th class="ps-3">Серийный номер</th>
+                                <td class="ps-3 fw-bold">@Model.SerialNumber</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Конечная точка</th>
+                                <td class="ps-3">@Model.EndpointName</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Тип / Пост</th>
+                                <td class="ps-3 small">
+                                    <div>@Model.SensorTypeName</div>
+                                    <div class="text-muted">@Model.PostName @(Model.PostIsMobile == true ? "(Моб.)" : "")</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">URL API</th>
+                                <td class="ps-3 small text-break"><a href="@Model.SensorUrl" target="_blank">@Model.SensorUrl</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer bg-light py-2">
+                    <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">Назад</a>
+                </div>
             </div>
         </div>
-
-        <!-- Статус проверки -->
-        <div class="details-row">
-            <div class="details-label">Статус проверки</div>
-            <div class="details-value">
-                @if (Model.IsSuccess.HasValue)
-                {
-                    @if (Model.IsSuccess == true)
-                    {
-                        <span class="lozenge lozenge--success">Успешно</span>
-                    }
-                    else
-                    {
-                        <span class="lozenge lozenge--error">Ошибка</span>
-                    }
-                }
-                else
-                {
-                    <span class="text-muted">-</span>
-                }
-            </div>
-        </div>
-
-        <!-- Код статуса HTTP -->
-        <div class="details-row">
-            <div class="details-label">Код статуса HTTP</div>
-            <div class="details-value">
-                @if (Model.StatusCode.HasValue)
-                {
-                    <span>@Model.StatusCode</span>
-                }
-                else
-                {
-                    <span class="text-muted">-</span>
-                }
-            </div>
-        </div>
-
-        <!-- Время ответа -->
-        <div class="details-row">
-            <div class="details-label">Время ответа</div>
-            <div class="details-value">
-                @if (Model.ResponseTimeMs.HasValue)
-                {
-                    <span>@Model.ResponseTimeMs.Value.ToString("N0") мс</span>
-                }
-                else
-                {
-                    <span class="text-muted">-</span>
-                }
-            </div>
-        </div>
-
-        <!-- Серийный номер -->
-        <div class="details-row">
-            <div class="details-label">Серийный номер</div>
-            <div class="details-value">
-                @if (!string.IsNullOrEmpty(Model.SerialNumber))
-                {
-                    <span>@Model.SerialNumber</span>
-                }
-                else
-                {
-                    <span class="text-muted">-</span>
-                }
-            </div>
-        </div>
-
-        <!-- Конечная точка -->
-        <div class="details-row">
-            <div class="details-label">Конечная точка</div>
-            <div class="details-value">
-                @if (!string.IsNullOrEmpty(Model.EndpointName))
-                {
-                    <span>@Model.EndpointName</span>
-                }
-                else
-                {
-                    <span class="text-muted">-</span>
-                }
-            </div>
-        </div>
-
-        <!-- URL датчика -->
-        <div class="details-row">
-            <div class="details-label">URL датчика</div>
-            <div class="details-value">
-                @if (!string.IsNullOrEmpty(Model.SensorUrl))
-                {
-                    <a href="@Model.SensorUrl" target="_blank" class="highlight-link">
-                        @Model.SensorUrl
-                    </a>
-                }
-                else
-                {
-                    <span class="text-muted">-</span>
-                }
-            </div>
-        </div>
-
-        <!-- Пост мониторинга -->
-        <div class="details-row">
-            <div class="details-label">Пост мониторинга</div>
-            <div class="details-value">
-                @if (!string.IsNullOrEmpty(Model.PostName))
-                {
-                    <span>@Model.PostName</span>
-                    @if (Model.PostIsMobile == true)
-                    {
-                        <span class="lozenge" style="margin-left: 8px;">Мобильный</span>
-                    }
-                }
-                else
-                {
-                    <span class="text-muted">Не привязан</span>
-                }
-            </div>
-        </div>
-
-        <!-- Тип датчика -->
-        <div class="details-row">
-            <div class="details-label">Тип датчика</div>
-            <div class="details-value">
-                @if (!string.IsNullOrEmpty(Model.SensorTypeName))
-                {
-                    <span>@Model.SensorTypeName</span>
-                    @if (!string.IsNullOrEmpty(Model.SensorTypeDescription))
-                    {
-                        <br />
-                        <small style="color: var(--text-secondary);">@Model.SensorTypeDescription</small>
-                    }
-                }
-                else
-                {
-                    <span class="text-muted">-</span>
-                }
-            </div>
-        </div>
-
-        <!-- Координаты датчика -->
-        <div class="details-row">
-            <div class="details-label">Координаты датчика</div>
-            <div class="details-value">
-                @if (Model.SensorLongitude.HasValue && Model.SensorLatitude.HasValue)
-                {
-                    <span>@Model.SensorLongitude.Value.ToString("F6"), @Model.SensorLatitude.Value.ToString("F6")</span>
-                    <br />
-                    <small>
-                        <a href="https://www.google.com/maps?q=@Model.SensorLatitude.Value,@Model.SensorLongitude.Value"
-                           target="_blank" style="color: var(--primary-color); text-decoration: none;">
-                            📍 Открыть в Google Maps
-                        </a>
-                    </small>
-                }
-                else
-                {
-                    <span class="text-muted">Не указаны</span>
-                }
-            </div>
-        </div>
-
-        <!-- Интервал проверки -->
-        <div class="details-row">
-            <div class="details-label">Интервал проверки</div>
-            <div class="details-value">
-                @if (Model.CheckIntervalSeconds.HasValue)
-                {
-                    <span>@Model.CheckIntervalSeconds секунд</span>
-                    <small style="color: var(--text-secondary); margin-left: 8px;">
-                        (@(Model.CheckIntervalSeconds / 60) минут)
-                    </small>
-                }
-                else
-                {
-                    <span class="text-muted">-</span>
-                }
-            </div>
-        </div>
-
-        <!-- Последняя активность -->
-        <div class="details-row">
-            <div class="details-label">Последняя активность</div>
-            <div class="details-value">
-                @if (Model.LastActivityUtc.HasValue)
-                {
-                    <span>@Model.LastActivityUtc.Value.ToString("dd.MM.yyyy HH:mm:ss") UTC</span>
-                    <br />
-                    <small style="color: var(--text-secondary);">
-                        @{
-                            var timeAgo = DateTime.UtcNow - Model.LastActivityUtc.Value;
-                            if (timeAgo.TotalDays >= 1)
-                            {
-                                <span>@((int)timeAgo.TotalDays) дней назад</span>
-                            }
-                            else if (timeAgo.TotalHours >= 1)
-                            {
-                                <span>@((int)timeAgo.TotalHours) часов назад</span>
-                            }
-                            else if (timeAgo.TotalMinutes >= 1)
-                            {
-                                <span>@((int)timeAgo.TotalMinutes) минут назад</span>
-                            }
-                            else
-                            {
-                                <span>Только что</span>
-                            }
-                        }
-                    </small>
-                }
-                else
-                {
-                    <span class="text-muted">Нет данных</span>
-                }
-            </div>
-        </div>
-
-        <!-- Статус датчика -->
-        <div class="details-row">
-            <div class="details-label">Статус датчика</div>
-            <div class="details-value">
+    </div>
+</div>
                 @if (Model.SensorIsActive.HasValue)
                 {
                     @if (Model.SensorIsActive == true)

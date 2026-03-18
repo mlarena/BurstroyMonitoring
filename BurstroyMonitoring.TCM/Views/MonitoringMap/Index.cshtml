@@ -9,15 +9,66 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="~/css/monitoring-map.css" />
 
-<div class="monitoring-view-container">
-    <div class="monitoring-view-title">
-        <h1 class="monitoring-title-text">
-            <i class="fas fa-map"></i> Карта мониторинга
-            <span class="monitoring-title-count">
-                (Постов: @totalPosts, Датчиков: @totalSensors)
+<div class="container-fluid px-0" style="margin-top: -1rem;">
+    <div class="bg-light border-bottom py-2 px-3 mb-0 shadow-sm d-flex justify-content-between align-items-center">
+        <h1 class="h5 mb-0">
+            <i class="fas fa-map text-primary me-2"></i> Карта мониторинга
+            <span class="badge bg-secondary ms-2 fw-normal" style="font-size: 0.75rem;">
+                Постов: @totalPosts, Датчиков: @totalSensors
             </span>
         </h1>
+        <div class="d-flex gap-2">
+            <div class="position-relative" style="width: 300px;">
+                <input type="text" class="form-control form-control-sm ps-4" id="postSearch" placeholder="Поиск поста...">
+                <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-2 text-muted small"></i>
+                <div class="monitoring-autocomplete shadow" id="autocompleteResults"></div>
+            </div>
+            <button class="btn btn-sm btn-outline-secondary" onclick="toggleExpand()" title="Развернуть/свернуть">
+                <i class="fas fa-expand"></i>
+            </button>
+        </div>
     </div>
+
+    <div class="monitoring-map-container" style="height: calc(100vh - 140px);">
+        <div id="monitoring-map" style="height: 100%; width: 100%;"></div>
+        
+        <!-- Панель данных датчика (абсолютное позиционирование внутри контейнера карты) -->
+        <div class="sensor-data-section hidden shadow-lg border rounded" id="sensorDataPanel" 
+             style="position: absolute; top: 10px; right: 10px; z-index: 1000; width: 350px; max-height: 90%; background: var(--bs-body-bg); overflow-y: auto;">
+            <div class="card border-0">
+                <div class="card-header bg-primary text-white py-2 d-flex justify-content-between align-items-center">
+                    <h3 class="h6 mb-0"><i class="fas fa-microchip me-2"></i> <span id="sensorTitle">Данные</span></h3>
+                    <button type="button" class="btn-close btn-close-white" onclick="document.getElementById('sensorDataPanel').classList.add('hidden')"></button>
+                </div>
+                <div class="card-body p-2" id="sensorDataContent">
+                    <div class="text-center py-4 text-muted">
+                        <i class="fas fa-chart-line display-6 mb-2"></i>
+                        <p class="small">Выберите датчик на карте</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Корректировка для полноэкранной карты */
+    .monitoring-map-container {
+        position: relative;
+        overflow: hidden;
+    }
+    .monitoring-autocomplete {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 1050;
+        background: var(--bs-body-bg);
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    .hidden { display: none !important; }
+</style>
 
     <div class="monitoring-map-container">
         <div class="monitoring-map-section">

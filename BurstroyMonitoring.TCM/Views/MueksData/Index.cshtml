@@ -4,35 +4,44 @@
     ViewData["Title"] = "Данные MUEKS";
 }
 
-<div class="view-container">
-    <h1 class="view-title">Данные MUEKS</h1>
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">Данные MUEKS</h1>
+        <div class="d-flex gap-2 align-items-center">
+            <div class="form-check form-switch me-2">
+                <input class="form-check-input" type="checkbox" role="switch" id="autoRefresh">
+                <label class="form-check-label small" for="autoRefresh">Автообновление</label>
+            </div>
+            <a href="@Url.Action("DataViewer")" class="btn btn-outline-primary btn-sm">Просмотр и экспорт</a>
+        </div>
+    </div>
 
     <!-- Поиск и фильтры -->
-    <div class="search-container">
-        <form method="get" class="search-form">
-            <div class="search-row">
-                <input type="text" name="search" value="@ViewBag.Search" 
-                       placeholder="Поиск по серийному номеру, названию точки..." 
-                       class="input search-input" />
-                <button type="submit" class="button button--primary">Найти</button>
-                <a href="@Url.Action("Index")" class="button button--secondary">Сбросить</a>
-                <a href="@Url.Action("DataViewer")" class="button button--secondary">Просмотр и экспорт</a>
-                <label style="display: inline-flex; align-items: center; gap: 8px; margin-left: 16px; cursor: pointer;">
-                    <input type="checkbox" id="autoRefresh" style="width: 16px; height: 16px; margin: 0; accent-color: #0052cc;" />
-                    <label>Обновлять автоматически</label>
-                </label>
-            </div>
-        </form>
-       
+    <div class="card mb-3 shadow-sm">
+        <div class="card-body py-2">
+            <form method="get" class="row g-2 align-items-center">
+                <div class="col-auto flex-grow-1">
+                    <input type="text" name="search" value="@ViewBag.Search" 
+                           placeholder="Поиск по S/N, названию точки..." 
+                           class="form-control form-control-sm" />
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary btn-sm">Найти</button>
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary btn-sm">Сбросить</a>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- Пагинация сверху -->
-    @await Html.PartialAsync("_Pagination")
+    <div class="mb-2">
+        @await Html.PartialAsync("_Pagination")
+    </div>
 
     <!-- Таблица данных -->
-    <div class="table-responsive">
-        <table class="table">
-            <thead>
+    <div class="table-responsive shadow-sm rounded">
+        <table class="table table-sm table-hover table-striped align-middle mb-0">
+            <thead class="table-light">
                 <tr>
                     <th>
                         <a href="@Url.Action("Index", new { 
@@ -41,74 +50,68 @@
                             search = ViewBag.Search,
                             sortBy = "MueksDataId",
                             sortDesc = ViewBag.SortBy == "MueksDataId" ? !ViewBag.SortDesc : true
-                        })">
-                            ID
-                            @if (ViewBag.SortBy == "MueksDataId")
-                            {
-                                <span>@(ViewBag.SortDesc ? "▼" : "▲")</span>
-                            }
+                        })" class="text-decoration-none text-dark">
+                            ID @(ViewBag.SortBy == "MueksDataId" ? (ViewBag.SortDesc ? "▼" : "▲") : "")
                         </a>
                     </th>
-                    <th>Дата получения</th>
-                    <th>Серийный номер</th>
-                    <th>Конечная точка</th>
-                    <th>Тип датчика</th>
+                    <th>Дата</th>
+                    <th>S/N</th>
+                    <th>Точка</th>
                     <th>Пост</th>
-                    <th>Температура</th>
-                    <th>Напряжение АКБ</th>
-                    <th>Видимость</th>
-                    <th>Подробности</th>
+                    <th>Темп.</th>
+                    <th>АКБ</th>
+                    <th>Вид-ть</th>
+                    <th class="text-end">Детали</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var item in Model)
                 {
                     <tr>
-                        <td>@item.MueksDataId</td>
-                        <td>@item.ReceivedAt?.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
-                        <td>@item.SerialNumber</td>
-                        <td>@item.EndpointName</td>
-                        <td>@item.SensorTypeName</td>
-                        <td>
+                        <td class="small text-muted">@item.MueksDataId</td>
+                        <td class="text-nowrap small">@item.ReceivedAt?.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                        <td class="fw-bold small">@item.SerialNumber</td>
+                        <td class="text-truncate small" style="max-width: 150px;" title="@item.EndpointName">@item.EndpointName</td>
+                        <td class="text-truncate small" style="max-width: 120px;">
                             @item.PostName
                             @if (item.PostIsMobile == true)
                             {
-                                <span class="lozenge" title="Мобильный пост">Моб.</span>
+                                <span class="badge bg-info text-dark fw-normal p-1" style="font-size: 0.65rem;">Моб.</span>
                             }
                         </td>
                         <td>
                             @if (item.TemperatureBox.HasValue)
                             {
-                                <span>@item.TemperatureBox.Value.ToString("F1")°C</span>
+                                <span class="badge bg-light text-dark border fw-normal">@item.TemperatureBox.Value.ToString("F1")°C</span>
                             }
                             else
                             {
-                                <span class="text-muted">-</span>
+                                <span class="text-muted small">—</span>
                             }
                         </td>
                         <td>
                             @if (item.VoltageAkb.HasValue)
                             {
-                                <span>@item.VoltageAkb.Value.ToString("F1")V</span>
+                                <span class="badge bg-light text-dark border fw-normal">@item.VoltageAkb.Value.ToString("F1")V</span>
                             }
                             else
                             {
-                                <span class="text-muted">-</span>
+                                <span class="text-muted small">—</span>
                             }
                         </td>
                         <td>
                             @if (item.VisibleRange.HasValue)
                             {
-                                <span>@item.VisibleRange.Value.ToString("F0") м</span>
+                                <span class="badge bg-light text-dark border fw-normal">@item.VisibleRange.Value.ToString("F0") м</span>
                             }
                             else
                             {
-                                <span class="text-muted">-</span>
+                                <span class="text-muted small">—</span>
                             }
                         </td>
-                        <td>
+                        <td class="text-end">
                             <a asp-action="Details" asp-route-id="@item.MueksDataId" 
-                               class="button button--sm button--secondary" title="Просмотр деталей">
+                               class="btn btn-outline-secondary btn-sm py-0 px-2" title="Детали">
                                 📊
                             </a>
                         </td>
@@ -119,10 +122,12 @@
     </div>
 
     <!-- Пагинация снизу -->
-    @await Html.PartialAsync("_Pagination")
+    <div class="mt-3">
+        @await Html.PartialAsync("_Pagination")
+    </div>
 
     <!-- Информация о количестве записей -->
-    <div class="records-info">
+    <div class="mt-2 small text-muted text-end">
         Показано @(((ViewBag.Page - 1) * ViewBag.PageSize) + 1)-@Math.Min(ViewBag.Page * ViewBag.PageSize, ViewBag.TotalCount) 
         из @ViewBag.TotalCount записей
     </div>

@@ -15,26 +15,16 @@
 
     // Функция для применения темы
     function setTheme(theme) {
-        const body = document.body;
         const html = document.documentElement;
         
-        // Удаляем все классы темы
-        body.classList.remove('theme-light', 'theme-dark');
-        html.classList.remove('theme-light', 'theme-dark');
-        
-        // Добавляем новый класс темы
-        body.classList.add(`theme-${theme}`);
-        html.classList.add(`theme-${theme}`); // Добавляем и на html для надежности
+        // Устанавливаем стандартный атрибут Bootstrap 5.3
+        html.setAttribute('data-bs-theme', theme);
         
         // Сохраняем тему в localStorage
         localStorage.setItem(THEME_KEY, theme);
         
         // Обновляем текст кнопки
         updateToggleButtonText(theme);
-        
-        // Добавляем атрибут data-theme для возможных CSS правил
-        body.setAttribute('data-theme', theme);
-        html.setAttribute('data-theme', theme);
         
         // Триггерим событие для других скриптов
         window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme } }));
@@ -44,14 +34,14 @@
     function updateToggleButtonText(theme) {
         const toggleBtn = document.getElementById('theme-toggle');
         if (toggleBtn) {
-            toggleBtn.textContent = theme === LIGHT_THEME ? '🌙 Темная тема' : '☀️ Светлая тема';
-            toggleBtn.title = 'Правый клик для сброса к системной теме';
+            toggleBtn.innerHTML = theme === LIGHT_THEME ? '🌙' : '☀️';
+            toggleBtn.title = theme === LIGHT_THEME ? 'Переключить на темную тему' : 'Переключить на светлую тему';
         }
     }
 
     // Функция для переключения темы
     function toggleTheme() {
-        const currentTheme = document.body.classList.contains('theme-light') ? LIGHT_THEME : DARK_THEME;
+        const currentTheme = document.documentElement.getAttribute('data-bs-theme') || LIGHT_THEME;
         const newTheme = currentTheme === LIGHT_THEME ? DARK_THEME : LIGHT_THEME;
         setTheme(newTheme);
     }

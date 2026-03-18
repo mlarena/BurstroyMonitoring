@@ -1,129 +1,92 @@
 @if (ViewBag.TotalPages > 1)
 {
-    <div class="pagination-container">
-        <nav class="pagination">
-            <!-- Кнопка "Назад" -->
-            @if (ViewBag.Page > 1)
-            {
-                <a href="@Url.Action("Index", new { 
-                    page = ViewBag.Page - 1, 
-                    pageSize = ViewBag.PageSize, 
-                    search = ViewBag.Search,
-                    sortBy = ViewBag.SortBy,
-                    sortDesc = ViewBag.SortDesc
-                })" class="pagination-btn">
-                    ← Назад
-                </a>
-            }
-            else
-            {
-                <span class="pagination-btn disabled">← Назад</span>
-            }
-
-            <!-- Номера страниц -->
-            @{
-                var startPage = Math.Max(1, ViewBag.Page - 2);
-                var endPage = Math.Min(ViewBag.TotalPages, ViewBag.Page + 2);
-                
-                if (startPage > 1)
-                {
-                    <a href="@Url.Action("Index", new { 
-                        page = 1, 
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <nav aria-label="Page navigation">
+            <ul class="pagination pagination-sm mb-0 shadow-sm">
+                <!-- Кнопка "Назад" -->
+                <li class="page-item @(ViewBag.Page <= 1 ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { 
+                        page = ViewBag.Page - 1, 
                         pageSize = ViewBag.PageSize, 
                         search = ViewBag.Search,
                         sortBy = ViewBag.SortBy,
                         sortDesc = ViewBag.SortDesc
-                    })" class="pagination-btn">1</a>
-                    if (startPage > 2)
+                    })">«</a>
+                </li>
+
+                <!-- Номера страниц -->
+                @{
+                    var startPage = Math.Max(1, ViewBag.Page - 2);
+                    var endPage = Math.Min(ViewBag.TotalPages, ViewBag.Page + 2);
+                    
+                    if (startPage > 1)
                     {
-                        <span class="pagination-dots">...</span>
+                        <li class="page-item">
+                            <a class="page-link" href="@Url.Action("Index", new { 
+                                page = 1, 
+                                pageSize = ViewBag.PageSize, 
+                                search = ViewBag.Search,
+                                sortBy = ViewBag.SortBy,
+                                sortDesc = ViewBag.SortDesc
+                            })">1</a>
+                        </li>
+                        if (startPage > 2)
+                        {
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        }
+                    }
+                    
+                    for (int i = startPage; i <= endPage; i++)
+                    {
+                        <li class="page-item @(i == ViewBag.Page ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("Index", new { 
+                                page = i, 
+                                pageSize = ViewBag.PageSize, 
+                                search = ViewBag.Search,
+                                sortBy = ViewBag.SortBy,
+                                sortDesc = ViewBag.SortDesc
+                            })">@i</a>
+                        </li>
+                    }
+                    
+                    if (endPage < ViewBag.TotalPages)
+                    {
+                        if (endPage < ViewBag.TotalPages - 1)
+                        {
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        }
+                        <li class="page-item">
+                            <a class="page-link" href="@Url.Action("Index", new { 
+                                page = ViewBag.TotalPages, 
+                                pageSize = ViewBag.PageSize, 
+                                search = ViewBag.Search,
+                                sortBy = ViewBag.SortBy,
+                                sortDesc = ViewBag.SortDesc
+                            })">@ViewBag.TotalPages</a>
+                        </li>
                     }
                 }
-                
-                for (int i = startPage; i <= endPage; i++)
-                {
-                    if (i == ViewBag.Page)
-                    {
-                        <span class="pagination-btn active">@i</span>
-                    }
-                    else
-                    {
-                        <a href="@Url.Action("Index", new { 
-                            page = i, 
-                            pageSize = ViewBag.PageSize, 
-                            search = ViewBag.Search,
-                            sortBy = ViewBag.SortBy,
-                            sortDesc = ViewBag.SortDesc
-                        })" class="pagination-btn">@i</a>
-                    }
-                }
-                
-                if (endPage < ViewBag.TotalPages)
-                {
-                    if (endPage < ViewBag.TotalPages - 1)
-                    {
-                        <span class="pagination-dots">...</span>
-                    }
-                    <a href="@Url.Action("Index", new { 
-                        page = ViewBag.TotalPages, 
+
+                <!-- Кнопка "Вперед" -->
+                <li class="page-item @(ViewBag.Page >= ViewBag.TotalPages ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { 
+                        page = ViewBag.Page + 1, 
                         pageSize = ViewBag.PageSize, 
                         search = ViewBag.Search,
                         sortBy = ViewBag.SortBy,
                         sortDesc = ViewBag.SortDesc
-                    })" class="pagination-btn">@ViewBag.TotalPages</a>
-                }
-            }
-
-            <!-- Кнопка "Вперед" -->
-            @if (ViewBag.Page < ViewBag.TotalPages)
-            {
-                <a href="@Url.Action("Index", new { 
-                    page = ViewBag.Page + 1, 
-                    pageSize = ViewBag.PageSize, 
-                    search = ViewBag.Search,
-                    sortBy = ViewBag.SortBy,
-                    sortDesc = ViewBag.SortDesc
-                })" class="pagination-btn">
-                    Вперед →
-                </a>
-            }
-            else
-            {
-                <span class="pagination-btn disabled">Вперед →</span>
-            }
+                    })">»</a>
+                </li>
+            </ul>
         </nav>
 
         <!-- Выбор размера страницы -->
-        <div class="page-size-selector">
-            <label>Записей на странице:</label>
-            
-            @{
-                var pageSizeOptions = new List<SelectListItem>
+        <div class="d-flex align-items-center gap-2">
+            <label class="small text-muted mb-0 text-nowrap">На странице:</label>
+            <select onchange="changePageSize(this.value)" class="form-select form-select-sm shadow-sm" style="width: auto;">
+                @foreach (var size in new[] { 10, 20, 50, 100 })
                 {
-                    new SelectListItem { Value = "10", Text = "10" },
-                    new SelectListItem { Value = "20", Text = "20" },
-                    new SelectListItem { Value = "50", Text = "50" },
-                    new SelectListItem { Value = "100", Text = "100" }
-                };
-
-                var selectedValue = ViewBag.PageSize?.ToString() ?? "20";
-                foreach (var option in pageSizeOptions)
-                {
-                    option.Selected = option.Value == selectedValue;
-                }
-            }
-            
-            <select onchange="changePageSize(this.value)" class="input select">
-                @foreach (var option in pageSizeOptions)
-                {
-                    if (option.Selected)
-                    {
-                        <option value="@option.Value" selected>@option.Text</option>
-                    }
-                    else
-                    {
-                        <option value="@option.Value">@option.Text</option>
-                    }
+                    <option value="@size" selected="@(ViewBag.PageSize == size ? "selected" : null)">@size</option>
                 }
             </select>
         </div>

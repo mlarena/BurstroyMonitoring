@@ -4,46 +4,60 @@
     ViewData["Title"] = "Создать пост мониторинга";
 }
 
-<div class="form-container">
-    <h1 class="form-title">Создать пост мониторинга</h1>
-    
-    <form asp-action="Create" id="monitoringPostForm">
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        
-        <div class="field-group">
-            <label asp-for="Name" class="control-label required">Наименование</label>
-            <input asp-for="Name" class="input" />
-            <span asp-validation-for="Name" class="field-validation-error"></span>
-        </div>
-        
-        <div class="field-group">
-            <label asp-for="Description" class="control-label">Описание</label>
-            <textarea asp-for="Description" class="input" rows="3"></textarea>
-            <span asp-validation-for="Description" class="field-validation-error"></span>
-        </div>
-        
-        <!-- Используем Partial View для координат -->
-        @await Html.PartialAsync("_CoordinateFields", Model)
-        
-        <div class="field-group">
-            <div class="checkbox-group">
-                <input asp-for="IsMobile" />
-                <label asp-for="IsMobile" class="control-label">Пост мобильный</label>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white py-2">
+                    <h1 class="h5 mb-0">Создать пост мониторинга</h1>
+                </div>
+                <div class="card-body p-3">
+                    <form asp-action="Create" id="monitoringPostForm">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small"></div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label small fw-bold">Наименование</label>
+                            <input asp-for="Name" class="form-control form-control-sm" placeholder="Введите название поста" />
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label small fw-bold">Описание</label>
+                            <textarea asp-for="Description" class="form-control form-control-sm" rows="3" placeholder="Дополнительная информация"></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
+                        </div>
+                        
+                        <!-- Используем Partial View для координат -->
+                        <div class="card bg-light mb-3 border-0">
+                            <div class="card-body p-2">
+                                @await Html.PartialAsync("_CoordinateFields", Model)
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <div class="form-check form-switch">
+                                    <input asp-for="IsMobile" class="form-check-input" type="checkbox" role="switch" />
+                                    <label asp-for="IsMobile" class="form-check-label small">Мобильный пост</label>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-check form-switch">
+                                    <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" checked="checked" />
+                                    <label asp-for="IsActive" class="form-check-label small">Активный</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Назад к списку</a>
+                            <button type="submit" class="btn btn-primary btn-sm px-4">Создать</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-        
-        <div class="field-group">
-            <div class="checkbox-group">
-                <input asp-for="IsActive" checked="checked" />
-                <label asp-for="IsActive" class="control-label">Активный</label>
-            </div>
-        </div>
-        
-        <div class="form-actions">
-            <input type="submit" value="Создать" class="button button--primary" />
-            <a asp-action="Index" class="button button--secondary">Назад к списку</a>
-        </div>
-    </form>
+    </div>
 </div>
 
 @section Scripts {

@@ -4,159 +4,136 @@
     ViewData["Title"] = "Подробности о датчике";
 }
 
-<div class="details-container">
-    <h1 class="form-title">Подробности о датчике</h1>
-    
-    <div class="details-row">
-        <div class="details-label">Серийный номер</div>
-        <div class="details-value">@Html.DisplayFor(model => model.SerialNumber)</div>
-    </div>
-    
-    <div class="details-row">
-        <div class="details-label">Тип датчика</div>
-        <div class="details-value">
-            @if (Model.SensorType != null)
-            {
-                <span>@Model.SensorType.SensorTypeName</span>
-                <br />
-                <small style="color: var(--text-secondary);">@Model.SensorType.Description</small>
-            }
-            else
-            {
-                <span class="text-muted">Не указан</span>
-            }
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white py-2 d-flex justify-content-between align-items-center">
+                    <h1 class="h5 mb-0">Подробности о датчике</h1>
+                    <span class="badge bg-light text-dark">ID: @Model.Id</span>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-sm mb-0">
+                        <tbody>
+                            <tr>
+                                <th class="bg-light ps-3" style="width: 35%;">Серийный номер</th>
+                                <td class="ps-3 fw-bold">@Html.DisplayFor(model => model.SerialNumber)</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light ps-3">Тип датчика</th>
+                                <td class="ps-3">
+                                    @if (Model.SensorType != null)
+                                    {
+                                        <div class="fw-bold">@Model.SensorType.SensorTypeName</div>
+                                        <div class="small text-muted">@Model.SensorType.Description</div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">Не указан</span>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light ps-3">Пост мониторинга</th>
+                                <td class="ps-3">
+                                    @if (Model.MonitoringPost != null)
+                                    {
+                                        <a href="@Url.Action("Details", "MonitoringPosts", new { id = Model.MonitoringPostId })" class="text-decoration-none">
+                                            @Model.MonitoringPost.Name
+                                        </a>
+                                        @if (Model.MonitoringPost.IsMobile)
+                                        {
+                                            <span class="badge bg-info text-dark ms-2 fw-normal">Мобильный</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">Не привязан</span>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light ps-3">Координаты</th>
+                                <td class="ps-3">
+                                    @if (Model.Longitude.HasValue && Model.Latitude.HasValue)
+                                    {
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span>@Model.Longitude.Value.ToString("F6"), @Model.Latitude.Value.ToString("F6")</span>
+                                            <a href="https://www.google.com/maps?q=@Model.Latitude.Value,@Model.Longitude.Value" 
+                                               target="_blank" class="btn btn-link btn-sm p-0 text-decoration-none">
+                                                📍 Карта
+                                            </a>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">Не указаны</span>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light ps-3">Название точки</th>
+                                <td class="ps-3">@Html.DisplayFor(model => model.EndPointsName)</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light ps-3">URL API</th>
+                                <td class="ps-3">
+                                    <a href="@Model.Url" target="_blank" class="text-break small">@Model.Url</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light ps-3">Интервал проверки</th>
+                                <td class="ps-3">
+                                    @Model.CheckIntervalSeconds сек. 
+                                    <span class="text-muted small">(@(Model.CheckIntervalSeconds / 60) мин.)</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light ps-3">Активность</th>
+                                <td class="ps-3 small">
+                                    @if (Model.LastActivityUTC.HasValue)
+                                    {
+                                        <div><span class="text-muted">Последняя:</span> @Model.LastActivityUTC.Value.ToString("dd.MM.yyyy HH:mm:ss") UTC</div>
+                                        <div class="text-info">
+                                            @{
+                                                var timeAgo = DateTime.UtcNow - Model.LastActivityUTC.Value;
+                                                if (timeAgo.TotalDays >= 1) { <span>@((int)timeAgo.TotalDays) дн. назад</span> }
+                                                else if (timeAgo.TotalHours >= 1) { <span>@((int)timeAgo.TotalHours) ч. назад</span> }
+                                                else if (timeAgo.TotalMinutes >= 1) { <span>@((int)timeAgo.TotalMinutes) мин. назад</span> }
+                                                else { <span>Только что</span> }
+                                            }
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Нет данных</span>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light ps-3">Статус</th>
+                                <td class="ps-3">
+                                    @if (Model.IsActive)
+                                    {
+                                        <span class="badge bg-success fw-normal">Активен</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger fw-normal">Неактивен</span>
+                                    }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer bg-light d-flex justify-content-between py-2">
+                    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Назад к списку</a>
+                    <div class="btn-group btn-group-sm">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Редактировать</a>
+                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Удалить</a>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-    
-    <div class="details-row">
-        <div class="details-label">Пост мониторинга</div>
-        <div class="details-value">
-            @if (Model.MonitoringPost != null)
-            {
-                <span>@Model.MonitoringPost.Name</span>
-                @if (Model.MonitoringPost.IsMobile)
-                {
-                    <span class="lozenge" style="margin-left: 8px;">Мобильный</span>
-                }
-            }
-            else
-            {
-                <span class="text-muted">Не привязан</span>
-            }
-        </div>
-    </div>
-    
-    <div class="details-row">
-        <div class="details-label">Координаты</div>
-        <div class="details-value">
-            @if (Model.Longitude.HasValue && Model.Latitude.HasValue)
-            {
-                <span>@Model.Longitude.Value.ToString("F6"), @Model.Latitude.Value.ToString("F6")</span>
-                <br />
-                <small>
-                    <a href="https://www.google.com/maps?q=@Model.Latitude.Value,@Model.Longitude.Value" 
-                       target="_blank" style="color: var(--primary-color); text-decoration: none;">
-                        📍 Открыть в Google Maps
-                    </a>
-                </small>
-            }
-            else
-            {
-                <span class="text-muted">Не указаны</span>
-            }
-        </div>
-    </div>
-    
-    <div class="details-row">
-        <div class="details-label">Название конечной точки</div>
-        <div class="details-value">@Html.DisplayFor(model => model.EndPointsName)</div>
-    </div>
-    
-    <div class="details-row">
-        <div class="details-label">@Html.DisplayNameFor(model => model.Url)</div>
-        <div class="details-value">
-            <a href="@Model.Url" target="_blank" style="color: var(--primary-color); word-break: break-all;">
-                @Model.Url
-            </a>
-        </div>
-    </div>
-    
-    <div class="details-row">
-        <div class="details-label">Интервал проверки (сек)</div>
-        <div class="details-value">
-            @Html.DisplayFor(model => model.CheckIntervalSeconds) секунд
-            <small style="color: var(--text-secondary); margin-left: 8px;">
-                (@(Model.CheckIntervalSeconds / 60) минут)
-            </small>
-        </div>
-    </div>
-    
-    <div class="details-row">
-        <div class="details-label">Последняя активность</div>
-        <div class="details-value">
-            @if (Model.LastActivityUTC.HasValue)
-            {
-                <span>@Model.LastActivityUTC.Value.ToString("dd.MM.yyyy HH:mm:ss") UTC</span>
-                <br />
-                <small style="color: var(--text-secondary);">
-                    @{
-                        var timeAgo = DateTime.UtcNow - Model.LastActivityUTC.Value;
-                        if (timeAgo.TotalDays >= 1)
-                        {
-                            <span>@((int)timeAgo.TotalDays) дней назад</span>
-                        }
-                        else if (timeAgo.TotalHours >= 1)
-                        {
-                            <span>@((int)timeAgo.TotalHours) часов назад</span>
-                        }
-                        else if (timeAgo.TotalMinutes >= 1)
-                        {
-                            <span>@((int)timeAgo.TotalMinutes) минут назад</span>
-                        }
-                        else
-                        {
-                            <span>Только что</span>
-                        }
-                    }
-                </small>
-            }
-            else
-            {
-                <span class="text-muted">Нет данных</span>
-            }
-        </div>
-    </div>
-    
-    <div class="details-row">
-        <div class="details-label">Создан</div>
-        <div class="details-value">
-            @if (Model.CreatedAt.HasValue)
-            {
-                <span>@Model.CreatedAt.Value.ToString("dd.MM.yyyy HH:mm:ss") UTC</span>
-            }
-            else
-            {
-                <span class="text-muted">Не указана</span>
-            }
-        </div>
-    </div>
-    
-    <div class="details-row">
-        <div class="details-label">Статус</div>
-        <div class="details-value">
-            @if (Model.IsActive)
-            {
-                <span class="lozenge lozenge--success">Активен</span>
-            }
-            else
-            {
-                <span class="lozenge lozenge--error">Неактивен</span>
-            }
-        </div>
-    </div>
-    
-    <div class="details-actions">
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="button button--primary">Редактировать</a>
-        <a asp-action="Index" class="button button--secondary">Назад к списку</a>
     </div>
 </div>

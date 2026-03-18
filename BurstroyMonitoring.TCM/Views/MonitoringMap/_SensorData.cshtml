@@ -1,275 +1,42 @@
 @model dynamic
 
 @{
-    var sensorTypeId = ViewBag.SensorTypeId as int?;
-    var sensorId = ViewBag.SensorId as int?;
-    var sensorName = ViewBag.SensorName as string ?? "Датчик";
-    
-    // Преобразуем dynamic в Dictionary для удобства
     var data = new Dictionary<string, object>();
-    if (Model != null)
-    {
-        var properties = Model.GetType().GetProperties();
-        foreach (var prop in properties)
-        {
-            var value = prop.GetValue(Model);
-            if (value != null)
-            {
-                data[prop.Name] = value;
-            }
+    if (Model != null) {
+        foreach (var prop in Model.GetType().GetProperties()) {
+            var val = prop.GetValue(Model);
+            if (val != null) data[prop.Name] = val;
         }
     }
-}
 
-<style>
-    .sensor-data-content {
-        padding: 0 !important;
-        max-height: 250px;
-        overflow-y: auto;
-        background: white;
-    }
-    
-    .sensor-data-container {
-        width: 100%;
-        overflow-x: auto;
-        background: white;
-    }
-    
-    .sensor-data-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 13px;
-        min-width: 800px;
-        border: none;
-    }
-    
-    .sensor-data-table td {
-        padding: 10px 12px;
-        border: 1px solid #e9ecef;
-        vertical-align: middle;
-    }
-    
-    .parameters-row td {
-        background-color: #f8f9fa;
-        font-weight: 600;
-        color: #495057;
-        white-space: nowrap;
-        text-align: center;
-    }
-    
-    .values-row td {
-        font-family: 'Courier New', monospace;
-        font-weight: 500;
-        text-align: center;
-        background-color: white;
-    }
-    
-    .values-row td.number {
-        color: #28a745;
-    }
-    
-    .values-row td.boolean {
-        color: #dc3545;
-    }
-    
-    .values-row td.string {
-        color: #17a2b8;
-    }
-    
-    .values-row td.datetime {
-        color: #6f42c1;
-    }
-    
-    .no-data-message {
-        padding: 30px;
-        text-align: center;
-        color: #6c757d;
-        font-style: italic;
-    }
-    
-    .no-data-message i {
-        font-size: 24px;
-        margin-bottom: 10px;
-        color: #adb5bd;
-    }
-</style>
-
-@if (data.Any())
-{
-    @* Получаем временную метку для передачи в заголовок *@
-    var timestamp = data.FirstOrDefault(x => 
-        x.Key == "ReceivedAt" || 
-        x.Key == "receivedAt" || 
-        x.Key == "DataTimestamp" || 
-        x.Key == "dataTimestamp").Value;
-    
-    string timestampStr = "";
-    if (timestamp != null)
-    {
-        if (timestamp is DateTime dt)
-        {
-            timestampStr = dt.ToString("dd.MM.yyyy HH:mm:ss");
-        }
-        else
-        {
-            timestampStr = timestamp.ToString() ?? "";
-        }
-    }
-    
-    @* Сохраняем временную метку в ViewBag для заголовка *@
-    ViewBag.Timestamp = timestampStr;
-    
-    <div class="sensor-info-header hidden" 
-         data-post-name="@ViewData["PostName"]" 
-         data-sensor-type="@ViewData["SensorTypeName"]" 
-         data-endpoint="@ViewData["EndPointsName"]" 
-         data-received="@timestampStr">
-    </div>
-    
-    @* Фильтруем параметры для отображения (исключаем ID и временные метки) *@
-    var displayParams = data.Where(x => 
-        !x.Key.Contains("ReceivedAt") && 
-        !x.Key.Contains("DataTimestamp") && 
-        !x.Key.Contains("received") && 
-        !x.Key.Contains("timestamp") &&
-        !x.Key.Contains("Id") && 
-        !x.Key.Contains("SensorId") && 
-        !x.Key.Contains("id") && 
-        !x.Key.Contains("sensor_id")).ToList();
-
-    // Словарь переводов
-    var translations = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-    {
-        // DSPD
-        { "UPower", "Питание, В" },
-        { "NeedCalibration", "Калибровка" },
-        { "AngleToRoad", "Угол, °" },
-        { "Shake", "Вибрация, g" },
-        { "TemperatureRoad", "Т дороги, °С" },
-        { "HeightIce", "Лед, мм" },
-        { "HeightSnow", "Снег, мм" },
-        { "HeightH2O", "Вода, мм" },
-        { "RoadStatus", "Статус дороги" },
-        { "PercentPGM", "ПГМ, %" },
-        { "TemperatureFreezePGM", "Т замерз. ПГМ, °С" },
-        { "PercentICE", "Лед/Снег, %" },
-        { "Grip", "Сцепление" },
-        { "TemperatureCase", "Т оптики, °С" },
-        { "GPSLatitude", "Широта (GPS)" },
-        { "GPSLongitude", "Долгота (GPS)" },
-        { "DistanceToSurface", "Расст. до дор., мм" },
-        { "SnowdriftIntence", "Рост сугроба, мм/ч" },
-        { "SnowdriftHeight", "Выс. сугроба, мм" },
-        
-        // IWS
-        { "EnvTemperature", "Т возд., ℃" },
-        { "Humidity", "Влажн., %" },
-        { "DewPoint", "Т т.росы, ℃" },
-        { "PressureHPa", "Давл., гПа" },
-        { "PressureMmHg", "Давл., мм.рт.ст" },
-        { "WindSpeed", "Ветер, м/с" },
-        { "WindDirection", "Напр. ветра, º" },
-        { "WindVSound", "Ск. звука, м/с" },
-        { "PrecipitationType", "Тип осадков" },
-        { "PrecipitationIntensity", "Интенс. осадков, мм/ч" },
-        { "PrecipitationQuantity", "Осадки/сут, мм" },
-        { "PrecipitationElapsed", "Время сброса" },
-        { "PrecipitationPeriod", "Период сброса, мин" },
-        { "CO2Level", "CO2, ppm" },
-        { "SupplyVoltage", "Питание, В" },
-        { "Latitude", "Широта" },
-        { "Longitude", "Долгота" },
-        { "Altitude", "Высота, м" },
-        { "KSP", "Спутники" },
-        { "AccelerationStDev", "Вибрация, g" },
-        { "Roll", "Крен, º" },
-        { "Pitch", "Тангаж, º" },
-        { "WeAreFine", "Исправность" },
-
-        // DOV
-        { "VisibleRange", "Видимость, м" },
-        { "BrightFlag", "Яркость" },
-
-        // DUST
-        { "PM10Act", "PM10 (текущ), мг/м³" },
-        { "PM10AWG", "PM10 (сред), мг/м³" },
-        { "PM1Act", "PM1.0 (текущ), мг/м³" },
-        { "PM1AWG", "PM1.0 (сред), мг/м³" },
-        { "PM25Act", "PM2.5 (текущ), мг/м³" },
-        { "PM25AWG", "PM2.5 (сред), мг/м³" },
-        { "FlowProbe", "Поток" },
-        { "TemperatureProbe", "Т зонда" },
-        { "HumidityProbe", "Влажн. зонда" },
-        { "LaserStatus", "Лазер" }
+    var translations = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) {
+        { "UPower", "Питание, В" }, { "NeedCalibration", "Калибровка" }, { "AngleToRoad", "Угол, °" },
+        { "Shake", "Вибрация, g" }, { "TemperatureRoad", "Т дороги, °С" }, { "HeightIce", "Лед, мм" },
+        { "HeightSnow", "Снег, мм" }, { "HeightH2O", "Вода, мм" }, { "RoadStatus", "Статус дороги" },
+        { "Grip", "Сцепление" }, { "EnvTemperature", "Т возд., ℃" }, { "Humidity", "Влажн., %" },
+        { "PressureHPa", "Давл., гПа" }, { "WindSpeed", "Ветер, м/с" }, { "VisibleRange", "Видимость, м" }
     };
 
-    // Если тип датчика DOV, оставляем только VisibleRange
-    var sensorTypeName = ViewData["SensorTypeName"] as string;
-    if (sensorTypeName != null && sensorTypeName.Equals("DOV", StringComparison.OrdinalIgnoreCase))
-    {
-        displayParams = displayParams.Where(x => x.Key.Equals("VisibleRange", StringComparison.OrdinalIgnoreCase)).ToList();
-    }
-    
-    <div class="sensor-data-container">
-        <table class="sensor-data-table">
-            @* Строка с названиями параметров *@
-            <tr class="parameters-row">
-                @foreach (var item in displayParams)
-                {
-                    var header = translations.ContainsKey(item.Key) ? translations[item.Key] : item.Key;
-                    <td>@header</td>
-                }
-            </tr>
-            
-            @* Строка со значениями *@
-            <tr class="values-row">
-                @foreach (var item in displayParams)
-                {
-                    string displayValue = item.Value?.ToString() ?? "-";
-                    string valueClass = "";
-                    
-                    // Форматирование значений
-                    if (item.Value is DateTime dt)
-                    {
-                        displayValue = dt.ToString("dd.MM.yyyy HH:mm");
-                        valueClass = "datetime";
-                    }
-                    else if (item.Value is decimal d)
-                    {
-                        displayValue = d.ToString("F2");
-                        valueClass = "number";
-                    }
-                    else if (item.Value is double db)
-                    {
-                        displayValue = db.ToString("F2");
-                        valueClass = "number";
-                    }
-                    else if (item.Value is int i)
-                    {
-                        displayValue = i.ToString();
-                        valueClass = "number";
-                    }
-                    else if (item.Value is bool b)
-                    {
-                        displayValue = b ? "Да" : "Нет";
-                        valueClass = "boolean";
-                    }
-                    else if (item.Value is string s)
-                    {
-                        displayValue = s;
-                        valueClass = "string";
-                    }
-                    
-                    <td class="@valueClass">@displayValue</td>
-                }
-            </tr>
-        </table>
-    </div>
+    var displayParams = data.Where(x => 
+        !x.Key.Contains("ReceivedAt") && !x.Key.Contains("DataTimestamp") && 
+        !x.Key.Contains("Id") && !x.Key.Contains("SensorId")).ToList();
 }
-else
-{
-    <div class="no-data-message">
-        <i class="fas fa-database"></i>
-        <p>Нет данных для отображения</p>
+
+@if (data.Any()) {
+    <div class="list-group list-group-flush small">
+        <div class="list-group-item bg-light py-1 fw-bold text-muted" style="font-size: 0.7rem;">ПАРАМЕТРЫ</div>
+        @foreach (var item in displayParams) {
+            var header = translations.ContainsKey(item.Key) ? translations[item.Key] : item.Key;
+            <div class="list-group-item py-2 d-flex justify-content-between align-items-center">
+                <span class="text-muted">@header</span>
+                <span class="fw-bold text-primary">
+                    @if (item.Value is double d) { @d.ToString("F2") }
+                    else if (item.Value is decimal dec) { @dec.ToString("F2") }
+                    else { @item.Value }
+                </span>
+            </div>
+        }
     </div>
+} else {
+    <div class="text-center py-4 text-muted small">Нет данных для отображения</div>
 }

@@ -5,84 +5,153 @@
 }
 <link rel="stylesheet" href="~/css/charts.css" asp-append-version="true" />
 
-<div class="view-container" style="max-width: 100%;">
-    <h1 class="view-title">Графики и диаграммы</h1>
+<div class="container-fluid">
+    <h1 class="h3 mb-3">Графики и диаграммы</h1>
     
-    <div class="main-filter-container">
-        <div class="main-filter-content">
-            <form id="sensorForm" class="filter-form">
-                <div class="form-row">
-                    <div class="field-group" style="flex: 1;">
-                        <label for="monitoringPostSelect">Пост мониторинга</label>
-                        <select id="monitoringPostSelect" class="input select" 
-                                asp-for="SelectedMonitoringPostId" 
-                                asp-items="Model.MonitoringPosts">                           
-                        </select>
-                    </div>
+    <div class="card mb-3 shadow-sm">
+        <div class="card-body py-2">
+            <form id="sensorForm" class="row g-2 align-items-center">
+                <div class="col-md-6">
+                    <label for="monitoringPostSelect" class="form-label small fw-bold mb-1">Пост мониторинга</label>
+                    <select id="monitoringPostSelect" class="form-select form-select-sm" 
+                            asp-for="SelectedMonitoringPostId" 
+                            asp-items="Model.MonitoringPosts">                           
+                    </select>
                 </div>
             </form>
         </div>
     </div>
 
-    <div id="chartDashboard" class="dashboard" style="display: none; margin-top: var(--spacing-lg);">
-        <div class="filters-container">
-            <!-- Период -->
-            <div class="d-flex align-center time-range-control" data-active-days="1">
-                <span class="filter-label">📅 Период:</span>
-                <div class="btn-group range-btn-group">
-                    <button type="button" class="filter-btn range-btn active" data-days="1">24ч</button>
-                    <button type="button" class="filter-btn range-btn" data-days="3">3д</button>
-                    <button type="button" class="filter-btn range-btn" data-days="7">7д</button>
-                    <button type="button" class="filter-btn range-btn" data-days="14">14д</button>
-                    <button type="button" class="filter-btn range-btn" data-days="30">30д</button>
+    <div id="chartDashboard" class="dashboard" style="display: none;">
+        <div class="card mb-3 shadow-sm">
+            <div class="card-body py-2 d-flex flex-wrap align-items-center gap-4">
+                <!-- Период -->
+                <div class="d-flex align-items-center gap-2">
+                    <span class="small fw-bold text-muted">📅 Период:</span>
+                    <div class="btn-group btn-group-sm shadow-sm">
+                        <button type="button" class="btn btn-outline-primary range-btn active" data-days="1">24ч</button>
+                        <button type="button" class="btn btn-outline-primary range-btn" data-days="3">3д</button>
+                        <button type="button" class="btn btn-outline-primary range-btn" data-days="7">7д</button>
+                        <button type="button" class="btn btn-outline-primary range-btn" data-days="14">14д</button>
+                        <button type="button" class="btn btn-outline-primary range-btn" data-days="30">30д</button>
+                    </div>
+                </div>
+
+                <!-- Агрегация -->
+                <div class="d-flex align-items-center gap-2">
+                    <span class="small fw-bold text-muted">📈 Агрегация:</span>
+                    <div class="btn-group btn-group-sm shadow-sm">
+                        <button type="button" class="btn btn-outline-info aggregation-btn" data-interval="raw">Все</button>
+                        <button type="button" class="btn btn-outline-info aggregation-btn" data-interval="tenminutes">10 мин</button>
+                        <button type="button" class="btn btn-outline-info aggregation-btn active" data-interval="hour">Час</button>
+                    </div>
+                </div>
+
+                <!-- Настройка подсказки -->
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="showAllMetrics" checked>
+                    <label class="form-check-label small fw-bold text-muted" for="showAllMetrics">Все метрики</label>
                 </div>
             </div>
+        </div>
 
-            <!-- Агрегация -->
-            <div class="d-flex align-center aggregation-interval-control" data-active-interval="hour">
-                <span class="filter-label">📈 Агрегация:</span>
-                <div class="btn-group aggregation-btn-group">
-                    <button type="button" class="filter-btn aggregation-btn" data-interval="raw">Все</button>
-                    <button type="button" class="filter-btn aggregation-btn" data-interval="tenminutes">10 мин</button>
-                    <button type="button" class="filter-btn aggregation-btn active" data-interval="hour">По часам</button>
+        <div class="card mb-3 shadow-sm">
+            <div class="card-body py-2 d-flex justify-content-between align-items-center">
+                <div class="btn-group btn-group-sm" id="groupSelector">
+                    <!-- Кнопки будут добавлены через JS -->
+                </div>
+                <div id="sensorSubSelectContainer" style="display: none;" class="d-flex align-items-center gap-2">
+                    <label for="sensorSubSelect" class="small fw-bold text-muted mb-0">Устройство:</label>
+                    <select id="sensorSubSelect" class="form-select form-select-sm" style="width: auto;"></select>
                 </div>
             </div>
+        </div>
 
-            <!-- Настройка подсказки -->
-            <div class="d-flex align-center tooltip-control">
-                <label style="cursor: pointer; font-size: 0.85rem; color: #5c7f9c; display: inline-flex; align-items: center; gap: 8px; font-weight: 600;">
-                    <input type="checkbox" id="showAllMetrics" checked> 
-                    Все метрики в подсказке
-                </label>
+        <div class="card mb-3 shadow-sm border-info">
+            <div class="card-header bg-info text-white py-1 d-flex justify-content-between align-items-center">
+                <span class="small fw-bold">📋 Текущие значения (наведите на точку)</span>
+                <button type="button" class="btn btn-light btn-sm py-0 px-2" id="resetFilterBtn" style="font-size: 0.75rem;">Сброс</button>
+            </div>
+            <div class="card-body p-1">
+                <div class="d-flex flex-wrap gap-1" id="statsGrid">
+                    <!-- Заполняется через JS -->
+                </div>
             </div>
         </div>
 
-        <div class="group-selector-container">
-            <div class="group-selector" id="groupSelector">
-                <!-- Кнопки будут добавлены через JS -->
-            </div>
-            <div id="sensorSubSelectContainer" class="sensor-sub-select" style="display: none;">
-                <label for="sensorSubSelect">Устройство:</label>
-                <select id="sensorSubSelect" class="input select small-select"></select>
-            </div>
-        </div>
-
-        <div class="stats-panel" id="statsPanel">
-            <div class="stats-header">
-                <div class="stats-title">📋 Текущие значения (наведите на точку)</div>
-                <button type="button" class="reset-btn" id="resetFilterBtn">Показать все графики</button>
-            </div>
-            <div class="stats-grid" id="statsGrid">
-                <!-- Заполняется через JS -->
-            </div>
-        </div>
-
-        <div class="chart-wrapper">
-            <div id="tooltip" class="tooltip"></div>
+        <div class="chart-wrapper bg-white border rounded shadow-sm p-3 position-relative">
+            <div id="tooltip" class="tooltip shadow border rounded p-2 bg-white" style="position: absolute; display: none; z-index: 1000; pointer-events: none;"></div>
             <svg id="chart" width="1200" height="600" viewBox="0 0 1200 600" style="width: 100%; height: auto;"></svg>
         </div>
     </div>
 </div>
+
+<style>
+    /* Компактные карточки значений */
+    .stat-card {
+        flex: 1 1 calc(25% - 0.5rem); /* 4 колонки на больших экранах */
+        min-width: 200px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.25rem 0.5rem;
+        background: var(--bs-body-bg);
+        border: 1px solid var(--bs-border-color);
+        border-radius: 0.25rem;
+        font-size: 0.75rem;
+    }
+    
+    .stat-card .label-content {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        overflow: hidden;
+    }
+    
+    .stat-label {
+        white-space: nowrap;
+        overflow: hidden;
+        text-truncate: ellipsis;
+        color: var(--bs-secondary-color);
+    }
+    
+    .stat-value {
+        font-weight: bold;
+        margin-left: 0.5rem;
+        white-space: nowrap;
+    }
+
+    .stat-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    /* Интеграция JS-кнопок с Bootstrap */
+    .group-btn {
+        display: inline-block;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        text-align: center;
+        text-decoration: none;
+        vertical-align: middle;
+        cursor: pointer;
+        user-select: none;
+        background-color: transparent;
+        border: 1px solid #6c757d;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+        border-radius: 0.25rem;
+        transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+    .group-btn:hover, .group-btn.active {
+        color: #fff;
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+</style>
 
 @section Scripts {
     <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -96,7 +165,7 @@
             const groupSelector = d3.select("#groupSelector");
             Object.keys(metricsGroups).forEach(key => {
                 groupSelector.append("button")
-                    .attr("class", "group-btn")
+                    .attr("class", "btn btn-outline-secondary")
                     .attr("id", "btn-group-" + key)
                     .text(key)
                     .on("click", function() {
@@ -104,8 +173,8 @@
                         console.log(`Group button clicked: ${key}`);
                         chartManager.currentGroup = key;
                         chartManager.activeMetricKey = null;
-                        d3.selectAll(".group-btn").classed("active", false);
-                        d3.select(this).classed("active", true);
+                        d3.selectAll("#groupSelector .btn").classed("active", false).classed("btn-secondary", false).classed("btn-outline-secondary", true);
+                        d3.select(this).classed("active", true).classed("btn-outline-secondary", false).classed("btn-secondary", true);
                         
                         const postId = $('#monitoringPostSelect').val();
                         if (postId) {

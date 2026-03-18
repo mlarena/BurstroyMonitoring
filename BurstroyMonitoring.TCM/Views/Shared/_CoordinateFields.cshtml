@@ -68,39 +68,41 @@
     var latitudeString = FormatCoordinateValue(latitudeValue, modelStateLatitude);
 }
 
-<div class="form-row">
-    <div class="field-group">
-        <label for="@longitudeName" class="control-label">Долгота</label>
-        <input type="number" 
-               step="any"
-               id="@longitudeName" 
-               name="@longitudeName"
-               value="@longitudeString"
-               class="input coordinates-input" 
-               placeholder="например: 37.6173"
-               data-field="longitude" />
-        
-        <span asp-validation-for="@longitudeName" class="field-validation-error"></span>
-        
-        <small class="coordinates-hint">Диапазон: от -180 до 180</small>
+<div class="row g-2">
+    <div class="col-md-6">
+        <div class="mb-2">
+            <label for="@longitudeName" class="form-label small fw-bold">Долгота</label>
+            <input type="number" 
+                   step="any"
+                   id="@longitudeName" 
+                   name="@longitudeName"
+                   value="@longitudeString"
+                   class="form-control form-control-sm coordinates-input" 
+                   placeholder="например: 37.6173"
+                   data-field="longitude" />
+            
+            <span asp-validation-for="@longitudeName" class="text-danger small"></span>
+            
+            <div class="form-text small text-muted" style="font-size: 0.75rem;">Диапазон: от -180 до 180</div>
+        </div>
     </div>
-    <div class="field-group">
-        <label for="@latitudeName" class="control-label">Широта</label>
-        <input type="number"
-               step="any"
-               id="@latitudeName" 
-               name="@latitudeName"
-               value="@latitudeString"
-               class="input coordinates-input" 
-               placeholder="например: 55.7558"
-               data-field="latitude" />
-        
-        <span asp-validation-for="@latitudeName" class="field-validation-error"></span>
-        
-        <small class="coordinates-hint">Диапазон: от -90 до 90</small>
+    <div class="col-md-6">
+        <div class="mb-2">
+            <label for="@latitudeName" class="form-label small fw-bold">Широта</label>
+            <input type="number"
+                   step="any"
+                   id="@latitudeName" 
+                   name="@latitudeName"
+                   value="@latitudeString"
+                   class="form-control form-control-sm coordinates-input" 
+                   placeholder="например: 55.7558"
+                   data-field="latitude" />
+            
+            <span asp-validation-for="@latitudeName" class="text-danger small"></span>
+            
+            <div class="form-text small text-muted" style="font-size: 0.75rem;">Диапазон: от -90 до 90</div>
+        </div>
     </div>
 </div>
 
-<div class="field-group">
-    <div id="coordRowExp"></div>
-</div>
+<div id="coordRowExp"></div>
