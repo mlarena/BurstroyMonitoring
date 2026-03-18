@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D3.js: Мониторинг дорожной станции</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+<div class="dashboard">
+    <div class="filters-container">
+        <!-- Период -->
+        <div class="d-flex align-center time-range-control" data-active-days="1">
+            <span class="filter-label">📅 Период:</span>
+            <div class="btn-group range-btn-group">
+                <button type="button" class="filter-btn range-btn active" data-days="1">24ч</button>
+                <button type="button" class="filter-btn range-btn" data-days="3">3д</button>
+                <button type="button" class="filter-btn range-btn" data-days="7">7д</button>
+                <button type="button" class="filter-btn range-btn" data-days="14">14д</button>
+                <button type="button" class="filter-btn range-btn" data-days="30">30д</button>
+            </div>
+        </div>
+
+        <!-- Агрегация -->
+        <div class="d-flex align-center aggregation-interval-control" data-active-interval="hour">
+            <span class="filter-label">📈 Агрегация:</span>
+            <div class="btn-group aggregation-btn-group">
+                <button type="button" class="filter-btn aggregation-btn" data-interval="raw">Все</button>
+                <button type="button" class="filter-btn aggregation-btn" data-interval="tenminutes">10 мин</button>
+                <button type="button" class="filter-btn aggregation-btn active" data-interval="hour">По часам</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="group-selector" id="groupSelector">
+        <!-- Кнопки будут добавлены через JS -->
+    </div>
+
+    <div style="text-align: center; margin-bottom: 15px;">
+        <label style="cursor: pointer; font-size: 0.9rem; color: #1e4b6e; display: inline-flex; align-items: center; gap: 8px;">
+            <input type="checkbox" id="showAllMetrics" checked> 
+            Показывать все метрики группы в подсказке
+        </label>
+    </div>
+
+    <div class="stats-panel" id="statsPanel">
+        <div class="stats-header">
+            <div class="stats-title">📋 Текущие значения (наведите на точку)</div>
+            <button type="button" class="reset-btn" id="resetFilterBtn">Показать все графики</button>
+        </div>
+        <div class="stats-grid" id="statsGrid">
+            <!-- Заполняется через JS -->
+        </div>
+    </div>
+
+    <div class="chart-wrapper">
+        <div id="tooltip" class="tooltip"></div>
+        <svg id="chart" width="1200" height="600" viewBox="0 0 1200 600"></svg>
+    </div>
+</div>
+
+<script src="data.js"></script>
+<script src="chart.js"></script>
+</body>
+</html>

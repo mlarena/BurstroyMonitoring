@@ -313,8 +313,8 @@ class ChartManager {
     }
 
     showTooltip(event, d) {
-        const metrics = metricsGroups[this.currentGroup];
-        const showAll = this.showAllCheckbox.property("checked");
+        console.log("Showing tooltip at:", event.clientX, event.clientY);
+        const metrics = metricsGroups[this.currentGroup];        const showAll = this.showAllCheckbox.property("checked");
         this.tooltip.style("display", "block");
         
         let html = `<div class="tooltip-title">${d.date.toLocaleString()}</div>`;
