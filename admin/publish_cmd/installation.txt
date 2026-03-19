@@ -63,6 +63,8 @@ mkdir -p /opt/burstroy/tmp/
 cd /opt/
 chmod -R 777 burstroy/
 cd /opt/burstroy/tmp/
+cd /opt/burstroy/worker/
+cd /opt/burstroy/tcm/
 
 3. подключение к postgres, создание базы данных
 

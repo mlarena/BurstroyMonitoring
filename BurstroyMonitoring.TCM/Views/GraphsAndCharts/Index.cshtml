@@ -217,6 +217,9 @@
                         
                         const postId = $('#monitoringPostSelect').val();
                         if (postId) {
+                            // Скрываем контейнер перед загрузкой новых данных
+                            $('#sensorSubSelectContainer').hide();
+                            
                             $.get('/GraphsAndCharts/GetSensorsByPost', { monitoringPostId: postId }, function (data) {
                                 // Ищем все датчики этой группы
                                 const groupSensors = data.filter(s => s.text.toUpperCase().includes(key.toUpperCase()));
@@ -224,25 +227,22 @@
                                 if (groupSensors.length > 0) {
                                     const subSelectContainer = $('#sensorSubSelectContainer');
                                     const subSelect = $('#sensorSubSelect');
+                                    subSelect.empty(); // Очищаем старые опции
                                     
                                     if (groupSensors.length > 1) {
-                                        // Если датчиков несколько, показываем выпадающий список
-                                        subSelect.empty();
+                                        // Если датчиков несколько, заполняем и показываем список
                                         groupSensors.forEach(s => {
                                             subSelect.append($('<option>', { value: s.value, text: s.text }));
                                         });
                                         subSelectContainer.show();
-                                        
-                                        // Загружаем данные первого из списка
                                         chartManager.loadData(groupSensors[0].value, key, chartManager.currentDays, chartManager.currentInterval);
                                     } else {
-                                        // Если датчик один, скрываем список и загружаем данные
+                                        // Если датчик один, скрываем контейнер и просто загружаем данные
                                         subSelectContainer.hide();
                                         chartManager.loadData(groupSensors[0].value, key, chartManager.currentDays, chartManager.currentInterval);
                                     }
                                 } else {
                                     console.warn(`No sensor found for group ${key} on post ${postId}`);
-                                    $('#sensorSubSelectContainer').hide();
                                     chartManager.chartData = [];
                                     chartManager.render();
                                 }
