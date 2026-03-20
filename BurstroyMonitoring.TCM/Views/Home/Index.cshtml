@@ -12,12 +12,19 @@
 
     .post-card {
         background: var(--bs-body-bg);
-        border: 1px solid var(--bs-border-color);
+        border: 2px solid var(--bs-border-color);
         border-radius: 1.25rem;
         overflow: hidden;
         transition: all 0.3s ease;
         margin-bottom: 1.5rem;
         box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .post-card.inactive {
+        border-color: var(--bs-danger) !important;
+        opacity: 0.7;
+    }
+    .post-card.active {
+        border-color: var(--bs-success) !important;
     }
     .post-header {
         padding: 1.25rem;
@@ -140,14 +147,14 @@
     <div id="postsContainer">
         @foreach (var post in Model)
         {
-            <div class="post-card" id="post-card-@post.Id">
+            <div class="post-card @(post.IsActive ? "active" : "inactive")" id="post-card-@post.Id">
                 <div class="post-header" onclick="togglePost(@post.Id)">
                     <div class="d-flex align-items-center">
                         <div class="bg-primary text-white rounded-3 p-2 me-3 shadow-sm">
                             <i class="bi bi-geo-alt-fill"></i>
                         </div>
                         <div>
-                            <h5 class="mb-0 fw-bold">@post.Name</h5>
+                            <h5 class="mb-0 fw-bold">@post.Name @(!post.IsActive ? "(Неактивен)" : "")</h5>
                             <small class="text-muted">@post.Description</small>
                         </div>
                     </div>
@@ -233,7 +240,10 @@
                                     <div class="badge bg-primary-subtle text-primary border border-primary-subtle me-2">${s.sensorTypeName}</div>
                                     <div>
                                         <h6 class="mb-0">${s.endPointsName}</h6>
-                                        <small class="text-muted">SN: ${s.serialNumber}</small>
+                                        <div class="d-flex flex-column">
+                                            <small class="text-muted">SN: ${s.serialNumber}</small>
+                                            <small class="text-primary fw-bold" id="time-${s.id}" style="font-size: 0.75rem;"></small>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="sensor-compact-data" id="compact-${s.id}">
@@ -261,6 +271,9 @@
                     return;
                 }
                 
+                const time = new Date(data.receivedAt).toLocaleString('ru-RU');
+                $(`#time-${sensorId}`).html(`<i class="bi bi-clock me-1"></i>Последнее обновление: ${time}`);
+                
                 let html = '';
                 if (type === 'IWS') {
                     html += renderCompact("Темп.", data.environmentTemperature, "°C");
@@ -280,7 +293,6 @@
                     html += renderCompact("АКБ", data.voltageAkb, "В");
                 }
                 compact.append(html);
-                // Сохраняем данные для таблицы
                 $(`#sensor-${sensorId}`).data('full-data', data);
             });
         }
