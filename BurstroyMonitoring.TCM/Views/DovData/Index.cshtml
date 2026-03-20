@@ -43,7 +43,7 @@
         <table class="table table-sm table-hover table-striped align-middle mb-0">
             <thead class="table-light">
                 <tr>
-                    <th>
+                    <!-- <th>
                         <a href="@Url.Action("Index", new { 
                             page = ViewBag.Page, 
                             pageSize = ViewBag.PageSize, 
@@ -53,7 +53,7 @@
                         })" class="text-decoration-none text-dark">
                             ID @(ViewBag.SortBy == "DovDataId" ? (ViewBag.SortDesc ? "▼" : "▲") : "")
                         </a>
-                    </th>
+                    </th> -->
                     <th>Дата</th>
                     <th>S/N</th>
                     <th>Точка</th>
@@ -66,7 +66,7 @@
                 @foreach (var item in Model)
                 {
                     <tr>
-                        <td class="small text-muted">@item.DovDataId</td>
+                        <!-- <td class="small text-muted">@item.DovDataId</td> -->
                         <td class="text-nowrap small">@item.ReceivedAt?.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
                         <td class="fw-bold small">@item.SerialNumber</td>
                         <td class="text-truncate small" style="max-width: 150px;" title="@item.EndpointName">@item.EndpointName</td>
