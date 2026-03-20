@@ -1,134 +1,370 @@
-﻿@{
-    ViewData["Title"] = "Главная страница";
+@model IEnumerable<BurstroyMonitoring.Data.Models.MonitoringPost>
+@{
+    ViewData["Title"] = "Мониторинг";
 }
 
-<div class="container py-4">
-    <div class="text-center mb-5">
-        <h1 class="display-5 fw-bold text-primary">Система мониторинга датчиков</h1>
-        <p class="lead text-muted">Централизованное управление и анализ данных телеметрии</p>
+<style>
+    :root {
+        --primary-color: #2563eb;
+        --border-color: #e2e8f0;
+        --bg-light: #f8fafc;
+    }
+
+    .post-card {
+        background: var(--bs-body-bg);
+        border: 1px solid var(--bs-border-color);
+        border-radius: 1.25rem;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .post-header {
+        padding: 1.25rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: var(--bs-tertiary-bg);
+        border-bottom: 1px solid transparent;
+    }
+    .post-header.expanded {
+        border-bottom-color: var(--bs-border-color);
+    }
+    .post-header:hover {
+        background: var(--bs-secondary-bg);
+    }
+    
+    .sensor-list {
+        padding: 1rem;
+        display: none;
+        background: var(--bs-body-bg);
+    }
+    
+    .sensor-item {
+        background: var(--bs-tertiary-bg);
+        border: 1px solid var(--bs-border-color);
+        border-radius: 1rem;
+        margin-bottom: 0.75rem;
+        padding: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .sensor-item:hover {
+        border-color: var(--primary-color);
+        transform: translateX(4px);
+    }
+
+    .sensor-preview {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .sensor-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        min-width: 200px;
+    }
+
+    .sensor-compact-data {
+        display: flex;
+        gap: 1.5rem;
+        flex: 1;
+        justify-content: flex-end;
+        font-size: 0.85rem;
+    }
+
+    .compact-metric {
+        text-align: center;
+        min-width: 70px;
+    }
+    .compact-value { font-weight: 700; display: block; }
+    .compact-label { font-size: 0.7rem; color: var(--bs-secondary-color); }
+
+    .sensor-detail {
+        display: none;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--bs-border-color);
+    }
+
+    .metrics-table {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem 2rem;
+    }
+    @@media (max-width: 768px) {
+        .metrics-table { grid-template-columns: 1fr; }
+        .sensor-compact-data .compact-metric:nth-child(n+3) { display: none; }
+    }
+
+    .metric-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.4rem 0;
+        border-bottom: 1px solid var(--bs-border-color);
+    }
+    .metric-label { color: var(--bs-secondary-color); font-size: 0.85rem; }
+    .metric-value { font-weight: 600; font-size: 0.9rem; }
+
+    .search-wrapper {
+        position: relative;
+        max-width: 400px;
+        margin-bottom: 2rem;
+    }
+    #postSearchList {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        display: none;
+        max-height: 300px;
+        overflow-y: auto;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="search-wrapper">
+        <div class="input-group shadow-sm">
+            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+            <input type="text" id="postSearch" class="form-control border-start-0" placeholder="Поиск поста (минимум 2 символа)..." autocomplete="off">
+        </div>
+        <div id="postSearchList" class="list-group"></div>
     </div>
 
-    <div class="row g-4 mb-5">
-        <div class="col-md-3">
-            <a asp-controller="MonitoringPosts" asp-action="Index" class="btn btn-primary w-100 py-3 shadow-sm">
-                <div class="h4 mb-1">🏢</div>
-                Посты мониторинга
-            </a>
-        </div>
-        <div class="col-md-3">
-            <a asp-controller="SensorTypes" asp-action="Index" class="btn btn-primary w-100 py-3 shadow-sm">
-                <div class="h4 mb-1">🔧</div>
-                Типы датчиков
-            </a>
-        </div>
-        <div class="col-md-3">
-            <a asp-controller="Sensors" asp-action="Index" class="btn btn-primary w-100 py-3 shadow-sm">
-                <div class="h4 mb-1">📡</div>
-                Датчики
-            </a>
-        </div>
-        <div class="col-md-3">
-            <a asp-controller="WorkerConfiguration" asp-action="Index" class="btn btn-primary w-100 py-3 shadow-sm">
-                <div class="h4 mb-1">⚙️</div>
-                Настройки
-            </a>
-        </div>
-    </div>
-
-    <div class="mb-4">
-        <h4 class="border-bottom pb-2 mb-4">Данные и аналитика</h4>
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-            <div class="col">
-                <a asp-controller="MonitoringMap" asp-action="Index" class="card h-100 text-decoration-none shadow-sm hover-shadow transition">
-                    <div class="card-body text-center">
-                        <div class="display-6 mb-2">🗺️</div>
-                        <h5 class="card-title text-dark">Карта мониторинга</h5>
-                        <p class="card-text small text-muted">Интерактивная карта постов и датчиков</p>
+    <div id="postsContainer">
+        @foreach (var post in Model)
+        {
+            <div class="post-card" id="post-card-@post.Id">
+                <div class="post-header" onclick="togglePost(@post.Id)">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary text-white rounded-3 p-2 me-3 shadow-sm">
+                            <i class="bi bi-geo-alt-fill"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-0 fw-bold">@post.Name</h5>
+                            <small class="text-muted">@post.Description</small>
+                        </div>
                     </div>
-                </a>
-            </div>
-            <div class="col">
-                <a asp-controller="GraphsAndCharts" asp-action="Index" class="card h-100 text-decoration-none shadow-sm hover-shadow transition">
-                    <div class="card-body text-center">
-                        <div class="display-6 mb-2">📊</div>
-                        <h5 class="card-title text-dark">Графики</h5>
-                        <p class="card-text small text-muted">Визуализация данных датчиков</p>
+                    <i class="bi bi-chevron-down fs-5 transition-icon" id="icon-post-@post.Id"></i>
+                </div>
+                <div class="sensor-list" id="sensors-@post.Id">
+                    <div class="text-center p-4">
+                        <div class="spinner-border text-primary"></div>
                     </div>
-                </a>
+                </div>
             </div>
-            <div class="col">
-                <a asp-controller="MueksData" asp-action="Index" class="card h-100 text-decoration-none shadow-sm hover-shadow transition">
-                    <div class="card-body text-center">
-                        <div class="display-6 mb-2">📡</div>
-                        <h5 class="card-title text-dark">MUEKS</h5>
-                        <p class="card-text small text-muted">Температура, напряжение, видимость</p>
-                    </div>
-                </a>
-            </div>
-            <div class="col">
-                <a asp-controller="IwsData" asp-action="Index" class="card h-100 text-decoration-none shadow-sm hover-shadow transition">
-                    <div class="card-body text-center">
-                        <div class="display-6 mb-2">🌡️</div>
-                        <h5 class="card-title text-dark">IWS</h5>
-                        <p class="card-text small text-muted">Погодные условия, давление, ветер</p>
-                    </div>
-                </a>
-            </div>
-            <div class="col">
-                <a asp-controller="DspdData" asp-action="Index" class="card h-100 text-decoration-none shadow-sm hover-shadow transition">
-                    <div class="card-body text-center">
-                        <div class="display-6 mb-2">🛣️</div>
-                        <h5 class="card-title text-dark">DSPD</h5>
-                        <p class="card-text small text-muted">Состояние дороги, сцепление</p>
-                    </div>
-                </a>
-            </div>
-            <div class="col">
-                <a asp-controller="DovData" asp-action="Index" class="card h-100 text-decoration-none shadow-sm hover-shadow transition">
-                    <div class="card-body text-center">
-                        <div class="display-6 mb-2">👁️</div>
-                        <h5 class="card-title text-dark">DOV</h5>
-                        <p class="card-text small text-muted">Видимость, яркость</p>
-                    </div>
-                </a>
-            </div>
-            <div class="col">
-                <a asp-controller="DustData" asp-action="Index" class="card h-100 text-decoration-none shadow-sm hover-shadow transition">
-                    <div class="card-body text-center">
-                        <div class="display-6 mb-2">💨</div>
-                        <h5 class="card-title text-dark">DUST</h5>
-                        <p class="card-text small text-muted">Концентрация пыли, PM частицы</p>
-                    </div>
-                </a>
-            </div>
-            <div class="col">
-                <a asp-controller="SensorResults" asp-action="Index" class="card h-100 text-decoration-none shadow-sm hover-shadow transition border-success-subtle">
-                    <div class="card-body text-center">
-                        <div class="display-6 mb-2">✅</div>
-                        <h5 class="card-title text-dark">Результаты</h5>
-                        <p class="card-text small text-muted">Статусы и время ответа</p>
-                    </div>
-                </a>
-            </div>
-            <div class="col">
-                <a asp-controller="SensorErrors" asp-action="Index" class="card h-100 text-decoration-none shadow-sm hover-shadow transition border-danger-subtle">
-                    <div class="card-body text-center">
-                        <div class="display-6 mb-2">⚠️</div>
-                        <h5 class="card-title text-dark">Ошибки</h5>
-                        <p class="card-text small text-muted">Журнал ошибок датчиков</p>
-                    </div>
-                </a>
-            </div>
-        </div>
+        }
     </div>
 </div>
 
-<style>
-    .hover-shadow:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
-    }
-    .transition {
-        transition: all 0.3s ease;
-    }
-</style>
+@section Scripts {
+    <script>
+        const roadStatuses = {
+            "0": "Измерение невозможно", "1": "Сухо", "2": "Влажно", "3": "Мокро",
+            "5": "Лёд", "6": "Снег", "9": "Противогололёдные материалы",
+            "10": "Снег со льдом", "11": "Сухо, небольшие следы снега/льда", "49": "Снег, посыпанный песком"
+        };
+        const precipTypes = {
+            "0": "Отсутствуют", "51": "Морось", "96": "Дождь", "103": "Ледяной дождь",
+            "105": "Снег с дождём", "112": "Снег", "144": "Град", "255": "Неизвестный тип"
+        };
+
+        // Поиск
+        $('#postSearch').on('input', function() {
+            const val = $(this).val().toLowerCase();
+            const list = $('#postSearchList');
+            list.empty().hide();
+
+            if (val.length >= 2) {
+                let matches = 0;
+                $('.post-card').each(function() {
+                    const name = $(this).find('h5').text();
+                    if (name.toLowerCase().includes(val)) {
+                        matches++;
+                        list.append(`<a href="javascript:void(0)" class="list-group-item list-group-item-action" onclick="scrollToPost(${$(this).data('post-id') || this.id.split('-').pop()})">${name}</a>`);
+                    }
+                });
+                if (matches > 0) list.show();
+            }
+        });
+
+        function scrollToPost(id) {
+            $('#postSearchList').hide();
+            $('#postSearch').val('');
+            const el = $(`#post-card-${id}`);
+            $('html, body').animate({ scrollTop: el.offset().top - 100 }, 500);
+            if (!$(`#sensors-${id}`).is(':visible')) togglePost(id);
+        }
+
+        function togglePost(postId) {
+            const container = $(`#sensors-${postId}`);
+            const icon = $(`#icon-post-${postId}`);
+            const header = icon.closest('.post-header');
+            
+            if (container.is(':visible')) {
+                container.slideUp();
+                header.removeClass('expanded');
+                icon.css('transform', 'rotate(0deg)');
+            } else {
+                container.slideDown();
+                header.addClass('expanded');
+                icon.css('transform', 'rotate(180deg)');
+                loadSensors(postId);
+            }
+        }
+
+        function loadSensors(postId) {
+            const container = $(`#sensors-${postId}`);
+            if (container.data('loaded')) return;
+
+            $.get('/Home/GetPostSensors', { postId: postId }, function(sensors) {
+                container.empty();
+                sensors.forEach(s => {
+                    const html = `
+                        <div class="sensor-item" id="sensor-${s.id}" onclick="toggleSensor(${s.id}, '${s.sensorTypeName}', event)">
+                            <div class="sensor-preview">
+                                <div class="sensor-info">
+                                    <div class="badge bg-primary-subtle text-primary border border-primary-subtle me-2">${s.sensorTypeName}</div>
+                                    <div>
+                                        <h6 class="mb-0">${s.endPointsName}</h6>
+                                        <small class="text-muted">SN: ${s.serialNumber}</small>
+                                    </div>
+                                </div>
+                                <div class="sensor-compact-data" id="compact-${s.id}">
+                                    <div class="spinner-border spinner-border-sm text-muted"></div>
+                                </div>
+                                <i class="bi bi-chevron-right ms-2" id="icon-sensor-${s.id}"></i>
+                            </div>
+                            <div class="sensor-detail" id="detail-${s.id}">
+                                <div class="metrics-table" id="table-${s.id}"></div>
+                            </div>
+                        </div>`;
+                    container.append(html);
+                    loadCompactData(s.id, s.sensorTypeName);
+                });
+                container.data('loaded', true);
+            });
+        }
+
+        function loadCompactData(sensorId, type) {
+            $.get('/Home/GetLatestSensorData', { sensorId: sensorId, type: type }, function(data) {
+                const compact = $(`#compact-${sensorId}`);
+                compact.empty();
+                if (!data) {
+                    compact.append('<small class="text-muted">Нет данных</small>');
+                    return;
+                }
+                
+                let html = '';
+                if (type === 'IWS') {
+                    html += renderCompact("Темп.", data.environmentTemperature, "°C");
+                    html += renderCompact("Ветер", data.windSpeed, "м/с");
+                    html += renderCompact("Осадки", precipTypes[data.precipitationType] || "Нет");
+                } else if (type === 'DSPD') {
+                    html += renderCompact("Сцепл.", data.gripCoefficient);
+                    html += renderCompact("Дорога", data.roadTemperature, "°C");
+                    html += renderCompact("Статус", roadStatuses[data.roadStatusCode] || "—");
+                } else if (type === 'DOV') {
+                    html += renderCompact("Видим.", data.visibleRange, "м");
+                } else if (type === 'DUST') {
+                    html += renderCompact("PM10", data.pm10Act);
+                    html += renderCompact("PM2.5", data.pm25Act);
+                } else if (type === 'MUEKS') {
+                    html += renderCompact("Шкаф", data.temperatureBox, "°C");
+                    html += renderCompact("АКБ", data.voltageAkb, "В");
+                }
+                compact.append(html);
+                // Сохраняем данные для таблицы
+                $(`#sensor-${sensorId}`).data('full-data', data);
+            });
+        }
+
+        function toggleSensor(sensorId, type, event) {
+            event.stopPropagation();
+            const detail = $(`#detail-${sensorId}`);
+            const icon = $(`#icon-sensor-${sensorId}`);
+            const data = $(`#sensor-${sensorId}`).data('full-data');
+
+            if (detail.is(':visible')) {
+                detail.slideUp();
+                icon.css('transform', 'rotate(0deg)');
+            } else {
+                renderFullTable(sensorId, type, data);
+                detail.slideDown();
+                icon.css('transform', 'rotate(90deg)');
+            }
+        }
+
+        function renderFullTable(sensorId, type, data) {
+            const table = $(`#table-${sensorId}`);
+            table.empty();
+            if (!data) return;
+
+            let html = '';
+            if (type === 'IWS') {
+                html += renderRow("Температура воздуха", data.environmentTemperature, "°C");
+                html += renderRow("Влажность", data.humidityPercentage, "%");
+                html += renderRow("Точка росы", data.dewPoint, "°C");
+                html += renderRow("Давление (гПа)", data.pressureHpa, "гПа");
+                html += renderRow("Давление (мм рт.ст.)", data.pressureMmHg, "мм");
+                html += renderRow("Скорость ветра", data.windSpeed, "м/с");
+                html += renderRow("Направление ветра", data.windDirection, "°");
+                html += renderRow("Тип осадков", precipTypes[data.precipitationType] || data.precipitationType);
+                html += renderRow("Интенсивность осадков", data.precipitationIntensity, "мм/ч");
+                html += renderRow("Количество осадков", data.precipitationQuantity, "мм");
+                html += renderRow("Уровень CO2", data.co2Level, "ppm");
+            } else if (type === 'DSPD') {
+                html += renderRow("Коэффициент сцепления", data.gripCoefficient);
+                html += renderRow("Температура покрытия", data.roadTemperature, "°C");
+                html += renderRow("Высота воды", data.waterHeight, "мм");
+                html += renderRow("Высота льда", data.iceHeight, "мм");
+                html += renderRow("Высота снега", data.snowHeight, "мм");
+                html += renderRow("Процент обледенения", data.icePercentage, "%");
+                html += renderRow("Процент реагента", data.pgmPercentage, "%");
+                html += renderRow("Состояние дороги", roadStatuses[data.roadStatusCode] || data.roadStatusCode);
+                html += renderRow("Температура замерзания", data.freezeTemperature, "°C");
+            } else if (type === 'DOV') {
+                html += renderRow("Дальность видимости", data.visibleRange, "м");
+            } else if (type === 'DUST') {
+                html += renderRow("PM10 Act", data.pm10Act);
+                html += renderRow("PM2.5 Act", data.pm25Act);
+                html += renderRow("PM1 Act", data.pm1Act);
+                html += renderRow("PM10 Avg", data.pm10Awg);
+                html += renderRow("PM2.5 Avg", data.pm25Awg);
+                html += renderRow("PM1 Avg", data.pm1Awg);
+            } else if (type === 'MUEKS') {
+                html += renderRow("Температура в шкафу", data.temperatureBox, "°C");
+                html += renderRow("Вход 12В", data.voltagePowerIn12b, "В");
+                html += renderRow("Выход 12В", data.voltageOut12b, "В");
+                html += renderRow("Напряжение АКБ", data.voltageAkb, "В");
+                html += renderRow("Ток АКБ", data.currentAkb, "А");
+                html += renderRow("Питание 220В", data.sensor220b === 1 ? "Есть" : "Нет");
+            }
+
+            table.append(html);
+        }
+
+        function renderCompact(label, value, unit = "") {
+            if (value === null || value === undefined) return "";
+            return `<div class="compact-metric"><span class="compact-value">${value}${unit}</span><span class="compact-label">${label}</span></div>`;
+        }
+
+        function renderRow(label, value, unit = "") {
+            if (value === null || value === undefined) return "";
+            return `<div class="metric-row"><span class="metric-label">${label}</span><span class="metric-value">${value} ${unit}</span></div>`;
+        }
+
+        // Закрытие поиска при клике вне
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('.search-wrapper').length) {
+                $('#postSearchList').hide();
+            }
+        });
+    </script>
+}

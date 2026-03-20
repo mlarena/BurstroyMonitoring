@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Метеостанция - Посты мониторинга</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #5b6e8c;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #06b6d4;
+            /* Светлая цветовая гамма */
+            --bg-light: #f8fafc;
+            --card-bg-light: #ffffff;
+            --text-primary-light: #1e293b;
+            --text-secondary-light: #475569;
+            --border-color-light: #e2e8f0;
+            --hover-bg-light: #f1f5f9;
+            --header-bg-light: #f8fafc;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-primary-light);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-bottom: 1px solid var(--border-color-light);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .navbar-brand {
+            color: var(--primary-color) !important;
+            font-weight: 600;
+        }
+
+        .nav-link {
+            color: var(--text-secondary-light) !important;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-color) !important;
+        }
+
+        /* Поиск - узкий на ПК */
+        .search-container { 
+            margin-bottom: 2rem;
+            max-width: 400px;
+        }
+
+        .search-input {
+            background: var(--card-bg-light);
+            border: 1px solid var(--border-color-light);
+            color: var(--text-primary-light);
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border-radius: 12px;
+            width: 100%;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            background: var(--card-bg-light);
+        }
+
+        .search-input::placeholder { color: var(--text-secondary-light); }
+
+        .search-wrapper { position: relative; }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary-light);
+        }
+
+        /* Сетка постов на ПК - мозаика */
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Карточка поста */
+        .post-card {
+            background: var(--card-bg-light);
+            border: 1px solid var(--border-color-light);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        }
+
+        .post-card:hover {
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+        }
+
+        .post-card.expanded {
+            grid-column: 1 / -1;
+        }
+
+        .post-header {
+            background: var(--header-bg-light);
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--border-color-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .post-header:hover {
+            background: var(--hover-bg-light);
+        }
+
+        .post-header.collapsed {
+            border-bottom: none;
+        }
+
+        .post-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .post-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: var(--primary-color);
+        }
+
+        .post-info h5 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary-light);
+        }
+
+        .post-info small {
+            color: var(--text-secondary-light);
+            font-size: 0.8rem;
+        }
+
+        .post-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--success-color);
+            background: rgba(16, 185, 129, 0.1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+        }
+
+        .post-status.warning {
+            color: var(--warning-color);
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .post-expand-icon {
+            color: var(--text-secondary-light);
+            font-size: 1.5rem;
+            transition: transform 0.3s;
+            margin-left: 1rem;
+        }
+
+        .post-header:not(.collapsed) .post-expand-icon {
+            transform: rotate(180deg);
+        }
+
+        /* Контейнер датчиков */
+        .sensor-list-container {
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.5s ease, padding 0.3s ease;
+        }
+
+        .sensor-list-container.collapsed {
+            max-height: 0;
+            padding: 0;
+        }
+
+        .sensor-list {
+            padding: 1rem;
+        }
+
+        /* Стили для датчиков */
+        .sensor-item {
+            background: var(--bg-light);
+            border: 1px solid var(--border-color-light);
+            border-radius: 16px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sensor-item:hover {
+            background: var(--hover-bg-light);
+            border-color: var(--primary-color);
+            transform: translateX(2px);
+        }
+
+        .sensor-item:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Компактный вид датчика - ВСЕ ДАННЫЕ В СТРОКУ */
+        .sensor-preview {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .sensor-main {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .sensor-icon-small {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: white;
+        }
+
+        .icon-dov { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .icon-dspd { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .icon-dust { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .icon-mueks { background: linear-gradient(135deg, #10b981, #059669); }
+        .icon-iws { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+
+        .sensor-name h6 {
+            margin: 0;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary-light);
+        }
+
+        .sensor-name small {
+            color: var(--text-secondary-light);
+            font-size: 0.7rem;
+        }
+
+        /* Данные датчика в строку - гибкая сетка */
+        .sensor-compact-data {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+            flex: 1;
+            justify-content: flex-end;
+        }
+
+        .compact-metric {
+            text-align: center;
+            min-width: 65px;
+        }
+
+        .compact-metric-value {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-primary-light);
+        }
+
+        .compact-metric-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary-light);
+        }
+
+        .sensor-expand-icon {
+            color: var(--text-secondary-light);
+            font-size: 1.25rem;
+            transition: transform 0.3s;
+            margin-left: 0.5rem;
+        }
+
+        .sensor-item:hover .sensor-expand-icon {
+            color: var(--primary-color);
+        }
+
+        /* Раскрытый датчик - ТАБЛИЦА 2 КОЛОНКИ */
+        .sensor-detail {
+            display: none;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color-light);
+            animation: slideDown 0.3s ease;
+        }
+
+        .sensor-detail.active {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Таблица метрик 2 колонки */
+        .metrics-table {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem 2rem;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color-light);
+        }
+
+        .metric-row:last-child { border-bottom: none; }
+
+        .metric-label {
+            color: var(--text-secondary-light);
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .metric-value {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-primary-light);
+        }
+
+        .history-btn {
+            background: transparent;
+            border: 1px solid var(--border-color-light);
+            color: var(--text-secondary-light);
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            margin-top: 1rem;
+            width: 100%;
+        }
+
+        .history-btn:hover {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Статусы и тренды */
+        .status-online { color: var(--success-color); }
+        .status-warning { color: var(--warning-color); }
+        .status-danger { color: var(--danger-color); }
+
+        .value-trend {
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
+        }
+
+        .trend-up { color: var(--success-color); }
+        .trend-down { color: var(--danger-color); }
+        .trend-stable { color: var(--text-secondary-light); }
+
+        .precipitation-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.15rem 0.5rem;
+            background: rgba(6, 182, 212, 0.1);
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: var(--info-color);
+        }
+
+        .text-warning-custom {
+            color: var(--warning-color);
+        }
+
+        .text-danger-custom {
+            color: var(--danger-color);
+        }
+
+        .text-success-custom {
+            color: var(--success-color);
+        }
+
+        .border-bottom-secondary {
+            border-bottom-color: var(--border-color-light) !important;
+        }
+
+        /* Мобильная версия */
+        @media (max-width: 768px) {
+            .search-container {
+                max-width: 100%;
+            }
+
+            .posts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .post-card.expanded {
+                grid-column: auto;
+            }
+
+            .post-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .sensor-preview {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .sensor-compact-data {
+                width: 100%;
+                justify-content: flex-start;
+                gap: 1rem;
+            }
+
+            .compact-metric {
+                text-align: left;
+            }
+
+            .compact-metric:nth-child(n+3) {
+                display: none;
+            }
+
+            .metrics-table {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1200px) {
+            .sensor-compact-data {
+                gap: 1rem;
+            }
+        }
+
+        /* Дополнительные стили для светлой темы */
+        .alert-warning-custom {
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            color: var(--warning-color);
+            border-radius: 12px;
+            padding: 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .alert-danger-custom {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: var(--danger-color);
+            border-radius: 12px;
+            padding: 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .dropdown-menu-dark {
+            background: var(--card-bg-light);
+            border: 1px solid var(--border-color-light);
+        }
+
+        .dropdown-menu-dark .dropdown-item {
+            color: var(--text-primary-light);
+        }
+
+        .dropdown-menu-dark .dropdown-item:hover {
+            background: var(--hover-bg-light);
+            color: var(--primary-color);
+        }
+
+        .dropdown-menu-dark .dropdown-divider {
+            border-top-color: var(--border-color-light);
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <!-- Навбар -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <i class="bi bi-cloud-sun me-2" style="color: #2563eb;"></i>
+                <span>МетеоДашборд</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-bell"></i></a></li>
+                    <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-gear"></i></a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i> Админ
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="#">Профиль</a></li>
+                            <li><a class="dropdown-item" href="#">Настройки</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">Выход</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-4">
+        <!-- Заголовок -->
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-4 border-bottom border-secondary">
+            <div>
+                <h1 class="h2" style="color: var(--text-primary-light);">Посты мониторинга</h1>
+                <p class="text-secondary mb-0">Всего постов: 3 | Датчиков: 12 | Обновление: <span id="lastUpdate">20.03.2026 07:54:00</span></p>
+            </div>
+            <div class="btn-toolbar mb-2 mb-md-0">
+                <button type="button" class="btn btn-sm btn-primary" onclick="refreshData()">
+                    <i class="bi bi-arrow-clockwise"></i> Обновить
+                </button>
+            </div>
+        </div>
+
+        <!-- Поиск постов - УЗКИЙ НА ПК -->
+        <div class="search-container">
+            <div class="search-wrapper">
+                <i class="bi bi-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="Поиск поста мониторинга..." onkeyup="searchPosts(this.value)">
+            </div>
+        </div>
+
+        <!-- Сетка постов -->
+        <div class="posts-grid" id="postsContainer">
+            <!-- Пост 1: Центральный -->
+            <div class="post-card" data-post-name="Центральная площадь Пост 1">
+                <div class="post-header collapsed" onclick="togglePost(this)">
+                    <div class="post-title">
+                        <div class="post-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                        <div class="post-info">
+                            <h5>Пост мониторинга №1</h5>
+                            <small>Центральная площадь | 5 датчиков</small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="post-status"><i class="bi bi-check-circle-fill"></i><span>Все системы активны</span></div>
+                        <i class="bi bi-chevron-down post-expand-icon"></i>
+                    </div>
+                </div>
+                <div class="sensor-list-container collapsed">
+                    <div class="sensor-list">
+                        <!-- IWS -->
+                        <div class="sensor-item" onclick="toggleSensor(this)">
+                            <div class="sensor-preview">
+                                <div class="sensor-main">
+                                    <div class="sensor-icon-small icon-iws"><i class="bi bi-cloud-sun"></i></div>
+                                    <div class="sensor-name"><h6>IWS</h6><small>Метеостанция</small></div>
+                                </div>
+                                <div class="sensor-compact-data">
+                                    <div class="compact-metric"><div class="compact-metric-value">-5.2°C</div><div class="compact-metric-label">Температура</div></div>
+                                    <div class="compact-metric"><div class="compact-metric-value">78%</div><div class="compact-metric-label">Влажность</div></div>
+                                    <div class="compact-metric"><div class="compact-metric-value"><span class="precipitation-badge"><i class="bi bi-snow"></i> Снег</span></div><div class="compact-metric-label">Осадки</div></div>
+                                    <div class="compact-metric"><div class="compact-metric-value">12 м/с</div><div class="compact-metric-label">Ветер</div></div>
+                                    <div class="compact-metric"><div class="compact-metric-value">752 мм</div><div class="compact-metric-label">Давление</div></div>
+                                    <div class="compact-metric"><div class="compact-metric-value">-8.5°C</div><div class="compact-metric-label">Точка росы</div></div>
+                                </div>
+                                <i class="bi bi-chevron-right sensor-expand-icon"></i>
+                            </div>
+                            <div class="sensor-detail">
+                                <div class="metrics-table">
+                                    <div class="metric-row"><span class="metric-label"><i class="bi bi-thermometer"></i> Температура воздуха</span><span class="metric-value">-5.2°C <span class="value-trend trend-down">▼ 1.3</span></span></div>
+                                    <div class="metric-row"><span class="metric-label"><i class="bi bi-droplet"></i> Относительная влажность</span><span class="metric-value">78%</span></div>
+                                    <div class="metric-row"><span class="metric-label"><i class="bi bi-speedometer"></i> Атмосферное давление</span><span class="metric-value">752 мм рт.ст.</span></div>
+                                    <div class="metric-row"><span class="metric-label"><i class="bi bi-wind"></i> Скорость ветра</span><span class="metric-value">12 м/с</span></div>
+                                    <div class="metric-row"><span class="metric-label"><i class="bi bi-compass"></i> Направление ветра</span><span class="metric-value">СЗ (315°)</span></div>
+                                    <div class="metric-row"><span class="metric-label"><i class="bi bi-moisture"></i> Точка росы</span><span class="metric-value">-8.5°C</span></div>
+                                    <div class="metric-row"><span class="metric-label"><i class="bi bi-cloud-rain"></i> Тип осадков</span><span class="metric-value"><span class="precipitation-badge"><i class="bi bi-snow"></i> Снег (112)</span></span></div>
+                                    <div class="metric-row"><span class="metric-label"><i class="bi bi-speedometer2"></i> Интенсивность осадков</span><span class="metric-value">2.5 мм/ч</span></div>
+                                </div>
+                                <button class="history-btn" onclick="event.stopPropagation(); showHistory('IWS', 'Пост 1')"><i class="bi bi-clock-history"></i> История измерений</button>
+                            </div>
+                        </div>
+                        <!-- DSPD -->
+                        <div class="sensor-item" onclick="toggleSensor(this)">
+                            <div class="sensor-preview">
+                                <div class="sensor-main">
+                                    <div class="sensor-icon-small icon-dspd"><i class="bi bi-signpost-split"></i></div>
+                                    <div class="sensor-name"><h6>DSPD</h6><small>Датчик состояния дороги</small></div>
+                                </div>
+                                <div class="sensor-compact-data">
+                                    <div class="compact-metric"><div class="compact-metric-value text-warning-custom">-3.8°C</div><div class="compact-metric-label">Темп. дороги</div></div>
+                                    <div class="compact-metric"><div class="compact-metric-value text-warning-custom">0.45</div><div class="compact-metric-label">Сцепление</div></div>
+                                    <div class="compact-metric"><div class="compact-metric-value">12 см</div><div class="compact-metric-label">Снег</div></div>
+                                    <div class="compact-metric"><div class="compact-metric-value">0.5 мм</div><div class="compact-metric-label">Лёд</div></div>
+                                    <div class="compact-metric"><div class="compact-metric-value text-warning-custom">15%</div><div class="compact-metric-label">Обледенение</div></div>
+                                    <div class="compact-metric"><div class="compact-metric-value">-4.2°C</div><div class="compact-metric-label">Т. замерзания</div></div>
+                                </div>
+                                <i class="bi bi-chevron-right sensor-expand-icon"></i>
+                            </div>
+                            <div class="sensor-detail">
+                                <div class="metrics-table">
+                                    <div class="metric-row"><span class="metric-label"><i class="bi bi-thermometer-half"></i> Температура дороги</span><span class="metric-value text-warning-custom">-3.8°C <span class="value-trend trend-down">▼ 0.5</span></span></div>
+                                    <div class="metric-row"><span class="metric-label"><i class="bi bi-thermometer-low"></i> Температура замерзания</span><span class="metric-value">-4.2°C</span></div>
+                                    <div class="metric-row"><span class="metric-label"><i class="bi bi-layers"></i> Высота снега</span><span class="metric-value">12 см</span></div>
+                                    <div class="metric-row"><span class="metric-label"><i class="bi bi-water"></i> Высота воды</span><span class="metric-value">0.2 мм</span></div>
+                                    <div class="metric-row"><span class="metric-label"><i class="bi bi-snow2"></i> Высота льда</span><span class="metric-value">0.5 мм</span></div>
+                                    <div class="metric-row"><span class="metric-label"><i class="bi bi-percent"></i> Процент обледенения</span><span class="metric-value text-warning-custom">15%</span></div>
+                                    <div class="metric-row"><span class="metric-label"><i class="bi bi-grip-horizontal"></i> Коэффициент сцепления</span><span class="metric-value text-warning-custom">0.45</span></div>
+                                </div>
+                                <div class="alert-warning-custom mt-2 mb-0"><i class="bi bi-exclamation-triangle-fill me-2"></i>Ограниченная видимость из-за снегопада</div>
+                                <button class="history-btn" onclick="event.stopPropagation(); showHistory('DSPD', 'Пост 1')"><i class="bi bi-clock-history"></i> История измерений</button>
+                            </div>
+                        </div>
+                        <!-- DOV, DUST, MUEKS и остальные датчики с такой же структурой... -->
+                    </div>
+                </div>
+            </div>
+            <!-- Пост 2 и Пост 3 аналогично, но с обновленными цветами -->
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Переключение поста (свернуть/развернуть)
+        function togglePost(header) {
+            const card = header.closest('.post-card');
+            const container = header.nextElementSibling;
+            const isCollapsed = header.classList.contains('collapsed');
+
+            document.querySelectorAll('.post-card').forEach(p => {
+                if (p !== card) {
+                    p.classList.remove('expanded');
+                    p.querySelector('.post-header').classList.add('collapsed');
+                    p.querySelector('.sensor-list-container').classList.add('collapsed');
+                    p.querySelectorAll('.sensor-detail.active').forEach(el => {
+                        el.classList.remove('active');
+                        const icon = el.closest('.sensor-item').querySelector('.sensor-expand-icon');
+                        icon.classList.remove('bi-chevron-down');
+                        icon.classList.add('bi-chevron-right');
+                    });
+                }
+            });
+
+            if (isCollapsed) {
+                header.classList.remove('collapsed');
+                container.classList.remove('collapsed');
+                card.classList.add('expanded');
+            } else {
+                header.classList.add('collapsed');
+                container.classList.add('collapsed');
+                card.classList.remove('expanded');
+                container.querySelectorAll('.sensor-detail.active').forEach(el => {
+                    el.classList.remove('active');
+                    const icon = el.closest('.sensor-item').querySelector('.sensor-expand-icon');
+                    icon.classList.remove('bi-chevron-down');
+                    icon.classList.add('bi-chevron-right');
+                });
+            }
+        }
+
+        // Переключение датчика
+        function toggleSensor(element) {
+            const detail = element.querySelector('.sensor-detail');
+            const icon = element.querySelector('.sensor-expand-icon');
+            const parentList = element.closest('.sensor-list');
+            
+            parentList.querySelectorAll('.sensor-detail.active').forEach(el => {
+                if (el !== detail) {
+                    el.classList.remove('active');
+                    const otherIcon = el.closest('.sensor-item').querySelector('.sensor-expand-icon');
+                    otherIcon.classList.remove('bi-chevron-down');
+                    otherIcon.classList.add('bi-chevron-right');
+                }
+            });
+
+            detail.classList.toggle('active');
+            if (detail.classList.contains('active')) {
+                icon.classList.remove('bi-chevron-right');
+                icon.classList.add('bi-chevron-down');
+            } else {
+                icon.classList.remove('bi-chevron-down');
+                icon.classList.add('bi-chevron-right');
+            }
+        }
+
+        // Поиск постов
+        function searchPosts(query) {
+            const posts = document.querySelectorAll('.post-card');
+            const lowerQuery = query.toLowerCase();
+
+            posts.forEach(post => {
+                const postName = post.getAttribute('data-post-name').toLowerCase();
+                const postTitle = post.querySelector('h5').textContent.toLowerCase();
+                const postLocation = post.querySelector('small').textContent.toLowerCase();
+
+                if (postName.includes(lowerQuery) || postTitle.includes(lowerQuery) || postLocation.includes(lowerQuery)) {
+                    post.style.display = '';
+                } else {
+                    post.style.display = 'none';
+                }
+            });
+        }
+
+        function showHistory(sensor, post) {
+            alert('История измерений для ' + sensor + ' (' + post + ') будет открыта на отдельной странице');
+        }
+
+        function refreshData() {
+            const btn = document.querySelector('button[onclick="refreshData()"] i');
+            btn.style.animation = 'spin 1s linear';
+            setTimeout(() => {
+                btn.style.animation = '';
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleString('ru-RU');
+            }, 1000);
+        }
+
+        setInterval(() => {
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleString('ru-RU');
+        }, 60000);
+
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
