@@ -74,6 +74,7 @@ namespace BurstroyMonitoring.TCM.Controllers
             Console.WriteLine($"GetSensorsByPost called with monitoringPostId: {monitoringPostId}");
             return Json(sensorItems);
         }
+        
         [HttpGet]
         public async Task<IActionResult> GetSensorData(int sensorId)
         {
