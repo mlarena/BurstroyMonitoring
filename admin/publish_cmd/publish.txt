@@ -41,3 +41,14 @@ dotnet publish "C:\git\BurstroyMonitoring\BurstroyMonitoring.Worker\BurstroyMoni
 
 # Windows x64
 dotnet publish "C:\git\BurstroyMonitoring\BurstroyMonitoring.Worker\BurstroyMonitoring.Worker.csproj" -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -o "C:\git\BurstroyMonitoring\BurstroyMonitoring.Worker\release\win-x64\"
+
+
+----VideoMonitoring
+# Linux ARM64
+dotnet publish "C:\git\BurstroyMonitoring\BurstroyMonitoring.VideoMonitoring\BurstroyMonitoring.VideoMonitoring.csproj" -c Release -r linux-arm64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -o "C:\git\BurstroyMonitoring\BurstroyMonitoring.VideoMonitoring\release\linux-arm64\"
+
+# Linux x64
+dotnet publish "C:\git\BurstroyMonitoring\BurstroyMonitoring.VideoMonitoring\BurstroyMonitoring.VideoMonitoring.csproj" -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -o "C:\git\BurstroyMonitoring\BurstroyMonitoring.VideoMonitoring\release\linux-x64\"
+
+# Windows x64
+dotnet publish "C:\git\BurstroyMonitoring\BurstroyMonitoring.VideoMonitoring\BurstroyMonitoring.VideoMonitoring.csproj" -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -o C:\git\BurstroyMonitoring\BurstroyMonitoring.VideoMonitoring\release\win-x64\"

@@ -7,6 +7,7 @@
 
 
 
+scp -P 58222 "C:\git\BurstroyMonitoring\admin\sql\addcameras.sql" usermeteo@192.168.192.137:/opt/burstroy/tmp 
 scp -P 58222 "C:\dotnet10\RtspViewer\publish\worker\BurstroyMonitoring.VideoMonitoring.zip" usermeteo@192.168.192.137:/opt/burstroy/tmp 
 scp -P 58222 "C:\dotnet10\RtspViewer\publish\web\RtspViewer.zip" usermeteo@192.168.192.137:/opt/burstroy/tmp 
 
@@ -30,18 +31,6 @@ scp -P 58222 "C:\git\BurstroyMonitoring\admin\sql\db_vw.sql" usermeteo@192.168.1
 ssh -p 58222 usermeteo@192.168.192.137
 toor
 
-виртуалка 2
-scp "C:\git\BurstroyMonitoring\BurstroyMonitoring.Worker\release\linux-x64\BurstroyMonitoring.Worker.zip" devuser@192.168.77.144:/opt/burstroy/tmp
-scp "C:\git\BurstroyMonitoring\BurstroyMonitoring.TCM\release\linux-x64\BurstroyMonitoring.TCM.zip" devuser@192.168.77.144:/opt/burstroy/tmp
-scp "C:\git\BurstroyMonitoring\admin\sql\db_db.sql" devuser@192.168.77.144:/opt/burstroy/tmp
-scp "C:\git\BurstroyMonitoring\admin\sql\db_insert.sql" devuser@192.168.77.144:/opt/burstroy/tmp
-scp "C:\git\BurstroyMonitoring\admin\sql\db_vw.sql" devuser@192.168.77.144:/opt/burstroy/tmp
-
-scp "C:\git\BurstroyMonitoring\admin\sql\monitoring_posts.sql" devuser@192.168.77.144:/opt/burstroy/tmp
-
-
-
-ssh devuser@192.168.77.144
 
 тестовый сервер
 scp "C:\git\BurstroyMonitoring\BurstroyMonitoring.Worker\release\linux-x64\BurstroyMonitoring.Worker.zip" debusr@192.168.3.74:/opt/burstroy/tmp
@@ -96,7 +85,7 @@ psql -U postgres -h localhost -d postgres
 create database rtsp_viewer;
 
 4. выполнение скриптов на базе данных
-sudo -u postgres psql -d rtsp_viewer -f /opt/burstroy/tmp/rtsp_viewer.sql
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/addcameras.sql
 sudo -u postgres psql -d sensordb_mu -f /opt/burstroy/tmp/user.sql
 sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_insert_kr.sql
 sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_insert.sql
@@ -133,6 +122,15 @@ sudo systemctl status burstroy-monitoring-worker
 sudo journalctl -u burstroy-monitoring-worker -f
 sudo systemctl enable burstroy-monitoring-worker
 sudo systemctl disable burstroy-monitoring-worker
+
+sudo systemctl start burstroy-video-monitoring.service
+sudo systemctl stop burstroy-video-monitoring.service
+sudo systemctl restart burstroy-video-monitoring.service
+sudo systemctl status burstroy-video-monitoring.service
+sudo journalctl -u burstroy-video-monitoring.service -f
+sudo systemctl enable burstroy-video-monitoring.service
+sudo systemctl disable burstroy-video-monitoring.service
+
 
 DROP VIEW  vw_dov_data_full;
 DROP VIEW  vw_dspd_data_full;

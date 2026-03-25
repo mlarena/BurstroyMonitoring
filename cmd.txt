@@ -1,6 +1,7 @@
 
 dotnet run --project BurstroyMonitoring.Worker/BurstroyMonitoring.Worker.csproj
 dotnet run --project BurstroyMonitoring.TCM/BurstroyMonitoring.TCM.csproj
+dotnet run --project BurstroyMonitoring.VideoMonitoring/BurstroyMonitoring.VideoMonitoring.csproj
 
 
 
