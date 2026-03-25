@@ -4,6 +4,20 @@
 
 2. загрузка на сервер
 виртуалка
+
+
+
+scp -P 58222 "C:\dotnet10\RtspViewer\publish\worker\BurstroyMonitoring.VideoMonitoring.zip" usermeteo@192.168.192.137:/opt/burstroy/tmp 
+scp -P 58222 "C:\dotnet10\RtspViewer\publish\web\RtspViewer.zip" usermeteo@192.168.192.137:/opt/burstroy/tmp 
+
+scp -P 58222 "C:\dotnet10\RtspViewer\scripts\setup-rtsp-web.sh" usermeteo@192.168.192.137:/opt/burstroy/tmp
+scp -P 58222 "C:\dotnet10\RtspViewer\scripts\setup-video-monitoring.sh" usermeteo@192.168.192.137:/opt/burstroy/tmp
+scp -P 58222 "C:\dotnet10\RtspViewer\scripts\unpack-rtsp-web.sh" usermeteo@192.168.192.137:/opt/burstroy/tmp
+scp -P 58222 "C:\dotnet10\RtspViewer\scripts\unpack-video-monitoring.sh" usermeteo@192.168.192.137:/opt/burstroy/tmp
+scp -P 58222 "C:\dotnet10\RtspViewer\scripts\rtsp_viewer.sql" usermeteo@192.168.192.137:/opt/burstroy/tmp
+
+
+
 scp -P 58222 "C:\git\BurstroyMonitoring\BurstroyMonitoring.Worker\release\linux-x64\BurstroyMonitoring.Worker.zip" usermeteo@192.168.192.137:/opt/burstroy/tmp 
 scp -P 58222 "C:\git\BurstroyMonitoring\BurstroyMonitoring.TCM\release\linux-x64\BurstroyMonitoring.TCM.zip" usermeteo@192.168.192.137:/opt/burstroy/tmp 
 scp -P 58222 "C:\git\BurstroyMonitoring\admin\sql\db_db.sql" usermeteo@192.168.192.137:/opt/burstroy/tmp 
@@ -48,6 +62,16 @@ pass: y$2wbYUcCo2%
 
 
 крыша
+scp -P 9022 "C:\dotnet10\RtspViewer\publish-linux-arm64\worker\BurstroyMonitoring.VideoMonitoring.zip" bsp@192.168.3.19:/opt/burstroy/tmp 
+scp -P 9022 "C:\dotnet10\RtspViewer\publish-linux-arm64\web\RtspViewer.zip" bsp@192.168.3.19:/opt/burstroy/tmp  
+
+scp -P 9022 "C:\dotnet10\RtspViewer\scripts\setup-rtsp-web.sh" bsp@192.168.3.19:/opt/burstroy/tmp 
+scp -P 9022 "C:\dotnet10\RtspViewer\scripts\setup-video-monitoring.sh" bsp@192.168.3.19:/opt/burstroy/tmp 
+scp -P 9022 "C:\dotnet10\RtspViewer\scripts\unpack-rtsp-web.sh" bsp@192.168.3.19:/opt/burstroy/tmp 
+scp -P 9022 "C:\dotnet10\RtspViewer\scripts\unpack-video-monitoring.sh" bsp@192.168.3.19:/opt/burstroy/tmp 
+scp -P 9022 "C:\dotnet10\RtspViewer\scripts\rtsp_viewer.sql" bsp@192.168.3.19:/opt/burstroy/tmp 
+
+
 scp -P 9022 "C:\git\BurstroyMonitoring\BurstroyMonitoring.Worker\release\linux-arm64\BurstroyMonitoring.Worker.zip" bsp@192.168.3.19:/opt/burstroy/tmp 
 scp -P 9022 "C:\git\BurstroyMonitoring\BurstroyMonitoring.TCM\release\linux-arm64\BurstroyMonitoring.TCM.zip" bsp@192.168.3.19:/opt/burstroy/tmp 
 scp -P 9022 "C:\git\BurstroyMonitoring\admin\sql\db_db.sql" bsp@192.168.3.19:/opt/burstroy/tmp 
@@ -69,9 +93,10 @@ cd /opt/burstroy/tcm/
 3. подключение к postgres, создание базы данных
 
 psql -U postgres -h localhost -d postgres
-create database sensordb;
+create database rtsp_viewer;
 
 4. выполнение скриптов на базе данных
+sudo -u postgres psql -d rtsp_viewer -f /opt/burstroy/tmp/rtsp_viewer.sql
 sudo -u postgres psql -d sensordb_mu -f /opt/burstroy/tmp/user.sql
 sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_insert_kr.sql
 sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_insert.sql

@@ -1,7 +1,7 @@
 @model BurstroyMonitoring.Data.Models.VwSensorErrorsFull
 
 @{
-    ViewData["Title"] = "Подробности об ошибке датчика";
+    ViewData["Title"] = "Подробности об ошибке получения данных датчика";
 }
 
 <div class="container">
@@ -9,7 +9,7 @@
         <div class="col-md-10 col-lg-8">
             <div class="card shadow-sm border-danger">
                 <div class="card-header bg-danger text-white py-2 d-flex justify-content-between align-items-center">
-                    <h1 class="h5 mb-0">Подробности об ошибке датчика</h1>
+                    <h1 class="h5 mb-0">Подробности об ошибке получения данных датчика</h1>
                     <span class="badge bg-light text-dark">ID: @Model.ErrorId</span>
                 </div>
                 <div class="card-body p-0">
@@ -84,25 +84,23 @@
 
 @if (!string.IsNullOrEmpty(Model.AdditionalData))
 {
-    @section Scripts {
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                try {
-                    const json = @Html.Raw(Model.AdditionalData);
-                    document.getElementById('jsonCode').textContent = JSON.stringify(json, null, 2);
-                } catch (e) {
-                    document.getElementById('jsonCode').textContent = `@Html.Raw(Model.AdditionalData)`;
-                }
-            });
-
-            function copyJson() {
-                const text = document.getElementById('jsonCode').textContent;
-                navigator.clipboard.writeText(text).then(() => {
-                    alert('JSON скопирован в буфер обмена');
-                });
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                const json = @Html.Raw(Model.AdditionalData);
+                document.getElementById('jsonCode').textContent = JSON.stringify(json, null, 2);
+            } catch (e) {
+                document.getElementById('jsonCode').textContent = `@Html.Raw(Model.AdditionalData)`;
             }
-        </script>
-    }
+        });
+
+        function copyJson() {
+            const text = document.getElementById('jsonCode').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('JSON скопирован в буфер обмена');
+            });
+        }
+    </script>
 }
         <!-- Трассировка стека -->
         <div class="details-row">
