@@ -1,3 +1,4 @@
+@model BurstroyMonitoring.Data.Models.Camera
 @{
     ViewData["Title"] = "Просмотр камеры";
 }
@@ -7,11 +8,11 @@
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a asp-action="Index">Камеры</a></li>
-                <li class="breadcrumb-item active">Камера #@ViewBag.CameraId</li>
+                <li class="breadcrumb-item active">@Model.Name</li>
             </ol>
         </nav>
         <div class="btn-group btn-group-sm">
-            <a asp-action="Edit" asp-route-id="@ViewBag.CameraId" class="btn btn-outline-secondary">Настройки</a>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Настройки</a>
             <a asp-action="Index" class="btn btn-outline-secondary">К списку</a>
         </div>
     </div>
@@ -21,37 +22,55 @@
         <div class="col-lg-8">
             <div class="card shadow-sm bg-dark text-white mb-3">
                 <div class="card-header bg-transparent border-secondary py-2 d-flex justify-content-between align-items-center">
-                    <h2 class="h6 mb-0"><i class="bi bi-broadcast me-2 text-danger"></i> Прямой эфир</h2>
-                    <span class="badge bg-danger animate-pulse">REC</span>
+                    <h2 class="h6 mb-0"><i class="bi bi-broadcast me-2 text-danger"></i> Прямой эфир: @Model.Name</h2>
                 </div>
-                <div class="card-body p-0 bg-black d-flex align-items-center justify-content-center" style="height: 450px;">
-                    <div class="text-center opacity-50">
-                        <i class="bi bi-camera-video display-1 mb-3"></i>
-                        <p>Подключение к видеопотоку...</p>
+                <div class="card-body p-0 bg-black d-flex align-items-center justify-content-center position-relative" style="height: 450px; overflow: hidden;">
+                    <!-- Заглушка/Скриншот -->
+                    <div id="videoPlaceholder" class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-dark" 
+                         style="z-index: 1; background: @(ViewBag.LatestSnapshotPath != null ? $"url('{ViewBag.LatestSnapshotPath}') center/cover no-repeat" : "#1a1a1a");">
+                        
+                        @if (ViewBag.LatestSnapshotPath != null)
+                        {
+                            <div class="position-absolute top-0 start-0 w-100 h-100 bg-black opacity-50"></div>
+                        }
+                        
+                        <div class="position-relative text-center text-white" style="z-index: 2;">
+                            <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                                <span class="visually-hidden">Загрузка...</span>
+                            </div>
+                            <p id="statusText" class="h5 fw-light">Подключение к видеопотоку...</p>
+                            <small class="text-muted">Это может занять несколько секунд</small>
+                        </div>
                     </div>
+
+                    <!-- Видеопоток -->
+                    <img id="videoStream" style="display:none; width: 100%; height: 100%; object-fit: contain; position: relative; z-index: 2;" />
                 </div>
                 <div class="card-footer bg-transparent border-secondary py-3">
                     <div class="d-flex justify-content-center gap-4">
-                        <div class="ptz-controls">
-                            <div class="d-grid gap-1" style="grid-template-columns: repeat(3, 40px);">
-                                <div></div>
-                                <button class="btn btn-sm btn-outline-light"><i class="bi bi-chevron-up"></i></button>
-                                <div></div>
-                                <button class="btn btn-sm btn-outline-light"><i class="bi bi-chevron-left"></i></button>
-                                <button class="btn btn-sm btn-light text-dark"><i class="bi bi-dot"></i></button>
-                                <button class="btn btn-sm btn-outline-light"><i class="bi bi-chevron-right"></i></button>
-                                <div></div>
-                                <button class="btn btn-sm btn-outline-light"><i class="bi bi-chevron-down"></i></button>
-                                <div></div>
+                        @if (Model.IsPtzSupported)
+                        {
+                            <div class="ptz-controls">
+                                <div class="d-grid gap-1" style="grid-template-columns: repeat(3, 40px);">
+                                    <div></div>
+                                    <button class="btn btn-sm btn-outline-light"><i class="bi bi-chevron-up"></i></button>
+                                    <div></div>
+                                    <button class="btn btn-sm btn-outline-light"><i class="bi bi-chevron-left"></i></button>
+                                    <button class="btn btn-sm btn-light text-dark"><i class="bi bi-dot"></i></button>
+                                    <button class="btn btn-sm btn-outline-light"><i class="bi bi-chevron-right"></i></button>
+                                    <div></div>
+                                    <button class="btn btn-sm btn-outline-light"><i class="bi bi-chevron-down"></i></button>
+                                    <div></div>
+                                </div>
                             </div>
-                        </div>
+                        }
                         <div class="zoom-controls d-flex flex-column gap-2">
                             <button class="btn btn-sm btn-outline-light"><i class="bi bi-plus-lg"></i> Zoom</button>
                             <button class="btn btn-sm btn-outline-light"><i class="bi bi-dash-lg"></i> Zoom</button>
                         </div>
                         <div class="action-controls d-flex flex-column gap-2">
-                            <button class="btn btn-sm btn-primary"><i class="bi bi-camera me-1"></i> Сделать снимок</button>
-                            <button class="btn btn-sm btn-outline-warning"><i class="bi bi-arrow-clockwise me-1"></i> Перезагрузить</button>
+                            <button class="btn btn-sm btn-primary" onclick="takeSnapshot()"><i class="bi bi-camera me-1"></i> Сделать снимок</button>
+                            <button class="btn btn-sm btn-outline-warning" onclick="restartStream()"><i class="bi bi-arrow-clockwise me-1"></i> Перезагрузить</button>
                         </div>
                     </div>
                 </div>
@@ -65,21 +84,28 @@
                     <h3 class="h6 mb-0">Последние снимки</h3>
                 </div>
                 <div class="card-body p-2">
-                    <div class="row g-2">
-                        @for (int i = 1; i <= 4; i++)
+                    <div id="snapshots" class="row g-2">
+                        @if (ViewBag.LastSnapshots != null && ((List<BurstroyMonitoring.Data.Models.Snapshot>)ViewBag.LastSnapshots).Any())
                         {
-                            <div class="col-6">
-                                <div class="position-relative border rounded overflow-hidden bg-light" style="height: 100px;">
-                                    <i class="bi bi-image position-absolute top-50 start-50 translate-middle opacity-25 h3"></i>
-                                    <div class="position-absolute bottom-0 start-0 w-100 bg-dark bg-opacity-50 text-white p-1" style="font-size: 0.65rem;">
-                                        12:45:0@(i)
+                            @foreach (var snap in (List<BurstroyMonitoring.Data.Models.Snapshot>)ViewBag.LastSnapshots)
+                            {
+                                <div class="col-6">
+                                    <div class="position-relative border rounded overflow-hidden bg-light" style="height: 100px;">
+                                        <img src="@snap.FilePath" class="w-100 h-100 object-fit-cover" onclick="window.open(this.src)" style="cursor:pointer" />
+                                        <div class="position-absolute bottom-0 start-0 w-100 bg-dark bg-opacity-50 text-white p-1" style="font-size: 0.65rem;">
+                                            @snap.CreatedAt.ToLocalTime().ToString("HH:mm:ss")
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="col-12 text-center text-muted small py-4">Снимков пока нет</div>
                         }
                     </div>
                     <div class="d-grid mt-3">
-                        <button class="btn btn-outline-primary btn-sm">Все снимки (142)</button>
+                        <a asp-action="Snapshots" asp-route-cameraId="@Model.Id" class="btn btn-outline-primary btn-sm">Все снимки</a>
                     </div>
                 </div>
             </div>
@@ -91,11 +117,9 @@
                 <div class="card-body p-0">
                     <table class="table table-sm mb-0 small">
                         <tbody>
-                            <tr><th class="ps-3 bg-light" style="width: 40%;">Статус</th><td class="ps-3 text-success fw-bold">Онлайн</td></tr>
-                            <tr><th class="ps-3 bg-light">Uptime</th><td class="ps-3">14д 05ч 22м</td></tr>
-                            <tr><th class="ps-3 bg-light">Разрешение</th><td class="ps-3">1920x1080 (2MP)</td></tr>
-                            <tr><th class="ps-3 bg-light">Битрейт</th><td class="ps-3">4.2 Mbps</td></tr>
-                            <tr><th class="ps-3 bg-light">Кодек</th><td class="ps-3">H.265</td></tr>
+                            <tr><th class="ps-3 bg-light" style="width: 40%;">Статус</th><td id="connStatus" class="ps-3 text-warning fw-bold">Подключение...</td></tr>
+                            <tr><th class="ps-3 bg-light">IP/URL</th><td class="ps-3">@Model.RtspUrl</td></tr>
+                            <tr><th class="ps-3 bg-light">PTZ</th><td class="ps-3">@(Model.IsPtzSupported ? "Да" : "Нет")</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -108,8 +132,113 @@
     .animate-pulse {
         animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
-    @@keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: .5; }
-    }
+       .bg-black { background-color: #000 !important; }
 </style>
+
+@section Scripts {
+    <script>
+        let streamInterval;
+        let connectionTimeout;
+        const cameraId = @Model.Id;
+
+        async function startStream() {
+            if (connectionTimeout) clearTimeout(connectionTimeout);
+            
+            connectionTimeout = setTimeout(() => {
+                const videoImg = document.getElementById('videoStream');
+                if (videoImg.style.display === 'none') {
+                    clearInterval(streamInterval);
+                    const spinner = document.querySelector('.spinner-border');
+                    if (spinner) spinner.style.display = 'none';
+                    document.getElementById('statusText').innerHTML = 
+                        '<span class="text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Видеопоток недоступен</span>';
+                    document.getElementById('connStatus').innerText = 'Ошибка';
+                    document.getElementById('connStatus').className = 'ps-3 text-danger fw-bold';
+                }
+            }, 60000);
+
+            try {
+                const response = await fetch(`/Cameras/StartStream/${cameraId}`, { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const videoImg = document.getElementById('videoStream');
+                    const placeholder = document.getElementById('videoPlaceholder');
+                    
+                    videoImg.onload = () => {
+                        if (connectionTimeout) clearTimeout(connectionTimeout);
+                        placeholder.style.display = 'none';
+                        videoImg.style.display = 'block';
+                        document.getElementById('connStatus').innerText = 'Онлайн';
+                        document.getElementById('connStatus').className = 'ps-3 text-success fw-bold';
+                        videoImg.onload = null;
+                    };
+
+                    streamInterval = setInterval(() => {
+                        videoImg.src = `/Cameras/GetFrame?t=${Date.now()}`;
+                    }, 100);
+                } else {
+                    if (connectionTimeout) clearTimeout(connectionTimeout);
+                    document.getElementById('statusText').innerText = 'Ошибка: ' + data.error;
+                    const spinner = document.querySelector('.spinner-border');
+                    if (spinner) spinner.style.display = 'none';
+                }
+            } catch (e) {
+                if (connectionTimeout) clearTimeout(connectionTimeout);
+                document.getElementById('statusText').innerText = 'Ошибка подключения';
+                const spinner = document.querySelector('.spinner-border');
+                if (spinner) spinner.style.display = 'none';
+            }
+        }
+
+        function restartStream() {
+            clearInterval(streamInterval);
+            if (connectionTimeout) clearTimeout(connectionTimeout);
+            document.getElementById('videoPlaceholder').style.display = 'flex';
+            document.getElementById('videoStream').style.display = 'none';
+            const spinner = document.querySelector('.spinner-border');
+            if (spinner) spinner.style.display = 'inline-block';
+            document.getElementById('statusText').innerText = 'Перезапуск потока...';
+            startStream();
+        }
+
+        async function takeSnapshot() {
+            try {
+                const response = await fetch(`/Cameras/TakeSnapshot/${cameraId}`, { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const container = document.getElementById('snapshots');
+                    const emptyMsg = container.querySelector('.col-12');
+                    if (emptyMsg) emptyMsg.remove();
+
+                    const html = `
+                        <div class="col-6">
+                            <div class="position-relative border rounded overflow-hidden bg-light" style="height: 100px;">
+                                <img src="${data.filePath}" class="w-100 h-100 object-fit-cover" onclick="window.open(this.src)" style="cursor:pointer" />
+                                <div class="position-absolute bottom-0 start-0 w-100 bg-dark bg-opacity-50 text-white p-1" style="font-size: 0.65rem;">
+                                    ${data.createdAt}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('afterbegin', html);
+                    
+                    const items = container.querySelectorAll('.col-6');
+                    if (items.length > 6) items[items.length - 1].remove();
+                } else {
+                    alert('Ошибка: ' + data.error);
+                }
+            } catch (e) {
+                alert('Ошибка при создании снимка');
+            }
+        }
+
+        startStream();
+
+        window.onbeforeunload = () => {
+            clearInterval(streamInterval);
+            fetch('/Cameras/StopStream', { method: 'POST', keepalive: true });
+        };
+    </script>
+}

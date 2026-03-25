@@ -49,6 +49,10 @@ namespace BurstroyMonitoring.Data
         public DbSet<User> Users { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
 
+        // Видеокамеры
+        public DbSet<Camera> Cameras { get; set; }
+        public DbSet<Snapshot> Snapshots { get; set; }
+
         // Представления (VIEW)
         public DbSet<VwMueksDataFull> VwMueksDataFull { get; set; }
         public DbSet<VwIwsDataFull> VwIwsDataFull { get; set; }

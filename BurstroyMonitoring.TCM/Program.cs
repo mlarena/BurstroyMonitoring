@@ -124,6 +124,7 @@ try
     // Регистрация сервисов
     builder.Services.AddScoped<IExportService, ExportService>();
     builder.Services.AddScoped<IAuthService, AuthService>();
+    builder.Services.AddSingleton<RtspStreamService>();
 
     // Настройка аутентификации JWT
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

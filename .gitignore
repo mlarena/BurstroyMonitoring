@@ -22,6 +22,7 @@ bld/
 [Oo]bj/
 [Ll]og/
 logs/
+BurstroyMonitoring.TCM/wwwroot/snapshots
 
 # Visual Studio 2015 cache/options directory
 .vs/

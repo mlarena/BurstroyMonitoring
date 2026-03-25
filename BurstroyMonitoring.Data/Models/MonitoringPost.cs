@@ -41,5 +41,6 @@ namespace BurstroyMonitoring.Data.Models
 
         // Навигационное свойство
         public virtual ICollection<Sensor> Sensors { get; set; } = new List<Sensor>();
+        public virtual ICollection<Camera> Cameras { get; set; } = new List<Camera>();
     }
 }
