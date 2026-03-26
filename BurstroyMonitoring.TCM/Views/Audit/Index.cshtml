@@ -1,4 +1,4 @@
-@model BurstroyMonitoring.Data.Models.ViewModels.AuditIndexViewModel
+﻿@model BurstroyMonitoring.Data.Models.ViewModels.AuditIndexViewModel
 @using BurstroyMonitoring.Data.Models.ViewModels
 
 @{
@@ -57,6 +57,7 @@
         </div>
     </div>
 
+    @* Пагинация СВЕРХУ *@
     <div class="d-flex justify-content-between align-items-center mb-2">
         <div class="small text-muted">Страница <strong>@Model.Page</strong> из @Model.TotalPages (@Model.TotalItems записей)</div>
         <ul class="pagination pagination-sm mb-0">
@@ -106,12 +107,25 @@
                         <td class="col-extra d-none small">@row.EntityType</td>
                         <td class="col-extra d-none small">@row.EntityId</td>
                         <td class="text-end">
-                            <a asp-action="Details" asp-route-id="@row.Id" class="btn btn-outline-secondary btn-sm py-0 px-2">📄</a>
+                            <a asp-action="Details" asp-route-id="@row.Id" asp-route-type="@row.Type" class="btn btn-outline-secondary btn-sm py-0 px-2">📄</a>
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
+    </div>
+
+    @* Пагинация СНИЗУ *@
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <div class="small text-muted">Страница <strong>@Model.Page</strong> из @Model.TotalPages (@Model.TotalItems записей)</div>
+        <ul class="pagination pagination-sm mb-0">
+            <li class="page-item @(Model.Page <= 1 ? "disabled" : "")">
+                <a class="page-link" href="@Url.Action("Index", new { page = Model.Page - 1, type = Model.Type, userName = Model.UserName, entityType = Model.EntityType, from = Model.From, to = Model.To })">«</a>
+            </li>
+            <li class="page-item @(Model.Page >= Model.TotalPages ? "disabled" : "")">
+                <a class="page-link" href="@Url.Action("Index", new { page = Model.Page + 1, type = Model.Type, userName = Model.UserName, entityType = Model.EntityType, from = Model.From, to = Model.To })">»</a>
+            </li>
+        </ul>
     </div>
 </div>
 

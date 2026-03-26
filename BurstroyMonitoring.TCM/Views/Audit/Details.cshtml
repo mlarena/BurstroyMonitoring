@@ -36,12 +36,20 @@
                                 else { <span class="badge bg-danger fw-normal">Ошибка</span> }
                                 <span class="ms-2 small text-muted">@log.ExecutionTimeMs мс</span>
                             </td></tr>
+                            @if (log.TargetId.HasValue)
+                            {
+                                <tr><th class="bg-light ps-3">Target ID</th><td class="ps-3">@log.TargetId</td></tr>
+                            }
                             <tr><th class="bg-light ps-3">Детали</th><td class="ps-3"><pre class="bg-light p-2 rounded small mb-0" style="white-space: pre-wrap;">@log.Details</pre></td></tr>
                         }
                         else
                         {
                             <tr><th class="bg-light ps-3">Сущность / ID</th><td class="ps-3">@log.EntityType <span class="badge bg-light text-dark border ms-2">@log.EntityId</span></td></tr>
                             <tr><th class="bg-light ps-3">Тип изменения</th><td class="ps-3"><span class="badge bg-info text-dark fw-normal">@log.ChangeType</span></td></tr>
+                            @if (!string.IsNullOrEmpty(log.IpAddress))
+                            {
+                                <tr><th class="bg-light ps-3">IP адрес</th><td class="ps-3 small">@log.IpAddress</td></tr>
+                            }
                         }
                     </tbody>
                 </table>
@@ -85,9 +93,9 @@
                                         <tr>
                                             <th class="ps-3">@change.GetProperty("Property").GetString()</th>
                                             <td class="ps-3 small">
-                                                <span class="text-danger text-decoration-line-through">@change.GetProperty("OldValue").GetString()</span>
-                                                <i class="bi bi-arrow-right mx-2"></i>
-                                                <span class="text-success fw-bold">@change.GetProperty("NewValue").GetString()</span>
+                                                <span class="text-danger text-decoration-line-through">@(change.GetProperty("OldValue").ValueKind == JsonValueKind.Null ? "null" : change.GetProperty("OldValue").ToString())</span>
+                                                <span class="mx-2">&rarr;</span>
+                                                <span class="text-success fw-bold">@(change.GetProperty("NewValue").ValueKind == JsonValueKind.Null ? "null" : change.GetProperty("NewValue").ToString())</span>
                                             </td>
                                         </tr>
                                     }
