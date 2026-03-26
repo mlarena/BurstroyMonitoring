@@ -58,12 +58,11 @@ namespace BurstroyMonitoring.TCM.Controllers
                 .OrderBy(s => s.SensorType != null ? s.SensorType.SensorTypeName : "")
                 .ThenBy(s => s.EndPointsName)
                 .ToListAsync();
-        //            Text = $"{s.SensorType?.SensorTypeName} {s.EndPointsName} {s.SerialNumber}"
             var sensorItems = sensors
                 .Select(s => new SelectListItem
                 {
                     Value = s.Id.ToString(),
-                    Text = $"{s.EndPointsName} "
+                    Text = $"{s.SensorType?.SensorTypeName} ({s.EndPointsName})"
                 })
                 .ToList();
             sensorItems.Insert(0, new SelectListItem
