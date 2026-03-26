@@ -104,34 +104,12 @@ echo "Installation directory: $INSTALL_DIR"
 echo ""
 
 # Попытка запуска и проверка
-echo "=== Starting service for verification ==="
-sudo systemctl start $SERVICE_NAME
-sleep 5  # Увеличиваем задержку для .NET приложений
+echo "=== Starting service ==="
+sudo systemctl restart $SERVICE_NAME
+sleep 5
 
-echo ""
 echo "=== Service Status ==="
-sudo systemctl status $SERVICE_NAME --no-pager --lines=10
-
-echo ""
-echo "=== Port Check ==="
-if ss -tlnp | grep -q ":$APP_PORT"; then
-    echo "✅ Application is listening on port $APP_PORT"
-else
-    echo "❌ Port $APP_PORT is not listening"
-    echo "Checking logs..."
-    sudo journalctl -u $SERVICE_NAME --no-pager -n 10
-fi
-
-echo ""
-echo "=== Quick Application Test ==="
-RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:$APP_PORT 2>/dev/null || echo "000")
-if [[ "$RESPONSE" =~ ^(200|301|302|404|401)$ ]]; then
-    echo "✅ Application responds with HTTP $RESPONSE"
-elif [ "$RESPONSE" == "000" ]; then
-    echo "❌ Cannot connect to application on port $APP_PORT"
-else
-    echo "⚠️  Application responds with HTTP $RESPONSE"
-fi
+sudo systemctl status $SERVICE_NAME --no-pager --lines=5
 
 echo ""
 echo "=== Management Commands ==="
@@ -140,12 +118,5 @@ echo "  Stop service:     sudo systemctl stop $SERVICE_NAME"
 echo "  Restart service:  sudo systemctl restart $SERVICE_NAME"
 echo "  Check status:     sudo systemctl status $SERVICE_NAME"
 echo "  View logs:        sudo journalctl -u $SERVICE_NAME -f"
-echo "  Enable on boot:   sudo systemctl enable $SERVICE_NAME"
-echo "  Disable on boot:  sudo systemctl disable $SERVICE_NAME"
-echo ""
-echo "=== Verification Commands ==="
-echo "1. Check if running:  sudo systemctl is-active $SERVICE_NAME"
-echo "2. Test application:  curl -I http://localhost:$APP_PORT"
-echo "3. View recent logs:  sudo journalctl -u $SERVICE_NAME --since \"5 minutes ago\""
 echo ""
 echo "Access the application at: http://$(hostname -I | awk '{print $1}'):$APP_PORT"

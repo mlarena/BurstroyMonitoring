@@ -1,5 +1,5 @@
 
-
+ALTER TABLE public."MonitoringPost" ADD "Address" text NULL;
 --
 -- Name: Cameras; Type: TABLE; Schema: public; Owner: postgres
 --
