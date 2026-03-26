@@ -15,86 +15,110 @@
     @if (Model.Log != null)
     {
         var log = Model.Log;
+        
+        @* Основная карточка с информацией о событии *@
         <div class="card shadow-sm mb-4">
-            <div class="card-header @(Model.Type == AuditLogType.Action ? "bg-info" : "bg-warning") text-white py-2">
-                <span class="badge bg-dark me-2">@(Model.Type == AuditLogType.Action ? "Действие" : "Изменение")</span>
-                <strong>@(Model.Type == AuditLogType.Action ? log.Action : log.EntityType)</strong>
+            <div class="card-header @(Model.Type == AuditLogType.Action ? "bg-info text-dark" : "bg-warning text-dark") py-2">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>
+                        <span class="badge bg-dark text-white me-2">@(Model.Type == AuditLogType.Action ? "Действие" : "Изменение")</span>
+                        <strong>@(Model.Type == AuditLogType.Action ? log.Action : log.EntityType)</strong>
+                    </span>
+                    <span class="small fw-bold">ID: @log.Id</span>
+                </div>
             </div>
             <div class="card-body p-0">
                 <table class="table table-sm mb-0">
                     <tbody>
-                        <tr><th class="bg-light ps-3" style="width: 30%;">ID записи</th><td class="ps-3">@log.Id</td></tr>
-                        <tr><th class="bg-light ps-3">Время</th><td class="ps-3">@log.Timestamp.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss.fff")</td></tr>
-                        <tr><th class="bg-light ps-3">Пользователь</th><td class="ps-3">@(log.UserName ?? "System") @(log.UserId.HasValue ? $"(ID: {log.UserId})" : "")</td></tr>
-                        
+                        <tr>
+                            <th class="bg-light ps-3" style="width: 25%;">Время</th>
+                            <td class="ps-3">@log.Timestamp.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss.fff")</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light ps-3">Пользователь</th>
+                            <td class="ps-3">
+                                <span class="fw-bold">@(log.UserName ?? "System")</span>
+                                @if (log.UserId.HasValue) { <span class="text-muted small ms-1">(ID: @log.UserId)</span> }
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light ps-3">IP адрес</th>
+                            <td class="ps-3">@log.IpAddress</td>
+                        </tr>
+
                         @if (Model.Type == AuditLogType.Action)
                         {
-                            <tr><th class="bg-light ps-3">HTTP Метод / URL</th><td class="ps-3"><span class="badge bg-primary me-2">@log.HttpMethod</span> <small class="text-break">@log.Url</small></td></tr>
-                            <tr><th class="bg-light ps-3">IP / User Agent</th><td class="ps-3 small"><div>@log.IpAddress</div><div class="text-muted">@log.UserAgent</div></td></tr>
-                            <tr><th class="bg-light ps-3">Статус / Время</th><td class="ps-3">
-                                @if (log.IsSuccess == true) { <span class="badge bg-success fw-normal">OK</span> }
-                                else { <span class="badge bg-danger fw-normal">Ошибка</span> }
-                                <span class="ms-2 small text-muted">@log.ExecutionTimeMs мс</span>
-                            </td></tr>
+                            <tr>
+                                <th class="bg-light ps-3">Метод / URL</th>
+                                <td class="ps-3">
+                                    <span class="badge bg-primary me-1">@log.HttpMethod</span>
+                                    <small class="text-break">@log.Url</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light ps-3">Статус / Время</th>
+                                <td class="ps-3">
+                                    @if (log.IsSuccess == true) { <span class="badge bg-success fw-normal">OK</span> }
+                                    else { <span class="badge bg-danger fw-normal">Ошибка</span> }
+                                    <span class="ms-2 small text-muted">@log.ExecutionTimeMs мс</span>
+                                </td>
+                            </tr>
                             @if (log.TargetId.HasValue)
                             {
                                 <tr><th class="bg-light ps-3">Target ID</th><td class="ps-3">@log.TargetId</td></tr>
                             }
-                            <tr><th class="bg-light ps-3">Детали</th><td class="ps-3"><pre class="bg-light p-2 rounded small mb-0" style="white-space: pre-wrap;">@log.Details</pre></td></tr>
+                            <tr>
+                                <th class="bg-light ps-3">User Agent</th>
+                                <td class="ps-3 small text-muted">@log.UserAgent</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light ps-3">Детали</th>
+                                <td class="ps-3">
+                                    <pre class="bg-light p-2 rounded small mb-0" style="white-space: pre-wrap; border: 1px solid #dee2e6;">@log.Details</pre>
+                                </td>
+                            </tr>
                         }
                         else
                         {
-                            <tr><th class="bg-light ps-3">Сущность / ID</th><td class="ps-3">@log.EntityType <span class="badge bg-light text-dark border ms-2">@log.EntityId</span></td></tr>
-                            <tr><th class="bg-light ps-3">Тип изменения</th><td class="ps-3"><span class="badge bg-info text-dark fw-normal">@log.ChangeType</span></td></tr>
-                            @if (!string.IsNullOrEmpty(log.IpAddress))
-                            {
-                                <tr><th class="bg-light ps-3">IP адрес</th><td class="ps-3 small">@log.IpAddress</td></tr>
-                            }
+                            <tr>
+                                <th class="bg-light ps-3">Сущность / ID</th>
+                                <td class="ps-3">@log.EntityType <span class="badge bg-light text-dark border ms-2">@log.EntityId</span></td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light ps-3">Тип изменения</th>
+                                <td class="ps-3"><span class="badge bg-secondary fw-normal">@log.ChangeType</span></td>
+                            </tr>
                         }
                     </tbody>
                 </table>
             </div>
         </div>
 
+        @* Секции для изменений данных (AuditLogType.Change) *@
         @if (Model.Type == AuditLogType.Change)
         {
-            @if (log.ChangeType == "Added" && !string.IsNullOrEmpty(log.NewValues))
-            {
-                <div class="card shadow-sm mb-4 border-success">
-                    <div class="card-header bg-success text-white py-1 small fw-bold">Новые данные</div>
-                    <div class="card-body p-0">
-                        <table class="table table-sm mb-0">
-                            <tbody>
-                                @{ var addedData = JsonSerializer.Deserialize<Dictionary<string, object>>(log.NewValues); }
-                                @if (addedData != null) {
-                                    @foreach (var item in addedData) {
-                                        <tr><th class="bg-light ps-3" style="width: 30%;">@item.Key</th><td class="ps-3 small">@item.Value?.ToString()</td></tr>
-                                    }
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            }
-
+            @* 1. Таблица конкретных измененных полей *@
             @if (log.ChangeType == "Modified" && !string.IsNullOrEmpty(log.ChangedProperties))
             {
                 <div class="card shadow-sm mb-4 border-warning">
                     <div class="card-header bg-warning text-dark py-1 small fw-bold">Изменённые поля</div>
                     <div class="card-body p-0">
-                        <table class="table table-sm mb-0">
+                        <table class="table table-sm table-hover mb-0">
                             <thead class="table-light">
-                                <tr><th class="ps-3">Поле</th><th class="ps-3">Старое → Новое</th></tr>
+                                <tr>
+                                    <th class="ps-3" style="width: 25%;">Поле</th>
+                                    <th class="ps-3">Старое → Новое</th>
+                                </tr>
                             </thead>
                             <tbody>
                                 @{ var changes = JsonSerializer.Deserialize<List<JsonElement>>(log.ChangedProperties); }
                                 @if (changes != null) {
                                     @foreach (var change in changes) {
                                         <tr>
-                                            <th class="ps-3">@change.GetProperty("Property").GetString()</th>
+                                            <th class="ps-3 small">@change.GetProperty("Property").GetString()</th>
                                             <td class="ps-3 small">
                                                 <span class="text-danger text-decoration-line-through">@(change.GetProperty("OldValue").ValueKind == JsonValueKind.Null ? "null" : change.GetProperty("OldValue").ToString())</span>
-                                                <span class="mx-2">&rarr;</span>
+                                                <span class="mx-2 text-muted">&rarr;</span>
                                                 <span class="text-success fw-bold">@(change.GetProperty("NewValue").ValueKind == JsonValueKind.Null ? "null" : change.GetProperty("NewValue").ToString())</span>
                                             </td>
                                         </tr>
@@ -105,6 +129,74 @@
                     </div>
                 </div>
             }
+
+            @* 2. Сравнение полных объектов До и После *@
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="card shadow-sm h-100 border-light">
+                        <div class="card-header bg-light py-1 small fw-bold text-muted">До (OriginalValues)</div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm mb-0">
+                                <tbody>
+                                    @if (!string.IsNullOrEmpty(log.OriginalValues))
+                                    {
+                                        try {
+                                            var beforeData = JsonSerializer.Deserialize<Dictionary<string, object>>(log.OriginalValues);
+                                            if (beforeData != null && beforeData.Any()) {
+                                                @foreach (var item in beforeData) {
+                                                    <tr>
+                                                        <th class="bg-light ps-2 small" style="width: 40%;">@item.Key</th>
+                                                        <td class="ps-2 small text-break">@item.Value?.ToString()</td>
+                                                    </tr>
+                                                }
+                                            }
+                                        } catch {
+                                            <tr><td class="p-2"><pre class="small mb-0">@log.OriginalValues</pre></td></tr>
+                                        }
+                                    } else {
+                                        <tr><td class="ps-3 py-2 small text-muted italic">Нет данных</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card shadow-sm h-100 border-primary">
+                        <div class="card-header bg-primary text-white py-1 small fw-bold">После (NewValues)</div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm mb-0">
+                                <tbody>
+                                    @if (!string.IsNullOrEmpty(log.NewValues))
+                                    {
+                                        try {
+                                            var afterData = JsonSerializer.Deserialize<Dictionary<string, object>>(log.NewValues);
+                                            if (afterData != null && afterData.Any()) {
+                                                @foreach (var item in afterData) {
+                                                    <tr>
+                                                        <th class="bg-light ps-2 small" style="width: 40%;">@item.Key</th>
+                                                        <td class="ps-2 small text-break">@item.Value?.ToString()</td>
+                                                    </tr>
+                                                }
+                                            }
+                                        } catch {
+                                            <tr><td class="p-2"><pre class="small mb-0">@log.NewValues</pre></td></tr>
+                                        }
+                                    } else {
+                                        <tr><td class="ps-3 py-2 small text-muted italic">Нет данных</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
         }
+    }
+    else
+    {
+        <div class="alert alert-warning shadow-sm">
+            <strong>⚠️ Запись не найдена</strong>
+        </div>
     }
 </div>
