@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+<!DOCTYPE html>
 <html lang="ru">
 @{
     System.Threading.Thread.CurrentThread.CurrentCulture =
@@ -20,7 +22,7 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm py-1">
             <div class="container-fluid">
-                <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">ТЦУ-М</a>
+                <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">@Configuration["AppSettings:Title"]</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
