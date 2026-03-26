@@ -103,12 +103,22 @@ namespace BurstroyMonitoring.Data
             string? userName = null;
             int? userId = null;
             
+            // Если нет контекста пользователя (например, работает Worker), 
+            // то userName будет null. В этом случае мы пропускаем аудит изменений,
+            // так как аудит предназначен для отслеживания действий реальных пользователей.
             if (_httpContextAccessor?.HttpContext?.User.Identity?.IsAuthenticated == true)
             {
                 userName = _httpContextAccessor.HttpContext.User.Identity.Name;
                 var userIdClaim = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (userIdClaim != null && int.TryParse(userIdClaim, out var parsedUserId))
                     userId = parsedUserId;
+            }
+
+            // Если действие совершено не пользователем (например, системным процессом),
+            // просто сохраняем изменения без создания логов аудита.
+            if (string.IsNullOrEmpty(userName) || userName == "System")
+            {
+                return await base.SaveChangesAsync(cancellationToken);
             }
 
             // ВАЖНО: Сохраняем копии оригинальных значений ДО любых изменений

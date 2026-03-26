@@ -56,26 +56,45 @@ namespace BurstroyMonitoring.TCM.Filters
 
         private bool ShouldSkipLogging(ActionExecutingContext context)
         {
-            // Проверяем наличие атрибута SkipLogging на контроллере
-            var controllerHasSkip = context.Controller.GetType()
-                .GetCustomAttributes(typeof(SkipLoggingAttribute), true)
-                .Any();
+            var request = context.HttpContext.Request;
+            var path = request.Path.Value ?? "";
 
-            // Проверяем наличие атрибута SkipLogging на действии
-            var actionHasSkip = context.ActionDescriptor.EndpointMetadata
-                .Any(em => em.GetType() == typeof(SkipLoggingAttribute));
-
-            // Пропускаем статические файлы
-            var path = context.HttpContext.Request.Path.Value ?? "";
+            // 1. Пропускаем статические файлы и системные пути
             if (path.StartsWith("/css") || path.StartsWith("/js") || 
-                path.StartsWith("/lib") || path.StartsWith("/images"))
+                path.StartsWith("/lib") || path.StartsWith("/images") ||
+                path.StartsWith("/favicon.ico"))
             {
                 return true;
             }
 
-            return controllerHasSkip || actionHasSkip;
-        }
+            // 2. Пропускаем запросы автодополнения и другие "шумные" эндпоинты
+            if (path.Contains("/Autocomplete", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
 
+            // 3. Проверяем наличие атрибута SkipLogging на контроллере или методе
+            var controllerHasSkip = context.Controller.GetType()
+                .GetCustomAttributes(typeof(SkipLoggingAttribute), true)
+                .Any();
+
+            var actionHasSkip = context.ActionDescriptor.EndpointMetadata
+                .Any(em => em.GetType() == typeof(SkipLoggingAttribute));
+
+            if (controllerHasSkip || actionHasSkip)
+                return true;
+
+            // 4. ГЛАВНОЕ: Логируем только изменяющие действия (POST, PUT, DELETE)
+            // GET запросы (просмотр страниц) обычно не требуют аудита действий, 
+            // так как они не меняют состояние системы и создают много "шума".
+            var method = request.Method.ToUpper();
+            if (method == "GET")
+            {
+                return true;
+            }
+
+            return false;
+        }
         private async Task LogUserAction(ActionExecutingContext context, ActionExecutedContext resultContext)
         {
             // Получаем информацию о пользователе
@@ -86,10 +105,15 @@ namespace BurstroyMonitoring.TCM.Filters
             
             var userName = context.HttpContext.User.Identity?.Name ?? "Unknown";
             
+            // Исключаем логирование для системных или неопределенных пользователей
+            if (userName == "System" || userName == "Unknown")
+            {
+                return;
+            }
+            
             // Получаем название контроллера и действия
             var controllerName = context.RouteData.Values["controller"]?.ToString() ?? "Unknown";
-            var actionName = context.RouteData.Values["action"]?.ToString() ?? "Unknown";
-            
+            var actionName = context.RouteData.Values["action"]?.ToString() ?? "Unknown";            
             // Формируем детальную информацию
             var details = BuildActionDetails(context);
             
