@@ -147,42 +147,34 @@ namespace BurstroyMonitoring.TCM.Controllers
         }
 
         // Метод для автозаполнения
-        [HttpGet("autocomplete")]
+        [HttpGet]
         public virtual async Task<IActionResult> Autocomplete(string term)
         {
-            if (string.IsNullOrWhiteSpace(term) || term.Length < 2)
-                return Json(new List<string>());
+            try
+            {
+                if (string.IsNullOrWhiteSpace(term) || term.Length < 1)
+                    return Json(new List<string>());
 
-            term = term.ToLower();
+                term = term.ToLower();
 
-            // Получаем свойства для поиска
-            var serialNumberProp = typeof(T).GetProperty("SerialNumber");
-            var endpointNameProp = typeof(T).GetProperty("EndpointName");
+                var query = DbSet.AsNoTracking();
+                
+                var suggestions = await query
+                    .Select(e => EF.Property<string>(e, "EndpointName"))
+                    .Where(s => s != null && s != "")
+                    .Distinct()
+                    .Where(s => s.ToLower().Contains(term))
+                    .OrderBy(s => s)
+                    .Take(15)
+                    .ToListAsync();
 
-            if (serialNumberProp == null || endpointNameProp == null)
-                return Json(new List<string>());
-
-            var query = DbSet.AsQueryable();
-            
-            // Фильтруем данные
-            var filtered = query
-                .Where(e => 
-                    (serialNumberProp.GetValue(e) != null && serialNumberProp.GetValue(e).ToString().ToLower().Contains(term)) ||
-                    (endpointNameProp.GetValue(e) != null && endpointNameProp.GetValue(e).ToString().ToLower().Contains(term)))
-                .AsEnumerable();
-
-            // Получаем предложения
-            var suggestions = filtered
-                .Select(e => 
-                    (serialNumberProp.GetValue(e)?.ToString() ?? "") + 
-                    " | " + 
-                    (endpointNameProp.GetValue(e)?.ToString() ?? ""))
-                .Where(s => !string.IsNullOrEmpty(s))
-                .Distinct()
-                .Take(10)
-                .ToList();
-
-            return Json(suggestions);
+                return Json(suggestions);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] Autocomplete error in {typeof(T).Name}: {ex.Message}");
+                return Json(new List<string>()); // Возвращаем пустой список вместо ошибки
+            }
         }
 
         // Абстрактные методы для реализации в дочерних классах
