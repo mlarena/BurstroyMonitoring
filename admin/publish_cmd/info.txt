@@ -1,5 +1,8 @@
+создание резервной копии базы
 pg_dump -h localhost -U postgres -d sensordb_mu > /opt/burstroy/tmp/backup_sensordb_mu.sql
 
+загрузка резервной кпии на хост
 scp -P 9022 bsp@192.168.3.19:/opt/burstroy/tmp/backup_sensordb_mu.sql D:\backup\
 
+поднятие из резервной копии
 psql -h localhost -p 5432 -U postgres -d sensordb_mu -f D:\backup\backup_sensordb_mu.sql
