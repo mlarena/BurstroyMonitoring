@@ -104,8 +104,9 @@ namespace BurstroyMonitoring.TCM.Controllers
             }
         }
 
-        public async Task<IActionResult> Snapshots(int? cameraId, DateTime? from, DateTime? to)
+        public async Task<IActionResult> Snapshots(int? cameraId, DateTime? from, DateTime? to, int page = 1)
         {
+            int pageSize = 15;
             var query = _context.Snapshots.Include(s => s.Camera).AsQueryable();
 
             if (cameraId.HasValue)
@@ -117,12 +118,22 @@ namespace BurstroyMonitoring.TCM.Controllers
             if (to.HasValue)
                 query = query.Where(s => s.CreatedAt <= to.Value.ToUniversalTime());
 
-            var snapshots = await query.OrderByDescending(s => s.CreatedAt).ToListAsync();
+            var totalItems = await query.CountAsync();
+            var snapshots = await query
+                .OrderByDescending(s => s.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
             ViewBag.Cameras = new SelectList(await _context.Cameras.ToListAsync(), "Id", "Name", cameraId);
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            ViewBag.CameraId = cameraId;
+            ViewBag.From = from;
+            ViewBag.To = to;
             
             return View(snapshots);
         }
-
         // Создание/подключение новой камеры
         public async Task<IActionResult> Create()
         {

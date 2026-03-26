@@ -16,6 +16,9 @@ namespace BurstroyMonitoring.Data.Models
         [Column("Name")]
         public string Name { get; set; } = string.Empty;
 
+        [Column("Address")]
+        public string? Address { get; set; }
+
         [Column("Description")]
         public string? Description { get; set; }
 

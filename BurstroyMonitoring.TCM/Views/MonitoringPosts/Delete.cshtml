@@ -21,6 +21,10 @@
                             <div class="col-8">@Model.Name</div>
                         </div>
                         <div class="row mb-1">
+                            <div class="col-4 fw-bold">Адрес:</div>
+                            <div class="col-8">@(string.IsNullOrEmpty(Model.Address) ? "—" : Model.Address)</div>
+                        </div>
+                        <div class="row mb-1">
                             <div class="col-4 fw-bold">Тип:</div>
                             <div class="col-8">@(Model.IsMobile ? "Мобильный" : "Стационарный")</div>
                         </div>

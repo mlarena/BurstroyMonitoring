@@ -20,6 +20,10 @@
                                 <td class="ps-3">@Html.DisplayFor(model => model.Name)</td>
                             </tr>
                             <tr>
+                                <th class="bg-light ps-3">Адрес</th>
+                                <td class="ps-3">@(string.IsNullOrEmpty(Model.Address) ? "—" : Model.Address)</td>
+                            </tr>
+                            <tr>
                                 <th class="bg-light ps-3">Описание</th>
                                 <td class="ps-3">@(string.IsNullOrEmpty(Model.Description) ? "—" : Model.Description)</td>
                             </tr>
@@ -30,10 +34,6 @@
                                     {
                                         <div class="d-flex align-items-center gap-2">
                                             <span>@Model.Longitude.Value.ToString("F6"), @Model.Latitude.Value.ToString("F6")</span>
-                                            <a href="https://www.google.com/maps?q=@Model.Latitude.Value,@Model.Longitude.Value" 
-                                               target="_blank" class="btn btn-link btn-sm p-0 text-decoration-none">
-                                                📍 Карта
-                                            </a>
                                         </div>
                                     }
                                     else

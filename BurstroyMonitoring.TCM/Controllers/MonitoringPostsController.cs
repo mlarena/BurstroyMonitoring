@@ -28,6 +28,7 @@ namespace BurstroyMonitoring.TCM.Controllers
                 search = search.ToLower();
                 query = query.Where(mp => 
                     mp.Name.ToLower().Contains(search) ||
+                    (mp.Address != null && mp.Address.ToLower().Contains(search)) ||
                     (mp.Description != null && mp.Description.ToLower().Contains(search)));
                 
                 ViewBag.Search = search;
@@ -39,6 +40,10 @@ namespace BurstroyMonitoring.TCM.Controllers
                 case "name":
                     query = sortDesc ? query.OrderByDescending(mp => mp.Name) 
                                     : query.OrderBy(mp => mp.Name);
+                    break;
+                case "address":
+                    query = sortDesc ? query.OrderByDescending(mp => mp.Address ?? "") 
+                                    : query.OrderBy(mp => mp.Address ?? "");
                     break;
                 case "description":
                     query = sortDesc ? query.OrderByDescending(mp => mp.Description ?? "") 
@@ -109,7 +114,7 @@ namespace BurstroyMonitoring.TCM.Controllers
         // POST: MonitoringPosts/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Description,Longitude,Latitude,IsMobile,IsActive")] MonitoringPost monitoringPost)
+        public async Task<IActionResult> Create([Bind("Id,Name,Address,Description,Longitude,Latitude,IsMobile,IsActive")] MonitoringPost monitoringPost)
         {
             Console.WriteLine($"=== !СОЗДАНИЕ ПОСТА ===");
             Console.WriteLine($"Name: {monitoringPost.Name}");
@@ -161,7 +166,7 @@ namespace BurstroyMonitoring.TCM.Controllers
         // POST: MonitoringPosts/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Longitude,Latitude,IsMobile,IsActive,CreatedAt")] MonitoringPost monitoringPost)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Address,Description,Longitude,Latitude,IsMobile,IsActive,CreatedAt")] MonitoringPost monitoringPost)
         {
             if (id != monitoringPost.Id)
             {
@@ -180,6 +185,7 @@ namespace BurstroyMonitoring.TCM.Controllers
 
                     // Обновляем только нужные поля
                     existingPost.Name = monitoringPost.Name;
+                    existingPost.Address = monitoringPost.Address;
                     existingPost.Description = monitoringPost.Description;
                     existingPost.Longitude = monitoringPost.Longitude;
                     existingPost.Latitude = monitoringPost.Latitude;

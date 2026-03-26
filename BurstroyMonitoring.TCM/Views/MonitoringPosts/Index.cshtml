@@ -73,37 +73,42 @@
             <table class="table table-sm table-hover table-striped align-middle mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th>
-                            <a href="@GetSortUrl("Name")" class="text-decoration-none text-dark">
-                                Название @GetSortArrow("Name")
-                            </a>
-                        </th>
-                        <th>
-                            <a href="@GetSortUrl("Description")" class="text-decoration-none text-dark">
-                                Описание @GetSortArrow("Description")
-                            </a>
-                        </th>
-                        <th>
-                            <a href="@GetSortUrl("Coordinates")" class="text-decoration-none text-dark">
-                                Координаты @GetSortArrow("Coordinates")
-                            </a>
-                        </th>
-                        <th>
-                            <a href="@GetSortUrl("Type")" class="text-decoration-none text-dark">
-                                Тип @GetSortArrow("Type")
-                            </a>
-                        </th>
-                        <th>
-                            <a href="@GetSortUrl("Status")" class="text-decoration-none text-dark">
-                                Статус @GetSortArrow("Status")
-                            </a>
-                        </th>
-                        <th>
-                            <a href="@GetSortUrl("Created")" class="text-decoration-none text-dark">
-                                Создан @GetSortArrow("Created")
-                            </a>
-                        </th>
-                        <th class="text-end">Действия</th>
+                    <th>
+                        <a href="@GetSortUrl("Name")" style="color: inherit; text-decoration: none;">
+                            Название @GetSortArrow("Name")
+                        </a>
+                    </th>
+                    <th>
+                        <a href="@GetSortUrl("Address")" style="color: inherit; text-decoration: none;">
+                            Адрес @GetSortArrow("Address")
+                        </a>
+                    </th>
+                    <th>
+                        <a href="@GetSortUrl("Description")" style="color: inherit; text-decoration: none;">
+                            Описание @GetSortArrow("Description")
+                        </a>
+                    </th>
+                    <th>
+                        <a href="@GetSortUrl("Coordinates")" style="color: inherit; text-decoration: none;">
+                            Координаты @GetSortArrow("Coordinates")
+                        </a>
+                    </th>
+                    <th>
+                        <a href="@GetSortUrl("Type")" style="color: inherit; text-decoration: none;">
+                            Тип @GetSortArrow("Type")
+                        </a>
+                    </th>
+                    <th>
+                        <a href="@GetSortUrl("Status")" style="color: inherit; text-decoration: none;">
+                            Статус @GetSortArrow("Status")
+                        </a>
+                    </th>
+                    <th>
+                        <a href="@GetSortUrl("Created")" style="color: inherit; text-decoration: none;">
+                            Создан @GetSortArrow("Created")
+                        </a>
+                    </th>
+                    <th class="text-end">Действия</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -113,14 +118,17 @@
                             <td class="text-truncate" style="max-width: 150px;" title="@item.Name">
                                 @item.Name
                             </td>
+                            <td class="text-truncate" style="max-width: 150px;" title="@item.Address">
+                                @(string.IsNullOrEmpty(item.Address) ? "—" : item.Address)
+                            </td>
                             <td class="text-truncate" style="max-width: 200px;" title="@item.Description">
                                 @(string.IsNullOrEmpty(item.Description) ? "—" : item.Description)
                             </td>
                             <td class="text-nowrap">
                                 @if (item.Longitude.HasValue && item.Latitude.HasValue)
                                 {
-                                    <span class="small" title="@item.Longitude.Value.ToString("F6"), @item.Latitude.Value.ToString("F6")">
-                                        @item.Longitude.Value.ToString("F2"), @item.Latitude.Value.ToString("F2")
+                                    <span class="small">
+                                        @item.Longitude.Value.ToString("G"), @item.Latitude.Value.ToString("G")
                                     </span>
                                 }
                                 else

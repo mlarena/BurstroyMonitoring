@@ -1,8 +1,25 @@
 @model IEnumerable<BurstroyMonitoring.Data.Models.Camera>
 @{
     ViewData["Title"] = "Видеокамеры";
-}
 
+    // Функция для склонения слова "снимок"
+    string GetSnapshotWord(int count)
+    {
+        int lastDigit = count % 10;
+        int lastTwoDigits = count % 100;
+
+        if (lastTwoDigits >= 11 && lastTwoDigits <= 19)
+            return "снимков";
+
+        if (lastDigit == 1)
+            return "снимок";
+
+        if (lastDigit >= 2 && lastDigit <= 4)
+            return "снимка";
+
+        return "снимков";
+    }
+}
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h3 mb-0">Управление видеокамерами</h1>
@@ -79,7 +96,9 @@
                                 <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary">Просмотр</a>
                                 <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-secondary">Настройки</a>
                             </div>
-                            <span class="small text-muted"><i class="bi bi-image me-1"></i> @snapshotCount снимков</span>
+                            <a asp-action="Snapshots" asp-route-cameraId="@item.Id" class="small text-decoration-none text-muted" title="Посмотреть все снимки">
+                                <i class="bi bi-image me-1"></i> @snapshotCount @GetSnapshotWord(snapshotCount)
+                            </a>
                         </div>
                     </div>
                 </div>

@@ -20,6 +20,12 @@
                             <input asp-for="Name" class="form-control form-control-sm" placeholder="Введите название поста" />
                             <span asp-validation-for="Name" class="text-danger small"></span>
                         </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Address" class="form-label small fw-bold">Адрес</label>
+                            <input asp-for="Address" class="form-control form-control-sm" placeholder="Введите адрес поста" />
+                            <span asp-validation-for="Address" class="text-danger small"></span>
+                        </div>
                         
                         <div class="mb-3">
                             <label asp-for="Description" class="form-label small fw-bold">Описание</label>
