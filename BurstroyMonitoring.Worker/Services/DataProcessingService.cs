@@ -33,7 +33,7 @@ public class DataProcessingService
     }
 
     /// <summary>
-    /// Обработка данных датчика
+    /// Основной метод обработки данных. Определяет тип датчика и вызывает соответствующий парсер.
     /// </summary>
     public async Task ProcessSensorDataAsync(Sensor sensor, JsonDocument jsonDocument, CancellationToken cancellationToken)
     {
@@ -41,19 +41,20 @@ public class DataProcessingService
         {
             var jsonString = jsonDocument.RootElement.GetRawText();
 
-          
+            // Попытка извлечь серийный номер из JSON ответа (поле "Serial")
             string? serialNumber = null;
             if (jsonDocument.RootElement.TryGetProperty("Serial", out var serialElement))
             {
                 serialNumber = serialElement.GetString();
             }
             
-            // Если нашли серийный номер - обновляем в базе
+            // Если серийный номер найден, обновляем его в базе данных для этого датчика
             if (!string.IsNullOrEmpty(serialNumber))
             {
                 await _dbService.UpdateSensorSerialNumberAsync(sensor.Id, serialNumber);
             }
             
+            // Маршрутизация обработки в зависимости от типа датчика
             switch (sensor.SensorType?.SensorTypeName)
             {
                 case "DSPD":
@@ -89,10 +90,9 @@ public class DataProcessingService
         }
     }
 
-
-
     /// <summary>
-    /// Обработка данных DSPD
+    /// Парсинг и сохранение данных дорожной станции (DSPD).
+    /// Обрабатывает температуру дороги, состояние покрытия, коэффициенты сцепления и GPS.
     /// </summary>
     private async Task ProcessDspdDataAsync(Sensor sensor, string jsonString, CancellationToken cancellationToken)
     {
@@ -130,7 +130,7 @@ public class DataProcessingService
                 DistanceToSurface = packet.DistanceToSurface
             };
 
-           // Обработка GPS координат из пакета
+            // Обработка GPS координат: парсинг из NMEA-подобного формата и обновление в БД
             if (packet.GPSLatitude != null && packet.GPSLongitude != null)
             {
                 var (latitude, longitude, isValid) = ParseGpsCoordinates(packet.GPSLatitude, packet.GPSLongitude);
@@ -139,25 +139,17 @@ public class DataProcessingService
                 dspdData.GPSLongitude = longitude;
                 dspdData.IsGpsValid = isValid;
                 
-                // ОБНОВЛЯЕМ КООРДИНАТЫ ДАТЧИКА в таблице Sensor
+                // Если координаты валидны, обновляем местоположение датчика в основной таблице
                 if (isValid && latitude.HasValue && longitude.HasValue)
                 {
                     await _dbService.UpdateDspdSensorCoordinatesAsync(sensor.Id, latitude, longitude);
-       
                 }
             }
 
-            // Вызов реального метода сохранения из DatabaseService
             await _dbService.SaveDspdDataAsync(dspdData);
             
-            // Информативное логирование
-            string sensorInfo = $"sensor '{sensor.SerialNumber}'";
-            string postInfo = sensor.MonitoringPost != null 
-                ? $" on post '{sensor.MonitoringPost.Name}'" 
-                : "";
-            
-            _logger.LogInformation("DSPD data saved for {sensorInfo}{postInfo} at {timestamp:yyyy-MM-dd HH:mm:ss}", 
-                sensorInfo, postInfo, dataTimestamp);
+            _logger.LogInformation("DSPD data saved for sensor '{SerialNumber}' at {timestamp}", 
+                sensor.SerialNumber, dataTimestamp);
         }
         catch (Exception ex)
         {

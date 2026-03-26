@@ -2,12 +2,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using BurstroyMonitoring.Data.Models;
 using BurstroyMonitoring.Data;
-
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BurstroyMonitoring.Worker.Services;
 
 /// <summary>
-/// Сервис для работы с базой данных
+/// Сервис для работы с базой данных.
+/// Обеспечивает получение конфигурации, списка датчиков и сохранение результатов измерений.
 /// </summary>
 public class DatabaseService
 {
@@ -23,7 +24,8 @@ public class DatabaseService
     }
 
     /// <summary>
-    /// Создание scope и получение контекста
+    /// Создание временного scope и получение контекста БД.
+    /// Используется для выполнения операций в фоновом потоке.
     /// </summary>
     private ApplicationDbContext CreateDbContext()
     {
@@ -32,7 +34,8 @@ public class DatabaseService
     }
 
     /// <summary>
-    /// Получение активных датчиков из базы данных
+    /// Получение списка активных датчиков.
+    /// Датчик считается активным, если у него IsActive = true и его пост мониторинга также активен.
     /// </summary>
     public async Task<List<Sensor>> GetActiveSensorsAsync()
     {
@@ -42,7 +45,7 @@ public class DatabaseService
         {
             return await context.Sensors
                 .Include(s => s.SensorType)
-                .Include(s => s.MonitoringPost) // Добавлено включение MonitoringPost
+                .Include(s => s.MonitoringPost)
                 .Where(s => s.IsActive && s.MonitoringPost != null && s.MonitoringPost.IsActive)
                 .AsNoTracking()
                 .ToListAsync();
@@ -54,9 +57,8 @@ public class DatabaseService
         }
     }
 
-
     /// <summary>
-    /// Получение датчика по ID
+    /// Получение данных одного датчика по его идентификатору.
     /// </summary>
     public Sensor? GetSensorById(int sensorId)
     {
@@ -76,7 +78,7 @@ public class DatabaseService
     }
 
     /// <summary>
-    /// Получение датчиков по списку ID
+    /// Получение списка датчиков по набору идентификаторов.
     /// </summary>
     public List<Sensor> GetSensorsByIds(List<int> sensorIds)
     {
@@ -98,7 +100,7 @@ public class DatabaseService
     }
 
     /// <summary>
-    /// Сохранение результата опроса датчика
+    /// Сохранение метаданных результата опроса (статус-код, время ответа).
     /// </summary>
     public async Task SaveSensorResultAsync(SensorResults result)
     {
@@ -116,7 +118,7 @@ public class DatabaseService
     }
 
     /// <summary>
-    /// Обновление времени последней активности датчика
+    /// Обновление метки времени последней активности датчика.
     /// </summary>
     public async Task UpdateSensorLastActivityAsync(int sensorId)
     {
@@ -138,7 +140,7 @@ public class DatabaseService
     }
 
     /// <summary>
-    /// Сохранение ошибки в базу данных
+    /// Сохранение информации об ошибке опроса в БД.
     /// </summary>
     public async Task SaveSensorErrorAsync(SensorError error)
     {
@@ -156,7 +158,7 @@ public class DatabaseService
     }
 
     /// <summary>
-    /// Получение конфигурации из базы данных
+    /// Загрузка активных параметров конфигурации воркера из БД.
     /// </summary>
     public async Task<List<WorkerConfiguration>> GetConfigurationAsync()
     {
@@ -176,9 +178,8 @@ public class DatabaseService
         }
     }
 
-   
     /// <summary>
-    /// Сохранение данных DSPD
+    /// Сохранение данных дорожной станции (DSPD).
     /// </summary>
     public async Task SaveDspdDataAsync(DSPDData data)
     {
@@ -196,7 +197,7 @@ public class DatabaseService
     }
 
     /// <summary>
-    /// Сохранение данных IWS
+    /// Сохранение данных метеостанции (IWS).
     /// </summary>
     public async Task SaveIwsDataAsync(IWSData data)
     {
@@ -214,7 +215,7 @@ public class DatabaseService
     }
 
     /// <summary>
-    /// Сохранение данных MUEKS
+    /// Сохранение данных станции мониторинга воздуха (MUEKS).
     /// </summary>
     public async Task SaveMueksDataAsync(MUEKSData data)
     {
@@ -232,7 +233,7 @@ public class DatabaseService
     }
 
     /// <summary>
-    /// Сохранение данных DOV
+    /// Сохранение данных датчика видимости (DOV).
     /// </summary>
     public async Task SaveDovDataAsync(DOVData data)
     {
@@ -249,6 +250,9 @@ public class DatabaseService
         }
     }
 
+    /// <summary>
+    /// Сохранение данных датчика пыли (DUST).
+    /// </summary>
     public async Task SaveDustDataAsync(DUSTData data)
     {
         using var context = CreateDbContext();
@@ -265,7 +269,7 @@ public class DatabaseService
     }
 
     /// <summary>
-    /// Обновление серийного номера датчика при первом успешном опросе
+    /// Обновление серийного номера датчика в БД.
     /// </summary>
     public async Task UpdateSensorSerialNumberAsync(int sensorId, string serialNumber)
     {
@@ -276,7 +280,6 @@ public class DatabaseService
             var sensor = await context.Sensors.FindAsync(sensorId);
             if (sensor != null)
             {
-                // Обновляем всегда, если серийный номер отличается
                 serialNumber = ExtractSerialNumber(serialNumber);
                 if (sensor.SerialNumber != serialNumber)
                 {
@@ -293,6 +296,10 @@ public class DatabaseService
             _logger.LogError(ex, "Error updating serial number for sensor {sensorId}", sensorId);
         }
     }
+
+    /// <summary>
+    /// Вспомогательный метод для извлечения чистого серийного номера.
+    /// </summary>
     public string ExtractSerialNumber(string input)
     {
         if (string.IsNullOrEmpty(input))
@@ -303,7 +310,7 @@ public class DatabaseService
     }
 
     /// <summary>
-    /// Обновление координат датчика DSPD
+    /// Обновление географических координат для датчика DSPD.
     /// </summary>
     public async Task UpdateDspdSensorCoordinatesAsync(int sensorId, decimal? latitude, decimal? longitude)
     {
@@ -314,7 +321,6 @@ public class DatabaseService
             var sensor = await context.Sensors.FindAsync(sensorId);
             if (sensor != null && latitude.HasValue && longitude.HasValue)
             {
-                // Проверяем валидность координат
                 if (latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180)
                 {
                     sensor.Latitude = (double?)latitude;
@@ -333,7 +339,7 @@ public class DatabaseService
     }
 
     /// <summary>
-    /// Обновление координат датчика IWS
+    /// Обновление географических координат для датчика IWS.
     /// </summary>
     public async Task UpdateIwsSensorCoordinatesAsync(int sensorId, decimal? latitude, decimal? longitude, decimal? altitude)
     {
@@ -344,7 +350,6 @@ public class DatabaseService
             var sensor = await context.Sensors.FindAsync(sensorId);
             if (sensor != null && latitude.HasValue && longitude.HasValue)
             {
-                // Проверяем валидность координат
                 if (latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180)
                 {
                     sensor.Latitude = (double?)latitude;

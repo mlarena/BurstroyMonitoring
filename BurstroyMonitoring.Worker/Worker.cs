@@ -36,36 +36,36 @@ public class Worker : BackgroundService
     {
         _logger.LogInformation("Worker started at: {time}", DateTimeOffset.Now);
 
-        // Основной цикл работы
+        // Основной цикл работы фонового сервиса
         while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
-                // Обновление конфигурации
+                // Обновление конфигурации из БД (происходит раз в минуту)
                 await _configService.RefreshConfigurationAsync();
 
-                // Загрузка активных датчиков
+                // Загрузка списка активных датчиков, у которых активен и сам датчик, и его пост
                 var sensors = await _dbService.GetActiveSensorsAsync();
                 
-                // Обновление расписания опроса
+                // Обновление внутреннего словаря расписания (добавление новых, удаление неактивных)
                 UpdatePollSchedule(sensors);
 
-                // Получение датчиков для опроса в текущий момент
+                // Выбор датчиков, для которых наступило время очередного опроса
                 var sensorsToPoll = GetSensorsToPoll();
 
                 if (sensorsToPoll.Any())
                 {
                     _logger.LogDebug("Polling {count} sensors", sensorsToPoll.Count);
                     
-                    // Создаем scope для каждого цикла опроса
+                    // Создаем scope для получения SensorPollingService (Scoped сервис)
                     using var scope = _serviceProvider.CreateScope();
                     var pollingService = scope.ServiceProvider.GetRequiredService<SensorPollingService>();
                     
-                    // Параллельный опрос датчиков
+                    // Запуск параллельного опроса выбранной группы датчиков
                     await pollingService.PollSensorsAsync(sensorsToPoll, stoppingToken);
                 }
 
-                // Логирование статуса каждые 60 секунд
+                // Логирование текущего состояния воркера раз в 60 секунд
                 if ((DateTime.UtcNow - _lastStatusLog).TotalSeconds >= 60)
                 {
                     _logger.LogInformation("Worker status: {activeSensors} active sensors, {scheduled} in schedule", 
@@ -73,13 +73,13 @@ public class Worker : BackgroundService
                     _lastStatusLog = DateTime.UtcNow;
                 }
 
-                // Ожидание до следующей проверки
-                await Task.Delay(1000, stoppingToken); // Проверка каждую секунду
+                // Пауза в 1 секунду перед следующей итерацией проверки расписания
+                await Task.Delay(1000, stoppingToken);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in worker main loop");
-                await Task.Delay(5000, stoppingToken); // Пауза при ошибке
+                await Task.Delay(5000, stoppingToken); // Увеличенная пауза при возникновении ошибки
             }
         }
     }

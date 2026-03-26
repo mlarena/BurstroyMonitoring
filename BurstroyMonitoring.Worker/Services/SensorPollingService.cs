@@ -41,42 +41,48 @@ public class SensorPollingService
     }
 
     /// <summary>
-    /// Основной метод для опроса списка датчиков
+    /// Основной метод для опроса списка датчиков.
+    /// Использует семафор для ограничения количества одновременных HTTP-запросов.
     /// </summary>
     public async Task PollSensorsAsync(List<BurstroyMonitoring.Data.Models.Sensor> sensors, CancellationToken cancellationToken)
     {
+        // Получаем лимит параллельных задач из конфигурации
         var maxConcurrentTasks = _configService.GetMaxConcurrentTasks();
         var tasks = new List<Task>();
         var semaphore = new SemaphoreSlim(maxConcurrentTasks);
         
         foreach (var sensor in sensors)
         {
+            // Ожидаем свободный слот в семафоре
             await semaphore.WaitAsync(cancellationToken);
             
             var task = Task.Run(async () =>
             {
                 try
                 {
+                    // Опрос конкретного датчика
                     await PollSensorAsync(sensor, cancellationToken);
                 }
                 finally
                 {
+                    // Освобождаем слот семафора после завершения опроса
                     semaphore.Release();
                 }
             }, cancellationToken);
             
             tasks.Add(task);
             
-            // Небольшая задержка между запуском задач, чтобы не перегружать систему
+            // Небольшая задержка между запуском задач для снижения пиковой нагрузки на CPU
             if (sensors.Count > 10)
                 await Task.Delay(10, cancellationToken);
         }
         
+        // Ожидаем завершения всех запущенных задач опроса
         await Task.WhenAll(tasks);
     }
 
     /// <summary>
-    /// Опрос одного датчика
+    /// Опрос одного датчика с поддержкой повторных попыток и таймаутов.
     /// </summary>
     private async Task PollSensorAsync(BurstroyMonitoring.Data.Models.Sensor sensor, CancellationToken cancellationToken)
     {
@@ -92,16 +98,17 @@ public class SensorPollingService
         {
             var client = _httpClientFactory.CreateClient("SensorClient");
             
-            // Ограничиваем время выполнения для каждого датчика
+            // Создаем отдельный токен отмены с таймаутом из настроек
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             cts.CancelAfter(TimeSpan.FromSeconds(_configService.GetHttpTimeoutSeconds() + 5));
             
-            // Выполнение HTTP запроса с повторными попытками
+            // Цикл повторных попыток при сбоях (Retry Policy)
             for (int attempt = 1; attempt <= _configService.GetRetryCount(); attempt++)
             {
                 try
                 {
                     var requestStart = DateTime.UtcNow;
+                    // Выполнение GET запроса к датчику
                     response = await client.GetAsync(sensor.Url, cts.Token);
                     responseTimeMs = (long)(DateTime.UtcNow - requestStart).TotalMilliseconds;
                     
@@ -110,10 +117,12 @@ public class SensorPollingService
 
                     if (response.IsSuccessStatusCode)
                     {
+                        // Чтение тела ответа при успехе
                         responseBody = await response.Content.ReadAsStringAsync(cts.Token);
-                        break;
+                        break; // Выход из цикла попыток при успехе
                     }
                     
+                    // Пауза перед следующей попыткой
                     if (attempt < _configService.GetRetryCount())
                     {
                         await Task.Delay(_configService.GetRetryDelayMs(), cts.Token);
@@ -122,7 +131,7 @@ public class SensorPollingService
                 catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException || cts.Token.IsCancellationRequested)
                 {
                     _logger.LogDebug("Timeout on attempt {attempt} for sensor {sensorId}", attempt, sensor.Id);
-                    statusCode = 408;
+                    statusCode = 408; // Request Timeout
                     
                     if (attempt == _configService.GetRetryCount())
                         throw new HttpRequestException("Request timeout", null, System.Net.HttpStatusCode.RequestTimeout);

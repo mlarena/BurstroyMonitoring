@@ -30,12 +30,14 @@ public class ConfigurationService
     }
 
     /// <summary>
-    /// Обновление конфигурации из базы данных
+    /// Обновление конфигурации из базы данных.
+    /// Проверяет интервал обновления, чтобы не нагружать БД слишком частыми запросами.
     /// </summary>
     public async Task RefreshConfigurationAsync()
     {
         var refreshInterval = GetRefreshIntervalSeconds();
         
+        // Проверка времени последнего обновления
         if ((DateTime.UtcNow - _lastConfigRefresh).TotalSeconds < refreshInterval)
             return;
 
@@ -47,6 +49,7 @@ public class ConfigurationService
 
         try
         {
+            // Загрузка всех активных настроек из таблицы WorkerConfigurations
             var configs = await _dbService.GetConfigurationAsync();
             
             lock (_lock)
@@ -68,21 +71,21 @@ public class ConfigurationService
     }
 
     /// <summary>
-    /// Получение значения конфигурации с приоритетом:
-    /// 1. База данных
-    /// 2. appsettings.json
+    /// Получение значения конфигурации.
+    /// Приоритет: 1. База данных (кэш), 2. Файл appsettings.json, 3. Значение по умолчанию.
     /// </summary>
     public string GetConfigValue(string key, string defaultValue = "")
     {
-        // Попытка получить из кэша базы данных
+        // 1. Попытка получить из кэша базы данных
         if (_configCache.TryGetValue(key, out var cachedValue))
             return cachedValue;
 
-        // Попытка получить из appsettings.json
+        // 2. Попытка получить из appsettings.json
         var appSettingsValue = _configuration[key];
         if (!string.IsNullOrEmpty(appSettingsValue))
             return appSettingsValue;
 
+        // 3. Возврат значения по умолчанию
         return defaultValue;
     }
 
