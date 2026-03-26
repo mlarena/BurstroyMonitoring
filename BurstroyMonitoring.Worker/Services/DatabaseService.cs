@@ -43,7 +43,7 @@ public class DatabaseService
             return await context.Sensors
                 .Include(s => s.SensorType)
                 .Include(s => s.MonitoringPost) // Добавлено включение MonitoringPost
-                .Where(s => s.IsActive)
+                .Where(s => s.IsActive && s.MonitoringPost != null && s.MonitoringPost.IsActive)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -53,6 +53,7 @@ public class DatabaseService
             throw;
         }
     }
+
 
     /// <summary>
     /// Получение датчика по ID
