@@ -45,7 +45,6 @@
                                 <li><a class="dropdown-item @(currentController == "SensorTypes" ? "active" : "")" asp-controller="SensorTypes" asp-action="Index">Типы датчиков</a></li>
                                 <li><a class="dropdown-item @(currentController == "Sensors" ? "active" : "")" asp-controller="Sensors" asp-action="Index">Датчики</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item @(currentController == "WorkerConfiguration" ? "active" : "")" asp-controller="WorkerConfiguration" asp-action="Index">Настройки</a></li>
                             </ul>
                         </li>
 
@@ -89,7 +88,8 @@
                                     <li><a class="dropdown-item @(currentController == "SensorErrors" ? "active" : "")" asp-controller="SensorErrors" asp-action="Index">Ошибки</a></li>
                                     <li><a class="dropdown-item @(currentController == "Admin" ? "active" : "")" asp-controller="Admin" asp-action="Index">Пользователи</a></li>
                                     <li><a class="dropdown-item @(currentController == "Audit" ? "active" : "")" asp-controller="Audit" asp-action="Index">Аудит</a></li>
-                                </ul>
+                                    <li><a class="dropdown-item @(currentController == "WorkerConfiguration" ? "active" : "")" asp-controller="WorkerConfiguration" asp-action="Index">Настройки</a></li>
+                            </ul>
                             </li>
                         }
                     </ul>
