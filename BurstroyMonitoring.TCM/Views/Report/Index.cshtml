@@ -4,24 +4,72 @@
     ViewData["Title"] = "Сводные отчеты";
 }
 
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+}
+
 <div class="container-fluid">
     <h1 class="h3 mb-3">Сводные отчеты</h1>
     
     <div class="card mb-3 shadow-sm">
         <div class="card-body py-2">
-            <form id="sensorForm" class="row g-2 align-items-center">
-                <div class="col-md-6">
+            <form id="reportForm" class="row g-2 align-items-end">
+                <div class="col-md-4">
                     <label for="monitoringPostSelect" class="form-label small fw-bold mb-1">Пост мониторинга</label>
                     <select id="monitoringPostSelect" class="form-select form-select-sm" 
                             asp-for="SelectedMonitoringPostId" 
                             asp-items="Model.MonitoringPosts">                           
                     </select>
                 </div>
-            </form>
-        </div>
-    </div>
+                <div id="dateRangeControls" class="col-md-5 d-none">
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label for="startDate" class="form-label small fw-bold mb-1">Дата начала</label>
+                            <input type="text" id="startDate" class="form-control form-control-sm bg-white" placeholder="Выберите дату" readonly />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="endDate" class="form-label small fw-bold mb-1">Дата окончания</label>
+                            <input type="text" id="endDate" class="form-control form-control-sm bg-white" placeholder="Выберите дату" readonly />
+                        </div>
+                    </div>
+                </div>
+                <div id="submitControl" class="col-md-2 d-none">
+                    <button type="button" id="btnGenerateReport" class="btn btn-primary btn-sm w-100">Сформировать</button>
+                </div>
+                <div class="col-md-1 text-end">
+                    <button class="btn btn-sm btn-outline-secondary border-0" type="button" data-bs-toggle="collapse" data-bs-target="#settingsCollapse" aria-expanded="false" aria-controls="settingsCollapse" title="Настройки">
+                        ⚙️
+                    </button>
+                </div>            </form>
 
-    <div id="reportContent" class="mt-4">
+            <!-- Сворачиваемый блок настроек -->
+            <div class="collapse" id="settingsCollapse">
+                <div class="pt-3 mt-2 border-top">
+                    <h6 class="small fw-bold mb-2 text-muted">Дополнительные настройки отчета</h6>
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="includeCharts" checked>
+                                <label class="form-check-label small" for="includeCharts">Включить графики</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="includeTables" checked>
+                                <label class="form-check-label small" for="includeTables">Включить таблицы</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="showAverages">
+                                <label class="form-check-label small" for="showAverages">Показывать средние значения</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    <div id="reportContent" class="mt-4">
         <!-- Здесь будет отображаться контент отчета -->
         <div class="alert alert-info">
             Выберите пост мониторинга для формирования отчета.
@@ -30,21 +78,72 @@
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
     <script>
         $(document).ready(function () {
+            // Установка дат по умолчанию
+            const today = new Date();
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+
+            // Инициализация Flatpickr с русской локализацией
+            const flatpickrConfig = {
+                locale: "ru",
+                dateFormat: "d.m.Y",
+                allowInput: true,
+                disableMobile: "true"
+            };
+
+            const startPicker = flatpickr("#startDate", {
+                ...flatpickrConfig,
+                defaultDate: thirtyDaysAgo
+            });
+
+            const endPicker = flatpickr("#endDate", {
+                ...flatpickrConfig,
+                defaultDate: today
+            });
+
             $('#monitoringPostSelect').change(function () {
                 var postId = $(this).val();
                 if (postId) {
-                    // Здесь можно добавить логику загрузки данных отчета через AJAX
-                    $('#reportContent').html('<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Загрузка...</span></div></div>');
-                    
-                    // Пример заглушки для будущего функционала
-                    setTimeout(function() {
-                        $('#reportContent').html('<div class="alert alert-success">Данные для поста ID ' + postId + ' загружены (заглушка).</div>');
-                    }, 500);
+                    // Показываем контролы даты и кнопку
+                    $('#dateRangeControls').removeClass('d-none');
+                    $('#submitControl').removeClass('d-none');
+                    $('#reportContent').html('<div class="alert alert-info">Настройте даты и нажмите "Сформировать".</div>');
                 } else {
+                    // Скрываем контролы
+                    $('#dateRangeControls').addClass('d-none');
+                    $('#submitControl').addClass('d-none');
                     $('#reportContent').html('<div class="alert alert-info">Выберите пост мониторинга для формирования отчета.</div>');
                 }
+            });
+
+            $('#btnGenerateReport').click(function () {
+                const postId = $('#monitoringPostSelect').val();
+                const startDate = $('#startDate').val();
+                const endDate = $('#endDate').val();
+
+                if (!postId) return;
+
+                $('#reportContent').html('<div class="text-center mt-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Загрузка...</span></div><p class="mt-2">Формирование отчета...</p></div>');
+                
+                // Здесь будет AJAX запрос к контроллеру для получения данных отчета
+                console.log('Generating report for Post:', postId, 'from', startDate, 'to', endDate);
+                
+                setTimeout(function() {
+                    $('#reportContent').html(`
+                        <div class="card shadow-sm mt-3">
+                            <div class="card-header bg-light py-2">
+                                <h5 class="card-title mb-0 small fw-bold">Результат (заглушка)</h5>
+                            </div>
+                            <div class="card-body">
+                                <p>Отчет для поста ID <strong>${postId}</strong> за период с <strong>${startDate}</strong> по <strong>${endDate}</strong> успешно сформирован.</p>
+                            </div>
+                        </div>
+                    `);
+                }, 800);
             });
         });
     </script>
