@@ -3,9 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using BurstroyMonitoring.Data;
 using BurstroyMonitoring.Data.Models;
 using System.Linq.Dynamic.Core;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BurstroyMonitoring.TCM.Controllers
 {
+     [Authorize(Roles = "Admin")]
     public class SensorErrorsController : BaseViewController<VwSensorErrorsFull>
     {
         public SensorErrorsController(ApplicationDbContext context) : base(context) { }

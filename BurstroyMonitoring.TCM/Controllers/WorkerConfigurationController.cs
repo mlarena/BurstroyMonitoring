@@ -4,9 +4,11 @@ using System.Text.Json;
 using BurstroyMonitoring.Data;
 using BurstroyMonitoring.Data.Models;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BurstroyMonitoring.TCM.Controllers
 {
+     [Authorize(Roles = "Admin")]
     public class WorkerConfigurationController : Controller
     {
         private readonly ApplicationDbContext _context;
