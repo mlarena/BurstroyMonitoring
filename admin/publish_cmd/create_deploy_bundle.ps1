@@ -12,6 +12,7 @@ $filesToInclude = @(
     "$basePath\admin\bash\setup_nginx.sh",
     "$basePath\admin\bash\setup_postgresql.sh",
     "$basePath\admin\bash\setup-nginx-proxy.sh",
+    "$basePath\admin\bash\check-dependencies.sh"
     
     # Application binaries (Linux x64)
     "$basePath\BurstroyMonitoring.VideoMonitoring\release\linux-x64\BurstroyMonitoring.VideoMonitoring.zip",

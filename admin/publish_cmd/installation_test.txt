@@ -2,8 +2,15 @@
 виртуальный сервер ТЦМ
 1. загружаем скрипты для установки программного обеспечения
 
+apt-get update
+apt-get install -y dos2unix
+
+# Конвертируйте все .sh файлы
+dos2unix *.sh
+
 
 scp "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" devuser@192.168.192.143:/opt/burstroy/tmp 
+scp "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" devuser@192.168.19.137:/opt/burstroy/tmp 
 
 ssh devuser@192.168.192.143
 

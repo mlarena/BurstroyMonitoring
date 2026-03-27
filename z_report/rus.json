@@ -1,0 +1,494 @@
+[
+  {
+    "subject": "Адыгея",
+    "center": "Майкоп",
+    "latitude": 44.6098,
+    "longitude": 40.1005
+  },
+  {
+    "subject": "Алтай",
+    "center": "Горно-Алтайск",
+    "latitude": 51.9581,
+    "longitude": 85.9603
+  },
+  {
+    "subject": "Башкортостан",
+    "center": "Уфа",
+    "latitude": 54.7349,
+    "longitude": 55.9579
+  },
+  {
+    "subject": "Бурятия",
+    "center": "Улан-Удэ",
+    "latitude": 51.8335,
+    "longitude": 107.5841
+  },
+  {
+    "subject": "Дагестан",
+    "center": "Махачкала",
+    "latitude": 42.9849,
+    "longitude": 47.5046
+  },
+  {
+    "subject": "Донецкая Народная Республика",
+    "center": "Донецк",
+    "latitude": 48.0159,
+    "longitude": 37.8029
+  },
+  {
+    "subject": "Ингушетия",
+    "center": "Магас",
+    "latitude": 43.1686,
+    "longitude": 44.8131
+  },
+  {
+    "subject": "Кабардино-Балкария",
+    "center": "Нальчик",
+    "latitude": 43.4852,
+    "longitude": 43.6071
+  },
+  {
+    "subject": "Калмыкия",
+    "center": "Элиста",
+    "latitude": 46.3084,
+    "longitude": 44.2701
+  },
+  {
+    "subject": "Карачаево-Черкесия",
+    "center": "Черкесск",
+    "latitude": 44.2267,
+    "longitude": 42.0463
+  },
+  {
+    "subject": "Карелия",
+    "center": "Петрозаводск",
+    "latitude": 61.7891,
+    "longitude": 34.3596
+  },
+  {
+    "subject": "Коми",
+    "center": "Сыктывкар",
+    "latitude": 61.6684,
+    "longitude": 50.8359
+  },
+  {
+    "subject": "Крым",
+    "center": "Симферополь",
+    "latitude": 44.9521,
+    "longitude": 34.1024
+  },
+  {
+    "subject": "Луганская Народная Республика",
+    "center": "Луганск",
+    "latitude": 48.5748,
+    "longitude": 39.3073
+  },
+  {
+    "subject": "Марий Эл",
+    "center": "Йошкар-Ола",
+    "latitude": 56.6344,
+    "longitude": 47.8998
+  },
+  {
+    "subject": "Мордовия",
+    "center": "Саранск",
+    "latitude": 54.1871,
+    "longitude": 45.1838
+  },
+  {
+    "subject": "Саха (Якутия)",
+    "center": "Якутск",
+    "latitude": 62.0272,
+    "longitude": 129.7322
+  },
+  {
+    "subject": "Северная Осетия — Алания",
+    "center": "Владикавказ",
+    "latitude": 43.0249,
+    "longitude": 44.6905
+  },
+  {
+    "subject": "Татарстан",
+    "center": "Казань",
+    "latitude": 55.7887,
+    "longitude": 49.1221
+  },
+  {
+    "subject": "Тыва",
+    "center": "Кызыл",
+    "latitude": 51.7193,
+    "longitude": 94.4377
+  },
+  {
+    "subject": "Удмуртия",
+    "center": "Ижевск",
+    "latitude": 56.8526,
+    "longitude": 53.2115
+  },
+  {
+    "subject": "Хакасия",
+    "center": "Абакан",
+    "latitude": 53.7226,
+    "longitude": 91.4427
+  },
+  {
+    "subject": "Чеченская Республика",
+    "center": "Грозный",
+    "latitude": 43.3179,
+    "longitude": 45.6982
+  },
+  {
+    "subject": "Чувашия",
+    "center": "Чебоксары",
+    "latitude": 56.1450,
+    "longitude": 47.2519
+  },
+  {
+    "subject": "Алтайский",
+    "center": "Барнаул",
+    "latitude": 53.3561,
+    "longitude": 83.7874
+  },
+  {
+    "subject": "Забайкальский",
+    "center": "Чита",
+    "latitude": 52.0339,
+    "longitude": 113.4991
+  },
+  {
+    "subject": "Камчатский",
+    "center": "Петропавловск-Камчатский",
+    "latitude": 53.0234,
+    "longitude": 158.6436
+  },
+  {
+    "subject": "Краснодарский",
+    "center": "Краснодар",
+    "latitude": 45.0355,
+    "longitude": 38.9753
+  },
+  {
+    "subject": "Красноярский",
+    "center": "Красноярск",
+    "latitude": 56.0153,
+    "longitude": 92.8932
+  },
+  {
+    "subject": "Пермский",
+    "center": "Пермь",
+    "latitude": 58.0105,
+    "longitude": 56.2506
+  },
+  {
+    "subject": "Приморский",
+    "center": "Владивосток",
+    "latitude": 43.1153,
+    "longitude": 131.8854
+  },
+  {
+    "subject": "Ставропольский",
+    "center": "Ставрополь",
+    "latitude": 45.0428,
+    "longitude": 41.9694
+  },
+  {
+    "subject": "Хабаровский",
+    "center": "Хабаровск",
+    "latitude": 48.4802,
+    "longitude": 135.0719
+  },
+  {
+    "subject": "Амурская",
+    "center": "Благовещенск",
+    "latitude": 50.2907,
+    "longitude": 127.5272
+  },
+  {
+    "subject": "Архангельская",
+    "center": "Архангельск",
+    "latitude": 64.5396,
+    "longitude": 40.5186
+  },
+  {
+    "subject": "Астраханская",
+    "center": "Астрахань",
+    "latitude": 46.3497,
+    "longitude": 48.0409
+  },
+  {
+    "subject": "Белгородская",
+    "center": "Белгород",
+    "latitude": 50.5975,
+    "longitude": 36.5872
+  },
+  {
+    "subject": "Брянская",
+    "center": "Брянск",
+    "latitude": 53.2425,
+    "longitude": 34.3655
+  },
+  {
+    "subject": "Владимирская",
+    "center": "Владимир",
+    "latitude": 56.1284,
+    "longitude": 40.4070
+  },
+  {
+    "subject": "Волгоградская",
+    "center": "Волгоград",
+    "latitude": 48.7080,
+    "longitude": 44.5133
+  },
+  {
+    "subject": "Вологодская",
+    "center": "Вологда",
+    "latitude": 59.2205,
+    "longitude": 39.8916
+  },
+  {
+    "subject": "Воронежская",
+    "center": "Воронеж",
+    "latitude": 51.6608,
+    "longitude": 39.2003
+  },
+  {
+    "subject": "Запорожская",
+    "center": "Мелитополь",
+    "latitude": 46.8489,
+    "longitude": 35.3654
+  },
+  {
+    "subject": "Ивановская",
+    "center": "Иваново",
+    "latitude": 57.0003,
+    "longitude": 40.9739
+  },
+  {
+    "subject": "Иркутская",
+    "center": "Иркутск",
+    "latitude": 52.2864,
+    "longitude": 104.2807
+  },
+  {
+    "subject": "Калининградская",
+    "center": "Калининград",
+    "latitude": 54.7349,
+    "longitude": 20.5004
+  },
+  {
+    "subject": "Калужская",
+    "center": "Калуга",
+    "latitude": 54.5138,
+    "longitude": 36.2612
+  },
+  {
+    "subject": "Кемеровская",
+    "center": "Кемерово",
+    "latitude": 55.3544,
+    "longitude": 86.0887
+  },
+  {
+    "subject": "Кировская",
+    "center": "Киров",
+    "latitude": 58.6035,
+    "longitude": 49.6678
+  },
+  {
+    "subject": "Костромская",
+    "center": "Кострома",
+    "latitude": 57.7679,
+    "longitude": 40.9269
+  },
+  {
+    "subject": "Курганская",
+    "center": "Курган",
+    "latitude": 55.4414,
+    "longitude": 65.3441
+  },
+  {
+    "subject": "Курская",
+    "center": "Курск",
+    "latitude": 51.7303,
+    "longitude": 36.1936
+  },
+  {
+    "subject": "Ленинградская",
+    "center": "Санкт-Петербург",
+    "latitude": 59.9311,
+    "longitude": 30.3609
+  },
+  {
+    "subject": "Липецкая",
+    "center": "Липецк",
+    "latitude": 52.6072,
+    "longitude": 39.5991
+  },
+  {
+    "subject": "Магаданская",
+    "center": "Магадан",
+    "latitude": 59.5626,
+    "longitude": 150.8005
+  },
+  {
+    "subject": "Московская",
+    "center": "Москва",
+    "latitude": 55.7558,
+    "longitude": 37.6173
+  },
+  {
+    "subject": "Мурманская",
+    "center": "Мурманск",
+    "latitude": 68.9707,
+    "longitude": 33.0749
+  },
+  {
+    "subject": "Нижегородская",
+    "center": "Нижний Новгород",
+    "latitude": 56.2965,
+    "longitude": 43.9361
+  },
+  {
+    "subject": "Новгородская",
+    "center": "Великий Новгород",
+    "latitude": 58.5213,
+    "longitude": 31.2710
+  },
+  {
+    "subject": "Новосибирская",
+    "center": "Новосибирск",
+    "latitude": 55.0084,
+    "longitude": 82.9357
+  },
+  {
+    "subject": "Омская",
+    "center": "Омск",
+    "latitude": 54.9885,
+    "longitude": 73.3242
+  },
+  {
+    "subject": "Оренбургская",
+    "center": "Оренбург",
+    "latitude": 51.7682,
+    "longitude": 55.0970
+  },
+  {
+    "subject": "Орловская",
+    "center": "Орёл",
+    "latitude": 52.9701,
+    "longitude": 36.0635
+  },
+  {
+    "subject": "Пензенская",
+    "center": "Пенза",
+    "latitude": 53.1945,
+    "longitude": 45.0195
+  },
+  {
+    "subject": "Псковская",
+    "center": "Псков",
+    "latitude": 57.8194,
+    "longitude": 28.3318
+  },
+  {
+    "subject": "Ростовская",
+    "center": "Ростов-на-Дону",
+    "latitude": 47.2225,
+    "longitude": 39.7186
+  },
+  {
+    "subject": "Рязанская",
+    "center": "Рязань",
+    "latitude": 54.6290,
+    "longitude": 39.7423
+  },
+  {
+    "subject": "Самарская",
+    "center": "Самара",
+    "latitude": 53.1959,
+    "longitude": 50.1002
+  },
+  {
+    "subject": "Саратовская",
+    "center": "Саратов",
+    "latitude": 51.5336,
+    "longitude": 46.0342
+  },
+  {
+    "subject": "Сахалинская",
+    "center": "Южно-Сахалинск",
+    "latitude": 46.9591,
+    "longitude": 142.7381
+  },
+  {
+    "subject": "Свердловская",
+    "center": "Екатеринбург",
+    "latitude": 56.8389,
+    "longitude": 60.6057
+  },
+  {
+    "subject": "Смоленская",
+    "center": "Смоленск",
+    "latitude": 54.7826,
+    "longitude": 32.0453
+  },
+  {
+    "subject": "Тамбовская",
+    "center": "Тамбов",
+    "latitude": 52.7212,
+    "longitude": 41.4524
+  },
+  {
+    "subject": "Тверская",
+    "center": "Тверь",
+    "latitude": 56.8584,
+    "longitude": 35.9176
+  },
+  {
+    "subject": "Томская",
+    "center": "Томск",
+    "latitude": 56.4846,
+    "longitude": 84.9482
+  },
+  {
+    "subject": "Тульская",
+    "center": "Тула",
+    "latitude": 54.1931,
+    "longitude": 37.6173
+  },
+  {
+    "subject": "Тюменская",
+    "center": "Тюмень",
+    "latitude": 57.1530,
+    "longitude": 65.5342
+  },
+  {
+    "subject": "Ульяновская",
+    "center": "Ульяновск",
+    "latitude": 54.3175,
+    "longitude": 48.3806
+  },
+  {
+    "subject": "Херсонская",
+    "center": "Геническ",
+    "latitude": 46.1729,
+    "longitude": 34.8040
+  },
+  {
+    "subject": "Челябинская",
+    "center": "Челябинск",
+    "latitude": 55.1600,
+    "longitude": 61.4026
+  },
+  {
+    "subject": "Ярославская",
+    "center": "Ярославль",
+    "latitude": 57.6261,
+    "longitude": 39.8845
+  },
+  {
+    "subject": "Севастополь",
+    "center": "Севастополь",
+    "latitude": 44.6167,
+    "longitude": 33.5254
+  }
+]
