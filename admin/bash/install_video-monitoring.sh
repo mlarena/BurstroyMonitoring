@@ -1,10 +1,11 @@
 #!/bin/bash
 
-# Settings for Worker service
+# Settings for Video service
 APP_NAME="BurstroyMonitoring.VideoMonitoring"
 ZIP_FILE="BurstroyMonitoring.VideoMonitoring.zip"
 INSTALL_DIR="/opt/burstroy/video"
 USER_NAME="burstroy"
+SERVICE_NAME="burstroy-monitoring-video"
 
 # Root check
 if [ "$EUID" -ne 0 ]; then 

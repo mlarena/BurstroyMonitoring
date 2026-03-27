@@ -1,10 +1,4 @@
-
-1. создание архивов
-написать powershell скрипт для создания архива
-
-2. загрузка на сервер
 виртуалка
-
 
 scp -P 58222 "C:\git\BurstroyMonitoring\BurstroyMonitoring.VideoMonitoring\release\linux-x64\BurstroyMonitoring.VideoMonitoring.zip" usermeteo@192.168.192.137:/opt/burstroy/tmp
 scp -P 58222 "C:\git\BurstroyMonitoring\BurstroyMonitoring.Worker\release\linux-x64\BurstroyMonitoring.Worker.zip" usermeteo@192.168.192.137:/opt/burstroy/tmp 

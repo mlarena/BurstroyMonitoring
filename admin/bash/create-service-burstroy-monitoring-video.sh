@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Settings for Worker service
-SERVICE_NAME="burstroy-video-monitoring"
+# Settings for Video service
+SERVICE_NAME="burstroy-monitoring-video"
 APP_NAME="BurstroyMonitoring.VideoMonitoring"
 INSTALL_DIR="/opt/burstroy/video"
 USER_NAME="burstroy"
-DESCRIPTION="Burstroy Video Monitoring Worker Service"
-APP_PORT="6002"
+DESCRIPTION="Burstroy Video Monitoring Service"
+APP_PORT="5003"
 
 # Parse command line arguments for port
 while [[ $# -gt 0 ]]; do

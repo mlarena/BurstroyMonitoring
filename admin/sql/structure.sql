@@ -1,7 +1,3 @@
-
--- Dumped from database version 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1)
--- Dumped by pg_dump version 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1)
-
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
@@ -365,6 +361,7 @@ CREATE TABLE public."MonitoringPost" (
     "IsActive" boolean DEFAULT true NOT NULL,
     "CreatedAt" timestamp with time zone DEFAULT now() NOT NULL,
     "UpdatedAt" timestamp with time zone DEFAULT now() NOT NULL,
+    "Address" text,
     CONSTRAINT chk_monitoringpost_coordinates_valid CHECK (((("Longitude" IS NULL) AND ("Latitude" IS NULL)) OR ((("Longitude" >= ('-180'::integer)::double precision) AND ("Longitude" <= (180)::double precision)) AND (("Latitude" >= ('-90'::integer)::double precision) AND ("Latitude" <= (90)::double precision)))))
 );
 
@@ -1634,9 +1631,36 @@ ALTER TABLE ONLY public."Sensor"
     ADD CONSTRAINT "Sensor_SensorTypeId_fkey" FOREIGN KEY ("SensorTypeId") REFERENCES public."SensorType"("Id") ON DELETE RESTRICT;
 
 
---
--- PostgreSQL database dump complete
---
+INSERT INTO public."SensorType" 
+    ("SensorTypeName", "Description", "CreatedAt")
+VALUES
+    ('DSPD',   'Датчик состояния дорожного полотна', NOW()),
+    ('IWS',    'Датчик параметров атмосферы', NOW()),
+    ('DOV',    'Датчик оптической видимости', NOW()),    
+    ('DUST',    'Датчик концентрации пыли', NOW()),
+    ('MUEKS', 'Модель управления энергоснабжением и контроля сети', NOW())
+ON CONFLICT ("SensorTypeName") DO NOTHING;
 
-\unrestrict m67YgIvnxfXj4KTITeB5QSRRx5LfAgsI7yKfOfPtxDtBDwNX9pmgZcbFLwHp83S
+-- 4. Стандартные конфигурации worker'ов
+INSERT INTO public."WorkerConfiguration" 
+    ("Key", "Value", "DataType", "Description", "IsActive")
+VALUES 
+    ('SaveResponseBody.Default', 'true', 'boolean', 'Сохранять ли тело ответа по умолчанию', true),
+    ('Polling.MaxConcurrentTasks', '100', 'integer', 'Максимальное количество параллельных задач опроса', true),
+    ('Polling.TimeoutSeconds', '30', 'integer', 'Таймаут HTTP запросов в секундах', true),
+    ('Polling.RetryCount', '3', 'integer', 'Количество повторных попыток при ошибке', true),
+    ('Polling.RetryDelayMs', '1000', 'integer', 'Задержка между повторными попытками в мс', true),
+    ('Logging.FileLogLevel', 'Information', 'string', 'Уровень логирования в файл', true),
+    ('Logging.DatabaseLogLevel', 'Warning', 'string', 'Уровень логирования в базу данных', true),
+    ('Configuration.RefreshIntervalSeconds', '60', 'integer', 'Интервал обновления конфигурации', true)
+ON CONFLICT ("Key") DO NOTHING;
+
+INSERT INTO public."Users"
+("UserName", "PasswordHash", "Salt", "Role", "CreatedAt")
+values
+('su', 'rwJ2gumZQW2BF5pz17tErROvQZW5kuALUC+PAVOA1bM=', 'ht3Dj16NdALjMXZeXVZH/Obouh83LI1u2SG19PQiVBY=', 'Admin', CURRENT_TIMESTAMP),
+('user', 'knEX8Xp8Waa9/P89Qxy7DbEd5oumdgBA0/EVIh3XoFs=', 'FQjkR08swP471JN0g4F3UwG9zk61jjbTXx37rEHn17s=', 'User', CURRENT_TIMESTAMP),
+('admin', '/WoSMsEmxNWymBFOfmcgNHAG/k0r2wGlNhDdEiHhKB8=', '5Wqvx4NTar97BqqKy7ozPSpV8Giys2GIt+fmIKYbAxI=', 'Admin', CURRENT_TIMESTAMP);
+
+
 

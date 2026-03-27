@@ -1,0 +1,68 @@
+
+виртуальный сервер ТЦМ
+1. загружаем скрипты для установки программного обеспечения
+
+
+scp "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" devuser@192.168.192.143:/opt/burstroy/tmp 
+
+ssh devuser@192.168.192.143
+
+
+sudo timedatectl set-timezone Europe/Moscow
+/opt/burstroy/tcm/wwwroot/snapshots/
+mkdir -p /opt/burstroy/tmp/
+cd /opt/
+chmod -R 777 burstroy/
+cd /opt/burstroy/tmp/
+cd /opt/burstroy/worker/
+cd /opt/burstroy/tcm/
+
+3. подключение к postgres, создание базы данных
+
+psql -U postgres -h localhost -d postgres
+create database sensordb;
+
+4. выполнение скриптов на базе данных
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/structure.sql
+\dt
+\dv
+
+SELECT * FROM public."Sensor";
+
+sudo timedatectl set-timezone Europe/Moscow
+
+sudo systemctl start burstroy-monitoring-tcm
+sudo systemctl stop burstroy-monitoring-tcm
+sudo systemctl restart burstroy-monitoring-tcm
+sudo systemctl status burstroy-monitoring-tcm
+sudo journalctl -u burstroy-monitoring-tcm -f
+sudo systemctl enable burstroy-monitoring-tcm
+sudo systemctl disable burstroy-monitoring-tcm
+
+
+sudo systemctl start burstroy-monitoring-worker
+sudo systemctl stop burstroy-monitoring-worker
+sudo systemctl restart burstroy-monitoring-worker
+sudo systemctl status burstroy-monitoring-worker
+sudo journalctl -u burstroy-monitoring-worker -f
+sudo systemctl enable burstroy-monitoring-worker
+sudo systemctl disable burstroy-monitoring-worker
+
+sudo systemctl start burstroy-monitoring-video.service
+sudo systemctl stop burstroy-monitoring-video.service
+sudo systemctl restart burstroy-monitoring-video.service
+sudo systemctl status burstroy-monitoring-video.service
+sudo journalctl -u burstroy-monitoring-video.service -f
+sudo systemctl enable burstroy-monitoring-video.service
+sudo systemctl disable burstroy-monitoring-video.service
+
+
+DROP VIEW  vw_dov_data_full;
+DROP VIEW  vw_dspd_data_full;
+DROP VIEW  vw_dust_data_full;
+DROP VIEW   vw_iws_data_full;
+DROP VIEW  vw_mueks_data_full;
+DROP VIEW  vw_sensor_errors_full;
+DROP VIEW vw_sensor_results_full;
+
+/opt/burstroy/tcm/wwwroot/snapshots

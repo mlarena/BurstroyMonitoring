@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Configuration
-SERVICE_NAME="burstroy-monitoring-ui"
+SERVICE_NAME="burstroy-monitoring-tcm"
 APP_PORT="5002"
-NGINX_CONFIG_NAME="burstroy-ui"
+NGINX_CONFIG_NAME="burstroy-tcm"
 DOMAIN_NAME="_"  # Use '_' for all domains, or specify actual domain
 
 # Colors for output
@@ -79,11 +79,11 @@ else
     print_status "Using all domains (_)"
 fi
 
-# Create nginx config
-cat > /tmp/$NGINX_CONFIG_NAME.conf << EOF
+# Create nginx config (fixed version without static files block)
+cat > /tmp/$NGINX_CONFIG_NAME.conf << 'EOF'
 server {
     listen 80;
-    server_name $DOMAIN_NAME;
+    server_name DOMAIN_NAME_PLACEHOLDER;
     
     # Gzip compression
     gzip on;
@@ -93,17 +93,18 @@ server {
     gzip_types text/plain text/css text/xml text/javascript application/x-javascript application/xml application/javascript application/json;
     gzip_disable "MSIE [1-6]\.";
     
+    # Proxy all requests to the ASP.NET Core application
     location / {
-        proxy_pass http://localhost:$APP_PORT;
+        proxy_pass http://localhost:APP_PORT_PLACEHOLDER;
         proxy_http_version 1.1;
-        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection keep-alive;
-        proxy_set_header Host \$host;
-        proxy_cache_bypass \$http_upgrade;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-        proxy_set_header X-Forwarded-Host \$host;
-        proxy_set_header X-Forwarded-Port \$server_port;
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Port $server_port;
         
         # Timeouts
         proxy_connect_timeout 60s;
@@ -117,35 +118,18 @@ server {
         proxy_busy_buffers_size 256k;
     }
     
-    # Static files optimization (if wwwroot exists)
-    location ~* \.(css|js|jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot)$ {
-        root /opt/burstroy/ui/wwwroot;
-        expires 30d;
-        add_header Cache-Control "public, immutable";
-        try_files \$uri \$uri/ @proxy;
-    }
-    
-    location @proxy {
-        proxy_pass http://localhost:$APP_PORT;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-    }
-    
     # Block hidden files
     location ~ /\. {
         deny all;
         access_log off;
         log_not_found off;
     }
-    
-    # Health check endpoint
-    location /health {
-        proxy_pass http://localhost:$APP_PORT/health;
-        proxy_set_header Host \$host;
-        access_log off;
-    }
 }
 EOF
+
+# Replace placeholders with actual values
+sed -i "s/DOMAIN_NAME_PLACEHOLDER/$DOMAIN_NAME/g" /tmp/$NGINX_CONFIG_NAME.conf
+sed -i "s/APP_PORT_PLACEHOLDER/$APP_PORT/g" /tmp/$NGINX_CONFIG_NAME.conf
 
 # Move config to nginx
 sudo mv /tmp/$NGINX_CONFIG_NAME.conf /etc/nginx/sites-available/$NGINX_CONFIG_NAME
@@ -203,6 +187,17 @@ HTTP_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost)
 if [[ "$HTTP_RESPONSE" =~ ^(200|301|302)$ ]]; then
     print_status "✅ SUCCESS: Application is accessible on port 80"
     print_status "HTTP Response Code: $HTTP_RESPONSE"
+    
+    # Additional check for static files
+    echo ""
+    print_status "Testing static files..."
+    CSS_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/css/site.css 2>/dev/null || echo "404")
+    if [[ "$CSS_RESPONSE" == "200" ]]; then
+        print_status "✅ CSS files are being served correctly"
+    else
+        print_warning "⚠️  CSS files returned HTTP $CSS_RESPONSE"
+        print_warning "Check if static files exist and are accessible"
+    fi
 else
     print_warning "⚠️  Warning: Got HTTP $HTTP_RESPONSE, expected 200, 301, or 302"
     print_warning "Application might be accessible but returned unexpected status"
@@ -231,5 +226,6 @@ echo ""
 echo "Test commands:"
 echo "  • Test locally:       curl -I http://localhost"
 echo "  • Test from server:   curl -I http://$(hostname -I | awk '{print $1}')"
+echo "  • Test static file:   curl -I http://localhost/css/site.css"
 echo ""
 echo "Note: If using domain name, update DNS to point to this server's IP address"
