@@ -1,25 +1,3 @@
-.\publish.ps1 -Project TCM -Runtime linux-x64
-.\publish.ps1 -Project Worker -Runtime linux-x64
-
-.\publish.ps1 -Project TCM -Runtime linux-arm64
-.\publish.ps1 -Project Worker -Runtime linux-arm64
-
-
-.\publish.ps1 -Project TCM -Runtime win-x64
-.\publish.ps1 -Project Worker -Runtime win-x64
-
-
-# Создать все архивы для всех runtime
-.\create-zips.ps1
-
-# Создать архивы только для linux-arm64
-.\create-zips.ps1 -Runtime linux-arm64
-
-# Создать архивы только для linux-x64
-.\create-zips.ps1 -Runtime linux-x64
-
-# Создать архивы только для win-x64
-.\create-zips.ps1 -Runtime win-x64
 
 ---TCM
 # Linux ARM64

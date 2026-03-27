@@ -24,14 +24,15 @@ echo "Updating $APP_NAME in $INSTALL_DIR..."
 mkdir -p "$INSTALL_DIR"
 
 # Stop service before update if it exists
-if systemctl is-active --quiet burstroy-tcm; then
+if systemctl is-active --quiet burstroy-monitoring-tcm; then
     echo "Stopping burstroy-tcm service..."
-    systemctl stop burstroy-tcm
+    systemctl stop burstroy-monitoring-tcm
 fi
 
-# Clear directory (except appsettings.json to preserve config)
-echo "Cleaning $INSTALL_DIR..."
-find "$INSTALL_DIR" -mindepth 1 ! -name 'appsettings.json' -delete
+# Recreate directory to ensure it's empty and exists
+echo "Cleaning and recreating $INSTALL_DIR..."
+rm -rf "$INSTALL_DIR"
+mkdir -p "$INSTALL_DIR"
 
 # Unzip
 echo "Unpacking $ZIP_FILE..."
@@ -41,6 +42,10 @@ unzip -o "$ZIP_FILE" -d "$INSTALL_DIR"
 echo "Setting permissions..."
 chmod +x "$INSTALL_DIR/$APP_NAME"
 chown -R "$USER_NAME:$USER_NAME" "$INSTALL_DIR"
+
+# Check file type
+echo "File info for $APP_NAME:"
+file "$INSTALL_DIR/$APP_NAME"
 
 echo "✅ $APP_NAME updated successfully."
 echo "You can now start the service: sudo systemctl start burstroy-tcm"
