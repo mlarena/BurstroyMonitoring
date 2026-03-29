@@ -14,8 +14,86 @@
     <title>@ViewData["Title"] - Мониторинг датчиков</title>
     <!-- Bootstrap 5.3 CSS -->
     <link rel="stylesheet" href="~/css/bootstrap.min.css" asp-append-version="true" />
-     <link rel="stylesheet" href="~/css/font/bootstrap-icons.css" asp-append-version="true" >
+    <link rel="stylesheet" href="~/css/font/bootstrap-icons.css" asp-append-version="true" >
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        /* Улучшенные стили для меню */
+        .navbar-nav .nav-link {
+            font-weight: 600 !important;
+            font-size: 0.95rem;
+            padding: 0.6rem 0.8rem !important;
+            transition: all 0.2s ease;
+        }
+        
+        .navbar-nav .nav-link:hover {
+            transform: translateY(-1px);
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+        }
+        
+        .navbar-nav .nav-link.active {
+            font-weight: 700 !important;
+            background-color: rgba(255, 255, 255, 0.15);
+            border-radius: 6px;
+            position: relative;
+        }
+        
+        .navbar-nav .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70%;
+            height: 2px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 2px;
+        }
+        
+        /* Улучшенные стили для выпадающих меню */
+        .dropdown-item {
+            font-weight: 500 !important;
+            font-size: 0.9rem;
+            padding: 0.5rem 1.2rem;
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-item:hover {
+            font-weight: 600 !important;
+            padding-left: 1.5rem;
+            background-color: #e7f1ff;
+        }
+        
+        .dropdown-item.active {
+            font-weight: 700 !important;
+            background-color: #0d6efd;
+            color: white !important;
+        }
+        
+        /* Стили для кнопки выхода */
+        .btn-outline-light {
+            font-weight: 500;
+            border-width: 1.5px;
+        }
+        
+        .btn-outline-light:hover {
+            font-weight: 600;
+            transform: translateY(-1px);
+        }
+        
+        /* Стили для названия бренда */
+        .navbar-brand {
+            font-weight: 800 !important;
+            font-size: 1.2rem;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Стили для заголовков выпадающих меню */
+        .dropdown-toggle {
+            font-weight: 600 !important;
+        }
+        
+    </style>
     @RenderSection("Styles", required: false)
 </head>
 <body class="d-flex flex-column min-vh-100">
@@ -62,12 +140,14 @@
                                 <li><a class="dropdown-item @(currentController == "DspdData" ? "active" : "")" asp-controller="DspdData" asp-action="Index">DSPD</a></li>
                                 <li><a class="dropdown-item @(currentController == "DovData" ? "active" : "")" asp-controller="DovData" asp-action="Index">DOV</a></li>
                                 <li><a class="dropdown-item @(currentController == "DustData" ? "active" : "")" asp-controller="DustData" asp-action="Index">DUST</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item @(currentController == "SensorResults" ? "active" : "")" asp-controller="SensorResults" asp-action="Index">Результаты</a></li>
                             </ul>
                         </li>
-
-                        <li class="nav-item">
+                        <!-- <li class="nav-item">
                             <a class="nav-link @(currentController == "SensorResults" ? "active" : "")" asp-controller="SensorResults" asp-action="Index">Результаты</a>
-                        </li>
+                        </li> -->
+
                         <li class="nav-item">
                             <a class="nav-link @(currentController == "GraphsAndCharts" ? "active" : "")" asp-controller="GraphsAndCharts" asp-action="Index">Графики</a>
                         </li>
@@ -92,7 +172,7 @@
                                     <li><a class="dropdown-item @(currentController == "Admin" ? "active" : "")" asp-controller="Admin" asp-action="Index">Пользователи</a></li>
                                     <li><a class="dropdown-item @(currentController == "Audit" ? "active" : "")" asp-controller="Audit" asp-action="Index">Аудит</a></li>
                                     <li><a class="dropdown-item @(currentController == "WorkerConfiguration" ? "active" : "")" asp-controller="WorkerConfiguration" asp-action="Index">Настройки</a></li>
-                            </ul>
+                                </ul>
                             </li>
                         }
                     </ul>
@@ -100,7 +180,7 @@
                     <div class="d-flex align-items-center gap-3">
                         @if (User.Identity?.IsAuthenticated == true)
                         {
-                            <span class="navbar-text text-light small d-none d-xl-inline">@User.Identity.Name</span>
+                            <span class="navbar-text text-light small d-none d-xl-inline fw-semibold">@User.Identity.Name</span>
                             <form asp-controller="Auth" asp-action="Logout" method="post" class="m-0">
                                 @Html.AntiForgeryToken()
                                 <button type="submit" class="btn btn-outline-light btn-sm">Выйти</button>
