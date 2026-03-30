@@ -5,6 +5,7 @@ using BurstroyMonitoring.Api.Models;
 using BurstroyMonitoring.Data;
 using BurstroyMonitoring.Data.Models;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace BurstroyMonitoring.Api.Controllers
 {
