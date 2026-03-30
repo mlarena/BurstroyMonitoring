@@ -177,7 +177,7 @@ namespace BurstroyMonitoring.TCM.Controllers
                     foreach (var field in config.Fields)
                     {
                         string fieldDisplayName = GetFieldDisplayName(field);
-                        string fullColName = $"{config.Prefix} ({sensor.Endpoint} - {sensor.SN}) [ID:{sensor.Id}]|{fieldDisplayName}";
+                        string fullColName = $"{config.Prefix} ({sensor.Endpoint} - {sensor.SN}) |{fieldDisplayName}";
                         if (!allColumns.Contains(fullColName))
                             allColumns.Add(fullColName);
                     }
@@ -217,7 +217,7 @@ namespace BurstroyMonitoring.TCM.Controllers
                                 foreach (var field in config.Fields)
                                 {
                                     string fieldDisplayName = GetFieldDisplayName(field);
-                                    string fullColName = $"{config.Prefix} ({sensor.Endpoint} - {sensor.SN}) [ID:{sensor.Id}]|{fieldDisplayName}";
+                                    string fullColName = $"{config.Prefix} ({sensor.Endpoint} - {sensor.SN}) |{fieldDisplayName}";
                                     
                                     var valIdx = reader.GetOrdinal(field);
                                     reportData[time][fullColName] = reader.IsDBNull(valIdx) ? "-" : reader.GetValue(valIdx).ToString();

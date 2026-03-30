@@ -1,13 +1,11 @@
 -- public.vw_dov_data_full source
+DROP VIEW IF EXISTS public.vw_dov_data_full CASCADE;
 CREATE OR REPLACE VIEW public.vw_dov_data_full
-AS SELECT 
-    -- DOVData (основная таблица, ВСЕ поля)
-    dd."Id" AS dov_data_id,
+AS SELECT dd."Id" AS dov_data_id,
     dd."ReceivedAt" AS received_at,
     dd."DataTimestamp" AS data_timestamp,
     dd."VisibleRange" AS visible_range,
     dd."BrightFlag" AS bright_flag,
-    -- Sensor
     s."Id" AS sensor_id,
     s."Longitude" AS sensor_longitude,
     s."Latitude" AS sensor_latitude,
@@ -17,27 +15,24 @@ AS SELECT
     s."CheckIntervalSeconds" AS check_interval_seconds,
     s."LastActivityUTC" AS last_activity_utc,
     s."IsActive" AS sensor_is_active,
-    -- SensorType
     st."Id" AS sensor_type_id,
     st."SensorTypeName" AS sensor_type_name,
     st."Description" AS sensor_type_description,
-    -- MonitoringPost
     mp."Id" AS post_id,
     mp."Name" AS post_name,
     mp."Address" AS post_address,
     mp."Description" AS post_description,
     mp."IsMobile" AS post_is_mobile,
     mp."IsActive" AS post_is_active
-FROM "DOVData" dd
-LEFT JOIN "Sensor" s ON dd."SensorId" = s."Id"
-LEFT JOIN "SensorType" st ON s."SensorTypeId" = st."Id"
-LEFT JOIN "MonitoringPost" mp ON s."MonitoringPostId" = mp."Id";
+   FROM "DOVData" dd
+     LEFT JOIN "Sensor" s ON dd."SensorId" = s."Id"
+     LEFT JOIN "SensorType" st ON s."SensorTypeId" = st."Id"
+     LEFT JOIN "MonitoringPost" mp ON s."MonitoringPostId" = mp."Id";
 
 -- public.vw_dspd_data_full source
+DROP VIEW IF EXISTS public.vw_dspd_data_full CASCADE;
 CREATE OR REPLACE VIEW public.vw_dspd_data_full
-AS SELECT 
-    -- DSPDData (основная таблица, ВСЕ поля)
-    dd."Id" AS dspd_data_id,
+AS SELECT dd."Id" AS dspd_data_id,
     dd."ReceivedAt" AS received_at,
     dd."DataTimestamp" AS data_timestamp,
     dd."Grip" AS grip_coefficient,
@@ -58,7 +53,6 @@ AS SELECT
     dd."GPSLongitude" AS gps_longitude,
     dd."IsGpsValid" AS gps_valid,
     dd."DistanceToSurface" AS distance_to_surface,
-    -- Sensor
     s."Id" AS sensor_id,
     s."Longitude" AS sensor_longitude,
     s."Latitude" AS sensor_latitude,
@@ -68,27 +62,25 @@ AS SELECT
     s."CheckIntervalSeconds" AS check_interval_seconds,
     s."LastActivityUTC" AS last_activity_utc,
     s."IsActive" AS sensor_is_active,
-    -- SensorType
     st."Id" AS sensor_type_id,
     st."SensorTypeName" AS sensor_type_name,
     st."Description" AS sensor_type_description,
-    -- MonitoringPost
     mp."Id" AS post_id,
     mp."Name" AS post_name,
     mp."Address" AS post_address,
     mp."Description" AS post_description,
     mp."IsMobile" AS post_is_mobile,
     mp."IsActive" AS post_is_active
-FROM "DSPDData" dd
-LEFT JOIN "Sensor" s ON dd."SensorId" = s."Id"
-LEFT JOIN "SensorType" st ON s."SensorTypeId" = st."Id"
-LEFT JOIN "MonitoringPost" mp ON s."MonitoringPostId" = mp."Id";
+   FROM "DSPDData" dd
+     LEFT JOIN "Sensor" s ON dd."SensorId" = s."Id"
+     LEFT JOIN "SensorType" st ON s."SensorTypeId" = st."Id"
+     LEFT JOIN "MonitoringPost" mp ON s."MonitoringPostId" = mp."Id";
+
 
 -- public.vw_dust_data_full source
+DROP VIEW IF EXISTS public.vw_dust_data_full CASCADE;
 CREATE OR REPLACE VIEW public.vw_dust_data_full
-AS SELECT 
-    -- DustData (основная таблица, ВСЕ поля)
-    dd."Id" AS dust_data_id,
+AS SELECT dd."Id" AS dust_data_id,
     dd."ReceivedAt" AS received_at,
     dd."DataTimestamp" AS data_timestamp,
     dd."PM10Act" AS pm10act,
@@ -102,7 +94,6 @@ AS SELECT
     dd."HumidityProbe" AS humidityprobe,
     dd."LaserStatus" AS laserstatus,
     dd."SupplyVoltage" AS supplyvoltage,
-    -- Sensor
     s."Id" AS sensor_id,
     s."Longitude" AS sensor_longitude,
     s."Latitude" AS sensor_latitude,
@@ -112,27 +103,25 @@ AS SELECT
     s."CheckIntervalSeconds" AS check_interval_seconds,
     s."LastActivityUTC" AS last_activity_utc,
     s."IsActive" AS sensor_is_active,
-    -- SensorType
     st."Id" AS sensor_type_id,
     st."SensorTypeName" AS sensor_type_name,
     st."Description" AS sensor_type_description,
-    -- MonitoringPost
     mp."Id" AS post_id,
     mp."Name" AS post_name,
     mp."Address" AS post_address,
     mp."Description" AS post_description,
     mp."IsMobile" AS post_is_mobile,
     mp."IsActive" AS post_is_active
-FROM "DustData" dd
-LEFT JOIN "Sensor" s ON dd."SensorId" = s."Id"
-LEFT JOIN "SensorType" st ON s."SensorTypeId" = st."Id"
-LEFT JOIN "MonitoringPost" mp ON s."MonitoringPostId" = mp."Id";
+   FROM "DustData" dd
+     LEFT JOIN "Sensor" s ON dd."SensorId" = s."Id"
+     LEFT JOIN "SensorType" st ON s."SensorTypeId" = st."Id"
+     LEFT JOIN "MonitoringPost" mp ON s."MonitoringPostId" = mp."Id";
+
 
 -- public.vw_iws_data_full source
+DROP VIEW IF EXISTS public.vw_iws_data_full CASCADE;
 CREATE OR REPLACE VIEW public.vw_iws_data_full
-AS SELECT 
-    -- IWSData (основная таблица, ВСЕ поля)
-    iws."Id" AS iws_data_id,
+AS SELECT iws."Id" AS iws_data_id,
     iws."ReceivedAt" AS received_at,
     iws."DataTimestamp" AS data_timestamp,
     iws."EnvTemperature" AS environment_temperature,
@@ -160,7 +149,6 @@ AS SELECT
     iws."Roll" AS roll_angle,
     iws."Pitch" AS pitch_angle,
     iws."WeAreFine" AS status_ok,
-    -- Sensor
     s."Id" AS sensor_id,
     s."Longitude" AS sensor_longitude,
     s."Latitude" AS sensor_latitude,
@@ -170,27 +158,25 @@ AS SELECT
     s."CheckIntervalSeconds" AS check_interval_seconds,
     s."LastActivityUTC" AS last_activity_utc,
     s."IsActive" AS sensor_is_active,
-    -- SensorType
     st."Id" AS sensor_type_id,
     st."SensorTypeName" AS sensor_type_name,
     st."Description" AS sensor_type_description,
-    -- MonitoringPost
     mp."Id" AS post_id,
     mp."Name" AS post_name,
     mp."Address" AS post_address,
     mp."Description" AS post_description,
     mp."IsMobile" AS post_is_mobile,
     mp."IsActive" AS post_is_active
-FROM "IWSData" iws
-LEFT JOIN "Sensor" s ON iws."SensorId" = s."Id"
-LEFT JOIN "SensorType" st ON s."SensorTypeId" = st."Id"
-LEFT JOIN "MonitoringPost" mp ON s."MonitoringPostId" = mp."Id";
+   FROM "IWSData" iws
+     LEFT JOIN "Sensor" s ON iws."SensorId" = s."Id"
+     LEFT JOIN "SensorType" st ON s."SensorTypeId" = st."Id"
+     LEFT JOIN "MonitoringPost" mp ON s."MonitoringPostId" = mp."Id";
+
 
 -- public.vw_mueks_data_full source
+DROP VIEW IF EXISTS public.vw_mueks_data_full CASCADE;
 CREATE OR REPLACE VIEW public.vw_mueks_data_full
-AS SELECT 
-    -- MUEKSData (основная таблица, ВСЕ поля)
-    pd."Id" AS mueks_data_id,
+AS SELECT pd."Id" AS mueks_data_id,
     pd."ReceivedAt" AS received_at,
     pd."DataTimestamp" AS data_timestamp,
     pd."TemperatureBox" AS temperature_box,
@@ -208,7 +194,6 @@ AS SELECT
     pd."TdsTds" AS tds_tds,
     pd."TkosaT1" AS tkosa_t1,
     pd."TkosaT3" AS tkosa_t3,
-    -- Sensor
     s."Id" AS sensor_id,
     s."Longitude" AS sensor_longitude,
     s."Latitude" AS sensor_latitude,
@@ -218,27 +203,25 @@ AS SELECT
     s."CheckIntervalSeconds" AS check_interval_seconds,
     s."LastActivityUTC" AS last_activity_utc,
     s."IsActive" AS sensor_is_active,
-    -- SensorType
     st."Id" AS sensor_type_id,
     st."SensorTypeName" AS sensor_type_name,
     st."Description" AS sensor_type_description,
-    -- MonitoringPost
     mp."Id" AS post_id,
     mp."Name" AS post_name,
     mp."Address" AS post_address,
     mp."Description" AS post_description,
     mp."IsMobile" AS post_is_mobile,
     mp."IsActive" AS post_is_active
-FROM "MUEKSData" pd
-LEFT JOIN "Sensor" s ON pd."SensorId" = s."Id"
-LEFT JOIN "SensorType" st ON s."SensorTypeId" = st."Id"
-LEFT JOIN "MonitoringPost" mp ON s."MonitoringPostId" = mp."Id";
+   FROM "MUEKSData" pd
+     LEFT JOIN "Sensor" s ON pd."SensorId" = s."Id"
+     LEFT JOIN "SensorType" st ON s."SensorTypeId" = st."Id"
+     LEFT JOIN "MonitoringPost" mp ON s."MonitoringPostId" = mp."Id";
+
 
 -- public.vw_sensor_errors_full source
+DROP VIEW IF EXISTS public.vw_sensor_errors_full CASCADE;
 CREATE OR REPLACE VIEW public.vw_sensor_errors_full
-AS SELECT 
-    -- SensorError (основная таблица, ВСЕ поля)
-    se."Id" AS error_id,
+AS SELECT se."Id" AS error_id,
     se."ErrorLevel" AS error_level,
     se."ErrorMessage" AS error_message,
     se."StackTrace" AS stack_trace,
@@ -246,7 +229,6 @@ AS SELECT
     se."ExceptionType" AS exception_type,
     se."CreatedAt" AS error_created_at,
     se."AdditionalData" AS additional_data,
-    -- Sensor
     s."Id" AS sensor_id,
     s."Longitude" AS sensor_longitude,
     s."Latitude" AS sensor_latitude,
@@ -256,11 +238,9 @@ AS SELECT
     s."CheckIntervalSeconds" AS check_interval_seconds,
     s."LastActivityUTC" AS last_activity_utc,
     s."IsActive" AS sensor_is_active,
-    -- SensorType
     st."Id" AS sensor_type_id,
     st."SensorTypeName" AS sensor_type_name,
     st."Description" AS sensor_type_description,
-    -- MonitoringPost
     mp."Id" AS post_id,
     mp."Name" AS post_name,
     mp."Address" AS post_address,
@@ -270,22 +250,22 @@ AS SELECT
     mp."IsMobile" AS post_is_mobile,
     mp."IsActive" AS post_is_active,
     mp."UpdatedAt" AS post_updated_at
-FROM "SensorError" se
-LEFT JOIN "Sensor" s ON se."SensorId" = s."Id"
-LEFT JOIN "SensorType" st ON s."SensorTypeId" = st."Id"
-LEFT JOIN "MonitoringPost" mp ON s."MonitoringPostId" = mp."Id";
+   FROM "SensorError" se
+     LEFT JOIN "Sensor" s ON se."SensorId" = s."Id"
+     LEFT JOIN "SensorType" st ON s."SensorTypeId" = st."Id"
+     LEFT JOIN "MonitoringPost" mp ON s."MonitoringPostId" = mp."Id";
+
+
 
 -- public.vw_sensor_results_full source
+DROP VIEW IF EXISTS public.vw_sensor_results_full CASCADE;
 CREATE OR REPLACE VIEW public.vw_sensor_results_full
-AS SELECT 
-    -- SensorResults (основная таблица, ВСЕ поля)
-    sr."Id" AS result_id,
+AS SELECT sr."Id" AS result_id,
     sr."CheckedAt" AS checked_at,
     sr."StatusCode" AS status_code,
     sr."ResponseBody" AS response_body,
     sr."ResponseTimeMs" AS response_time_ms,
     sr."IsSuccess" AS is_success,
-    -- Sensor
     s."Id" AS sensor_id,
     s."Longitude" AS sensor_longitude,
     s."Latitude" AS sensor_latitude,
@@ -295,18 +275,18 @@ AS SELECT
     s."CheckIntervalSeconds" AS check_interval_seconds,
     s."LastActivityUTC" AS last_activity_utc,
     s."IsActive" AS sensor_is_active,
-    -- SensorType
     st."Id" AS sensor_type_id,
     st."SensorTypeName" AS sensor_type_name,
     st."Description" AS sensor_type_description,
-    -- MonitoringPost
     mp."Id" AS post_id,
     mp."Name" AS post_name,
     mp."Address" AS post_address,
     mp."Description" AS post_description,
     mp."IsMobile" AS post_is_mobile,
     mp."IsActive" AS post_is_active
-FROM "SensorResults" sr
-LEFT JOIN "Sensor" s ON sr."SensorId" = s."Id"
-LEFT JOIN "SensorType" st ON s."SensorTypeId" = st."Id"
-LEFT JOIN "MonitoringPost" mp ON s."MonitoringPostId" = mp."Id";
+   FROM "SensorResults" sr
+     LEFT JOIN "Sensor" s ON sr."SensorId" = s."Id"
+     LEFT JOIN "SensorType" st ON s."SensorTypeId" = st."Id"
+     LEFT JOIN "MonitoringPost" mp ON s."MonitoringPostId" = mp."Id";
+
+
