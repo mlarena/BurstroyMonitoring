@@ -17,9 +17,9 @@ const metricsGroups = {
         "icePercentage": { "name": "Процент обледенения", "unit": "%", "color": "#17becf", "axis": "right" },
         "pgmPercentage": { "name": "Процент реагента", "unit": "%", "color": "#aec7e8", "axis": "right" },
         "roadStatusCode": { "name": "Код состояния дороги", "unit": "", "color": "#ffbb78", "axis": "right2" },
-        "roadAngle": { "name": "Угол наклона дороги", "unit": "°", "color": "#98df8a", "axis": "right2" },
-        "freezeTemperature": { "name": "Температура замерзания", "unit": "°C", "color": "#ff9896", "axis": "left" },
-        "distanceToSurface": { "name": "Расстояние до поверхности", "unit": "мм", "color": "#c5b0d5", "axis": "right" }
+        // "roadAngle": { "name": "Угол наклона дороги", "unit": "°", "color": "#98df8a", "axis": "right2" },
+        // "freezeTemperature": { "name": "Температура замерзания", "unit": "°C", "color": "#ff9896", "axis": "left" },
+        // "distanceToSurface": { "name": "Расстояние до поверхности", "unit": "мм", "color": "#c5b0d5", "axis": "right" }
     },
     "DUST": {
         "pm10Act": { "name": "Концентрация PM10", "unit": "мкг/м³", "color": "#1f77b4", "axis": "left" },
@@ -28,9 +28,10 @@ const metricsGroups = {
         "pm10Awg": { "name": "Концентрация PM10 средняя", "unit": "мкг/м³", "color": "#d62728", "axis": "left" },
         "pm25Awg": { "name": "Концентрация PM2.5 средняя", "unit": "мкг/м³", "color": "#9467bd", "axis": "left" },
         "pm1Awg": { "name": "Концентрация PM1 средняя", "unit": "мкг/м³", "color": "#8c564b", "axis": "left" },
-        "flowProbe": { "name": "Расход воздуха", "unit": "л/мин", "color": "#e377c2", "axis": "right" },
-        "temperatureProbe": { "name": "Температура пробоотборника", "unit": "°C", "color": "#7f7f7f", "axis": "right2" },
-        "humidityProbe": { "name": "Влажность пробоотборника", "unit": "%", "color": "#bcbd22", "axis": "right" }
+        "flowProbe": { "name": "Расход воздуха", "unit": "л/мин", "color": "#e377c2", "axis": "right" }
+        // ,
+        // "temperatureProbe": { "name": "Температура пробоотборника", "unit": "°C", "color": "#7f7f7f", "axis": "right2" },
+        // "humidityProbe": { "name": "Влажность пробоотборника", "unit": "%", "color": "#bcbd22", "axis": "right" }
     },
     "MUEKS": {
         "temperatureBox": { "name": "Температура внутри шкафа", "unit": "°C", "color": "#1f77b4", "axis": "left" },
@@ -41,10 +42,10 @@ const metricsGroups = {
         "currentOut48b": { "name": "Выходной ток 48В", "unit": "А", "color": "#8c564b", "axis": "right" },
         "currentAkb": { "name": "Ток АКБ", "unit": "А", "color": "#e377c2", "axis": "right" },
         "wattHoursAkb": { "name": "Емкость АКБ", "unit": "Вт·ч", "color": "#7f7f7f", "axis": "right2" },
-        "visibleRange": { "name": "Метеорологическая видимость", "unit": "м", "color": "#bcbd22", "axis": "right2" },
+        // "visibleRange": { "name": "Метеорологическая видимость", "unit": "м", "color": "#bcbd22", "axis": "right2" },
         "sensor220b": { "name": "Наличие 220В", "unit": "", "color": "#17becf", "axis": "right2" },
-        "doorStatus": { "name": "Состояние двери", "unit": "", "color": "#aec7e8", "axis": "right2" },
-        "tdsH": { "name": "Высота от датчика", "unit": "м", "color": "#ffbb78", "axis": "right" },
+        // "doorStatus": { "name": "Состояние двери", "unit": "", "color": "#aec7e8", "axis": "right2" },
+        // "tdsH": { "name": "Высота от датчика", "unit": "м", "color": "#ffbb78", "axis": "right" },
         "tdsTds": { "name": "Минерализация (TDS)", "unit": "ppm", "color": "#98df8a", "axis": "right" },
         "tkosaT1": { "name": "Температура T1 (КОСА)", "unit": "°C", "color": "#ff9896", "axis": "left" },
         "tkosaT3": { "name": "Температура T3 (КОСА)", "unit": "°C", "color": "#c5b0d5", "axis": "left" }
@@ -61,8 +62,8 @@ const metricsGroups = {
         "windVSound": { "name": "Скорость звука", "unit": "м/с", "color": "#98df8a", "axis": "right" },
         "precipitationIntensity": { "name": "Интенсивность осадков", "unit": "мм/ч", "color": "#e377c2", "axis": "right" },
         "precipitationQuantity": { "name": "Количество осадков", "unit": "мм", "color": "#ff9896", "axis": "right" },
-        "co2Level": { "name": "Уровень CO2", "unit": "ppm", "color": "#7f7f7f", "axis": "right2" },
-        "supplyVoltage": { "name": "Напряжение питания", "unit": "В", "color": "#bcbd22", "axis": "left" }
+        "co2Level": { "name": "Уровень CO2", "unit": "ppm", "color": "#7f7f7f", "axis": "right2" }
+        // ,"supplyVoltage": { "name": "Напряжение питания", "unit": "В", "color": "#bcbd22", "axis": "left" }
     }
 };
 
