@@ -10,6 +10,10 @@
     var fieldDisplayNames = ViewBag.ColumnNames as Dictionary<string, string> ?? new Dictionary<string, string>();
 }
 
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+}
+
 <div class="container-fluid">
     <h1 class="h3 mb-3">Просмотр и экспорт данных MUEKS</h1>
     
@@ -28,13 +32,13 @@
                     <div class="row g-2 mb-3">
                         <div class="col-md-2">
                             <label class="form-label small fw-bold mb-1">С даты</label>
-                            <input type="datetime-local" class="form-control form-control-sm" name="StartDate" 
-                                   value="@(filter.StartDate?.ToString("yyyy-MM-ddTHH:mm"))">
+                            <input type="text" id="StartDate" class="form-control form-control-sm bg-white" name="StartDate" 
+                                   value="@(filter.StartDate?.ToString("yyyy-MM-dd HH:mm"))" placeholder="Выберите дату" readonly>
                         </div>
                         <div class="col-md-2">
                             <label class="form-label small fw-bold mb-1">По дату</label>
-                            <input type="datetime-local" class="form-control form-control-sm" name="EndDate" 
-                                   value="@(filter.EndDate?.ToString("yyyy-MM-ddTHH:mm"))">
+                            <input type="text" id="EndDate" class="form-control form-control-sm bg-white" name="EndDate" 
+                                   value="@(filter.EndDate?.ToString("yyyy-MM-dd HH:mm"))" placeholder="Выберите дату" readonly>
                         </div>
                         <div class="col-md-2">
                             <label class="form-label small fw-bold mb-1">S/N</label>
@@ -148,8 +152,27 @@
     </div>
 </div>
 
-<script>
-    function exportData(format, all) {
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
+    <script>
+        $(document).ready(function () {
+            const flatpickrConfig = {
+                locale: "ru",
+                enableTime: true,
+                time_24hr: true,
+                dateFormat: "Y-m-d H:i",
+                altInput: true,
+                altFormat: "d.m.Y H:i",
+                allowInput: true,
+                disableMobile: "true"
+            };
+
+            flatpickr("#StartDate", flatpickrConfig);
+            flatpickr("#EndDate", flatpickrConfig);
+        });
+
+        function exportData(format, all) {
         const form = document.getElementById('filterForm');
         const tempForm = document.createElement('form');
         tempForm.method = 'POST';
@@ -182,3 +205,4 @@
         document.body.removeChild(tempForm);
     }
 </script>
+}

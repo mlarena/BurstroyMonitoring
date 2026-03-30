@@ -3,6 +3,10 @@
     ViewData["Title"] = "Архив снимков";
 }
 
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+}
+
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0">Архив снимков</h1>
@@ -26,11 +30,11 @@
                 </div>
                 <div class="col-md-3">
                     <label class="form-label small fw-bold">С даты</label>
-                    <input type="datetime-local" name="from" class="form-control form-control-sm" value="@Context.Request.Query["from"]" />
+                    <input type="text" id="from" name="from" class="form-control form-control-sm bg-white" value="@Context.Request.Query["from"]" placeholder="Выберите дату и время" readonly />
                 </div>
                 <div class="col-md-3">
                     <label class="form-label small fw-bold">По дату</label>
-                    <input type="datetime-local" name="to" class="form-control form-control-sm" value="@Context.Request.Query["to"]" />
+                    <input type="text" id="to" name="to" class="form-control form-control-sm bg-white" value="@Context.Request.Query["to"]" placeholder="Выберите дату и время" readonly />
                 </div>
                 <div class="col-md-3 d-flex gap-2">
                     <button type="submit" class="btn btn-primary btn-sm flex-grow-1">Применить</button>
@@ -160,7 +164,23 @@
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
     <script>
+        $(document).ready(function () {
+            const flatpickrConfig = {
+                locale: "ru",
+                enableTime: true,
+                time_24hr: true,
+                dateFormat: "d.m.Y H:i",
+                allowInput: true,
+                disableMobile: "true"
+            };
+
+            flatpickr("#from", flatpickrConfig);
+            flatpickr("#to", flatpickrConfig);
+        });
+
         function showModal(src, title, date) {
             document.getElementById('modalImage').src = src;
             document.getElementById('modalTitle').innerText = title;
