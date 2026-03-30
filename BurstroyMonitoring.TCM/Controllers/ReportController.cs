@@ -56,14 +56,16 @@ namespace BurstroyMonitoring.TCM.Controllers
         }
 
         /// <summary>
-        /// Получение данных для сводного отчета
+        /// Получение данных для сводного отчета.
+        /// Собирает данные из 5 различных представлений, агрегирует их по времени и объединяет в одну таблицу.
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> GetReportData(int postId, string startDate, string endDate, int intervalMinutes = 10)
         {
             try
             {
-                // Парсим даты. Используем инвариантную культуру для надежности
+                // 1. Подготовка временных рамок.
+                // Используем InvariantCulture для надежного парсинга ISO-даты (гггг-мм-дд) из flatpickr.
                 if (!DateTime.TryParse(startDate, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateTime start))
                 {
                     return BadRequest("Неверный формат даты начала");
@@ -74,34 +76,42 @@ namespace BurstroyMonitoring.TCM.Controllers
                     return BadRequest("Неверный формат даты окончания");
                 }
 
+                // Переводим в UTC для корректного сравнения с данными в БД (PostgreSQL хранит в UTC).
+                // К конечной дате добавляем 1 день, чтобы захватить данные до конца выбранных суток.
                 start = start.ToUniversalTime();
                 end = end.AddDays(1).ToUniversalTime();
                 
                 var connectionString = _context.Database.GetConnectionString();
                 
-                // Структура для хранения данных: Время -> (Колонка -> Значение)
+                // 2. Структуры для хранения результата.
+                // reportData: Ключ - Время интервала, Значение - Словарь (Название колонки -> Значение).
+                // SortedDictionary автоматически сортирует строки по времени.
                 var reportData = new SortedDictionary<DateTime, Dictionary<string, string>>();
-                // Список всех уникальных колонок (Тип SN | Поле)
+                
+                // allColumns: Список всех уникальных колонок, которые мы найдем во всех датчиках поста.
+                // Используется для формирования заголовка таблицы на фронтенде.
                 var allColumns = new SortedSet<string>();
 
                 using (var conn = new NpgsqlConnection(connectionString))
                 {
                     await conn.OpenAsync();
 
-                    // Описываем, какие поля из каких представлений нам нужны
+                    // 3. Определение источников данных.
+                    // Для каждого типа датчика указываем таблицу, префикс для заголовка и список полей.
                     var dataSources = new[]
                     {
                         new { Table = "vw_dov_data_full", Prefix = "DOV", Fields = new[] { "visible_range" } },
                         new { Table = "vw_dspd_data_full", Prefix = "DSPD", Fields = new[] { "grip_coefficient", "shake_level", "voltage_power", "case_temperature", "road_temperature", "water_height", "ice_height", "snow_height", "ice_percentage", "pgm_percentage", "road_status_code", "road_angle", "freeze_temperature", "distance_to_surface" } },
                         new { Table = "vw_dust_data_full", Prefix = "Dust", Fields = new[] { "pm10act", "pm25act", "pm1act", "pm10awg", "pm25awg", "pm1awg", "flowprobe", "temperatureprobe", "humidityprobe", "laserstatus", "supplyvoltage" } },
                         new { Table = "vw_iws_data_full", Prefix = "IWS", Fields = new[] { "environment_temperature", "humidity_percentage", "dew_point", "pressure_hpa", "pressure_qnh_hpa", "pressure_mmhg", "wind_speed", "wind_direction", "wind_vs_sound", "precipitation_type", "precipitation_intensity", "precipitation_quantity", "precipitation_elapsed", "precipitation_period", "co2_level" } },
-                        new { Table = "vw_mueks_data_full", Prefix = "MUEKS", Fields = new[] { "temperature_box", "voltage_power_in_12b", "voltage_out_12b", "current_out_12b", "current_out_48b", "voltage_akb", "current_akb", "sensor_220b", "watt_hours_akb", "visible_range", "tds_h", "tds_tds", "tkosa_t1", "tkosa_t3" } }
+                        new { Table = "vw_mueks_data_full", Prefix = "MUEKS", Fields = new[] { "temperature_box", "voltage_power_in_12b", "voltage_out_12b", "current_out_12b", "current_out_48b", "voltage_akb", "current_akb", "sensor_220b", "watt_hours_akb", "tds_h", "tds_tds", "tkosa_t1", "tkosa_t3" } }
                     };
 
                     foreach (var source in dataSources)
                     {
-                        // Формируем SQL с агрегацией по интервалу времени
-                        // Для MUEKS текстовые поля приводим к numeric с очисткой от пустых строк и 'NULL'
+                        // 4. Динамическое формирование SQL-запроса.
+                        // Для каждого поля применяем AVG (среднее за интервал) и ROUND (округление до 3 знаков).
+                        // Особая обработка для MUEKS: текстовые поля приводим к numeric, очищая от пустых строк и 'NULL'.
                         string fieldsSql = string.Join(", ", source.Fields.Select(f => 
                         {
                             if (source.Prefix == "MUEKS" && new[] { "tds_h", "tds_tds", "tkosa_t1", "tkosa_t3" }.Contains(f))
@@ -109,7 +119,9 @@ namespace BurstroyMonitoring.TCM.Controllers
                             return $"ROUND(AVG(\"{f}\")::numeric, 3) as \"{f}\"";
                         }));
                         
-                        // Используем арифметику эпохи для группировки по произвольному количеству минут
+                        // Группировка по времени (bucket):
+                        // Вычисляем количество секунд с начала эпохи, делим на размер интервала, отбрасываем остаток и умножаем обратно.
+                        // Это "притягивает" все записи внутри интервала к его началу.
                         string sql = $@"
                             SELECT 
                                 (TRUNC(EXTRACT(EPOCH FROM received_at) / ({intervalMinutes} * 60)) * ({intervalMinutes} * 60))::int as bucket,
@@ -130,21 +142,24 @@ namespace BurstroyMonitoring.TCM.Controllers
                             {
                                 while (await reader.ReadAsync())
                                 {
-                                    // Преобразуем bucket (unix timestamp) обратно в DateTime
+                                    // 5. Обработка результатов запроса.
+                                    // Преобразуем unix-timestamp (bucket) обратно в локальное время.
                                     var timestamp = reader.GetInt32(0);
                                     var time = DateTimeOffset.FromUnixTimeSeconds(timestamp).DateTime.ToLocalTime();
                                     var sn = reader.GetString(1);
 
+                                    // Если для этого времени еще нет строки в отчете - создаем её.
                                     if (!reportData.ContainsKey(time))
                                         reportData[time] = new Dictionary<string, string>();
 
                                     foreach (var field in source.Fields)
                                     {
-                                        // Получаем русское название поля или оставляем как есть
+                                        // Формируем уникальное имя колонки: "Тип (SN)|Русское название".
                                         string fieldDisplayName = GetFieldDisplayName(field);
                                         string fullColName = $"{source.Prefix} ({sn})|{fieldDisplayName}";
                                         allColumns.Add(fullColName);
 
+                                        // Записываем значение. Если в БД NULL - ставим прочерк.
                                         var valIdx = reader.GetOrdinal(field);
                                         reportData[time][fullColName] = reader.IsDBNull(valIdx) ? "-" : reader.GetValue(valIdx).ToString();
                                     }
@@ -154,7 +169,8 @@ namespace BurstroyMonitoring.TCM.Controllers
                     }
                 }
 
-                // Формируем результат для JSON
+                // 6. Формирование финального JSON.
+                // Возвращаем список колонок и список строк, отсортированных от новых к старым.
                 var result = new
                 {
                     columns = allColumns.ToList(),
@@ -169,6 +185,7 @@ namespace BurstroyMonitoring.TCM.Controllers
             }
             catch (Exception ex)
             {
+                // В случае ошибки возвращаем 500 статус и текст ошибки для отладки на фронтенде.
                 return StatusCode(500, new { error = ex.Message });
             }
         }
