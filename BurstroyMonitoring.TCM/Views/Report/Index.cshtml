@@ -23,13 +23,21 @@
                 </div>
                 <div id="dateRangeControls" class="col-md-5 d-none">
                     <div class="row g-2">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label for="startDate" class="form-label small fw-bold mb-1">Дата начала</label>
                             <input type="text" id="startDate" class="form-control form-control-sm bg-white" placeholder="Выберите дату" readonly />
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label for="endDate" class="form-label small fw-bold mb-1">Дата окончания</label>
                             <input type="text" id="endDate" class="form-control form-control-sm bg-white" placeholder="Выберите дату" readonly />
+                        </div>
+                        <div class="col-md-4">
+                            <label for="intervalSelect" class="form-label small fw-bold mb-1">Интервал</label>
+                            <select id="intervalSelect" class="form-select form-select-sm">
+                                <option value="10">10 мин</option>
+                                <option value="30">30 мин</option>
+                                <option value="60">1 час</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -90,7 +98,9 @@
             // Инициализация Flatpickr с русской локализацией
             const flatpickrConfig = {
                 locale: "ru",
-                dateFormat: "d.m.Y",
+                dateFormat: "Y-m-d", // Передаем в ISO формате для надежности парсинга
+                altInput: true,      // Пользователь видит красивый формат
+                altFormat: "d.m.Y",  // Формат для отображения пользователю
                 allowInput: true,
                 disableMobile: "true"
             };
@@ -124,26 +134,77 @@
                 const postId = $('#monitoringPostSelect').val();
                 const startDate = $('#startDate').val();
                 const endDate = $('#endDate').val();
+                const interval = $('#intervalSelect').val();
 
                 if (!postId) return;
 
                 $('#reportContent').html('<div class="text-center mt-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Загрузка...</span></div><p class="mt-2">Формирование отчета...</p></div>');
                 
-                // Здесь будет AJAX запрос к контроллеру для получения данных отчета
-                console.log('Generating report for Post:', postId, 'from', startDate, 'to', endDate);
-                
-                setTimeout(function() {
-                    $('#reportContent').html(`
-                        <div class="card shadow-sm mt-3">
-                            <div class="card-header bg-light py-2">
-                                <h5 class="card-title mb-0 small fw-bold">Результат (заглушка)</h5>
+                $.get('/Report/GetReportData', { postId, startDate, endDate, intervalMinutes: interval }, function(data) {
+                    if (!data.rows || data.rows.length === 0) {
+                        $('#reportContent').html('<div class="alert alert-warning">Нет данных за выбранный период.</div>');
+                        return;
+                    }
+
+                    // Группируем колонки по датчикам (для двухуровневого заголовка)
+                    const sensorGroups = {};
+                    data.columns.forEach(col => {
+                        const [sensor, field] = col.split('|');
+                        if (!sensorGroups[sensor]) sensorGroups[sensor] = [];
+                        sensorGroups[sensor].push(field);
+                    });
+
+                    let tableHtml = `
+                        <div class="report-table-container mt-3">
+                            <!-- Вспомогательный скролл сверху -->
+                            <div class="top-scrollbar" style="overflow-x: auto; overflow-y: hidden; height: 20px;">
+                                <div class="top-scrollbar-content" style="height: 20px;"></div>
                             </div>
-                            <div class="card-body">
-                                <p>Отчет для поста ID <strong>${postId}</strong> за период с <strong>${startDate}</strong> по <strong>${endDate}</strong> успешно сформирован.</p>
+                            
+                            <div class="table-responsive main-table-scroll" style="overflow-x: auto;">
+                                <table class="table table-sm table-bordered table-hover small mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th rowspan="2" class="align-middle text-center">Время</th>
+                                            ${Object.keys(sensorGroups).map(s => `<th colspan="${sensorGroups[s].length}" class="text-center">${s}</th>`).join('')}
+                                        </tr>
+                                        <tr>
+                                            ${Object.keys(sensorGroups).map(s => sensorGroups[s].map(f => `<th class="text-center">${f}</th>`).join('')).join('')}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${data.rows.map(row => `
+                                            <tr>
+                                                <td class="text-nowrap">${row.time}</td>
+                                                ${data.columns.map(col => `<td class="text-center">${row.values[col] || '-'}</td>`).join('')}
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-                    `);
-                }, 800);
+                    `;
+                    $('#reportContent').html(tableHtml);
+
+                    // Синхронизация скроллбаров
+                    const $topScroll = $('.top-scrollbar');
+                    const $mainScroll = $('.main-table-scroll');
+                    const $table = $mainScroll.find('table');
+
+                    // Устанавливаем ширину внутреннего блока верхнего скролла равной ширине таблицы
+                    $('.top-scrollbar-content').width($table.width());
+
+                    $topScroll.on('scroll', function() {
+                        $mainScroll.scrollLeft($topScroll.scrollLeft());
+                    });
+
+                    $mainScroll.on('scroll', function() {
+                        $topScroll.scrollLeft($mainScroll.scrollLeft());
+                    });
+
+                }).fail(function(err) {
+                    $('#reportContent').html('<div class="alert alert-danger">Ошибка при загрузке данных: ' + (err.responseJSON?.error || 'Неизвестная ошибка') + '</div>');
+                });
             });
         });
     </script>
