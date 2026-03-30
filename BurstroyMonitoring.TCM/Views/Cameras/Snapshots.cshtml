@@ -60,9 +60,28 @@
                            asp-route-from="@ViewBag.From" 
                            asp-route-to="@ViewBag.To">Назад</a>
                     </li>
-                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                    
+                    @{
+                        int currentPage = ViewBag.CurrentPage;
+                        int totalPages = ViewBag.TotalPages;
+                        int startPage = Math.Max(1, currentPage - 2);
+                        int endPage = Math.Min(totalPages, currentPage + 2);
+                    }
+
+                    @if (startPage > 1)
                     {
-                        <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                        <li class="page-item">
+                            <a class="page-link" asp-action="Snapshots" asp-route-page="1" asp-route-cameraId="@ViewBag.CameraId" asp-route-from="@ViewBag.From" asp-route-to="@ViewBag.To">1</a>
+                        </li>
+                        @if (startPage > 2)
+                        {
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        }
+                    }
+
+                    @for (int i = startPage; i <= endPage; i++)
+                    {
+                        <li class="page-item @(i == currentPage ? "active" : "")">
                             <a class="page-link" asp-action="Snapshots" 
                                asp-route-page="@i" 
                                asp-route-cameraId="@ViewBag.CameraId" 
@@ -70,6 +89,18 @@
                                asp-route-to="@ViewBag.To">@i</a>
                         </li>
                     }
+
+                    @if (endPage < totalPages)
+                    {
+                        @if (endPage < totalPages - 1)
+                        {
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        }
+                        <li class="page-item">
+                            <a class="page-link" asp-action="Snapshots" asp-route-page="@totalPages" asp-route-cameraId="@ViewBag.CameraId" asp-route-from="@ViewBag.From" asp-route-to="@ViewBag.To">@totalPages</a>
+                        </li>
+                    }
+
                     <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
                         <a class="page-link" asp-action="Snapshots" 
                            asp-route-page="@(ViewBag.CurrentPage + 1)" 
@@ -115,14 +146,43 @@
                        asp-route-to="@ViewBag.To">Назад</a>
                 </li>
 
-                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                @{
+                    int cp = ViewBag.CurrentPage;
+                    int tp = ViewBag.TotalPages;
+                    int sp = Math.Max(1, cp - 2);
+                    int ep = Math.Min(tp, cp + 2);
+                }
+
+                @if (sp > 1)
                 {
-                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                    <li class="page-item">
+                        <a class="page-link" asp-action="Snapshots" asp-route-page="1" asp-route-cameraId="@ViewBag.CameraId" asp-route-from="@ViewBag.From" asp-route-to="@ViewBag.To">1</a>
+                    </li>
+                    @if (sp > 2)
+                    {
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    }
+                }
+
+                @for (int i = sp; i <= ep; i++)
+                {
+                    <li class="page-item @(i == cp ? "active" : "")">
                         <a class="page-link" asp-action="Snapshots" 
                            asp-route-page="@i" 
                            asp-route-cameraId="@ViewBag.CameraId" 
                            asp-route-from="@ViewBag.From" 
                            asp-route-to="@ViewBag.To">@i</a>
+                    </li>
+                }
+
+                @if (ep < tp)
+                {
+                    @if (ep < tp - 1)
+                    {
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    }
+                    <li class="page-item">
+                        <a class="page-link" asp-action="Snapshots" asp-route-page="@tp" asp-route-cameraId="@ViewBag.CameraId" asp-route-from="@ViewBag.From" asp-route-to="@ViewBag.To">@tp</a>
                     </li>
                 }
 
