@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 using BurstroyMonitoring.Data;
 using BurstroyMonitoring.Api.Services;
@@ -21,8 +22,42 @@ builder.Host.UseSerilog();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// Простая настройка Swagger (без JWT в UI, но работает)
-builder.Services.AddSwaggerGen();
+// Настройка Swagger с поддержкой JWT
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo 
+    { 
+        Title = "BurstroyMonitoring API", 
+        Version = "v1",
+        Description = "API для мониторинга строительства"
+    });
+    
+    // Настройка для JWT авторизации
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Введите JWT токен в формате: Bearer {your_token}"
+    });
+    
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
 
 // Настройка БД
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
@@ -113,7 +148,15 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c => 
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "BurstroyMonitoring API V1");
+        c.RoutePrefix = "swagger";
+        
+        // Настройка для работы с JWT в Swagger UI
+        c.DefaultModelsExpandDepth(-1); // Скрыть модели
+        c.DisplayRequestDuration(); // Показывать длительность запросов
+    });
 }
 
 app.UseHttpsRedirection();
