@@ -30,11 +30,11 @@
                 </div>
                 <div class="col-md-3">
                     <label class="form-label small fw-bold">С даты</label>
-                    <input type="text" id="from" name="from" class="form-control form-control-sm bg-white" value="@Context.Request.Query["from"]" placeholder="Выберите дату и время" readonly />
+                    <input type="text" id="from" name="from" class="form-control form-control-sm bg-white" value="@(ViewBag.From is DateTime fromDate ? fromDate.ToString("yyyy-MM-dd HH:mm") : Context.Request.Query["from"])" placeholder="Выберите дату и время" readonly />
                 </div>
                 <div class="col-md-3">
                     <label class="form-label small fw-bold">По дату</label>
-                    <input type="text" id="to" name="to" class="form-control form-control-sm bg-white" value="@Context.Request.Query["to"]" placeholder="Выберите дату и время" readonly />
+                    <input type="text" id="to" name="to" class="form-control form-control-sm bg-white" value="@(ViewBag.To is DateTime toDate ? toDate.ToString("yyyy-MM-dd HH:mm") : Context.Request.Query["to"])" placeholder="Выберите дату и время" readonly />
                 </div>
                 <div class="col-md-3 d-flex gap-2">
                     <button type="submit" class="btn btn-primary btn-sm flex-grow-1">Применить</button>
@@ -172,7 +172,9 @@
                 locale: "ru",
                 enableTime: true,
                 time_24hr: true,
-                dateFormat: "d.m.Y H:i",
+                dateFormat: "Y-m-d H:i",
+                altInput: true,
+                altFormat: "d.m.Y H:i",
                 allowInput: true,
                 disableMobile: "true"
             };
