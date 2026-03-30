@@ -14,6 +14,7 @@
     <div class="card mb-3 shadow-sm">
         <div class="card-body py-2">
             <form id="reportForm" class="row g-2 align-items-end">
+                @Html.AntiForgeryToken()
                 <div class="col-md-4">
                     <label for="monitoringPostSelect" class="form-label small fw-bold mb-1">Пост мониторинга</label>
                     <select id="monitoringPostSelect" class="form-select form-select-sm" 
@@ -41,8 +42,16 @@
                         </div>
                     </div>
                 </div>
-                <div id="submitControl" class="col-md-2 d-none">
-                    <button type="button" id="btnGenerateReport" class="btn btn-primary btn-sm w-100">Сформировать</button>
+                <div id="submitControl" class="col-md-3 d-none">
+                    <div class="btn-group btn-group-sm w-100">
+                        <button type="button" id="btnGenerateReport" class="btn btn-primary">Сформировать</button>
+                        <button type="button" class="btn btn-success" onclick="exportReport('excel')" title="Экспорт в Excel">
+                            <i class="bi bi-file-earmark-excel"></i>
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="exportReport('csv')" title="Экспорт в CSV">
+                            <i class="bi bi-file-earmark-spreadsheet"></i>
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -189,5 +198,37 @@
                 });
             });
         });
+
+        function exportReport(format) {
+            const postId = $('#monitoringPostSelect').val();
+            const startDate = $('#startDate').val();
+            const endDate = $('#endDate').val();
+            const interval = $('#intervalSelect').val();
+
+            if (!postId) return;
+
+            const tempForm = document.createElement('form');
+            tempForm.method = 'POST';
+            tempForm.action = '/Report/ExportReport';
+            
+            const params = { postId, startDate, endDate, intervalMinutes: interval, format };
+            for (const key in params) {
+                const input = document.createElement('input');
+                input.type = 'hidden'; input.name = key; input.value = params[key];
+                tempForm.appendChild(input);
+            }
+
+            // Добавляем Anti-Forgery Token
+            const token = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (token) {
+                const tokenInput = document.createElement('input');
+                tokenInput.type = 'hidden'; tokenInput.name = '__RequestVerificationToken'; tokenInput.value = token.value;
+                tempForm.appendChild(tokenInput);
+            }
+            
+            document.body.appendChild(tempForm);
+            tempForm.submit();
+            document.body.removeChild(tempForm);
+        }
     </script>
 }
