@@ -73,9 +73,9 @@ const metricsGroups = {
 class ChartManager {
     constructor(svgSelector, tooltipSelector, statsGridSelector) {
         console.log("Initializing ChartManager...");
-        this.margin = { top: 60, right: 150, bottom: 70, left: 80 };
+        this.margin = { top: 1, right: 1, bottom: 1, left: 1 };
         this.width = 1200 - this.margin.left - this.margin.right;
-        this.height = 600 - this.margin.top - this.margin.bottom;
+        this.height = 400 - this.margin.top - this.margin.bottom;
 
         this.svg = d3.select(svgSelector)
             .append("g")
