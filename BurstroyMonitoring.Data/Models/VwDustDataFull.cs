@@ -99,6 +99,9 @@ namespace BurstroyMonitoring.Data.Models
         [Column("post_name")]
         public string? PostName { get; set; }
 
+        [Column("post_address")]
+        public string? PostAddress { get; set; }
+
         [Column("post_description")]
         public string? PostDescription { get; set; }
 
