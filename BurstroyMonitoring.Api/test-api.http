@@ -1,0 +1,56 @@
+@baseUrl = http://localhost:5297/api
+@token = 
+
+### 1. Health Check
+GET {{baseUrl}}/health
+Accept: application/json
+
+### 2. Health Check Database
+GET {{baseUrl}}/health/database
+Accept: application/json
+
+### 3. Регистрация нового пользователя
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "userName": "testuser",
+  "password": "Test123456"
+}
+
+### 4. Логин
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "userName": "testuser",
+  "password": "Test123456"
+}
+
+### Сохраняем токен
+@token = {{login.response.body.$.data.token}}
+
+### 5. Проверка публичного эндпоинта
+GET {{baseUrl}}/test/public
+Accept: application/json
+
+### 6. Проверка защищенного эндпоинта (требует авторизацию)
+GET {{baseUrl}}/test/secure
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### 7. Получить информацию о текущем пользователе
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### 8. Проверить валидность токена
+POST {{baseUrl}}/auth/validate
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### 9. Выход (удаление токена на клиенте)
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{token}}
+Accept: application/json

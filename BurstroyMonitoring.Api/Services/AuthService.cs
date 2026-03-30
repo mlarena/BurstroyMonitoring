@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using BurstroyMonitoring.Data.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace BurstroyMonitoring.Api.Services
 {
@@ -42,9 +43,8 @@ namespace BurstroyMonitoring.Api.Services
                     new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString())
                 };
 
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                    _configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured")));
-                
+                var jwtKey = _configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured");
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
                 var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
                 var token = new JwtSecurityToken(
@@ -68,18 +68,18 @@ namespace BurstroyMonitoring.Api.Services
             if (string.IsNullOrEmpty(password))
                 throw new ArgumentException("Password cannot be null or empty", nameof(password));
 
-            using var rng = RandomNumberGenerator.Create();
-            byte[] saltBytes = new byte[32];
-            rng.GetBytes(saltBytes);
+            // Генерируем соль
+            byte[] saltBytes = RandomNumberGenerator.GetBytes(32);
             string salt = Convert.ToBase64String(saltBytes);
 
-            using var pbkdf2 = new Rfc2898DeriveBytes(
-                password, 
-                saltBytes, 
+            // Используем статический метод Pbkdf2
+            byte[] hashBytes = Rfc2898DeriveBytes.Pbkdf2(
+                password,
+                saltBytes,
                 10000,
-                HashAlgorithmName.SHA256);
+                HashAlgorithmName.SHA256,
+                32);
             
-            byte[] hashBytes = pbkdf2.GetBytes(32);
             string hash = Convert.ToBase64String(hashBytes);
 
             return (hash, salt);
@@ -92,14 +92,15 @@ namespace BurstroyMonitoring.Api.Services
                 byte[] saltBytes = Convert.FromBase64String(salt);
                 byte[] storedHash = Convert.FromBase64String(hash);
 
-                using var pbkdf2 = new Rfc2898DeriveBytes(
+                // Вычисляем хеш введенного пароля
+                byte[] computedHash = Rfc2898DeriveBytes.Pbkdf2(
                     password,
                     saltBytes,
                     10000,
-                    HashAlgorithmName.SHA256);
+                    HashAlgorithmName.SHA256,
+                    32);
                 
-                byte[] computedHash = pbkdf2.GetBytes(32);
-                
+                // Сравнение с защитой от атак по времени
                 return CryptographicOperations.FixedTimeEquals(computedHash, storedHash);
             }
             catch
@@ -113,7 +114,8 @@ namespace BurstroyMonitoring.Api.Services
             try
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
+                var jwtKey = _configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured");
+                var key = Encoding.UTF8.GetBytes(jwtKey);
 
                 var validationParameters = new TokenValidationParameters
                 {
