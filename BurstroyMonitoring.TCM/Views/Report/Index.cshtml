@@ -111,22 +111,34 @@
                 $('#reportContent').html('<div class="text-center mt-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Загрузка...</span></div><p class="mt-2">Формирование отчета...</p></div>');
                 
                 $.get('/Report/GetReportData', { postId, startDate, endDate, intervalMinutes: interval }, function(data) {
+                    console.log('[Report] Данные от сервера:', data);
+                    
                     if (!data.rows || data.rows.length === 0) {
                         $('#reportContent').html('<div class="alert alert-warning">Нет данных за выбранный период.</div>');
                         return;
                     }
 
                     // Группируем колонки по датчикам (для двухуровневого заголовка)
-                    const sensorGroups = {};
+                    const sensorGroups = [];
+                    const sensorToFields = {};
+                    
                     data.columns.forEach(col => {
-                        const [sensor, field] = col.split('|');
-                        if (!sensorGroups[sensor]) sensorGroups[sensor] = [];
-                        sensorGroups[sensor].push(field);
+                        const parts = col.split('|');
+                        const sensor = parts[0];
+                        const field = parts[1];
+                        
+                        if (!sensorToFields[sensor]) {
+                            sensorToFields[sensor] = [];
+                            sensorGroups.push(sensor);
+                        }
+                        sensorToFields[sensor].push(field);
                     });
+
+                    console.log('[Report] Группы датчиков:', sensorGroups);
+                    console.log('[Report] Поля по датчикам:', sensorToFields);
 
                     let tableHtml = `
                         <div class="report-table-container mt-3">
-                            <!-- Вспомогательный скролл сверху -->
                             <div class="top-scrollbar" style="overflow-x: auto; overflow-y: hidden; height: 20px;">
                                 <div class="top-scrollbar-content" style="height: 20px;"></div>
                             </div>
@@ -136,10 +148,10 @@
                                     <thead class="table-light">
                                         <tr>
                                             <th rowspan="2" class="align-middle text-center">Время</th>
-                                            ${Object.keys(sensorGroups).map(s => `<th colspan="${sensorGroups[s].length}" class="text-center">${s}</th>`).join('')}
+                                            ${sensorGroups.map(s => `<th colspan="${sensorToFields[s].length}" class="text-center">${s}</th>`).join('')}
                                         </tr>
                                         <tr>
-                                            ${Object.keys(sensorGroups).map(s => sensorGroups[s].map(f => `<th class="text-center">${f}</th>`).join('')).join('')}
+                                            ${sensorGroups.map(s => sensorToFields[s].map(f => `<th class="text-center">${f}</th>`).join('')).join('')}
                                         </tr>
                                     </thead>
                                     <tbody>

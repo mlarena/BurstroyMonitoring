@@ -85,56 +85,101 @@ namespace BurstroyMonitoring.TCM.Controllers
                 
                 // 2. Структуры для хранения результата.
                 // reportData: Ключ - Время интервала, Значение - Словарь (Название колонки -> Значение).
-                // SortedDictionary автоматически сортирует строки по времени.
                 var reportData = new SortedDictionary<DateTime, Dictionary<string, string>>();
                 
-                // allColumns: Список всех уникальных колонок, которые мы найдем во всех датчиках поста.
-                // Используется для формирования заголовка таблицы на фронтенде.
-                var allColumns = new SortedSet<string>();
+                // allColumns: Список всех уникальных колонок в порядке их обнаружения.
+                // Используем List вместо SortedSet, чтобы колонки одного датчика шли подряд.
+                var allColumns = new List<string>();
 
                 using (var conn = new NpgsqlConnection(connectionString))
                 {
                     await conn.OpenAsync();
 
-                    // 3. Определение источников данных.
-                    // Для каждого типа датчика указываем таблицу, префикс для заголовка и список полей.
-                    var dataSources = new[]
+                    // 3. Получаем список всех датчиков на этом посту, чтобы обработать каждый индивидуально.
+                    var sensors = new List<(int Id, string Type, string Endpoint, string SN)>();
+                    string sensorsSql = @"
+                        SELECT s.""Id"", st.""SensorTypeName"", s.""EndPointsName"", s.""SerialNumber""
+                        FROM ""Sensor"" s
+                        JOIN ""SensorType"" st ON s.""SensorTypeId"" = st.""Id""
+                        WHERE s.""MonitoringPostId"" = @postId AND s.""IsActive"" = true
+                        ORDER BY st.""SensorTypeName"", s.""Id""";
+                    
+                    using (var cmd = new NpgsqlCommand(sensorsSql, conn))
                     {
-                        new { Table = "vw_dov_data_full", Prefix = "DOV", Fields = new[] { "visible_range" } },
-                        new { Table = "vw_dspd_data_full", Prefix = "DSPD", Fields = new[] { "grip_coefficient", "shake_level", "voltage_power", "case_temperature", "road_temperature", "water_height", "ice_height", "snow_height", "ice_percentage", "pgm_percentage", "road_status_code", "road_angle", "freeze_temperature", "distance_to_surface" } },
-                        new { Table = "vw_dust_data_full", Prefix = "Dust", Fields = new[] { "pm10act", "pm25act", "pm1act", "pm10awg", "pm25awg", "pm1awg", "flowprobe", "temperatureprobe", "humidityprobe", "laserstatus", "supplyvoltage" } },
-                        new { Table = "vw_iws_data_full", Prefix = "IWS", Fields = new[] { "environment_temperature", "humidity_percentage", "dew_point", "pressure_hpa", "pressure_qnh_hpa", "pressure_mmhg", "wind_speed", "wind_direction", "wind_vs_sound", "precipitation_type", "precipitation_intensity", "precipitation_quantity", "precipitation_elapsed", "precipitation_period", "co2_level" } },
-                        new { Table = "vw_mueks_data_full", Prefix = "MUEKS", Fields = new[] { "temperature_box", "voltage_power_in_12b", "voltage_out_12b", "current_out_12b", "current_out_48b", "voltage_akb", "current_akb", "sensor_220b", "watt_hours_akb", "tds_h", "tds_tds", "tkosa_t1", "tkosa_t3" } }
+                        cmd.Parameters.AddWithValue("postId", postId);
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                var sId = reader.GetInt32(0);
+                                var sType = reader.GetString(1);
+                                var sEnd = reader.GetString(2);
+                                var sSN = reader.IsDBNull(3) ? "б/н" : reader.GetString(3);
+                                sensors.Add((sId, sType, sEnd, sSN));
+                                // Логирование в консоль сервера
+                                Console.WriteLine($"[Report] Нашел датчик: ID={sId}, Тип={sType}, SN={sSN}");
+                            }
+                        }
+                    }
+
+                    // Словарь маппинга типов датчиков на таблицы и поля
+                    // Ключи в ВЕРХНЕМ регистре для надежного сопоставления
+                    var typeConfigs = new Dictionary<string, (string Table, string Prefix, string[] Fields)>
+                    {
+                        { "DOV", ("vw_dov_data_full", "DOV", new[] { "visible_range" }) },
+                        { "DSPD", ("vw_dspd_data_full", "DSPD", new[] { "grip_coefficient", "shake_level", "voltage_power", "case_temperature", "road_temperature", "water_height", "ice_height", "snow_height", "ice_percentage", "pgm_percentage", "road_status_code", "road_angle", "freeze_temperature", "distance_to_surface" }) },
+                        { "DUST", ("vw_dust_data_full", "DUST", new[] { "pm10act", "pm25act", "pm1act", "pm10awg", "pm25awg", "pm1awg", "flowprobe", "temperatureprobe", "humidityprobe", "laserstatus", "supplyvoltage" }) },
+                        { "IWS", ("vw_iws_data_full", "IWS", new[] { "environment_temperature", "humidity_percentage", "dew_point", "pressure_hpa", "pressure_qnh_hpa", "pressure_mmhg", "wind_speed", "wind_direction", "wind_vs_sound", "precipitation_type", "precipitation_intensity", "precipitation_quantity", "precipitation_elapsed", "precipitation_period", "co2_level" }) },
+                        { "MUEKS", ("vw_mueks_data_full", "MUEKS", new[] { "temperature_box", "voltage_power_in_12b", "voltage_out_12b", "current_out_12b", "current_out_48b", "voltage_akb", "current_akb", "sensor_220b", "watt_hours_akb", "tds_h", "tds_tds", "tkosa_t1", "tkosa_t3" }) }
                     };
 
-                    foreach (var source in dataSources)
+                    // 4. Опрашиваем каждый датчик персонально
+                    foreach (var sensor in sensors)
                     {
-                        // 4. Динамическое формирование SQL-запроса.
-                        // Для каждого поля применяем AVG (среднее за интервал) и ROUND (округление до 3 знаков).
-                        // Особая обработка для MUEKS: текстовые поля приводим к numeric, очищая от пустых строк и 'NULL'.
-                        string fieldsSql = string.Join(", ", source.Fields.Select(f => 
+                        // Ищем конфигурацию (регистронезависимо)
+                        var sensorTypeUpper = sensor.Type.ToUpper().Trim();
+                        string matchedKey = typeConfigs.Keys.FirstOrDefault(k => sensorTypeUpper.Contains(k));
+                        
+                        if (matchedKey == null)
                         {
-                            if (source.Prefix == "MUEKS" && new[] { "tds_h", "tds_tds", "tkosa_t1", "tkosa_t3" }.Contains(f))
+                            Console.WriteLine($"[Report] !!! НЕ НАЙДЕНА КОНФИГУРАЦИЯ для типа: '{sensor.Type}'");
+                            continue;
+                        }
+
+                        var config = typeConfigs[matchedKey];
+                        
+                        // СРАЗУ добавляем колонки для этого датчика в общий список, 
+                        // чтобы они отобразились в таблице, даже если данных в БД нет.
+                        foreach (var field in config.Fields)
+                        {
+                            string fieldDisplayName = GetFieldDisplayName(field);
+                            string fullColName = $"{config.Prefix} ({sensor.Endpoint} - {sensor.SN}) [ID:{sensor.Id}]|{fieldDisplayName}";
+                            if (!allColumns.Contains(fullColName))
+                                allColumns.Add(fullColName);
+                        }
+
+                        Console.WriteLine($"[Report] >>> Обработка датчика ID={sensor.Id}, Тип={sensor.Type}, Таблица={config.Table}");
+
+                        string fieldsSql = string.Join(", ", config.Fields.Select(f => 
+                        {
+                            if (config.Prefix == "MUEKS" && new[] { "tds_h", "tds_tds", "tkosa_t1", "tkosa_t3" }.Contains(f))
                                 return $"ROUND(AVG(NULLIF(NULLIF(\"{f}\", ''), 'NULL')::numeric), 3) as \"{f}\"";
                             return $"ROUND(AVG(\"{f}\")::numeric, 3) as \"{f}\"";
                         }));
-                        
-                        // Группировка по времени (bucket):
-                        // Вычисляем количество секунд с начала эпохи, делим на размер интервала, отбрасываем остаток и умножаем обратно.
-                        // Это "притягивает" все записи внутри интервала к его началу.
+
+
                         string sql = $@"
                             SELECT 
                                 (TRUNC(EXTRACT(EPOCH FROM received_at) / ({intervalMinutes} * 60)) * ({intervalMinutes} * 60))::int as bucket,
-                                serial_number,
                                 {fieldsSql}
-                            FROM public.{source.Table}
-                            WHERE post_id = @postId AND received_at >= @start AND received_at < @end
-                            GROUP BY bucket, serial_number
+                            FROM public.{config.Table}
+                            WHERE sensor_id = @sensorId AND received_at >= @start AND received_at < @end
+                            GROUP BY bucket
                             ORDER BY bucket DESC";
 
                         using (var cmd = new NpgsqlCommand(sql, conn))
                         {
-                            cmd.Parameters.AddWithValue("postId", postId);
+                            cmd.Parameters.AddWithValue("sensorId", sensor.Id);
                             cmd.Parameters.AddWithValue("start", start);
                             cmd.Parameters.AddWithValue("end", end);
 
@@ -142,24 +187,20 @@ namespace BurstroyMonitoring.TCM.Controllers
                             {
                                 while (await reader.ReadAsync())
                                 {
-                                    // 5. Обработка результатов запроса.
-                                    // Преобразуем unix-timestamp (bucket) обратно в локальное время.
                                     var timestamp = reader.GetInt32(0);
                                     var time = DateTimeOffset.FromUnixTimeSeconds(timestamp).DateTime.ToLocalTime();
-                                    var sn = reader.GetString(1);
-
-                                    // Если для этого времени еще нет строки в отчете - создаем её.
+                                    
                                     if (!reportData.ContainsKey(time))
                                         reportData[time] = new Dictionary<string, string>();
 
-                                    foreach (var field in source.Fields)
+                                    foreach (var field in config.Fields)
                                     {
-                                        // Формируем уникальное имя колонки: "Тип (SN)|Русское название".
                                         string fieldDisplayName = GetFieldDisplayName(field);
-                                        string fullColName = $"{source.Prefix} ({sn})|{fieldDisplayName}";
-                                        allColumns.Add(fullColName);
+                                        string fullColName = $"{config.Prefix} ({sensor.Endpoint} - {sensor.SN}) [ID:{sensor.Id}]|{fieldDisplayName}";
+                                        
+                                        if (!allColumns.Contains(fullColName))
+                                            allColumns.Add(fullColName);
 
-                                        // Записываем значение. Если в БД NULL - ставим прочерк.
                                         var valIdx = reader.GetOrdinal(field);
                                         reportData[time][fullColName] = reader.IsDBNull(valIdx) ? "-" : reader.GetValue(valIdx).ToString();
                                     }
@@ -170,18 +211,19 @@ namespace BurstroyMonitoring.TCM.Controllers
                 }
 
                 // 6. Формирование финального JSON.
-                // Возвращаем список колонок и список строк, отсортированных от новых к старым.
-                var result = new
+                // Преобразуем SortedDictionary в список объектов, понятных для JavaScript.
+                // Каждая строка содержит время и словарь значений для всех колонок всех датчиков.
+                var resultRows = reportData.Select(r => new
+                {
+                    time = r.Key.ToString("dd.MM.yyyy HH:mm"),
+                    values = r.Value
+                }).OrderByDescending(x => x.time).ToList();
+
+                return Json(new
                 {
                     columns = allColumns.ToList(),
-                    rows = reportData.Select(r => new
-                    {
-                        time = r.Key.ToString("dd.MM.yyyy HH:mm"),
-                        values = r.Value
-                    }).OrderByDescending(x => x.time).ToList()
-                };
-
-                return Json(result);
+                    rows = resultRows
+                });
             }
             catch (Exception ex)
             {
