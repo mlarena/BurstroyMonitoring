@@ -36,9 +36,10 @@ mkdir -p "$TMP_EXTRACT"
 echo "Extracting $ZIP_FILE to temporary folder..."
 unzip -o "$ZIP_FILE" -d "$TMP_EXTRACT"
 
-# Update executable
-echo "Updating executable..."
-cp "$TMP_EXTRACT/$APP_NAME" "$INSTALL_DIR/"
+# Update files (preserving config)
+echo "Updating files (preserving appsettings.json)..."
+# --exclude: keep configuration files intact
+rsync -av --delete --exclude='appsettings.json' --exclude='appsettings.*.json' "$TMP_EXTRACT/" "$INSTALL_DIR/"
 
 # Make executable
 echo "Setting permissions..."

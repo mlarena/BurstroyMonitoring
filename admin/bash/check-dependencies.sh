@@ -35,6 +35,8 @@ check_package "unzip"
 # Check Curl (Used in your setup scripts for health checks)
 check_package "curl"
 
+check_package "rsync"
+
 echo ""
 echo "=== Dependency check complete ==="
 echo "FFmpeg version: $(ffmpeg -version | head -n 1)"

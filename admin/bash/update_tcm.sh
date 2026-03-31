@@ -27,20 +27,6 @@ if systemctl is-active --quiet $SERVICE_NAME; then
     systemctl stop $SERVICE_NAME
 fi
 
-# Check if zip exists
-if [ ! -f "$ZIP_FILE" ]; then
-    echo "Error: $ZIP_FILE not found in current directory."
-    exit 1
-fi
-
-echo "Updating $APP_NAME in $INSTALL_DIR (preserving config and snapshots)..."
-
-# Stop service before update
-if systemctl is-active --quiet  burstroy-monitoring-tcm; then
-    echo "Stopping  burstroy-monitoring-tcm service..."
-    systemctl stop  burstroy-monitoring-tcm
-fi
-
 # Create a temporary directory for extraction
 TMP_EXTRACT="/tmp/burstroy_tcm_update"
 rm -rf "$TMP_EXTRACT"
@@ -50,19 +36,16 @@ mkdir -p "$TMP_EXTRACT"
 echo "Extracting $ZIP_FILE to temporary folder..."
 unzip -o "$ZIP_FILE" -d "$TMP_EXTRACT"
 
-# 1. Update executable
-echo "Updating executable..."
-cp "$TMP_EXTRACT/$APP_NAME" "$INSTALL_DIR/"
-
-# 2. Update wwwroot (preserving snapshots)
-echo "Updating wwwroot (preserving snapshots)..."
-if [ -d "$TMP_EXTRACT/wwwroot" ]; then
-    # Create wwwroot if not exists
-    mkdir -p "$INSTALL_DIR/wwwroot"
-    # Sync files, excluding snapshots directory
-    # Using cp with exclusion logic
-    rsync -av --exclude='snapshots/' "$TMP_EXTRACT/wwwroot/" "$INSTALL_DIR/wwwroot/"
-fi
+# Update all files (preserving config and snapshots)
+echo "Updating files (preserving appsettings.json and snapshots)..."
+# --delete: remove old files
+# --exclude: keep config and snapshots
+# IMPORTANT: trailing slash on source folder means "contents of this folder"
+rsync -av --delete \
+    --exclude='appsettings.json' \
+    --exclude='appsettings.*.json' \
+    --exclude='wwwroot/snapshots' \
+    "$TMP_EXTRACT/" "$INSTALL_DIR/"
 
 # Make executable
 echo "Setting permissions..."
