@@ -57,8 +57,10 @@ sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/monitoring_mini_posts.sql
 sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_insert.sql
 sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_db.sql
 
-sudo -u postgres psql -d sensordb_v2 -f /opt/burstroy/tmp/monitoring_posts.sql
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/monitoring_posts.sql
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_new_big_data.sql
 
+monitoring_posts.sql
 SELECT * FROM public."Sensor";
 
 sudo timedatectl set-timezone Europe/Moscow
