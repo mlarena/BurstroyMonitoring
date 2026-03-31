@@ -57,7 +57,7 @@
                         <div class="btn-group btn-group-sm" id="groupSelector">
                             <!-- Кнопки будут добавлены через JS -->
                         </div>
-                        <div id="sensorSubSelectContainer" style="display: none;" class="d-flex align-items-center gap-2">
+                        <div id="sensorSubSelectContainer" style="display: none !important;" class="align-items-center gap-2">
                             <label for="sensorSubSelect" class="small fw-bold text-muted mb-0">Устройство:</label>
                             <select id="sensorSubSelect" class="form-select form-select-sm" style="width: auto;"></select>
                         </div>
@@ -214,7 +214,7 @@
             const groupSelector = d3.select("#groupSelector");
             Object.keys(metricsGroups).forEach(key => {
                 groupSelector.append("button")
-                    .attr("class", "btn btn-outline-secondary")
+                    .attr("class", "btn btn-outline-secondary group-btn")
                     .attr("id", "btn-group-" + key)
                     .text(key)
                     .on("click", function() {
@@ -222,13 +222,23 @@
                         console.log(`Group button clicked: ${key}`);
                         chartManager.currentGroup = key;
                         chartManager.activeMetricKey = null;
-                        d3.selectAll("#groupSelector .btn").classed("active", false).classed("btn-secondary", false).classed("btn-outline-secondary", true);
-                        d3.select(this).classed("active", true).classed("btn-outline-secondary", false).classed("btn-secondary", true);
+                        
+                        // Сбрасываем активное состояние всех кнопок групп
+                        d3.selectAll("#groupSelector .group-btn")
+                            .classed("active", false)
+                            .classed("btn-secondary", false)
+                            .classed("btn-outline-secondary", true);
+                        
+                        // Устанавливаем активное состояние для текущей кнопки
+                        d3.select(this)
+                            .classed("active", true)
+                            .classed("btn-outline-secondary", false)
+                            .classed("btn-secondary", true);
                         
                         const postId = $('#monitoringPostSelect').val();
                         if (postId) {
-                            // Скрываем контейнер перед загрузкой новых данных
-                            $('#sensorSubSelectContainer').hide();
+                            // ГАРАНТИРОВАННО скрываем контейнер перед проверкой количества датчиков
+                            $('#sensorSubSelectContainer').attr('style', 'display: none !important;').removeClass('d-flex');
                             
                             $.get('/GraphsAndCharts/GetSensorsByPost', { monitoringPostId: postId }, function (data) {
                                 // Ищем все датчики этой группы
@@ -244,15 +254,19 @@
                                         groupSensors.forEach(s => {
                                             subSelect.append($('<option>', { value: s.value, text: s.text }));
                                         });
-                                        subSelectContainer.show();
+                                        subSelectContainer.attr('style', 'display: flex !important;');
+                                        subSelectContainer.addClass('d-flex');
                                         chartManager.loadData(groupSensors[0].value, key, chartManager.currentDays, chartManager.currentInterval);
                                     } else {
-                                        // Если датчик один, скрываем контейнер и просто загружаем данные
-                                        subSelectContainer.hide();
+                                        // Если датчик один, контейнер остается скрытым
+                                        subSelectContainer.attr('style', 'display: none !important;');
+                                        subSelectContainer.removeClass('d-flex');
                                         chartManager.loadData(groupSensors[0].value, key, chartManager.currentDays, chartManager.currentInterval);
                                     }
                                 } else {
                                     console.warn(`No sensor found for group ${key} on post ${postId}`);
+                                    $('#sensorSubSelectContainer').attr('style', 'display: none !important;');
+                                    $('#sensorSubSelectContainer').removeClass('d-flex');
                                     chartManager.chartData = [];
                                     chartManager.render();
                                 }
