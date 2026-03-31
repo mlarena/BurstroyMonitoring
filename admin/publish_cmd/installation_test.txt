@@ -9,7 +9,7 @@ apt-get install -y dos2unix
 dos2unix *.sh
 
 
-scp "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" devuser@192.168.192.143:/opt/burstroy/tmp 
+scp "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" devuser@192.168.19.139:/opt/burstroy/tmp 
 scp "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" usermeteo@192.168.192.137:/opt/burstroy/tmp 
 
 ssh devuser@192.168.192.143
@@ -30,13 +30,17 @@ psql -U postgres -h localhost -d postgres
 create database sensordb;
 
 4. выполнение скриптов на базе данных
-sudo -u postgres psql -d sensordb_mu -f /opt/burstroy/tmp/db_vw.sql
+
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/monitoring_posts.sql
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_new_big_data.sql
 \dt
 \dv
 
 SELECT * FROM public."Sensor";
 
 sudo timedatectl set-timezone Europe/Moscow
+sudo nano /etc/postgresql/18/main/postgresql.conf
+sudo systemctl restart postgresql
 
 sudo systemctl start burstroy-monitoring-tcm
 sudo systemctl stop burstroy-monitoring-tcm
