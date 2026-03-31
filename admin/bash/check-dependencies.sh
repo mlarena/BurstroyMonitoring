@@ -37,6 +37,10 @@ check_package "curl"
 
 check_package "rsync"
 
+check_package "sudo"
+
+check_package "libicu-dev"
+
 echo ""
 echo "=== Dependency check complete ==="
 echo "FFmpeg version: $(ffmpeg -version | head -n 1)"
