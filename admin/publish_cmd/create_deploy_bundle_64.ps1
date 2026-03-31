@@ -21,6 +21,7 @@ $filesToInclude = @(
     
     # SQL structure
     "$basePath\admin\sql\structure.sql",
+    "$basePath\admin\sql\db_vw.sql",
     
     # Service creation scripts
     "$basePath\admin\bash\create-service-burstroy-monitoring-tcm.sh",

@@ -1,12 +1,7 @@
 виртуалка
 
-scp -P 58222 "C:\git\BurstroyMonitoring\BurstroyMonitoring.VideoMonitoring\release\linux-x64\BurstroyMonitoring.VideoMonitoring.zip" usermeteo@192.168.192.137:/opt/burstroy/tmp
-scp -P 58222 "C:\git\BurstroyMonitoring\BurstroyMonitoring.Worker\release\linux-x64\BurstroyMonitoring.Worker.zip" usermeteo@192.168.192.137:/opt/burstroy/tmp 
-scp -P 58222 "C:\git\BurstroyMonitoring\BurstroyMonitoring.TCM\release\linux-x64\BurstroyMonitoring.TCM.zip" usermeteo@192.168.192.137:/opt/burstroy/tmp 
 
-scp -P 58222 "C:\git\BurstroyMonitoring\admin\bash\unpack-tcm.sh" usermeteo@192.168.192.137:/opt/burstroy/tmp
-scp -P 58222 "C:\git\BurstroyMonitoring\admin\bash\unpack-video-monitoring.sh" usermeteo@192.168.192.137:/opt/burstroy/tmp
-scp -P 58222 "C:\git\BurstroyMonitoring\admin\bash\unpack-worker.sh" usermeteo@192.168.192.137:/opt/burstroy/tmp
+scp -P 58222 "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" usermeteo@192.168.192.137:/opt/burstroy/tmp
 ssh -p 58222 usermeteo@192.168.192.137
 toor
 
@@ -24,15 +19,9 @@ pass: y$2wbYUcCo2%
 
 крыша
 
-scp -P 9022 "C:\git\BurstroyMonitoring\BurstroyMonitoring.VideoMonitoring\release\linux-arm64\BurstroyMonitoring.VideoMonitoring.zip" bsp@192.168.3.19:/opt/burstroy/tmp 
-scp -P 9022 "C:\git\BurstroyMonitoring\BurstroyMonitoring.Worker\release\linux-arm64\BurstroyMonitoring.Worker.zip" bsp@192.168.3.19:/opt/burstroy/tmp 
-scp -P 9022 "C:\git\BurstroyMonitoring\BurstroyMonitoring.TCM\release\linux-arm64\BurstroyMonitoring.TCM.zip" bsp@192.168.3.19:/opt/burstroy/tmp 
 
-scp -P 9022 "C:\git\BurstroyMonitoring\admin\bash\unpack-tcm.sh" bsp@192.168.3.19:/opt/burstroy/tmp
-scp -P 9022 "C:\git\BurstroyMonitoring\admin\bash\unpack-video-monitoring.sh" bsp@192.168.3.19:/opt/burstroy/tmp
-scp -P 9022 "C:\git\BurstroyMonitoring\admin\bash\unpack-worker.sh" bsp@192.168.3.19:/opt/burstroy/tmp
 
-scp -P 9022 "C:\git\BurstroyMonitoring\admin\bash\create-service-burstroy-video-monitoring.sh" bsp@192.168.3.19:/opt/burstroy/tmp
+scp -P 9022 "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm_arm.zip" bsp@192.168.3.19:/opt/burstroy/tmp
 
 
 ssh bsp@192.168.3.19 -p 9022
@@ -91,13 +80,13 @@ sudo journalctl -u burstroy-monitoring-worker -f
 sudo systemctl enable burstroy-monitoring-worker
 sudo systemctl disable burstroy-monitoring-worker
 
-sudo systemctl start burstroy-video-monitoring.service
-sudo systemctl stop burstroy-video-monitoring.service
-sudo systemctl restart burstroy-video-monitoring.service
-sudo systemctl status burstroy-video-monitoring.service
-sudo journalctl -u burstroy-video-monitoring.service -f
-sudo systemctl enable burstroy-video-monitoring.service
-sudo systemctl disable burstroy-video-monitoring.service
+sudo systemctl start burstroy-monitoring-video
+sudo systemctl stop burstroy-monitoring-video
+sudo systemctl restart burstroy-monitoring-video
+sudo systemctl status burstroy-monitoring-video
+sudo journalctl -u burstroy-monitoring-video -f
+sudo systemctl enable burstroy-monitoring-video
+sudo systemctl disable burstroy-monitoring-video
 
 
 DROP VIEW  vw_dov_data_full;
