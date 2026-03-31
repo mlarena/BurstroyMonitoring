@@ -6,14 +6,16 @@
 <link rel="stylesheet" href="~/css/charts.css" asp-append-version="true" />
 
 <div class="container-fluid">
-    <div class="card mb-3 shadow-sm">
+
+    <div class="card mb-3 shadow-sm d-inline-block">
         <div class="card-body py-2">
             <form id="sensorForm" class="row g-2 align-items-center">
-                <div class="col-md-6">
-                    <label for="monitoringPostSelect" class="form-label small fw-bold mb-1">Пост мониторинга</label>
+                <div class="col-auto d-flex align-items-center gap-2">
+                    <label for="monitoringPostSelect" class="form-label small fw-bold mb-0 text-nowrap">Пост мониторинга</label>
                     <select id="monitoringPostSelect" class="form-select form-select-sm" 
                             asp-for="SelectedMonitoringPostId" 
-                            asp-items="Model.MonitoringPosts">                           
+                            asp-items="Model.MonitoringPosts"
+                            style="width: auto; min-width: 250px;">                           
                     </select>
                 </div>
             </form>

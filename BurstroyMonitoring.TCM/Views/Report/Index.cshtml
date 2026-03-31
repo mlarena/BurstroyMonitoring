@@ -9,17 +9,17 @@
 }
 
 <div class="container-fluid">
-    <h1 class="h3 mb-3">Сводные отчеты</h1>
     
     <div class="card mb-3 shadow-sm">
         <div class="card-body py-2">
             <form id="reportForm" class="row g-2 align-items-end">
                 @Html.AntiForgeryToken()
-                <div class="col-md-4">
-                    <label for="monitoringPostSelect" class="form-label small fw-bold mb-1">Пост мониторинга</label>
+                <div class="col-auto d-flex align-items-center gap-2">
+                    <label for="monitoringPostSelect" class="form-label small fw-bold mb-0 text-nowrap">Пост мониторинга</label>
                     <select id="monitoringPostSelect" class="form-select form-select-sm" 
                             asp-for="SelectedMonitoringPostId" 
-                            asp-items="Model.MonitoringPosts">                           
+                            asp-items="Model.MonitoringPosts"
+                            style="width: auto; min-width: 250px;">                           
                     </select>
                 </div>
                 <div id="dateRangeControls" class="col-md-5 d-none">
