@@ -138,8 +138,8 @@
 
     /* Компактные карточки значений */
     .stat-card {
-        flex: 1 1 calc(25% - 0.5rem); /* 4 колонки на больших экранах */
-        min-width: 200px;
+        flex: 1 1 calc(20% - 0.5rem); /* 5 колонок на больших экранах */
+        min-width: 180px;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -148,6 +148,31 @@
         border: 1px solid var(--bs-border-color);
         border-radius: 0.25rem;
         font-size: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .stat-card:hover {
+        background: var(--bs-tertiary-bg);
+        border-color: var(--bs-info-border-subtle);
+    }
+
+    .stat-card.active {
+        background: var(--bs-info-bg-subtle);
+        border-color: var(--bs-info);
+        box-shadow: inset 0 0 0 1px var(--bs-info);
+    }
+    
+    @@media (max-width: 768px) {
+        .stat-card {
+            flex: 1 1 calc(50% - 0.5rem); /* 2 колонки на планшетах */
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .stat-card {
+            flex: 1 1 100%; /* 1 колонка на телефонах */
+        }
     }
     
     .stat-card .label-content {
