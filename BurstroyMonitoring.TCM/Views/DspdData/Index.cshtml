@@ -61,9 +61,8 @@
                     <th>Наименование датчика</th>
                     <th>Темп. дор.</th>
                     <th>Сцепл.</th>
-                    <th>В/Л/С (мм)</th>
-                    <th>GPS</th>
-                    <th>Статус</th>
+                    <th>Высота воды</th>
+                    <th>Состояние полотна</th>
                     <th class="text-end">Детали</th>
                 </tr>
             </thead>
@@ -78,7 +77,7 @@
                         <td>
                             @if (item.RoadTemperature.HasValue)
                             {
-                                <span class="badge bg-light text-dark border fw-normal">@item.RoadTemperature.Value.ToString("F1")°C</span>
+                                <span>@item.RoadTemperature.Value.ToString("F1")°C</span>
                             }
                             else
                             {
@@ -88,7 +87,7 @@
                         <td>
                             @if (item.GripCoefficient.HasValue)
                             {
-                                <span class="badge bg-light text-dark border fw-normal">@item.GripCoefficient.Value.ToString("F2")</span>
+                                <span>@item.GripCoefficient.Value.ToString("F2")</span>
                             }
                             else
                             {
@@ -96,11 +95,9 @@
                             }
                         </td>
                         <td>
-                            @if (item.WaterHeight.HasValue || item.IceHeight.HasValue || item.SnowHeight.HasValue)
+                            @if (item.WaterHeight.HasValue)
                             {
-                                <span class="small" title="Вода: @(item.WaterHeight?.ToString("F1") ?? "0") мм, Лед: @(item.IceHeight?.ToString("F1") ?? "0") мм, Снег: @(item.SnowHeight?.ToString("F1") ?? "0") мм">
-                                    @(item.WaterHeight?.ToString("F1") ?? "0")/@(item.IceHeight?.ToString("F1") ?? "0")/@(item.SnowHeight?.ToString("F1") ?? "0")
-                                </span>
+                                <span>@item.WaterHeight.Value.ToString("F1") мм</span>
                             }
                             else
                             {
@@ -108,33 +105,21 @@
                             }
                         </td>
                         <td>
-                            @if (item.GpsValid.HasValue)
-                            {
-                                <span class="@(item.GpsValid == true ? "text-success" : "text-danger")" title="@(item.GpsValid == true ? "GPS валиден" : "GPS невалиден")">
-                                    @(item.GpsValid == true ? "✓" : "✗")
-                                </span>
+                            @{
+                                string roadStatus = item.RoadStatusCode switch {
+                                    0 => "Измерение невозможно",
+                                    1 => "Сухо",
+                                    2 => "Влажно",
+                                    3 => "Мокро",
+                                    4 => "Слякоть",
+                                    5 => "Лёд",
+                                    6 => "Снег",
+                                    9 => "Реагенты",
+                                    10 => "Снег со льдом",
+                                    _ => "—"
+                                };
                             }
-                            else
-                            {
-                                <span class="text-muted small">—</span>
-                            }
-                        </td>
-                        <td>
-                            @if (item.CalibrationNeeded.HasValue)
-                            {
-                                @if (item.CalibrationNeeded == 1)
-                                {
-                                    <span class="text-warning" title="Требуется калибровка">⚠️</span>
-                                }
-                                else
-                                {
-                                    <span class="text-success" title="OK">✓</span>
-                                }
-                            }
-                            else
-                            {
-                                <span class="text-muted small">—</span>
-                            }
+                            <span title="Код: @item.RoadStatusCode">@roadStatus</span>
                         </td>
                         <td class="text-end">
                             <a asp-action="Details" asp-route-id="@item.DspdDataId" 

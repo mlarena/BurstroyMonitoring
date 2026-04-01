@@ -60,7 +60,6 @@
                     <th>S/N</th>
                     <th>Наименование датчика</th>
                     <th>Видимость</th>
-                    <th>Яркость</th>
                     <th class="text-end">Детали</th>
                 </tr>
             </thead>
@@ -75,24 +74,7 @@
                         <td>
                             @if (item.VisibleRange.HasValue)
                             {
-                                <span class="badge bg-light text-dark border fw-normal">@item.VisibleRange.Value.ToString("F0") м</span>
-                            }
-                            else
-                            {
-                                <span class="text-muted small">—</span>
-                            }
-                        </td>
-                        <td>
-                            @if (item.BrightFlag.HasValue)
-                            {
-                                @if (item.BrightFlag == 1)
-                                {
-                                    <span class="badge bg-warning text-dark fw-normal">Ярко</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-light text-dark border fw-normal">Норма</span>
-                                }
+                                <span>@item.VisibleRange.Value.ToString("F0") м</span>
                             }
                             else
                             {

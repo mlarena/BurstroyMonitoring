@@ -2,6 +2,20 @@
 
 @{
     ViewData["Title"] = "Данные IWS";
+
+    string GetWindDirection(decimal? degrees) {
+        if (!degrees.HasValue) return "—";
+        double d = (double)degrees.Value;
+        if (d >= 337.5 || d < 22.5) return "С";
+        if (d >= 22.5 && d < 67.5) return "СВ";
+        if (d >= 67.5 && d < 112.5) return "В";
+        if (d >= 112.5 && d < 157.5) return "ЮВ";
+        if (d >= 157.5 && d < 202.5) return "Ю";
+        if (d >= 202.5 && d < 247.5) return "ЮЗ";
+        if (d >= 247.5 && d < 292.5) return "З";
+        if (d >= 292.5 && d < 337.5) return "СЗ";
+        return "—";
+    }
 }
 
 <div class="container-fluid">
@@ -62,8 +76,9 @@
                     <th>Темп.</th>
                     <th>Влажн.</th>
                     <th>Давл.</th>
-                    <th>Ветер</th>
-                    <th>Статус</th>
+                    <th>Скорость ветра</th>
+                    <th>Направление</th>
+                    <th>Осадки</th>
                     <th class="text-end">Детали</th>
                 </tr>
             </thead>
@@ -78,7 +93,7 @@
                         <td>
                             @if (item.EnvironmentTemperature.HasValue)
                             {
-                                <span class="badge bg-light text-dark border fw-normal">@item.EnvironmentTemperature.Value.ToString("F1")°C</span>
+                                <span>@item.EnvironmentTemperature.Value.ToString("F1")°C</span>
                             }
                             else
                             {
@@ -88,7 +103,7 @@
                         <td>
                             @if (item.HumidityPercentage.HasValue)
                             {
-                                <span class="badge bg-light text-dark border fw-normal">@item.HumidityPercentage.Value.ToString("F0")%</span>
+                                <span>@item.HumidityPercentage.Value.ToString("F0")%</span>
                             }
                             else
                             {
@@ -98,7 +113,7 @@
                         <td>
                             @if (item.PressureHpa.HasValue)
                             {
-                                <span class="badge bg-light text-dark border fw-normal">@item.PressureHpa.Value.ToString("F0") гПа</span>
+                                <span>@item.PressureHpa.Value.ToString("F0") гПа</span>
                             }
                             else
                             {
@@ -108,7 +123,7 @@
                         <td>
                             @if (item.WindSpeed.HasValue)
                             {
-                                <span class="badge bg-light text-dark border fw-normal">@item.WindSpeed.Value.ToString("F1") м/с</span>
+                                <span>@item.WindSpeed.Value.ToString("F1") м/с</span>
                             }
                             else
                             {
@@ -116,23 +131,33 @@
                             }
                         </td>
                         <td>
-                            @if (item.StatusOk.HasValue)
+                            @if (item.WindDirection.HasValue)
                             {
-                                @if (item.StatusOk == 1)
-                                {
-                                    <span class="text-success" title="Статус OK">✓</span>
-                                }
-                                else
-                                {
-                                    <span class="text-danger" title="Ошибка статуса">✗</span>
-                                }
+                                <span title="@item.WindDirection.Value.ToString("F0")°">
+                                    @GetWindDirection(item.WindDirection) (@item.WindDirection.Value.ToString("F0")°)
+                                </span>
                             }
                             else
                             {
                                 <span class="text-muted small">—</span>
                             }
                         </td>
-                        <td class="text-end">
+                        <td>
+                            @{
+                                string type = item.PrecipitationType switch {
+                                    0 => "Нет",
+                                    51 => "Морось",
+                                    96 => "Дождь",
+                                    103 => "Лед. дождь",
+                                    105 => "Снег с дож.",
+                                    112 => "Снег",
+                                    144 => "Град",
+                                    255 => "Неизв.",
+                                    _ => "—"
+                                };
+                            }
+                            <span title="Код: @item.PrecipitationType">@type</span>
+                        </td>                        <td class="text-end">
                             <a asp-action="Details" asp-route-id="@item.IwsDataId" 
                                class="btn btn-outline-secondary btn-sm py-0 px-2" title="Детали">
                                 📊

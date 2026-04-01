@@ -59,12 +59,8 @@
                     <th>Дата</th>
                     <th>S/N</th>
                      <th>Наименование датчика</th>
-                    <th>PM10</th>
-                    <th>PM2.5</th>
-                    <th>PM1</th>
-                    <th>Темп.</th>
-                    <th>Влажн.</th>
-                    <th>Лазер</th>
+                    <th>Текущая концентрация частиц 10|25|1</th>
+                    <th>Средняя концентрация частиц 10|25|1</th>
                     <th class="text-end">Детали</th>
                 </tr>
             </thead>
@@ -76,67 +72,11 @@
                         <td class="text-nowrap small">@item.ReceivedAt?.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
                         <td class="fw-bold small">@item.SerialNumber</td>
                         <td class="text-truncate small" style="max-width: 150px;" title="@item.EndpointName">@item.EndpointName</td>
-                        <td>
-                            @if (item.PM10Act.HasValue)
-                            {
-                                <span class="badge bg-light text-dark border fw-normal">@item.PM10Act.Value.ToString("F2")</span>
-                            }
-                            else
-                            {
-                                <span class="text-muted small">—</span>
-                            }
+                        <td class="small">
+                            @(item.PM10Act?.ToString("F2") ?? "—") | @(item.PM25Act?.ToString("F2") ?? "—") | @(item.PM1Act?.ToString("F2") ?? "—")
                         </td>
-                        <td>
-                            @if (item.PM25Act.HasValue)
-                            {
-                                <span class="badge bg-light text-dark border fw-normal">@item.PM25Act.Value.ToString("F2")</span>
-                            }
-                            else
-                            {
-                                <span class="text-muted small">—</span>
-                            }
-                        </td>
-                        <td>
-                            @if (item.PM1Act.HasValue)
-                            {
-                                <span class="badge bg-light text-dark border fw-normal">@item.PM1Act.Value.ToString("F2")</span>
-                            }
-                            else
-                            {
-                                <span class="text-muted small">—</span>
-                            }
-                        </td>
-                        <td>
-                            @if (item.TemperatureProbe.HasValue)
-                            {
-                                <span class="small">@item.TemperatureProbe.Value.ToString("F1")°C</span>
-                            }
-                            else
-                            {
-                                <span class="text-muted small">—</span>
-                            }
-                        </td>
-                        <td>
-                            @if (item.HumidityProbe.HasValue)
-                            {
-                                <span class="small">@item.HumidityProbe.Value.ToString("F1")%</span>
-                            }
-                            else
-                            {
-                                <span class="text-muted small">—</span>
-                            }
-                        </td>
-                        <td>
-                            @if (item.LaserStatus.HasValue)
-                            {
-                                <span class="@(item.LaserStatus > 0 ? "text-success" : "text-danger")" title="Статус лазера: @item.LaserStatus">
-                                    @(item.LaserStatus > 0 ? "✓" : "✗")
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="text-muted small">—</span>
-                            }
+                        <td class="small">
+                            @(item.PM10AWG?.ToString("F2") ?? "—") | @(item.PM25AWG?.ToString("F2") ?? "—") | @(item.PM1AWG?.ToString("F2") ?? "—")
                         </td>
                         <td class="text-end">
                             <a asp-action="Details" asp-route-id="@item.DustDataId" 

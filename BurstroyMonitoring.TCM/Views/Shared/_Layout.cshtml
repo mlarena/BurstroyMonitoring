@@ -118,11 +118,11 @@
                             <a class="nav-link dropdown-toggle @(isDictionariesActive ? "active" : "")" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Справочники
                             </a>
-                            <ul class="dropdown-menu shadow">
+                            <ul class="dropdown-menu shadow" style="z-index: 1001;">
                                 <li><a class="dropdown-item @(currentController == "MonitoringPosts" ? "active" : "")" asp-controller="MonitoringPosts" asp-action="Index">Посты мониторинга</a></li>
                                 <li><a class="dropdown-item @(currentController == "SensorTypes" ? "active" : "")" asp-controller="SensorTypes" asp-action="Index">Типы датчиков</a></li>
                                 <li><a class="dropdown-item @(currentController == "Sensors" ? "active" : "")" asp-controller="Sensors" asp-action="Index">Датчики</a></li>
-                                <li><hr class="dropdown-divider"></li>
+                                <!-- <li><hr class="dropdown-divider"></li> -->
                             </ul>
                         </li>
 
@@ -134,7 +134,7 @@
                             <a class="nav-link dropdown-toggle @(isDataActive ? "active" : "")" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Данные
                             </a>
-                            <ul class="dropdown-menu shadow">
+                            <ul class="dropdown-menu shadow" style="z-index: 1001;">
                                 <li><a class="dropdown-item @(currentController == "MueksData" ? "active" : "")" asp-controller="MueksData" asp-action="Index">MUEKS</a></li>
                                 <li><a class="dropdown-item @(currentController == "IwsData" ? "active" : "")" asp-controller="IwsData" asp-action="Index">IWS</a></li>
                                 <li><a class="dropdown-item @(currentController == "DspdData" ? "active" : "")" asp-controller="DspdData" asp-action="Index">DSPD</a></li>

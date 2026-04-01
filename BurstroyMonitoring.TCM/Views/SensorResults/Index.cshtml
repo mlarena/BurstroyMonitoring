@@ -73,7 +73,10 @@
                     <th>Дата</th>
                     <th>S/N</th>
                     <th>Тип</th>
+                    <th>Название</th>
                     <th>Пост</th>
+                    <th>Адрес</th>
+                    <th>URL API</th>
                     <th>Статус</th>
                     <th>Ответ (мс)</th>
                     <th class="text-end">Детали</th>
@@ -85,13 +88,16 @@
                         <!-- <td class="small text-muted">@item.ResultId</td> -->
                         <td class="text-nowrap small">@(item.CheckedAt?.ToLocalTime().ToString("dd.MM.yyyy HH:mm") ?? "—")</td>
                         <td class="fw-bold small">@item.SerialNumber</td>
-                        <td><span class="badge bg-light text-dark border fw-normal">@item.SensorTypeName</span></td>
+                        <td class="small">@item.SensorTypeName</td>
+                        <td class="text-truncate small" style="max-width: 150px;" title="@item.EndpointName">@item.EndpointName</td>
                         <td class="text-truncate small" style="max-width: 120px;">@item.PostName</td>
-                        <td>
-                            @if (item.IsSuccess == true) { <span class="badge bg-success fw-normal">Успех</span> }
-                            else { <span class="badge bg-danger fw-normal">Ошибка</span> }
+                        <td class="text-truncate small" style="max-width: 150px;" title="@item.PostAddress">@(item.PostAddress ?? "—")</td>
+                        <td class="text-truncate small" style="max-width: 150px;" title="@item.SensorUrl">@item.SensorUrl</td>
+                        <td class="small">
+                            @if (item.IsSuccess == true) { <span class="text-success">Успех</span> }
+                            else { <span class="text-danger">Ошибка</span> }
                         </td>
-                        <td><span class="small">@item.ResponseTimeMs</span></td>
+                        <td class="small">@item.ResponseTimeMs</td>
                         <td class="text-end">
                             <a asp-action="Details" asp-route-id="@item.ResultId" class="btn btn-outline-secondary btn-sm py-0 px-2">📊</a>
                         </td>

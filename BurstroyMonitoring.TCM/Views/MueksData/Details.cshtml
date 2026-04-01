@@ -17,8 +17,12 @@
                         <tbody>
                             <tr class="table-light"><th colspan="2" class="ps-3 py-2">Основная информация</th></tr>
                             <tr>
-                                <th class="ps-3" style="width: 40%;">Дата получения</th>
+                                <th class="ps-3" style="width: 40%;">Дата получения (UTC)</th>
                                 <td class="ps-3">@(Model.ReceivedAt?.ToString("dd.MM.yyyy HH:mm:ss") ?? "—")</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Метка времени данных</th>
+                                <td class="ps-3">@(Model.DataTimestamp?.ToString("dd.MM.yyyy HH:mm:ss") ?? "—")</td>
                             </tr>
                             <tr>
                                 <th class="ps-3">Серийный номер</th>
@@ -28,6 +32,20 @@
                                 <th class="ps-3">Конечная точка</th>
                                 <td class="ps-3">@Model.EndpointName</td>
                             </tr>
+                            <tr>
+                                <th class="ps-3">Тип датчика</th>
+                                <td class="ps-3">@Model.SensorTypeName</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Пост мониторинга</th>
+                                <td class="ps-3">@Model.PostName @(Model.PostIsMobile == true ? "(Мобильный)" : "")</td>
+                            </tr>
+                            @if (!string.IsNullOrEmpty(Model.PostAddress)) {
+                            <tr>
+                                <th class="ps-3">Адрес поста</th>
+                                <td class="ps-3 small">@Model.PostAddress</td>
+                            </tr>
+                            }
                             <tr>
                                 <th class="ps-3 text-primary">Температура бокса</th>
                                 <td class="ps-3 fw-bold text-primary">@(Model.TemperatureBox?.ToString("F1") ?? "—")°C</td>
@@ -48,59 +66,70 @@
                                     else { <span class="text-muted">—</span> }
                                 </td>
                             </tr>
+
+                            <tr class="table-light"><th colspan="2" class="ps-3 py-2">Электропитание и тех. данные</th></tr>
+                            <tr>
+                                <th class="ps-3">Питание 12B (вход)</th>
+                                <td class="ps-3 small">@(Model.VoltagePowerIn12B?.ToString("F1") ?? "—")V</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Выход 12B (U/I)</th>
+                                <td class="ps-3 small">@(Model.VoltageOut12B?.ToString("F1") ?? "—")V / @(Model.CurrentOut12B?.ToString("F2") ?? "—")A</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Выход 48B (I)</th>
+                                <td class="ps-3 small">@(Model.CurrentOut48B?.ToString("F2") ?? "—")A</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Ток АКБ</th>
+                                <td class="ps-3 small">@(Model.CurrentAkb?.ToString("F2") ?? "—")A</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Вт·ч АКБ</th>
+                                <td class="ps-3 small">@(Model.WattHoursAkb?.ToString("F0") ?? "—")</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Датчик 220B</th>
+                                <td class="ps-3 small">@Model.Sensor220B</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">TDS (H/Val)</th>
+                                <td class="ps-3 small">@Model.TdsH / @Model.TdsTds</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Ткоса (T1/T3)</th>
+                                <td class="ps-3 small">@Model.TkosaT1 / @Model.TkosaT3</td>
+                            </tr>
+
+                            <tr class="table-light"><th colspan="2" class="ps-3 py-2">Параметры датчика</th></tr>
+                            <tr>
+                                <th class="ps-3">Координаты</th>
+                                <td class="ps-3 small">@(Model.SensorLatitude?.ToString("F6") ?? "—"), @(Model.SensorLongitude?.ToString("F6") ?? "—")</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Интервал проверки</th>
+                                <td class="ps-3 small">@Model.CheckIntervalSeconds сек.</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Последняя активность</th>
+                                <td class="ps-3 small">@(Model.LastActivityUtc?.ToString("dd.MM.yyyy HH:mm:ss") ?? "—")</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Статус датчика</th>
+                                <td class="ps-3">
+                                    @if (Model.SensorIsActive == true) { <span class="badge bg-success fw-normal">Активен</span> }
+                                    else { <span class="badge bg-secondary fw-normal">Неактивен</span> }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">URL API</th>
+                                <td class="ps-3 small text-break">@Model.SensorUrl</td>
+                            </tr>
                         </tbody>
                     </table>
-
-                    <div class="collapse" id="additionalFields">
-                        <table class="table table-sm mb-0 border-top">
-                            <tbody>
-                                <tr class="table-light"><th colspan="2" class="ps-3 py-2">Электропитание и тех. данные</th></tr>
-                                <tr>
-                                    <th class="ps-3" style="width: 40%;">Питание 12B (вход)</th>
-                                    <td class="ps-3 small">@(Model.VoltagePowerIn12B?.ToString("F1") ?? "—")V</td>
-                                </tr>
-                                <tr>
-                                    <th class="ps-3">Выход 12B (U/I)</th>
-                                    <td class="ps-3 small">@(Model.VoltageOut12B?.ToString("F1") ?? "—")V / @(Model.CurrentOut12B?.ToString("F2") ?? "—")A</td>
-                                </tr>
-                                <tr>
-                                    <th class="ps-3">Выход 48B (I)</th>
-                                    <td class="ps-3 small">@(Model.CurrentOut48B?.ToString("F2") ?? "—")A</td>
-                                </tr>
-                                <tr>
-                                    <th class="ps-3">Ток АКБ</th>
-                                    <td class="ps-3 small">@(Model.CurrentAkb?.ToString("F2") ?? "—")A</td>
-                                </tr>
-                                <tr>
-                                    <th class="ps-3">Вт·ч АКБ</th>
-                                    <td class="ps-3 small">@(Model.WattHoursAkb?.ToString("F0") ?? "—")</td>
-                                </tr>
-                                <tr>
-                                    <th class="ps-3">Датчик 220B</th>
-                                    <td class="ps-3 small">@Model.Sensor220B</td>
-                                </tr>
-                                <tr class="table-light"><th colspan="2" class="ps-3 py-2">Прочее</th></tr>
-                                <tr>
-                                    <th class="ps-3">TDS (H/Val)</th>
-                                    <td class="ps-3 small">@Model.TdsH / @Model.TdsTds</td>
-                                </tr>
-                                <tr>
-                                    <th class="ps-3">Ткоса (T1/T3)</th>
-                                    <td class="ps-3 small">@Model.TkosaT1 / @Model.TkosaT3</td>
-                                </tr>
-                                <tr>
-                                    <th class="ps-3">URL API</th>
-                                    <td class="ps-3 small text-break">@Model.SensorUrl</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
-                <div class="card-footer bg-light d-flex justify-content-between py-2">
+                <div class="card-footer bg-light py-2">
                     <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">Назад</a>
-                    <button class="btn btn-outline-info btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#additionalFields">
-                        Тех. данные
-                    </button>
                 </div>
             </div>
         </div>

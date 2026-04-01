@@ -17,8 +17,12 @@
                         <tbody>
                             <tr class="table-light"><th colspan="2" class="ps-3 py-2">Основная информация</th></tr>
                             <tr>
-                                <th class="ps-3" style="width: 40%;">Дата получения</th>
+                                <th class="ps-3" style="width: 40%;">Дата получения (UTC)</th>
                                 <td class="ps-3">@(Model.ReceivedAt?.ToString("dd.MM.yyyy HH:mm:ss") ?? "—")</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Метка времени данных</th>
+                                <td class="ps-3">@(Model.DataTimestamp?.ToString("dd.MM.yyyy HH:mm:ss") ?? "—")</td>
                             </tr>
                             <tr>
                                 <th class="ps-3">Серийный номер</th>
@@ -29,22 +33,46 @@
                                 <td class="ps-3">@Model.EndpointName</td>
                             </tr>
                             <tr>
+                                <th class="ps-3">Тип датчика</th>
+                                <td class="ps-3">@Model.SensorTypeName</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Пост мониторинга</th>
+                                <td class="ps-3">@Model.PostName @(Model.PostIsMobile == true ? "(Мобильный)" : "")</td>
+                            </tr>
+                            @if (!string.IsNullOrEmpty(Model.PostAddress)) {
+                            <tr>
+                                <th class="ps-3">Адрес поста</th>
+                                <td class="ps-3 small">@Model.PostAddress</td>
+                            </tr>
+                            }
+                            <tr>
                                 <th class="ps-3 text-primary">Температура / Влажность</th>
                                 <td class="ps-3 fw-bold text-primary">
                                     @(Model.EnvironmentTemperature?.ToString("F1") ?? "—")°C / @(Model.HumidityPercentage?.ToString("F0") ?? "—")%
                                 </td>
                             </tr>
                             <tr>
+                                <th class="ps-3">Точка росы</th>
+                                <td class="ps-3 small">@(Model.DewPoint?.ToString("F1") ?? "—")°C</td>
+                            </tr>
+                            <tr>
                                 <th class="ps-3">Давление</th>
                                 <td class="ps-3">
                                     @(Model.PressureHpa?.ToString("F0") ?? "—") гПа 
                                     <span class="text-muted small">(@(Model.PressureMmhg?.ToString("F1") ?? "—") мм рт.ст.)</span>
+                                    @if (Model.PressureQnhHpa.HasValue) {
+                                        <div class="text-muted small">QNH: @Model.PressureQnhHpa гПа</div>
+                                    }
                                 </td>
                             </tr>
                             <tr>
                                 <th class="ps-3">Ветер</th>
                                 <td class="ps-3">
                                     @(Model.WindSpeed?.ToString("F1") ?? "—") м/с, @(Model.WindDirection?.ToString("F0") ?? "—")°
+                                    @if (Model.WindVsSound.HasValue) {
+                                        <div class="text-muted small">Скорость звука: @Model.WindVsSound м/с</div>
+                                    }
                                 </td>
                             </tr>
                             <tr>
@@ -57,59 +85,78 @@
                                     }
                                     <span class="badge bg-light text-dark border fw-normal">@type</span>
                                     <span class="ms-2 small">@(Model.PrecipitationIntensity?.ToString("F1") ?? "0") мм/ч</span>
+                                    @if (Model.PrecipitationQuantity.HasValue) {
+                                        <div class="text-muted small">Количество: @Model.PrecipitationQuantity мм</div>
+                                    }
                                 </td>
                             </tr>
                             <tr>
-                                <th class="ps-3">Статус</th>
+                                <th class="ps-3">Статус данных</th>
                                 <td class="ps-3">
                                     @if (Model.StatusOk == 1) { <span class="badge bg-success fw-normal">OK</span> }
                                     else { <span class="badge bg-danger fw-normal">Ошибка</span> }
                                 </td>
                             </tr>
+
+                            <tr class="table-light"><th colspan="2" class="ps-3 py-2">Технические данные</th></tr>
+                            <tr>
+                                <th class="ps-3">CO2 Level</th>
+                                <td class="ps-3 small">@(Model.CO2Level?.ToString("F0") ?? "—") ppm</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Напряжение питания</th>
+                                <td class="ps-3 small">@(Model.SupplyVoltage?.ToString("F1") ?? "—")V</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Координаты (GPS)</th>
+                                <td class="ps-3 small">@Model.IwsLatitude, @Model.IwsLongitude (@Model.Altitude м)</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Скорость (GPS)</th>
+                                <td class="ps-3 small">@(Model.GpsSpeed?.ToString("F1") ?? "—") км/ч</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Спутники (KSP)</th>
+                                <td class="ps-3 small">@Model.KspValue</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Крен / Тангаж</th>
+                                <td class="ps-3 small">@Model.RollAngle° / @Model.PitchAngle°</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Ускорение (StdDev)</th>
+                                <td class="ps-3 small">@(Model.AccelerationStdDev?.ToString("F4") ?? "—")</td>
+                            </tr>
+
+                            <tr class="table-light"><th colspan="2" class="ps-3 py-2">Параметры датчика</th></tr>
+                            <tr>
+                                <th class="ps-3">Координаты установки</th>
+                                <td class="ps-3 small">@(Model.SensorLatitude?.ToString("F6") ?? "—"), @(Model.SensorLongitude?.ToString("F6") ?? "—")</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Интервал проверки</th>
+                                <td class="ps-3 small">@Model.CheckIntervalSeconds сек.</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Последняя активность</th>
+                                <td class="ps-3 small">@(Model.LastActivityUtc?.ToString("dd.MM.yyyy HH:mm:ss") ?? "—")</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Статус датчика</th>
+                                <td class="ps-3">
+                                    @if (Model.SensorIsActive == true) { <span class="badge bg-success fw-normal">Активен</span> }
+                                    else { <span class="badge bg-secondary fw-normal">Неактивен</span> }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">URL API</th>
+                                <td class="ps-3 small text-break">@Model.SensorUrl</td>
+                            </tr>
                         </tbody>
                     </table>
-
-                    <div class="collapse" id="additionalFields">
-                        <table class="table table-sm mb-0 border-top">
-                            <tbody>
-                                <tr class="table-light"><th colspan="2" class="ps-3 py-2">Технические данные</th></tr>
-                                <tr>
-                                    <th class="ps-3" style="width: 40%;">Точка росы</th>
-                                    <td class="ps-3 small">@(Model.DewPoint?.ToString("F1") ?? "—")°C</td>
-                                </tr>
-                                <tr>
-                                    <th class="ps-3">CO2 Level</th>
-                                    <td class="ps-3 small">@(Model.CO2Level?.ToString("F0") ?? "—") ppm</td>
-                                </tr>
-                                <tr>
-                                    <th class="ps-3">Напряжение питания</th>
-                                    <td class="ps-3 small">@(Model.SupplyVoltage?.ToString("F1") ?? "—")V</td>
-                                </tr>
-                                <tr>
-                                    <th class="ps-3">Координаты (GPS)</th>
-                                    <td class="ps-3 small">@Model.IwsLatitude, @Model.IwsLongitude (@Model.Altitude м)</td>
-                                </tr>
-                                <tr>
-                                    <th class="ps-3">Спутники (KSP)</th>
-                                    <td class="ps-3 small">@Model.KspValue</td>
-                                </tr>
-                                <tr>
-                                    <th class="ps-3">Крен / Тангаж</th>
-                                    <td class="ps-3 small">@Model.RollAngle° / @Model.PitchAngle°</td>
-                                </tr>
-                                <tr>
-                                    <th class="ps-3">URL API</th>
-                                    <td class="ps-3 small text-break">@Model.SensorUrl</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
-                <div class="card-footer bg-light d-flex justify-content-between py-2">
+                <div class="card-footer bg-light py-2">
                     <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">Назад</a>
-                    <button class="btn btn-outline-info btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#additionalFields">
-                        Тех. данные
-                    </button>
                 </div>
             </div>
         </div>

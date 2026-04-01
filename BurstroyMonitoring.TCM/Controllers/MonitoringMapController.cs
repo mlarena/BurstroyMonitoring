@@ -48,6 +48,7 @@ namespace BurstroyMonitoring.TCM.Controllers
                     Id = p.Id,
                     Type = "post",
                     Name = p.Name,
+                    Address = p.Address,
                     Description = p.Description,
                     Latitude = p.Latitude,
                     Longitude = p.Longitude,
@@ -126,6 +127,8 @@ namespace BurstroyMonitoring.TCM.Controllers
 
                 string sensorTypeName = sensor.SensorType?.SensorTypeName ?? "Unknown";
                 string postName = sensor.MonitoringPost?.Name ?? "Без поста";
+                string postAddress = sensor.MonitoringPost?.Address ?? "Без адеса";
+                
                 string endPointsName = sensor.EndPointsName;
                 
                 Console.WriteLine($"=== ЗАПРОС ДАННЫХ ДАТЧИКА ===");
@@ -147,9 +150,9 @@ namespace BurstroyMonitoring.TCM.Controllers
                             latestData = new
                             {
                                 dspdDirect.Grip,
-                                dspdDirect.Shake,
-                                dspdDirect.UPower,
-                                dspdDirect.TemperatureCase,
+                                // dspdDirect.Shake,
+                                // dspdDirect.UPower,
+                                // dspdDirect.TemperatureCase,
                                 dspdDirect.TemperatureRoad,
                                 dspdDirect.HeightH2O,
                                 dspdDirect.HeightIce,
@@ -157,12 +160,12 @@ namespace BurstroyMonitoring.TCM.Controllers
                                 dspdDirect.PercentICE,
                                 dspdDirect.PercentPGM,
                                 dspdDirect.RoadStatus,
-                                dspdDirect.AngleToRoad,
+                                // dspdDirect.AngleToRoad,
                                 dspdDirect.TemperatureFreezePGM,
-                                dspdDirect.NeedCalibration,
+                                // dspdDirect.NeedCalibration,
                                 dspdDirect.GPSLatitude,
                                 dspdDirect.GPSLongitude,
-                                IsGpsValid = dspdDirect.IsGpsValid,
+                                // IsGpsValid = dspdDirect.IsGpsValid,
                                 dspdDirect.DistanceToSurface,
                                 dspdDirect.ReceivedAt,
                                 dspdDirect.DataTimestamp
@@ -184,7 +187,7 @@ namespace BurstroyMonitoring.TCM.Controllers
                                 iwsDirect.Humidity,
                                 iwsDirect.DewPoint,
                                 iwsDirect.PressureHPa,
-                                iwsDirect.PressureQNHHPa,
+                                // iwsDirect.PressureQNHHPa,
                                 iwsDirect.PressureMmHg,
                                 iwsDirect.WindSpeed,
                                 iwsDirect.WindDirection,
@@ -196,15 +199,15 @@ namespace BurstroyMonitoring.TCM.Controllers
                                 iwsDirect.PrecipitationPeriod,
                                 iwsDirect.CO2Level,
                                 iwsDirect.SupplyVoltage,
-                                iwsDirect.Latitude,
-                                iwsDirect.Longitude,
+                                // iwsDirect.Latitude,
+                                // iwsDirect.Longitude,
                                 iwsDirect.Altitude,
-                                iwsDirect.KSP,
-                                iwsDirect.GPSSpeed,
-                                iwsDirect.AccelerationStDev,
-                                iwsDirect.Roll,
-                                iwsDirect.Pitch,
-                                iwsDirect.WeAreFine,
+                                // iwsDirect.KSP,
+                                // iwsDirect.GPSSpeed,
+                                // iwsDirect.AccelerationStDev,
+                                // iwsDirect.Roll,
+                                // iwsDirect.Pitch,
+                                // iwsDirect.WeAreFine,
                                 iwsDirect.ReceivedAt,
                                 iwsDirect.DataTimestamp
                             };
@@ -222,7 +225,7 @@ namespace BurstroyMonitoring.TCM.Controllers
                             latestData = new
                             {
                                 dovDirect.VisibleRange,
-                                dovDirect.BrightFlag,
+                                // dovDirect.BrightFlag,
                                 dovDirect.ReceivedAt,
                                 dovDirect.DataTimestamp
                             };
@@ -248,8 +251,8 @@ namespace BurstroyMonitoring.TCM.Controllers
                                 dustDirect.FlowProbe,
                                 dustDirect.TemperatureProbe,
                                 dustDirect.HumidityProbe,
-                                dustDirect.LaserStatus,
-                                dustDirect.SupplyVoltage,
+                                // dustDirect.LaserStatus,
+                                // dustDirect.SupplyVoltage,
                                 dustDirect.ReceivedAt,
                                 dustDirect.DataTimestamp
                             };
@@ -300,6 +303,7 @@ namespace BurstroyMonitoring.TCM.Controllers
                     };
 
                     ViewData["PostName"] = postName;
+                    ViewData["PostAddress"] = postAddress;
                     ViewData["SensorTypeName"] = sensorTypeName;
                     ViewData["EndPointsName"] = endPointsName;
                     ViewData["ReceivedAt"] = latestData.ReceivedAt;

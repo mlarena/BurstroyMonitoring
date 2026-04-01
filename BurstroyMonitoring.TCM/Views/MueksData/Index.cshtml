@@ -60,9 +60,12 @@
                     <th>S/N</th>
                      <th>Наименование датчика</th>
                     <th>Пост</th>
-                    <th>Темп.</th>
-                    <th>АКБ</th>
-                    <th>Вид-ть</th>
+                    <th title="Питание 12B (вход)">Вход 12B</th>
+                    <th title="Выход 12B (Напряжение / Ток)">Выход 12B</th>
+                    <th title="Выход 48B (Ток)">Выход 48B</th>
+                    <th title="АКБ (Напряжение / Ток)">АКБ (U/I)</th>
+                    <th title="Вт·ч АКБ">Вт·ч АКБ</th>
+                    <th title="Датчик 220B">220B</th>
                     <th class="text-end">Детали</th>
                 </tr>
             </thead>
@@ -81,35 +84,19 @@
                                 <span class="badge bg-info text-dark fw-normal p-1" style="font-size: 0.65rem;">Моб.</span>
                             }
                         </td>
-                        <td>
-                            @if (item.TemperatureBox.HasValue)
-                            {
-                                <span class="badge bg-light text-dark border fw-normal">@item.TemperatureBox.Value.ToString("F1")°C</span>
-                            }
-                            else
-                            {
-                                <span class="text-muted small">—</span>
-                            }
+                        <td class="small">@(item.VoltagePowerIn12B?.ToString("F1") ?? "—")V</td>
+                        <td class="small">
+                            @(item.VoltageOut12B?.ToString("F1") ?? "—")V / @(item.CurrentOut12B?.ToString("F2") ?? "—")A
                         </td>
-                        <td>
-                            @if (item.VoltageAkb.HasValue)
-                            {
-                                <span class="badge bg-light text-dark border fw-normal">@item.VoltageAkb.Value.ToString("F1")V</span>
-                            }
-                            else
-                            {
-                                <span class="text-muted small">—</span>
-                            }
+                        <td class="small">@(item.CurrentOut48B?.ToString("F2") ?? "—")A</td>
+                        <td class="small">
+                            @(item.VoltageAkb?.ToString("F1") ?? "—")V / @(item.CurrentAkb?.ToString("F2") ?? "—")A
                         </td>
-                        <td>
-                            @if (item.VisibleRange.HasValue)
-                            {
-                                <span class="badge bg-light text-dark border fw-normal">@item.VisibleRange.Value.ToString("F0") м</span>
-                            }
-                            else
-                            {
-                                <span class="text-muted small">—</span>
-                            }
+                        <td class="small">@(item.WattHoursAkb?.ToString("F0") ?? "—")</td>
+                        <td class="small text-center">
+                            @if (item.Sensor220B == 1) { <span class="text-success">Есть</span> }
+                            else if (item.Sensor220B == 0) { <span class="text-danger">Нет</span> }
+                            else { <span class="text-muted">—</span> }
                         </td>
                         <td class="text-end">
                             <a asp-action="Details" asp-route-id="@item.MueksDataId" 

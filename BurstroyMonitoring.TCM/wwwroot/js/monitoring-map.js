@@ -285,48 +285,71 @@ function addPostMarker(post) {
     
     const icon = L.divIcon({
         className: 'custom-div-icon',
-        html: `<div style="background-color: ${bgColor}; 
-                    width: 24px; height: 24px; border-radius: 50%; 
-                    border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-                    display: flex; align-items: center; justify-content: center;
-                    opacity: ${post.isActive ? '1' : '0.6'};">
-                <i class="fas fa-building" style="color: white; font-size: 12px;"></i>
+        html: `
+            <div class="marker-pin-wrapper ${post.isActive ? 'active-pulse' : ''}">
+                <div class="marker-pin" style="background-color: ${bgColor};">
+                    <i class="bi ${post.isMobile ? 'bi-truck' : 'bi-building'}"></i>
+                </div>
             </div>`,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12]
+        iconSize: [30, 30],
+        iconAnchor: [15, 15]
     });
 
     const marker = L.marker([post.latitude, post.longitude], { icon })
         .addTo(map)
+        .bindTooltip(`
+            <div class="marker-tooltip">
+                <div class="tooltip-title">${post.name}</div>
+                <div class="tooltip-address">${post.address || 'Адрес не указан'}</div>
+            </div>
+        `, {
+            direction: 'top',
+            offset: [0, -15],
+            className: 'modern-marker-tooltip'
+        })
         .bindPopup(`
-            <div style="font-size: 13px;">
-                <b>${post.name}</b><br/>
-                Датчиков: ${post.sensorCount}<br/>
-                ${post.isMobile ? 'Мобильный' : 'Стационарный'}<br/>
-                <span style="color: ${post.isActive ? '#28a745' : '#dc3545'};">
-                    ${post.isActive ? 'Активен' : 'Неактивен'}
-                </span>
-                <hr style="margin: 5px 0;"/>
-                <div class="popup-sensor-list">
-                    ${post.sensors && post.sensors.length > 0 ? 
-                        post.sensors.map(s => `
-                            <div class="popup-sensor-item" 
-                                 onclick="showSensorDetailsFromPopup(${s.id}, ${s.sensorTypeId}, '${s.endPointsName}')"
-                                 style="cursor: pointer; color: #333; margin-bottom: 3px; transition: color 0.2s;">
-                                <i class="fas fa-microchip"></i> <span class="sensor-link-text">${s.sensorTypeName}: ${s.endPointsName}</span>
-                            </div>
-                        `).join('') : 
-                        '<i>Нет датчиков</i>'
-                    }
+            <div class="monitoring-popup-card">
+                <div class="popup-header">
+                    <div class="popup-title">${post.name}</div>
+                    <div class="popup-address"><i class="bi bi-geo-alt-fill me-1"></i>${post.address || 'Адрес не указан'}</div>
+                </div>
+                
+                <div class="popup-body">
+                    <div class="popup-info-row">
+                        <span class="badge ${post.isActive ? 'bg-success' : 'bg-danger'} mb-2">
+                            ${post.isActive ? 'Активен' : 'Неактивен'}
+                        </span>
+                        <span class="badge bg-info text-dark mb-2 ms-1">
+                            ${post.isMobile ? 'Мобильный' : 'Стационарный'}
+                        </span>
+                    </div>
+                    
+                    <div class="popup-sensor-section">
+                        <div class="sensor-section-title">Датчики (${post.sensorCount})</div>
+                        <div class="popup-sensor-list">
+                            ${post.sensors && post.sensors.length > 0 ? 
+                                post.sensors.map(s => `
+                                    <div class="popup-sensor-item" 
+                                         onclick="showSensorDetailsFromPopup(${s.id}, ${s.sensorTypeId}, '${s.endPointsName}')">
+                                        <div class="sensor-icon-wrapper">
+                                            <i class="bi bi-cpu"></i>
+                                        </div>
+                                        <div class="sensor-info">
+                                            <div class="sensor-endpoint">${s.endPointsName}</div>
+                                        </div>
+                                        <i class="bi bi-chevron-right ms-auto text-muted small"></i>
+                                    </div>
+                                `).join('') : 
+                                '<div class="text-muted small p-2">Нет доступных датчиков</div>'
+                            }
+                        </div>
+                    </div>
                 </div>
             </div>
-            <style>
-                .popup-sensor-item:hover .sensor-link-text {
-                    color: #2196f3;
-                    text-decoration: underline;
-                }
-            </style>
-        `);
+        `, {
+            maxWidth: 300,
+            className: 'modern-monitoring-popup'
+        });
 
     marker.on('click', function() {
         map.panTo([post.latitude, post.longitude]);
@@ -435,10 +458,11 @@ async function showSensorDetailsFromPopup(sensorId, sensorTypeId, sensorName) {
             
             // Извлекаем данные из скрытого заголовка в PartialView
             const infoHeader = tempDiv.querySelector('.sensor-info-header');
-            let postName = '', sensorType = '', endpoint = '', received = '';
+            let postName = '', postAddress = '', sensorType = '', endpoint = '', received = '';
             
             if (infoHeader) {
                 postName = infoHeader.getAttribute('data-post-name') || '';
+                postAddress = infoHeader.getAttribute('data-post-address') || '';
                 sensorType = infoHeader.getAttribute('data-sensor-type') || '';
                 endpoint = infoHeader.getAttribute('data-endpoint') || '';
                 received = infoHeader.getAttribute('data-received') || '';
@@ -448,12 +472,12 @@ async function showSensorDetailsFromPopup(sensorId, sensorTypeId, sensorName) {
             const sensorTitle = document.getElementById('sensorTitle');
             if (sensorTitle) {
                 sensorTitle.innerHTML = `
-                    <span style="color: #fff; font-weight: bold;">${postName}</span> | 
-                    <span style="color: #e0e0e0;">${sensorType}</span>: 
-                    <span style="color: #fff;">${endpoint}</span>
-                    <span style="margin-left: 15px; font-size: 0.9em; color: #d1d1d1;">
+                    <div style="color: #fff; font-weight: bold;">${postName}</div>
+                    <div style="color: #fff; font-size: 0.85em; margin-bottom: 2px;">${postAddress}</div>
+                    <div style="color: #fff; font-size: 0.9em;">${sensorType}: ${endpoint}</div>
+                    <div style="color: #fff; font-size: 0.8em; margin-top: 4px;">
                         <i class="far fa-clock"></i> ${received}
-                    </span>
+                    </div>
                 `;
             }
             
@@ -578,38 +602,64 @@ function clearSensorData(event) {
 }
 
 function toggleExpand() {
-    const mapCard = document.querySelector('.monitoring-map-card');
-    const expandBtn = document.querySelector('[onclick="toggleExpand()"]');
-    const expandIcon = expandBtn.querySelector('i');
-    const expandText = expandBtn.querySelector('span');
-    const viewContainer = document.querySelector('.monitoring-view-container');
+    console.log('toggleExpand called, current isExpanded:', isExpanded);
+    
+    const mapContainer = document.querySelector('.monitoring-map-container');
+    const expandBtn = document.getElementById('toggleExpandBtn');
+    const expandIcon = expandBtn ? expandBtn.querySelector('i') : null;
+    const expandText = expandBtn ? expandBtn.querySelector('span') : null;
+    
+    console.log('Elements found:', {
+        mapContainer: !!mapContainer,
+        expandBtn: !!expandBtn,
+        expandIcon: !!expandIcon,
+        expandText: !!expandText
+    });
     
     if (!isExpanded) {
-        mapCard.classList.add('expanded');
-        expandIcon.className = 'fas fa-compress';
-        expandText.textContent = 'Свернуть';
+        if (mapContainer) {
+            mapContainer.classList.add('expanded');
+            console.log('Added expanded class to mapContainer');
+        } else {
+            console.error('mapContainer element not found!');
+        }
+        
+        if (expandIcon) {
+            expandIcon.className = 'bi bi-arrows-angle-contract';
+        }
+        
+        if (expandText) {
+            expandText.textContent = 'Свернуть';
+        }
         
         document.addEventListener('keydown', handleExpandEscape);
-        
         isExpanded = true;
     } else {
-        mapCard.classList.remove('expanded');
-        expandIcon.className = 'fas fa-expand';
-        expandText.textContent = 'Развернуть';
+        if (mapContainer) {
+            mapContainer.classList.remove('expanded');
+            console.log('Removed expanded class from mapContainer');
+        }
         
-        if (viewContainer) {
-            viewContainer.style.display = 'block';
+        if (expandIcon) {
+            expandIcon.className = 'bi bi-arrows-angle-expand';
+        }
+        
+        if (expandText) {
+            expandText.textContent = 'Развернуть';
         }
         
         document.removeEventListener('keydown', handleExpandEscape);
-        
         isExpanded = false;
     }
     
     if (window.monitoringMap) {
+        console.log('Invalidating map size...');
         setTimeout(() => {
             window.monitoringMap.invalidateSize();
-        }, 100);
+            console.log('Map size invalidated');
+        }, 300);
+    } else {
+        console.warn('window.monitoringMap not found');
     }
 }
 

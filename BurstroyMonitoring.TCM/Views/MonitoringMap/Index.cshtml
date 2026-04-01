@@ -22,21 +22,21 @@
                 <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-2 text-muted small"></i>
                 <div class="monitoring-autocomplete shadow" id="autocompleteResults"></div>
             </div>
-            <button class="btn btn-sm btn-outline-secondary" onclick="toggleExpand()" title="Развернуть/свернуть">
-                <i class="fas fa-expand"></i>
-            </button>
         </div>
     </div>
 
-    <div class="monitoring-map-container" style="height: calc(100vh - 140px); position: relative; overflow: hidden;">
+    <div class="monitoring-map-container monitoring-map-card" style="height: calc(100vh - 140px); position: relative; overflow: hidden;">
+        <button id="toggleExpandBtn" class="btn btn-sm btn-light shadow-sm monitoring-expand-button" onclick="toggleExpand()" title="Развернуть/свернуть">
+            <i class="bi bi-arrows-angle-expand"></i>
+        </button>
         <div id="monitoring-map" style="height: 100%; width: 100%;"></div>
         
         <!-- Панель данных датчика -->
         <div class="sensor-data-section hidden shadow-lg border rounded" id="sensorDataPanel" 
-             style="position: absolute; top: 10px; right: 10px; z-index: 1000; width: 350px; max-height: 90%; background: var(--bs-body-bg); overflow-y: auto;">
+             style="position: absolute; top: 80px; right: 10px; z-index: 1000; width: 350px; max-height: 90%; background: var(--bs-body-bg); overflow-y: auto;">
             <div class="card border-0">
                 <div class="card-header bg-primary text-white py-2 d-flex justify-content-between align-items-center">
-                    <h3 class="h6 mb-0"><i class="fas fa-microchip me-2"></i> <span id="sensorTitle">Данные</span></h3>
+                    <h3 class="h6 mb-0"></i> <span id="sensorTitle">Данные</span></h3>
                     <button type="button" class="btn-close btn-close-white" onclick="document.getElementById('sensorDataPanel').classList.add('hidden')"></button>
                 </div>
                 <div class="card-body p-2" id="sensorDataContent">

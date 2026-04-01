@@ -9,12 +9,87 @@
         }
     }
 
-    var translations = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) {
-        { "UPower", "Питание, В" }, { "NeedCalibration", "Калибровка" }, { "AngleToRoad", "Угол, °" },
-        { "Shake", "Вибрация, g" }, { "TemperatureRoad", "Т дороги, °С" }, { "HeightIce", "Лед, мм" },
-        { "HeightSnow", "Снег, мм" }, { "HeightH2O", "Вода, мм" }, { "RoadStatus", "Статус дороги" },
-        { "Grip", "Сцепление" }, { "EnvTemperature", "Т возд., ℃" }, { "Humidity", "Влажн., %" },
-        { "PressureHPa", "Давл., гПа" }, { "WindSpeed", "Ветер, м/с" }, { "VisibleRange", "Видимость, м" }
+    // Словарь переводов с именами и единицами измерения
+    var translations = new Dictionary<string, (string Name, string Unit)>(StringComparer.OrdinalIgnoreCase) {
+        // DOV
+        { "visibleRange", ("Дальность видимости", "м") },
+        
+        // DSPD
+        { "Grip", ("Коэффициент сцепления", "") },
+        { "shakeLevel", ("Уровень вибрации", "g") },
+        { "voltagePower", ("Напряжение питания", "В") },
+        { "TemperatureCase", ("Температура внутри корпуса", "°C") },
+        { "TemperatureRoad", ("Температура дорожного покрытия", "°C") },
+        { "HeightH2O", ("Толщина водяной пленки", "мм") },
+        { "HeightIce", ("Высота слоя льда", "мм") },
+        { "HeightSnow", ("Толщина снега", "мм") },
+        { "PercentICE", ("Процент льда относительно снега", "%") },
+        { "PercentPGM", ("Процент ПГМ", "%") },
+        { "RoadStatus", ("Состояние полотна", "") },
+        { "roadAngle", ("Угол наклона дороги", "°") },
+        { "TemperatureFreezePGM", ("Температура замерзания ПГМ", "°C") },
+        { "distanceToSurface", ("Расстояние до поверхности", "мм") },
+        
+        // DUST
+        { "pm10Act", ("Концентрация PM10", "мкг/м³") },
+        { "pm25Act", ("Концентрация PM2.5", "мкг/м³") },
+        { "pm1Act", ("Концентрация PM1", "мкг/м³") },
+        { "pm10Awg", ("Концентрация PM10 средняя", "мкг/м³") },
+        { "pm25Awg", ("Концентрация PM2.5 средняя", "мкг/м³") },
+        { "pm1Awg", ("Концентрация PM1 средняя", "мкг/м³") },
+        { "flowProbe", ("Расход воздуха через пробоотборник", "л/мин") },
+        { "temperatureProbe", ("Температура пробоотборника", "°C") },
+        { "humidityProbe", ("Влажность пробоотборника", "%") },
+        
+        // MUEKS
+        { "temperatureBox", ("Температура внутри шкафа", "°C") },
+        { "voltagePowerIn12b", ("Входное напряжение 12В", "В") },
+        { "voltageOut12b", ("Выходное напряжение 12В", "В") },
+        { "voltageAkb", ("Напряжение аккумуляторной батареи", "В") },
+        { "currentOut12b", ("Выходной ток 12В", "А") },
+        { "currentOut48b", ("Выходной ток 48В", "А") },
+        { "currentAkb", ("Ток аккумуляторной батареи", "А") },
+        { "wattHoursAkb", ("Емкость аккумуляторной батареи", "Вт·ч") },
+        { "sensor220b", ("Наличие питания 220В", "") },
+        { "doorStatus", ("Состояние двери", "") },
+        { "tdsH", ("Высота от датчика", "м") },
+        { "tdsTds", ("Общая минерализация (TDS)", "ppm") },
+        { "tkosaT1", ("Температура T1 (датчик КОСА)", "°C") },
+        { "tkosaT3", ("Температура T3 (датчик КОСА)", "°C") },
+        
+        // IWS
+        { "EnvTemperature", ("Температура воздуха", "°C") },
+        { "Humidity", ("Влажность воздуха", "%") },
+        { "dewPoint", ("Точка росы", "°C") },
+        { "pressureHpa", ("Атмосферное давление", "гПа") },
+        { "pressureQNHHpa", ("Давление, приведенное к уровню моря (QNH)", "гПа") },
+        { "pressureMmHg", ("Атмосферное давление", "мм рт. ст.") },
+        { "windSpeed", ("Скорость ветра", "м/с") },
+        { "windDirection", ("Направление ветра", "°") },
+        { "windVSound", ("Скорость звука", "м/с") },
+        { "precipitationType", ("Тип осадков", "") },
+        { "precipitationIntensity", ("Интенсивность осадков", "мм/ч") },
+        { "precipitationQuantity", ("Количество осадков", "мм") },
+        { "precipitationElapsed", ("Накопленное время осадков", "мин") },
+        { "precipitationPeriod", ("Период накопления осадков", "мин") },
+        { "co2Level", ("Уровень CO2", "ppm") },
+        { "supplyVoltage", ("Напряжение питания", "В") },
+        { "altitude", ("Высота над уровнем моря", "м") },
+        { "gpsSpeed", ("Скорость (GPS)", "м/с") },
+        { "kspValue", ("Значение КСП (контроль состояния покрытия)", "") },
+        { "accelerationStdDev", ("Среднеквадратичное отклонение ускорения", "м/с²") },
+        { "rollAngle", ("Угол крена", "°") },
+        { "pitchAngle", ("Угол тангажа", "°") }
+    };
+
+    var roadStatusTranslations = new Dictionary<int, string> {
+        { 0, "Измерение невозможно" }, { 1, "Сухо" }, { 2, "Влажно" }, { 3, "Мокро" },
+        { 4, "Слякоть" }, { 5, "Лёд" }, { 6, "Снег" }, { 9, "Реагенты" }, { 10, "Снег со льдом" }
+    };
+
+    var precipitationTypeTranslations = new Dictionary<int, string> {
+        { 0, "Отсутствуют" }, { 51, "Морось" }, { 96, "Дождь" }, { 103, "Ледяной дождь" },
+        { 105, "Снег с дождём" }, { 112, "Снег" }, { 144, "Град" }, { 255, "Неизвестный тип" }
     };
 
     var displayParams = data.Where(x => 
@@ -22,17 +97,40 @@
         !x.Key.Contains("Id") && !x.Key.Contains("SensorId")).ToList();
 }
 
+<!-- Скрытый блок с метаданными для JS -->
+<div class="sensor-info-header hidden" 
+     data-post-name="@ViewData["PostName"]" 
+     data-post-address="@ViewData["PostAddress"]"
+     data-sensor-type="@ViewData["SensorTypeName"]" 
+     data-endpoint="@ViewData["EndPointsName"]" 
+     data-received="@(ViewData["ReceivedAt"] is DateTime dt ? dt.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss") : ViewData["ReceivedAt"])">
+</div>
+
 @if (data.Any()) {
     <div class="list-group list-group-flush small">
         <div class="list-group-item bg-light py-1 fw-bold text-muted" style="font-size: 0.7rem;">ПАРАМЕТРЫ</div>
         @foreach (var item in displayParams) {
-            var header = translations.ContainsKey(item.Key) ? translations[item.Key] : item.Key;
+            var translation = translations.ContainsKey(item.Key) ? translations[item.Key] : (item.Key, "");
             <div class="list-group-item py-2 d-flex justify-content-between align-items-center">
-                <span class="text-muted">@header</span>
+                <span class="text-muted">@translation.Item1</span>
                 <span class="fw-bold text-primary">
-                    @if (item.Value is double d) { @d.ToString("F2") }
-                    else if (item.Value is decimal dec) { @dec.ToString("F2") }
-                    else { @item.Value }
+                    @if (item.Key.Equals("roadStatusCode", StringComparison.OrdinalIgnoreCase) || item.Key.Equals("RoadStatus", StringComparison.OrdinalIgnoreCase)) {
+                        var statusValue = Convert.ToInt32(item.Value);
+                        @(roadStatusTranslations.ContainsKey(statusValue) ? roadStatusTranslations[statusValue] : statusValue.ToString())
+                    }
+                    else if (item.Key.Equals("precipitationType", StringComparison.OrdinalIgnoreCase)) {
+                        var precValue = Convert.ToInt32(item.Value);
+                        @(precipitationTypeTranslations.ContainsKey(precValue) ? precipitationTypeTranslations[precValue] : precValue.ToString())
+                    }
+                    else if (item.Value is double d) { 
+                        @d.ToString("F2")@(string.IsNullOrEmpty(translation.Item2) ? "" : " " + translation.Item2)
+                    }
+                    else if (item.Value is decimal dec) { 
+                        @dec.ToString("F2")@(string.IsNullOrEmpty(translation.Item2) ? "" : " " + translation.Item2)
+                    }
+                    else { 
+                        @item.Value@(string.IsNullOrEmpty(translation.Item2) ? "" : " " + translation.Item2)
+                    }
                 </span>
             </div>
         }

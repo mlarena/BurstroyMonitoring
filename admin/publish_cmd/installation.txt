@@ -39,7 +39,6 @@ cd /opt/burstroy/tcm/
 3. подключение к postgres, создание базы данных
 
 psql -U postgres -h localhost -d postgres
-create database rtsp_viewer;
 
 4. выполнение скриптов на базе данных
 sudo -u postgres psql -d sensordb_mu -f /opt/burstroy/tmp/addcameras.sql

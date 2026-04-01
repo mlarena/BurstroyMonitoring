@@ -17,8 +17,12 @@
                         <tbody>
                             <tr class="table-light"><th colspan="2" class="ps-3 py-2">Основная информация</th></tr>
                             <tr>
-                                <th class="ps-3" style="width: 40%;">Дата получения</th>
+                                <th class="ps-3" style="width: 40%;">Дата получения (UTC)</th>
                                 <td class="ps-3">@(Model.ReceivedAt?.ToString("dd.MM.yyyy HH:mm:ss") ?? "—")</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Метка времени данных</th>
+                                <td class="ps-3">@(Model.DataTimestamp?.ToString("dd.MM.yyyy HH:mm:ss") ?? "—")</td>
                             </tr>
                             <tr>
                                 <th class="ps-3">Серийный номер</th>
@@ -28,6 +32,20 @@
                                 <th class="ps-3">Конечная точка</th>
                                 <td class="ps-3">@Model.EndpointName</td>
                             </tr>
+                            <tr>
+                                <th class="ps-3">Тип датчика</th>
+                                <td class="ps-3">@Model.SensorTypeName <div class="small text-muted">@Model.SensorTypeDescription</div></td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Пост мониторинга</th>
+                                <td class="ps-3">@Model.PostName @(Model.PostIsMobile == true ? "(Мобильный)" : "")</td>
+                            </tr>
+                            @if (!string.IsNullOrEmpty(Model.PostAddress)) {
+                            <tr>
+                                <th class="ps-3">Адрес поста</th>
+                                <td class="ps-3 small">@Model.PostAddress</td>
+                            </tr>
+                            }
                             <tr>
                                 <th class="ps-3 text-primary">Концентрация PM (текущ)</th>
                                 <td class="ps-3 fw-bold text-primary">
@@ -49,46 +67,58 @@
                                     else { <span class="badge bg-danger fw-normal">Ошибка (@Model.LaserStatus)</span> }
                                 </td>
                             </tr>
+
+                            <tr class="table-light"><th colspan="2" class="ps-3 py-2">Технические данные</th></tr>
                             <tr>
-                                <th class="ps-3">Пост</th>
-                                <td class="ps-3">@Model.PostName</td>
+                                <th class="ps-3">PM (среднее)</th>
+                                <td class="ps-3 small">
+                                    PM10: @(Model.PM10AWG?.ToString("F2") ?? "—"), 
+                                    PM2.5: @(Model.PM25AWG?.ToString("F2") ?? "—"), 
+                                    PM1: @(Model.PM1AWG?.ToString("F2") ?? "—")
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Расход пробы</th>
+                                <td class="ps-3 small">@(Model.FlowProbe?.ToString("F2") ?? "—")</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Напряжение питания</th>
+                                <td class="ps-3 small">@(Model.SupplyVoltage?.ToString("F1") ?? "—")V</td>
+                            </tr>
+
+                            <tr class="table-light"><th colspan="2" class="ps-3 py-2">Параметры датчика</th></tr>
+                            <tr>
+                                <th class="ps-3">Координаты установки</th>
+                                <td class="ps-3 small">
+                                    @if (Model.SensorLongitude.HasValue) {
+                                        <span>@(Model.SensorLatitude?.ToString("F6")), @(Model.SensorLongitude?.ToString("F6"))</span>
+                                    } else { <span>—</span> }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Интервал проверки</th>
+                                <td class="ps-3 small">@Model.CheckIntervalSeconds сек.</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Последняя активность</th>
+                                <td class="ps-3 small">@(Model.LastActivityUtc?.ToString("dd.MM.yyyy HH:mm:ss") ?? "—")</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Статус датчика</th>
+                                <td class="ps-3">
+                                    @if (Model.SensorIsActive == true) { <span class="badge bg-success fw-normal">Активен</span> }
+                                    else { <span class="badge bg-secondary fw-normal">Неактивен</span> }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">URL API</th>
+                                <td class="ps-3 small text-break"><a href="@Model.SensorUrl" target="_blank">@Model.SensorUrl</a></td>
                             </tr>
                         </tbody>
                     </table>
-
-                    <div class="collapse" id="additionalFields">
-                        <table class="table table-sm mb-0 border-top">
-                            <tbody>
-                                <tr class="table-light"><th colspan="2" class="ps-3 py-2">Технические данные</th></tr>
-                                <tr>
-                                    <th class="ps-3" style="width: 40%;">PM (среднее)</th>
-                                    <td class="ps-3 small">
-                                        PM10: @(Model.PM10AWG?.ToString("F2") ?? "—"), 
-                                        PM2.5: @(Model.PM25AWG?.ToString("F2") ?? "—"), 
-                                        PM1: @(Model.PM1AWG?.ToString("F2") ?? "—")
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th class="ps-3">Расход пробы</th>
-                                    <td class="ps-3 small">@(Model.FlowProbe?.ToString("F2") ?? "—")</td>
-                                </tr>
-                                <tr>
-                                    <th class="ps-3">Напряжение питания</th>
-                                    <td class="ps-3 small">@(Model.SupplyVoltage?.ToString("F1") ?? "—")V</td>
-                                </tr>
-                                <tr>
-                                    <th class="ps-3">URL API</th>
-                                    <td class="ps-3 small text-break">@Model.SensorUrl</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
-                <div class="card-footer bg-light d-flex justify-content-between py-2">
+                <div class="card-footer bg-light py-2">
                     <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">Назад</a>
-                    <button class="btn btn-outline-info btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#additionalFields">
-                        Тех. данные
-                    </button>
                 </div>
             </div>
         </div>

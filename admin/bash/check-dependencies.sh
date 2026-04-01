@@ -26,13 +26,10 @@ check_package() {
     fi
 }
 
-# Check FFmpeg (Critical for video processing)
 check_package "ffmpeg"
 
-# Check Unzip (Required for your unpack scripts)
 check_package "unzip"
 
-# Check Curl (Used in your setup scripts for health checks)
 check_package "curl"
 
 check_package "rsync"

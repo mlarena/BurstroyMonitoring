@@ -101,20 +101,20 @@
                     {
                         <tr>
                             <td class="fw-bold small">@item.SensorTypeName</td>
-                            <td class="text-truncate" style="max-width: 300px;" title="@item.Description">
+                            <td class="text-truncate small" style="max-width: 300px;" title="@item.Description">
                                 @(string.IsNullOrEmpty(item.Description) ? "—" : item.Description)
                             </td>
                             <td class="text-nowrap small">
                                 @(item.CreatedAt?.ToString("dd.MM.yyyy HH:mm") ?? "—")
                             </td>
-                            <td class="text-center">
+                            <td class="text-center small">
                                 @if (item.Sensors?.Count > 0)
                                 {
-                                    <span class="badge bg-primary rounded-pill">@item.Sensors.Count</span>
+                                    <span>@item.Sensors.Count</span>
                                 }
                                 else
                                 {
-                                    <span class="text-muted small">0</span>
+                                    <span class="text-muted">0</span>
                                 }
                             </td>
                             <td class="text-end text-nowrap">

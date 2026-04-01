@@ -115,45 +115,45 @@
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td class="text-truncate" style="max-width: 150px;" title="@item.Name">
+                            <td class="text-truncate small" style="max-width: 150px;" title="@item.Name">
                                 @item.Name
                             </td>
-                            <td class="text-truncate" style="max-width: 150px;" title="@item.Address">
+                            <td class="text-truncate small" style="max-width: 150px;" title="@item.Address">
                                 @(string.IsNullOrEmpty(item.Address) ? "—" : item.Address)
                             </td>
-                            <td class="text-truncate" style="max-width: 200px;" title="@item.Description">
+                            <td class="text-truncate small" style="max-width: 200px;" title="@item.Description">
                                 @(string.IsNullOrEmpty(item.Description) ? "—" : item.Description)
                             </td>
-                            <td class="text-nowrap">
+                            <td class="text-nowrap small">
                                 @if (item.Longitude.HasValue && item.Latitude.HasValue)
                                 {
-                                    <span class="small">
+                                    <span>
                                         @item.Longitude.Value.ToString("G"), @item.Latitude.Value.ToString("G")
                                     </span>
                                 }
                                 else
                                 {
-                                    <span class="text-muted small">—</span>
+                                    <span class="text-muted">—</span>
                                 }
                             </td>
-                            <td>
+                            <td class="small">
                                 @if (item.IsMobile)
                                 {
-                                    <span class="badge bg-info text-dark fw-normal">Моб.</span>
+                                    <span class="text-info">Моб.</span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-secondary fw-normal">Стац.</span>
+                                    <span class="text-secondary">Стац.</span>
                                 }
                             </td>
-                            <td>
+                            <td class="small">
                                 @if (item.IsActive)
                                 {
-                                    <span class="badge bg-success fw-normal">Активен</span>
+                                    <span class="text-success">Активен</span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-danger fw-normal">Неактивен</span>
+                                    <span class="text-danger">Неактивен</span>
                                 }
                             </td>
                             <td class="text-nowrap small">
