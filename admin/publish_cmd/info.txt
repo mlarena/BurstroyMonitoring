@@ -9,3 +9,9 @@ scp -P 9022 bsp@192.168.3.19:/opt/burstroy/tmp/backup_structure.sql D:\backup\
 
 поднятие из резервной копии
 psql -h localhost -p 5432 -U postgres -d sensordb_mu -f D:\backup\backup_sensordb_mu.sql
+
+
+ls -l /etc/systemd/system/
+cat /etc/systemd/system/burstroy-monitoring-tcm.service
+cat /etc/systemd/system/burstroy-monitoring-video.service
+cat /etc/systemd/system/burstroy-monitoring-worker.service

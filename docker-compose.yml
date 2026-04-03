@@ -1,0 +1,136 @@
+services:
+
+  # PostgreSQL 18
+  postgres:
+    image: postgres:18
+    container_name: burstroy_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sensordb
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - postgres_data:/var/lib/postgresql
+      - ./admin/sql/db_db.sql:/docker-entrypoint-initdb.d/01_db_db.sql:ro
+      - ./admin/sql/user.sql:/docker-entrypoint-initdb.d/02_user.sql:ro
+      - ./admin/sql/addcameras.sql:/docker-entrypoint-initdb.d/03_addcameras.sql:ro
+      - ./admin/sql/db_vw.sql:/docker-entrypoint-initdb.d/04_db_vw.sql:ro
+    networks:
+      - burstroy_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d sensordb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+
+  # TCM — Web
+  tcm:
+    build:
+      context: .
+      dockerfile: BurstroyMonitoring.TCM/Dockerfile
+    image: burstroy_tcm:latest
+    container_name: burstroy_tcm
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: "Host=postgres;Database=sensordb;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD};Pooling=true;MinPoolSize=2;MaxPoolSize=20"
+    volumes:
+      - logs_tcm:/app/logs
+      - snapshots:/app/wwwroot/snapshots
+    networks:
+      - burstroy_net
+    ports:
+      - "${TCM_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health > /dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # TCM — Worker
+  worker:
+    build:
+      context: .
+      dockerfile: BurstroyMonitoring.Worker/Dockerfile
+    image: burstroy_worker:latest
+    container_name: burstroy_worker
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DOTNET_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: "Host=postgres;Database=sensordb;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD};Pooling=true;MinPoolSize=1;MaxPoolSize=10"
+    volumes:
+      - logs_worker:/app/logs
+    networks:
+      - burstroy_net
+
+  # REST API
+  api:
+    build:
+      context: .
+      dockerfile: BurstroyMonitoring.Api/Dockerfile
+    image: burstroy_api:latest
+    container_name: burstroy_api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: "Host=postgres;Database=sensordb;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD};Pooling=true;MinPoolSize=2;MaxPoolSize=20"
+    volumes:
+      - logs_api:/app/logs
+    networks:
+      - burstroy_net
+    ports:
+      - "${API_PORT:-8081}:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health > /dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Video Monitoring Worker
+  videomonitoring:
+    build:
+      context: .
+      dockerfile: BurstroyMonitoring.VideoMonitoring/Dockerfile
+    image: burstroy_videomonitoring:latest
+    container_name: burstroy_videomonitoring
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DOTNET_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: "Host=postgres;Database=sensordb;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD};Pooling=true;MinPoolSize=1;MaxPoolSize=10"
+      SnapshotSettings__BaseDirectory: /app/snapshots
+    volumes:
+      - logs_videomonitoring:/app/logs
+      - snapshots:/app/snapshots
+    networks:
+      - burstroy_net
+
+volumes:
+  postgres_data:
+  logs_tcm:
+  logs_worker:
+  logs_api:
+  logs_videomonitoring:
+  snapshots:
+
+networks:
+  burstroy_net:
+    driver: bridge

@@ -53,6 +53,9 @@ namespace BurstroyMonitoring.Data
         public DbSet<Camera> Cameras { get; set; }
         public DbSet<Snapshot> Snapshots { get; set; }
 
+        // Веб-части дашборда
+        public DbSet<WebPart> WebParts { get; set; }
+
         // Представления (VIEW)
         public DbSet<VwMueksDataFull> VwMueksDataFull { get; set; }
         public DbSet<VwIwsDataFull> VwIwsDataFull { get; set; }
@@ -122,7 +125,7 @@ namespace BurstroyMonitoring.Data
             }
 
             // ВАЖНО: Сохраняем копии оригинальных значений ДО любых изменений
-            var auditEntries = new List<(EntityEntry Entry, Dictionary<string, object?> OriginalValues, Dictionary<string, object?> CurrentValues)>();
+            var auditEntries = new List<(EntityEntry Entry, Dictionary<string, object?>? OriginalValues, Dictionary<string, object?>? CurrentValues)>();
 
             foreach (var entry in ChangeTracker.Entries())
             {

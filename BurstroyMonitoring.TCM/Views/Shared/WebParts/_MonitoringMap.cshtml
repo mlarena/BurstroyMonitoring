@@ -1,0 +1,15 @@
+<div class="d-flex flex-column h-100">
+    <div class="d-flex justify-content-end mb-2">
+        <a asp-controller="MonitoringMap" asp-action="Index" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-box-arrow-up-right"></i> Открыть карту
+        </a>
+    </div>
+    <div style="flex:1; min-height:200px; border-radius:6px; position: relative; overflow: hidden;">
+        @{ ViewData["MapWidget"] = true; }
+        @await Html.PartialAsync("~/Views/Shared/_MapCore.cshtml")
+    </div>
+</div>
+
+<style>
+    .hidden { display: none !important; }
+</style>

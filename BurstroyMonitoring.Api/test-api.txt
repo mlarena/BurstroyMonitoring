@@ -1,0 +1,17 @@
+http://localhost:5297/api/v1/monitoring-posts
+http://localhost:5297/api/v1/monitoring-posts/1
+http://localhost:5297/api/v1/sensors
+http://localhost:5297/api/v1/monitoring-posts/1/sensors
+
+http://localhost:5297/api/v1/monitoring-posts/1/sensors/1/results/latest/response-body
+http://localhost:5297/api/v1/monitoring-posts/1/sensors/4/results/latest/response-body
+http://localhost:5297/api/v1/monitoring-posts/1/sensors/5/results/latest/response-body
+http://localhost:5297/api/v1/monitoring-posts/1/sensors/2/results/latest/response-body
+http://localhost:5297/api/v1/monitoring-posts/1/sensors/6/results/latest/response-body
+http://localhost:5297/api/v1/monitoring-posts/1/sensors/3/results/latest/response-body
+
+http://localhost:5297/api/v1/monitoring-posts/1/meteo-standart/6
+
+
+http://localhost:5297/api/v1/sensor-types
+http://localhost:5297/api/v1/monitoring-posts/1/sensors/2/error

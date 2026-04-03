@@ -49,4 +49,4 @@ echo "File info for $APP_NAME:"
 file "$INSTALL_DIR/$APP_NAME"
 
 echo "✅ $APP_NAME updated successfully."
-echo "You can now start the service: sudo systemctl start burstroy-video-monitoring"
+echo "You can now start the service: sudo systemctl start burstroy-monitoring-video"

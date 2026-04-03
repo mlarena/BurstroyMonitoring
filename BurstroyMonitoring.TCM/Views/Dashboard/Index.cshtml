@@ -1,0 +1,83 @@
+@model BurstroyMonitoring.Data.Models.ViewModels.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Панель управления";
+}
+
+@section Styles {
+    <link href="/css/gridstack.min.css" rel="stylesheet">
+    <style>
+        .webpart .card-header { cursor: grab; }
+        .webpart .card-header:active { cursor: grabbing; }
+        .webpart.edit-mode .card { border: 2px dashed #0d6efd; }
+        .webpart-content { overflow-y: auto; }
+        .grid-stack-item-content { overflow: hidden; }
+    </style>
+}
+
+<div class="container-fluid px-3">
+    <div class="row mb-3 align-items-center">
+        <div class="col">
+            <h4 class="mb-0"></h4>
+        </div>
+        <div class="col-auto d-flex align-items-center gap-3">
+            <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" id="editModeSwitch">
+                <label class="form-check-label small" for="editModeSwitch">Режим правки</label>
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-plus-lg"></i> Добавить
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#" onclick="addWebPart('MonitoringPosts')">
+                        <i class="bi bi-geo-alt me-2"></i>Посты мониторинга
+                    </a></li>
+                    <li><a class="dropdown-item" href="#" onclick="addWebPart('MonitoringMap')">
+                        <i class="bi bi-map me-2"></i>Карта
+                    </a></li>
+                    <li><a class="dropdown-item" href="#" onclick="addWebPart('SensorData')">
+                        <i class="bi bi-broadcast me-2"></i>Данные датчиков
+                    </a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="#" onclick="addWebPart('GraphsAndCharts')">
+                        <i class="bi bi-graph-up me-2"></i>Графики
+                    </a></li>
+                    <li><a class="dropdown-item" href="#" onclick="addWebPart('Report')">
+                        <i class="bi bi-file-earmark-bar-graph me-2"></i>Отчеты
+                    </a></li>
+                    <li><a class="dropdown-item" href="#" onclick="addWebPart('Cameras')">
+                        <i class="bi bi-camera-video me-2"></i>Камеры
+                    </a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-stack" id="dashboard-grid">
+        @foreach (var webPart in Model.WebParts)
+        {
+            <div class="grid-stack-item"
+                 gs-id="@webPart.Id"
+                 gs-x="@webPart.PositionX"
+                 gs-y="@webPart.PositionY"
+                 gs-w="@webPart.Width"
+                 gs-h="@webPart.Height"
+                 data-webpart-id="@webPart.Id">
+                <div class="grid-stack-item-content">
+                    @await Html.PartialAsync("_WebPart", webPart)
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/lib/gridstack-all.js"></script>
+    <script src="/js/dashboard.js" asp-append-version="true"></script>
+    <script>
+        $(document).ready(function () {
+            DashboardCore.init();
+        });
+    </script>
+}

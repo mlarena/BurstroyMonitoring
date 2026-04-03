@@ -290,3 +290,8 @@ __pycache__/
 /Neuro
 /admin/publish_cmd/tcm.zip
 /admin/publish_cmd/tcm_arm.zip
+
+# Docker secrets
+.env
+.env.local
+.env.production

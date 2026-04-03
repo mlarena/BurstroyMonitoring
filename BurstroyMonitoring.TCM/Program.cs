@@ -124,6 +124,7 @@ try
     // Регистрация сервисов
     builder.Services.AddScoped<IExportService, ExportService>();
     builder.Services.AddScoped<IAuthService, AuthService>();
+    builder.Services.AddScoped<IWebPartService, WebPartService>();
     builder.Services.AddSingleton<RtspStreamService>();
 
     // Настройка аутентификации JWT
@@ -184,6 +185,22 @@ try
                 // ИСПРАВЛЕНИЕ 4: Применяем миграции для создания таблицы AuditLogs
                 await dbContext.Database.MigrateAsync();
                 
+                // Создаём таблицу web_parts если не существует
+                await dbContext.Database.ExecuteSqlRawAsync(@"
+                    CREATE TABLE IF NOT EXISTS public.web_parts (
+                        id          SERIAL PRIMARY KEY,
+                        title       VARCHAR(200) NOT NULL DEFAULT '',
+                        type        INTEGER NOT NULL DEFAULT 0,
+                        position_x  INTEGER NOT NULL DEFAULT 0,
+                        position_y  INTEGER NOT NULL DEFAULT 0,
+                        width       INTEGER NOT NULL DEFAULT 6,
+                        height      INTEGER NOT NULL DEFAULT 4,
+                        settings    TEXT NOT NULL DEFAULT '{{}}',
+                        data        TEXT NOT NULL DEFAULT '{{}}',
+                        user_id     INTEGER NOT NULL DEFAULT 0
+                    )
+                ");
+
                 // Создаем суперпользователя, если его нет
                 var authService = scope.ServiceProvider.GetRequiredService<IAuthService>();
                 

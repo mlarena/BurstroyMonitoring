@@ -7,7 +7,7 @@ namespace BurstroyMonitoring.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize] // Все методы этого контроллера требуют авторизации
+    //[Authorize] // Все методы этого контроллера требуют авторизации
     public class TestController : ControllerBase
     {
         private readonly ILogger<TestController> _logger;

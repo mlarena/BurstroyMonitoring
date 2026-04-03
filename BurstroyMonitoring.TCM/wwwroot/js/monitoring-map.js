@@ -5,29 +5,16 @@ let isExpanded = false;
 let searchTimeout = null;
 let selectedAutocompleteIndex = -1;
 
-// Инициализация при загрузке страницы
-document.addEventListener('DOMContentLoaded', function() {
-    initMap();
-    loadMapData();
-    initSearch();
-    
-    // ОТЛАДКА: Проверяем все датчики в DOM после загрузки
-    setTimeout(() => {
-        console.log('=== ОТЛАДКА: Список датчиков в DOM ===');
-        document.querySelectorAll('.monitoring-sensor-item').forEach((item, index) => {
-            console.log(`Датчик ${index + 1}:`, {
-                id: item.getAttribute('onclick')?.match(/\d+/)?.[0],
-                sensorTypeId: item.getAttribute('data-sensor-type'),
-                sensorName: item.getAttribute('data-sensor-name'),
-                html: item.outerHTML.substring(0, 200) + '...'
-            });
-        });
-    }, 1000);
-});
+const cfg = window.mapConfig ?? { containerId: 'monitoring-map', widget: false };
+
+// Инициализация — вызывается сразу, т.к. скрипт рендерится после div карты
+initMap();
+loadMapData();
+if (!cfg.widget) initSearch();
 
 function initMap() {
     // Центр России
-    map = L.map('monitoring-map').setView([55.7558, 37.6173], 5);
+    map = L.map(cfg.containerId).setView([55.7558, 37.6173], 5);
 
     // Добавляем слой карты
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -327,23 +314,31 @@ function addPostMarker(post) {
                     <div class="popup-sensor-section">
                         <div class="sensor-section-title">Датчики (${post.sensorCount})</div>
                         <div class="popup-sensor-list">
-                            ${post.sensors && post.sensors.length > 0 ? 
+                            ${post.sensors && post.sensors.length > 0 ?
                                 post.sensors.map(s => `
-                                    <div class="popup-sensor-item" 
-                                         onclick="showSensorDetailsFromPopup(${s.id}, ${s.sensorTypeId}, '${s.endPointsName}')">
+                                    <div class="popup-sensor-item">
                                         <div class="sensor-icon-wrapper">
                                             <i class="bi bi-cpu"></i>
                                         </div>
-                                        <div class="sensor-info">
+                                        <div class="sensor-info" style="flex:1; cursor:pointer;"
+                                             onclick="showSensorDetailsFromPopup(${s.id}, ${s.sensorTypeId}, '${s.endPointsName}')">
                                             <div class="sensor-endpoint">${s.endPointsName}</div>
                                         </div>
-                                        <i class="bi bi-chevron-right ms-auto text-muted small"></i>
+                                        <a href="/Sensors/Edit/${s.id}" title="Настройки датчика"
+                                           onclick="event.stopPropagation()" class="btn btn-sm btn-link p-0 ms-2 text-muted">
+                                            <i class="bi bi-gear"></i>
+                                        </a>
                                     </div>
-                                `).join('') : 
+                                `).join('') :
                                 '<div class="text-muted small p-2">Нет доступных датчиков</div>'
                             }
                         </div>
                     </div>
+                </div>
+                <div class="popup-footer" style="padding: 8px;">
+                    <a href="/MonitoringPosts/Edit/${post.id}" class="btn btn-sm btn-outline-secondary w-100">
+                        <i class="bi bi-gear me-1"></i>Настройки поста
+                    </a>
                 </div>
             </div>
         `, {
@@ -438,6 +433,13 @@ async function showSensorDetailsFromPopup(sensorId, sensorTypeId, sensorName) {
         panel.classList.remove('hidden');
     }
 
+    // Обновляем кнопку настроек датчика
+    const settingsBtn = document.getElementById('sensorSettingsBtn');
+    if (settingsBtn) {
+        settingsBtn.href = `/Sensors/Edit/${sensorId}`;
+        settingsBtn.classList.remove('d-none');
+    }
+
     // Показываем загрузку
     const sensorContent = document.getElementById('sensorDataContent');
     sensorContent.innerHTML = `
@@ -445,7 +447,7 @@ async function showSensorDetailsFromPopup(sensorId, sensorTypeId, sensorName) {
             <i class="fas fa-spinner fa-spin"></i> Загрузка данных датчика...
         </div>
     `;
-    
+
     try {
         const response = await fetch(`/MonitoringMap/GetLatestSensorData?sensorId=${sensorId}&sensorTypeId=${sensorTypeId}`);
         

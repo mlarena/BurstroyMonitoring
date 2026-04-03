@@ -13,24 +13,14 @@ namespace BurstroyMonitoring.Worker.Services;
 public class DatabaseService
 {
     private readonly ILogger<DatabaseService> _logger;
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IServiceScopeFactory _scopeFactory;
 
     public DatabaseService(
         ILogger<DatabaseService> logger,
-        IServiceProvider serviceProvider)
+        IServiceScopeFactory scopeFactory)
     {
         _logger = logger;
-        _serviceProvider = serviceProvider;
-    }
-
-    /// <summary>
-    /// Создание временного scope и получение контекста БД.
-    /// Используется для выполнения операций в фоновом потоке.
-    /// </summary>
-    private ApplicationDbContext CreateDbContext()
-    {
-        var scope = _serviceProvider.CreateScope();
-        return scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        _scopeFactory = scopeFactory;
     }
 
     /// <summary>
@@ -39,7 +29,8 @@ public class DatabaseService
     /// </summary>
     public async Task<List<Sensor>> GetActiveSensorsAsync()
     {
-        using var context = CreateDbContext();
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
         try
         {
@@ -62,7 +53,8 @@ public class DatabaseService
     /// </summary>
     public Sensor? GetSensorById(int sensorId)
     {
-        using var context = CreateDbContext();
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
         try
         {
@@ -82,7 +74,8 @@ public class DatabaseService
     /// </summary>
     public List<Sensor> GetSensorsByIds(List<int> sensorIds)
     {
-        using var context = CreateDbContext();
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
         try
         {
@@ -104,7 +97,8 @@ public class DatabaseService
     /// </summary>
     public async Task SaveSensorResultAsync(SensorResults result)
     {
-        using var context = CreateDbContext();
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
         try
         {
@@ -122,7 +116,8 @@ public class DatabaseService
     /// </summary>
     public async Task UpdateSensorLastActivityAsync(int sensorId)
     {
-        using var context = CreateDbContext();
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
         try
         {
@@ -144,7 +139,8 @@ public class DatabaseService
     /// </summary>
     public async Task SaveSensorErrorAsync(SensorError error)
     {
-        using var context = CreateDbContext();
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
         try
         {
@@ -162,7 +158,8 @@ public class DatabaseService
     /// </summary>
     public async Task<List<WorkerConfiguration>> GetConfigurationAsync()
     {
-        using var context = CreateDbContext();
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
         try
         {
@@ -183,7 +180,8 @@ public class DatabaseService
     /// </summary>
     public async Task SaveDspdDataAsync(DSPDData data)
     {
-        using var context = CreateDbContext();
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
         try
         {
@@ -201,7 +199,8 @@ public class DatabaseService
     /// </summary>
     public async Task SaveIwsDataAsync(IWSData data)
     {
-        using var context = CreateDbContext();
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
         try
         {
@@ -219,7 +218,8 @@ public class DatabaseService
     /// </summary>
     public async Task SaveMueksDataAsync(MUEKSData data)
     {
-        using var context = CreateDbContext();
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
         try
         {
@@ -237,7 +237,8 @@ public class DatabaseService
     /// </summary>
     public async Task SaveDovDataAsync(DOVData data)
     {
-        using var context = CreateDbContext();
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
         try
         {
@@ -255,7 +256,8 @@ public class DatabaseService
     /// </summary>
     public async Task SaveDustDataAsync(DUSTData data)
     {
-        using var context = CreateDbContext();
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
         try
         {
@@ -273,7 +275,8 @@ public class DatabaseService
     /// </summary>
     public async Task UpdateSensorSerialNumberAsync(int sensorId, string serialNumber)
     {
-        using var context = CreateDbContext();
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
         try
         {
@@ -314,7 +317,8 @@ public class DatabaseService
     /// </summary>
     public async Task UpdateDspdSensorCoordinatesAsync(int sensorId, decimal? latitude, decimal? longitude)
     {
-        using var context = CreateDbContext();
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
         try
         {
@@ -343,7 +347,8 @@ public class DatabaseService
     /// </summary>
     public async Task UpdateIwsSensorCoordinatesAsync(int sensorId, decimal? latitude, decimal? longitude, decimal? altitude)
     {
-        using var context = CreateDbContext();
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
         try
         {

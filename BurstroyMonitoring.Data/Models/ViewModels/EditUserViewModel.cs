@@ -8,11 +8,11 @@ namespace BurstroyMonitoring.Data.Models.ViewModels
 
         [Required]
         [StringLength(100, ErrorMessage = "Username cannot be longer than 100 characters.")]
-        public string UserName { get; set; } 
+        public string UserName { get; set; } = string.Empty;
 
         [Required]
         [StringLength(50, ErrorMessage = "Role cannot be longer than 50 characters.")]
-        public string Role { get; set; }
+        public string Role { get; set; } = string.Empty;
 
     }
 }

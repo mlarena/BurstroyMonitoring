@@ -1,0 +1,51 @@
+@model BurstroyMonitoring.Data.Models.WebPart
+
+<div id="webpart-@Model.Id"
+     class="webpart card shadow-sm h-100"
+     data-id="@Model.Id"
+     data-type="@Model.Type"
+     gs-id="@Model.Id"
+     gs-w="@Model.Width"
+     gs-h="@Model.Height">
+
+    <div class="card-header bg-white d-flex justify-content-between align-items-center py-2">
+        <h6 class="card-title mb-0 text-truncate">
+            <i class="bi @GetWebPartIcon(Model.Type) me-2 text-primary"></i>
+            <span class="webpart-title-text">@Model.Title</span>
+        </h6>
+        <div class="btn-group btn-group-sm ms-2 flex-shrink-0">
+            <button class="btn btn-outline-secondary" onclick="refreshWebPart(@Model.Id)" title="Обновить">
+                <i class="bi bi-arrow-repeat"></i>
+            </button>
+            <button class="btn btn-outline-secondary" onclick="editWebPartTitle(@Model.Id)" title="Переименовать">
+                <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-outline-danger" onclick="removeWebPart(@Model.Id)" title="Удалить">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="card-body webpart-content p-2 d-flex flex-column" style="min-height: 150px; overflow-y: auto;">
+        <div class="text-center my-auto">
+            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+            <p class="mt-2 text-muted small">Загрузка...</p>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetWebPartIcon(BurstroyMonitoring.Data.Models.WebPartType type)
+    {
+        return type switch
+        {
+            BurstroyMonitoring.Data.Models.WebPartType.MonitoringPosts  => "bi-geo-alt",
+            BurstroyMonitoring.Data.Models.WebPartType.MonitoringMap    => "bi-map",
+            BurstroyMonitoring.Data.Models.WebPartType.SensorData       => "bi-broadcast",
+            BurstroyMonitoring.Data.Models.WebPartType.GraphsAndCharts  => "bi-graph-up",
+            BurstroyMonitoring.Data.Models.WebPartType.Report           => "bi-file-earmark-bar-graph",
+            BurstroyMonitoring.Data.Models.WebPartType.Cameras          => "bi-camera-video",
+            _                                                            => "bi-grid"
+        };
+    }
+}

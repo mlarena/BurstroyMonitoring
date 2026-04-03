@@ -145,24 +145,23 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Configure pipeline
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(c => 
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "BurstroyMonitoring API V1");
-        c.RoutePrefix = "swagger";
-        
-        // Настройка для работы с JWT в Swagger UI
-        c.DefaultModelsExpandDepth(-1); // Скрыть модели
-        c.DisplayRequestDuration(); // Показывать длительность запросов
-    });
-}
 
-app.UseHttpsRedirection();
+app.UseSwagger();
+app.UseSwaggerUI(c => 
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "BurstroyMonitoring API V1");
+    c.RoutePrefix = "swagger";
+    
+    // Настройка для работы с JWT в Swagger UI
+    c.DefaultModelsExpandDepth(-1); // Скрыть модели
+    c.DisplayRequestDuration(); // Показывать длительность запросов
+});
+
+
+//app.UseHttpsRedirection();
 app.UseCors(app.Environment.IsDevelopment() ? "AllowAll" : "AllowSpecificOrigins");
-app.UseAuthentication();
-app.UseAuthorization();
+// app.UseAuthentication();
+// app.UseAuthorization();
 
 // Глобальная обработка ошибок
 app.UseExceptionHandler(errorApp =>

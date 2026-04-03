@@ -1,31 +1,27 @@
 виртуалка
-
+ssh -p 58222 usermeteo@192.168.192.137
 
 scp -P 58222 "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" usermeteo@192.168.192.137:/opt/burstroy/tmp
-ssh -p 58222 usermeteo@192.168.192.137
 toor
 
+виртуалка большой тест
+ssh devuser@192.168.192.143
+scp "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" devuser@192.168.192.143:/opt/burstroy/tmp
 
 тестовый сервер
-scp -P 58222 "C:\git\BurstroyMonitoring\BurstroyMonitoring.VideoMonitoring\release\linux-x64\BurstroyMonitoring.VideoMonitoring.zip" debusr@192.168.3.74:/opt/burstroy/tmp
-scp "C:\git\BurstroyMonitoring\BurstroyMonitoring.Worker\release\linux-x64\BurstroyMonitoring.Worker.zip" debusr@192.168.3.74:/opt/burstroy/tmp
-scp "C:\git\BurstroyMonitoring\BurstroyMonitoring.TCM\release\linux-x64\BurstroyMonitoring.TCM.zip" debusr@192.168.3.74:/opt/burstroy/tmp
-
 ssh debusr@192.168.3.74 
+scp -P 58222 "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" debusr@192.168.3.74:/opt/burstroy/tmp
 @Ze2vgeFyYVC
 user: root
 pass: y$2wbYUcCo2%
 
 
 крыша
-
-
-
+ssh bsp@192.168.3.19 -p 9022
+bsp
 scp -P 9022 "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm_arm.zip" bsp@192.168.3.19:/opt/burstroy/tmp
 
 
-ssh bsp@192.168.3.19 -p 9022
-bsp
 
 sudo timedatectl set-timezone Europe/Moscow
 /opt/burstroy/tcm/wwwroot/snapshots/

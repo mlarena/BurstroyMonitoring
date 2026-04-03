@@ -1,0 +1,58 @@
+@using BurstroyMonitoring.Data.Models
+@model List<Sensor>
+
+@{
+    var uid = Guid.NewGuid().ToString("N")[..8];
+}
+
+<div class="d-flex flex-column h-100" id="sd-container-@uid">
+    <div class="row g-2 mb-2">
+        <div class="col">
+            <select id="sd-sensor-@uid" class="form-select form-select-sm">
+                <option value="">— выберите датчик —</option>
+                @foreach (var s in Model)
+                {
+                    var label = $"{s.MonitoringPost?.Name} / {s.EndPointsName} ({s.SensorType?.SensorTypeName})";
+                    <option value="@s.Id" data-type="@s.SensorType?.SensorTypeName">@label</option>
+                }
+            </select>
+        </div>
+        <div class="col-auto">
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-box-arrow-up-right"></i>
+            </a>
+        </div>
+    </div>
+    <div id="sd-result-@uid" class="flex-grow-1 small">
+        <p class="text-muted text-center mt-3">Выберите датчик для просмотра последних данных</p>
+    </div>
+</div>
+
+<script>
+(function () {
+    var $sel = $('#sd-sensor-@uid');
+    var $res = $('#sd-result-@uid');
+
+    $sel.on('change', function () {
+        var sensorId = $(this).val();
+        var sensorType = $('option:selected', this).data('type');
+        if (!sensorId) { $res.html('<p class="text-muted text-center mt-3">Выберите датчик</p>'); return; }
+
+        $res.html('<div class="text-center mt-3"><div class="spinner-border spinner-border-sm text-primary"></div></div>');
+
+        $.getJSON('/Home/GetLatestSensorData', { sensorId: sensorId, type: sensorType }, function (data) {
+            if (!data) { $res.html('<p class="text-muted text-center mt-2">Нет данных</p>'); return; }
+            var html = '<table class="table table-sm table-striped mb-0"><tbody>';
+            $.each(data, function (key, val) {
+                if (val === null || val === undefined) return;
+                var label = key.replace(/([A-Z])/g, ' $1').replace(/^./, function(s){ return s.toUpperCase(); });
+                html += '<tr><td class="text-muted" style="width:55%">' + label + '</td><td><strong>' + val + '</strong></td></tr>';
+            });
+            html += '</tbody></table>';
+            $res.html(html);
+        }).fail(function () {
+            $res.html('<div class="alert alert-danger small">Ошибка загрузки</div>');
+        });
+    });
+})();
+</script>

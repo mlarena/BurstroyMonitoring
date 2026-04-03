@@ -1,0 +1,16 @@
+**/bin/
+**/obj/
+**/publish/
+**/.vs/
+**/logs/
+.git/
+.gitignore
+.env
+.env.*
+.dockerignore
+docker-compose*.yml
+**/*.user
+**/*.suo
+oldBurstroyMonitoring/
+Docs/
+z_report/

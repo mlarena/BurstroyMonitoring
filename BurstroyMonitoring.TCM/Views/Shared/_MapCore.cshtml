@@ -1,0 +1,37 @@
+@{
+    var isWidget = ViewData["MapWidget"] as bool? ?? false;
+    var mapId = isWidget ? "wp-map-" + Guid.NewGuid().ToString("N")[..8] : "monitoring-map";
+}
+
+<link rel="stylesheet" href="/css/leaflet.css" />
+<link rel="stylesheet" href="/css/monitoring-map.css" />
+<link rel="stylesheet" href="/font/font-awesome/all.min.css" />
+
+<div id="@mapId" style="height: 100%; width: 100%;"></div>
+
+<!-- Панель данных датчика -->
+<div class="sensor-data-section hidden shadow-lg border rounded" id="sensorDataPanel"
+     style="position: absolute; top: 80px; right: 10px; z-index: 1000; width: 350px; max-height: 90%; background: var(--bs-body-bg); overflow-y: auto;">
+    <div class="card border-0">
+        <div class="card-header bg-primary text-white py-2 d-flex justify-content-between align-items-center">
+            <h3 class="h6 mb-0"><span id="sensorTitle">Данные</span></h3>
+            <div class="d-flex gap-1 align-items-center">
+                <a id="sensorSettingsBtn" href="#" class="btn btn-sm btn-outline-light d-none" title="Настройки датчика" target="_blank">
+                    <i class="bi bi-gear"></i>
+                </a>
+                <button type="button" class="btn-close btn-close-white"
+                        onclick="document.getElementById('sensorDataPanel').classList.add('hidden')"></button>
+            </div>
+        </div>
+        <div class="card-body p-2" id="sensorDataContent">
+            <div class="text-center py-4 text-muted">
+                <i class="fas fa-chart-line display-6 mb-2"></i>
+                <p class="small">Выберите датчик на карте</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/leaflet.js"></script>
+<script>window.mapConfig = { containerId: '@mapId', widget: @(isWidget ? "true" : "false") };</script>
+<script src="/js/monitoring-map.js"></script>

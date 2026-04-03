@@ -4,9 +4,6 @@
     var totalPosts = ViewData["TotalPosts"] as int? ?? 0;
     var totalSensors = ViewData["TotalSensors"] as int? ?? 0;
 }
-<link rel="stylesheet" href="~/css/leaflet.css" />
-<link rel="stylesheet" href="~/font/font-awesome//all.min.css">
-<link rel="stylesheet" href="~/css/monitoring-map.css" />
 
 <div class="container-fluid px-0" style="margin-top: -1rem;">
     <div class="bg-light border-bottom py-2 px-3 mb-0 shadow-sm d-flex justify-content-between align-items-center">
@@ -29,24 +26,7 @@
         <button id="toggleExpandBtn" class="btn btn-sm btn-light shadow-sm monitoring-expand-button" onclick="toggleExpand()" title="Развернуть/свернуть">
             <i class="bi bi-arrows-angle-expand"></i>
         </button>
-        <div id="monitoring-map" style="height: 100%; width: 100%;"></div>
-        
-        <!-- Панель данных датчика -->
-        <div class="sensor-data-section hidden shadow-lg border rounded" id="sensorDataPanel" 
-             style="position: absolute; top: 80px; right: 10px; z-index: 1000; width: 350px; max-height: 90%; background: var(--bs-body-bg); overflow-y: auto;">
-            <div class="card border-0">
-                <div class="card-header bg-primary text-white py-2 d-flex justify-content-between align-items-center">
-                    <h3 class="h6 mb-0"></i> <span id="sensorTitle">Данные</span></h3>
-                    <button type="button" class="btn-close btn-close-white" onclick="document.getElementById('sensorDataPanel').classList.add('hidden')"></button>
-                </div>
-                <div class="card-body p-2" id="sensorDataContent">
-                    <div class="text-center py-4 text-muted">
-                        <i class="fas fa-chart-line display-6 mb-2"></i>
-                        <p class="small">Выберите датчик на карте</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        @await Html.PartialAsync("~/Views/Shared/_MapCore.cshtml")
     </div>
 </div>
 
@@ -73,7 +53,3 @@
     }
 </style>
 
-@section Scripts {
-    <script src="~/js/leaflet.js"></script>
-    <script src="~/js/monitoring-map.js"></script>
-}
