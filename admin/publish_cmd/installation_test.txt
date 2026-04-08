@@ -6,11 +6,11 @@ apt-get update
 apt-get install -y dos2unix
 
 # Конвертируйте все .sh файлы
-dos2unix *.sh
+dos2unix *.sql
 
 
 scp "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" devuser@192.168.192.143:/opt/burstroy/tmp 
-scp "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" usermeteo@192.168.192.137:/opt/burstroy/tmp 
+scp -P 58222 "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" usermeteo@192.168.192.137:/opt/burstroy/tmp 
 
 ssh devuser@192.168.192.143
 

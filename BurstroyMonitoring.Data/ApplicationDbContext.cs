@@ -30,6 +30,7 @@ namespace BurstroyMonitoring.Data
 
         // Основные таблицы
         public DbSet<MonitoringPost> MonitoringPosts { get; set; }
+        public DbSet<PollingSession> PollingSessions { get; set; }
         public DbSet<SensorType> SensorTypes { get; set; }
         public DbSet<Sensor> Sensors { get; set; }
         

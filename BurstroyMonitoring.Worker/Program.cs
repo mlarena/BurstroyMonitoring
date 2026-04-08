@@ -80,6 +80,7 @@ public class Program
                 services.AddSingleton<LoggerService>();
                 services.AddSingleton<ConfigurationService>();
                 services.AddSingleton<DatabaseService>();
+                services.AddSingleton<SensorPollingService>();
                 services.AddSingleton<DataProcessingService>();
                 
                 // Регистрация HttpClient для опроса датчиков без логирования
@@ -92,9 +93,6 @@ public class Program
                 {
                     ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
                 });
-                
-                // SensorPollingService должен быть Transient или Scoped
-                services.AddScoped<SensorPollingService>();
                 
                 // Worker должен быть Singleton
                 services.AddSingleton<Worker>();

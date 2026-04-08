@@ -1,146 +1,59 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using BurstroyMonitoring.Worker.Services;
+using BurstroyMonitoring.Data.Models;
 
 namespace BurstroyMonitoring.Worker;
 
-/// <summary>
-/// Основной рабочий процесс приложения
-/// Управляет опросом датчиков по расписанию
-/// </summary>
 public class Worker : BackgroundService
 {
     private readonly ILogger<Worker> _logger;
-    private readonly IServiceProvider _serviceProvider;
-    private readonly ConfigurationService _configService;
     private readonly DatabaseService _dbService;
-
-    // Словарь для хранения времени следующего опроса каждого датчика
-    private Dictionary<int, DateTime> _nextPollTimes = new();
-    private readonly object _lock = new();
-    private DateTime _lastStatusLog = DateTime.UtcNow;
+    private readonly DataProcessingService _dataProcessingService;
 
     public Worker(
         ILogger<Worker> logger,
-        IServiceProvider serviceProvider,
-        ConfigurationService configService,
-        DatabaseService dbService)
+        DatabaseService dbService,
+        DataProcessingService dataProcessingService)
     {
         _logger = logger;
-        _serviceProvider = serviceProvider;
-        _configService = configService;
         _dbService = dbService;
+        _dataProcessingService = dataProcessingService;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Worker started at: {time}", DateTimeOffset.Now);
 
-        // Основной цикл работы фонового сервиса
         while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
-                // Обновление конфигурации из БД (происходит раз в минуту)
-                await _configService.RefreshConfigurationAsync();
-
-                // Загрузка списка активных датчиков, у которых активен и сам датчик, и его пост
-                var sensors = await _dbService.GetActiveSensorsAsync();
+                // 1. Получаем посты, которые пора опрашивать
+                var postsToPoll = await _dbService.GetPostsToPollAsync();
                 
-                // Обновление внутреннего словаря расписания (добавление новых, удаление неактивных)
-                UpdatePollSchedule(sensors);
-
-                // Выбор датчиков, для которых наступило время очередного опроса
-                var sensorsToPoll = GetSensorsToPoll();
-
-                if (sensorsToPoll.Any())
+                if (postsToPoll.Count > 0)
                 {
-                    _logger.LogDebug("Polling {count} sensors", sensorsToPoll.Count);
+                    _logger.LogInformation("Found {count} posts to poll", postsToPoll.Count);
                     
-                    // Создаем scope для получения SensorPollingService (Scoped сервис)
-                    using var scope = _serviceProvider.CreateScope();
-                    var pollingService = scope.ServiceProvider.GetRequiredService<SensorPollingService>();
+                    // 2. Запускаем опрос каждого поста параллельно
+                    var pollingTasks = postsToPoll.Select(post => 
+                        _dataProcessingService.ProcessPostPollingAsync(post, stoppingToken));
                     
-                    // Запуск параллельного опроса выбранной группы датчиков
-                    await pollingService.PollSensorsAsync(sensorsToPoll, stoppingToken);
+                    await Task.WhenAll(pollingTasks);
                 }
-
-                // Логирование текущего состояния воркера раз в 60 секунд
-                if ((DateTime.UtcNow - _lastStatusLog).TotalSeconds >= 60)
+                else
                 {
-                    _logger.LogInformation("Worker status: {activeSensors} active sensors, {scheduled} in schedule", 
-                        sensors.Count, _nextPollTimes.Count);
-                    _lastStatusLog = DateTime.UtcNow;
+                    _logger.LogDebug("No posts to poll at this time");
                 }
-
-                // Пауза в 1 секунду перед следующей итерацией проверки расписания
-                await Task.Delay(1000, stoppingToken);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in worker main loop");
-                await Task.Delay(5000, stoppingToken); // Увеличенная пауза при возникновении ошибки
             }
+
+            // Пауза между проверками расписания
+            await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
         }
-    }
-
-    /// <summary>
-    /// Обновление расписания опроса датчиков
-    /// </summary>
-    private void UpdatePollSchedule(List<BurstroyMonitoring.Data.Models.Sensor> sensors)
-    {
-        lock (_lock)
-        {
-            foreach (var sensor in sensors)
-            {
-                if (!_nextPollTimes.ContainsKey(sensor.Id))
-                {
-                    // Первый опрос - выполнить немедленно
-                    _nextPollTimes[sensor.Id] = DateTime.UtcNow;
-                }
-            }
-
-            // Удаление неактивных датчиков из расписания
-            var activeSensorIds = sensors.Select(s => s.Id).ToHashSet();
-            var inactiveSensorIds = _nextPollTimes.Keys.Where(id => !activeSensorIds.Contains(id)).ToList();
-            
-            foreach (var id in inactiveSensorIds)
-            {
-                _nextPollTimes.Remove(id);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Получение списка датчиков для опроса
-    /// </summary>
-    private List<BurstroyMonitoring.Data.Models.Sensor> GetSensorsToPoll()
-    {
-        lock (_lock)
-        {
-            var now = DateTime.UtcNow;
-            var sensorIdsToPoll = _nextPollTimes
-                .Where(kvp => kvp.Value <= now) // Находим датчики, у которых время опроса наступило
-                .Select(kvp => kvp.Key)
-                .ToList();
-
-            // Обновление времени следующего опроса
-            foreach (var sensorId in sensorIdsToPoll)
-            {
-                var sensor = _dbService.GetSensorById(sensorId);
-                if (sensor != null)
-                {
-                    _nextPollTimes[sensorId] = now.AddSeconds(sensor.CheckIntervalSeconds);
-                }
-            }
-
-            return _dbService.GetSensorsByIds(sensorIdsToPoll);
-        }
-    }
-
-    public override async Task StopAsync(CancellationToken cancellationToken)
-    {
-        _logger.LogInformation("Worker stopping at: {time}", DateTimeOffset.Now);
-        await base.StopAsync(cancellationToken);
     }
 }

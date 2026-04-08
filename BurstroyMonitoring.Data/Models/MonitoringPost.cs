@@ -11,13 +11,14 @@ namespace BurstroyMonitoring.Data.Models
         [Column("Id")]
         public int Id { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Поле Наименование обязательно для заполнения")]
         [StringLength(255)]
         [Column("Name")]
         public string Name { get; set; } = string.Empty;
 
+        [Required(ErrorMessage = "Поле Адрес обязательно для заполнения")]
         [Column("Address")]
-        public string? Address { get; set; }
+        public string Address { get; set; } = string.Empty;
 
         [Column("Description")]
         public string? Description { get; set; }
@@ -42,8 +43,17 @@ namespace BurstroyMonitoring.Data.Models
         [Column("UpdatedAt")]
         public DateTime? UpdatedAt { get; set; }
 
+        [Required(ErrorMessage = "Поле Интервал опроса обязательно для заполнения")]
+        [Range(1, 86400, ErrorMessage = "Интервал опроса должен быть от 1 до 86400 секунд")]
+        [Column("PollingIntervalSeconds")]
+        public int PollingIntervalSeconds { get; set; } = 60;
+
+        [Column("LastPolledAt")]
+        public DateTime? LastPolledAt { get; set; }
+
         // Навигационное свойство
         public virtual ICollection<Sensor> Sensors { get; set; } = new List<Sensor>();
         public virtual ICollection<Camera> Cameras { get; set; } = new List<Camera>();
+        public virtual ICollection<PollingSession> PollingSessions { get; set; } = new List<PollingSession>();
     }
 }

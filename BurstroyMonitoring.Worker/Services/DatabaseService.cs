@@ -24,6 +24,102 @@ public class DatabaseService
     }
 
     /// <summary>
+    /// Получение списка активных постов, которые пора опрашивать.
+    /// </summary>
+    public async Task<List<MonitoringPost>> GetPostsToPollAsync()
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        
+        try
+        {
+            var now = DateTime.UtcNow;
+            return await context.MonitoringPosts
+                .Include(p => p.Sensors.Where(s => s.IsActive))
+                    .ThenInclude(s => s.SensorType)
+                .Where(p => p.IsActive && 
+                           (p.LastPolledAt == null || 
+                            p.LastPolledAt.Value.AddSeconds(p.PollingIntervalSeconds) <= now))
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting posts to poll");
+            return new List<MonitoringPost>();
+        }
+    }
+
+    /// <summary>
+    /// Создание новой сессии опроса.
+    /// </summary>
+    public async Task<Guid> StartPollingSessionAsync(int postId, int totalSensors)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        
+        try
+        {
+            var session = new PollingSession
+            {
+                MonitoringPostId = postId,
+                TotalSensorsCount = totalSensors,
+                Status = "IN_PROGRESS",
+                StartedAt = DateTime.UtcNow
+            };
+            
+            context.PollingSessions.Add(session);
+            
+            // Также обновляем время последнего опроса у поста
+            var post = await context.MonitoringPosts.FindAsync(postId);
+            if (post != null)
+            {
+                post.LastPolledAt = session.StartedAt;
+            }
+            
+            await context.SaveChangesAsync();
+            return session.Id;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error starting polling session for post {postId}", postId);
+            return Guid.Empty;
+        }
+    }
+
+    /// <summary>
+    /// Завершение сессии опроса.
+    /// </summary>
+    public async Task FinishPollingSessionAsync(Guid sessionId, int successCount, string? errorDetails)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        
+        try
+        {
+            var session = await context.PollingSessions.FindAsync(sessionId);
+            if (session != null)
+            {
+                session.CompletedAt = DateTime.UtcNow;
+                session.SuccessfulSensorsCount = successCount;
+                session.FailedSensorsDetails = errorDetails;
+                
+                if (successCount == 0 && session.TotalSensorsCount > 0)
+                    session.Status = "FAILED";
+                else if (successCount < session.TotalSensorsCount)
+                    session.Status = "PARTIALLY_COMPLETED";
+                else
+                    session.Status = "COMPLETED";
+                
+                await context.SaveChangesAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error finishing polling session {sessionId}", sessionId);
+        }
+    }
+
+    /// <summary>
     /// Получение списка активных датчиков.
     /// Датчик считается активным, если у него IsActive = true и его пост мониторинга также активен.
     /// </summary>
@@ -178,13 +274,15 @@ public class DatabaseService
     /// <summary>
     /// Сохранение данных дорожной станции (DSPD).
     /// </summary>
-    public async Task SaveDspdDataAsync(DSPDData data)
+    public async Task SaveDspdDataAsync(DSPDData data, Guid? pollingSessionId = null, int? monitoringPostId = null)
     {
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
         try
         {
+            data.PollingSessionId = pollingSessionId;
+            data.MonitoringPostId = monitoringPostId;
             context.DSPDData.Add(data);
             await context.SaveChangesAsync();
         }
@@ -197,13 +295,15 @@ public class DatabaseService
     /// <summary>
     /// Сохранение данных метеостанции (IWS).
     /// </summary>
-    public async Task SaveIwsDataAsync(IWSData data)
+    public async Task SaveIwsDataAsync(IWSData data, Guid? pollingSessionId = null, int? monitoringPostId = null)
     {
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
         try
         {
+            data.PollingSessionId = pollingSessionId;
+            data.MonitoringPostId = monitoringPostId;
             context.IWSData.Add(data);
             await context.SaveChangesAsync();
         }
@@ -216,13 +316,15 @@ public class DatabaseService
     /// <summary>
     /// Сохранение данных станции мониторинга воздуха (MUEKS).
     /// </summary>
-    public async Task SaveMueksDataAsync(MUEKSData data)
+    public async Task SaveMueksDataAsync(MUEKSData data, Guid? pollingSessionId = null, int? monitoringPostId = null)
     {
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
         try
         {
+            data.PollingSessionId = pollingSessionId;
+            data.MonitoringPostId = monitoringPostId;
             context.MUEKSData.Add(data);
             await context.SaveChangesAsync();
         }
@@ -235,19 +337,42 @@ public class DatabaseService
     /// <summary>
     /// Сохранение данных датчика видимости (DOV).
     /// </summary>
-    public async Task SaveDovDataAsync(DOVData data)
+    public async Task SaveDovDataAsync(DOVData data, Guid? pollingSessionId = null, int? monitoringPostId = null)
     {
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
         try
         {
+            data.PollingSessionId = pollingSessionId;
+            data.MonitoringPostId = monitoringPostId;
             context.DOVData.Add(data);
             await context.SaveChangesAsync();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error saving DOV data for sensor {sensorId}", data.SensorId);
+        }
+    }
+
+    /// <summary>
+    /// Сохранение данных датчика пыли (DUST).
+    /// </summary>
+    public async Task SaveDustDataAsync(DUSTData data, Guid? pollingSessionId = null, int? monitoringPostId = null)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        
+        try
+        {
+            data.PollingSessionId = pollingSessionId;
+            data.MonitoringPostId = monitoringPostId;
+            context.DustData.Add(data);
+            await context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error saving DUST data for sensor {sensorId}", data.SensorId);
         }
     }
 

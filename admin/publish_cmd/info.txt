@@ -1,8 +1,11 @@
 создание резервной копии базы
-pg_dump -h localhost -U postgres -d sensordb_mu > /opt/burstroy/tmp/backup_sensordb_mu.sql
+pg_dump -h localhost -U postgres -d sensordb > /opt/burstroy/tmp/backup_sensordb_last.sql
+pg_dump -h localhost -U postgres -d sensordb > D:\backup\backup_sensordb_last.sql
+
 
 создание резервной копии базы только структура
 pg_dump -h localhost -U postgres -d sensordb_mu -s > /opt/burstroy/tmp/backup_structure.sql
+pg_dump -h localhost -U postgres -d sensordb_mu -s > D:\backup\create_database.sql
 
 загрузка резервной кпии на хост
 scp -P 9022 bsp@192.168.3.19:/opt/burstroy/tmp/backup_structure.sql D:\backup\

@@ -69,6 +69,10 @@
                                 </td>
                             </tr>
                             <tr>
+                                <th class="bg-light ps-3">Интервал опроса</th>
+                                <td class="ps-3">@Model.PollingIntervalSeconds сек.</td>
+                            </tr>
+                            <tr>
                                 <th class="bg-light ps-3">Даты</th>
                                 <td class="ps-3 small">
                                     <div><span class="text-muted">Создан:</span> @(Model.CreatedAt?.ToString("dd.MM.yyyy HH:mm") ?? "—")</div>

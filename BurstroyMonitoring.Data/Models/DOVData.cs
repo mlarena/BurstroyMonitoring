@@ -16,6 +16,18 @@ public class DOVData
     public decimal? VisibleRange { get; set; }
     public int? BrightFlag { get; set; }
     
-    // Навигационное свойство
+    [Column("PollingSessionId")]
+    public Guid? PollingSessionId { get; set; }
+    
+    [Column("MonitoringPostId")]
+    public int? MonitoringPostId { get; set; }
+
+    // Навигационные свойства
     public Sensor? Sensor { get; set; }
+    
+    [ForeignKey("PollingSessionId")]
+    public virtual PollingSession? PollingSession { get; set; }
+    
+    [ForeignKey("MonitoringPostId")]
+    public virtual MonitoringPost? MonitoringPost { get; set; }
 }

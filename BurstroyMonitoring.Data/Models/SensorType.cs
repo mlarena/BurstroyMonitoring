@@ -11,12 +11,12 @@ namespace BurstroyMonitoring.Data.Models
         [Column("Id")]
         public int Id { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Поле Название типа обязательно для заполнения")]
         [StringLength(20)]
         [Column("SensorTypeName")]
         public string SensorTypeName { get; set; } = string.Empty;
 
-        [Required]
+        [Required(ErrorMessage = "Поле Описание обязательно для заполнения")]
         [Column("Description")]
         public string Description { get; set; } = string.Empty;
         

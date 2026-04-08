@@ -59,7 +59,9 @@ public class LoggerService
                     ErrorLevel = errorLevel,
                     ErrorMessage = errorMessage,
                     StackTrace = exception?.StackTrace,
-                    ErrorSource = exception?.Source,
+                    ErrorSource = exception != null 
+                        ? $"{exception.Source} | {exception.TargetSite?.DeclaringType?.Name}.{exception.TargetSite?.Name}"
+                        : "Unknown",
                     ExceptionType = exception?.GetType().Name,
                     CreatedAt = DateTime.UtcNow,
                     AdditionalData = additionalData
@@ -176,8 +178,8 @@ public class LoggerService
     {
         try
         {
-            // Формируем информативное сообщение с серийным номером и именем поста
-            string sensorInfo = $"sensor '{sensor.SerialNumber}'";
+            // Формируем информативное сообщение с серийным номером, названием точки и именем поста
+            string sensorInfo = $"sensor '{sensor.SerialNumber}' ({sensor.EndPointsName})";
             string postInfo = sensor.MonitoringPost != null 
                 ? $" on post '{sensor.MonitoringPost.Name}'" 
                 : "";

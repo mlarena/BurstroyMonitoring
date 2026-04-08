@@ -1,0 +1,160 @@
+@model BurstroyMonitoring.TCM.Models.HostStateModel
+
+@{
+    ViewData["Title"] = "Состояние хоста базы данных";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">Состояние хоста базы данных</h1>
+        <div class="d-flex gap-2 align-items-center">
+            <a href="@Url.Action("Index", "HostState")" class="btn btn-outline-primary btn-sm">
+                <span>🔄</span> Обновить
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header py-2">
+                    <h5 class="mb-0">Состояние базы данных PostgreSQL</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.IsConnected)
+                    {
+                        <div class="alert alert-success py-2 small mb-3" role="alert">
+                            <span>✅</span> Подключение к базе данных установлено
+                        </div>
+                        
+                        <div class="table-responsive shadow-sm rounded">
+                            <table class="table table-sm table-hover table-striped align-middle mb-0">
+                                <tbody>
+                                    <tr>
+                                        <th class="table-light" style="width: 40%">Имя базы данных</th>
+                                        <td class="fw-bold small">@Model.DatabaseName</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="table-light">Размер базы данных</th>
+                                        <td>
+                                            <span class="badge bg-info text-dark small">@Model.DatabaseSizeFormatted</span>
+                                            <small class="text-muted ms-2">(@Model.DatabaseSizeMB MB)</small>
+                                        </td>
+                                     </tr>
+                                    <tr>
+                                        <th class="table-light">Время проверки</th>
+                                        <td class="small">@Model.CheckedAt.ToString("dd.MM.yyyy HH:mm:ss")</td>
+                                     </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            <span>⚠️</span> 
+                            <strong>Ошибка подключения к базе данных!</strong>
+                            <hr />
+                            <p class="mb-0 small">@Model.ErrorMessage</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header py-2">
+                    <h5 class="mb-0">Информация о дисках</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.DiskInfoList != null && Model.DiskInfoList.Any())
+                    {
+                        <div class="table-responsive shadow-sm rounded">
+                            <table class="table table-sm table-hover table-striped align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="small">ФС</th>
+                                        <th class="small">Размер</th>
+                                        <th class="small">Использовано</th>
+                                        <th class="small">Доступно</th>
+                                        <th class="small" style="width: 120px;">%</th>
+                                        <th class="small">Монтаж</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var disk in Model.DiskInfoList)
+                                    {
+                                        <tr>
+                                            <td class="small"><code>@disk.Filesystem</code></td>
+                                            <td class="small">@disk.Size</td>
+                                            <td class="small">@disk.Used</td>
+                                            <td class="small">@disk.Available</td>
+                                            <td>
+                                                @{
+                                                    var percentValue = disk.UsePercent.TrimEnd('%');
+                                                    int percent = 0;
+                                                    int.TryParse(percentValue, out percent);
+                                                    var progressClass = percent > 80 ? "bg-danger" : (percent > 60 ? "bg-warning" : "bg-success");
+                                                }
+                                                <div class="progress" style="height: 12px;">
+                                                    <div class="progress-bar @progressClass" 
+                                                         role="progressbar" 
+                                                         style="width: @percent%"
+                                                         aria-valuenow="@percent" 
+                                                         aria-valuemin="0" 
+                                                         aria-valuemax="100">
+                                                    </div>
+                                                </div>
+                                                <div class="text-center small mt-1" style="font-size: 0.7rem;">@disk.UsePercent</div>
+                                            </td>
+                                            <td class="small">@disk.MountedOn</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info py-2 small">
+                            <span>ℹ️</span> Информация о дисках недоступна
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header py-2">
+                    <h5 class="mb-0">Вывод команды df -h</h5>
+                </div>
+                <div class="card-body p-0">
+                    <pre class="bg-light text-dark p-3 mb-0 small" style="overflow-x: auto; font-family: monospace; font-size: 0.85rem;">@Model.DiskUsageInfo</pre>
+                </div>
+                <div class="card-footer py-1 text-muted text-end">
+                    <small>Информация о дисковом пространстве системы</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .progress {
+        background-color: #e9ecef;
+        border-radius: 2px;
+    }
+    .progress-bar {
+        transition: width 0.3s ease;
+    }
+    .card {
+        border-radius: 0.5rem;
+    }
+    .card-header {
+        background-color: rgba(0,0,0,.03);
+    }
+</style>

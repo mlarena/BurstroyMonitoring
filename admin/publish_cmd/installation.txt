@@ -2,6 +2,18 @@
 ssh -p 58222 usermeteo@192.168.192.137
 
 scp -P 58222 "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" usermeteo@192.168.192.137:/opt/burstroy/tmp
+
+scp -P 9022 "C:\git\BurstroyMonitoring\admin\sql\create_database.sql" bsp@192.168.3.19:/opt/burstroy/tmp
+scp -P 9022 "C:\git\BurstroyMonitoring\admin\sql\db_insert.sql" bsp@192.168.3.19:/opt/burstroy/tmp
+scp -P 9022 "C:\git\BurstroyMonitoring\admin\sql\user.sql" bsp@192.168.3.19:/opt/burstroy/tmp
+scp -P 9022 "C:\git\BurstroyMonitoring\admin\sql\db_insert_internal_test_MonitoringPost.sql" bsp@192.168.3.19:/opt/burstroy/tmp
+scp -P 9022 "C:\git\BurstroyMonitoring\admin\sql\db_insert_test_sensors_roof.sql" bsp@192.168.3.19:/opt/burstroy/tmp
+
+scp "C:\git\BurstroyMonitoring\admin\sql\create_database.sql" devuser@192.168.192.143:/opt/burstroy/tmp
+scp "C:\git\BurstroyMonitoring\admin\sql\db_insert.sql" devuser@192.168.192.143:/opt/burstroy/tmp
+scp "C:\git\BurstroyMonitoring\admin\sql\user.sql" devuser@192.168.192.143:/opt/burstroy/tmp
+scp "C:\git\BurstroyMonitoring\admin\sql\monitoring_posts.sql" devuser@192.168.192.143:/opt/burstroy/tmp
+scp "C:\git\BurstroyMonitoring\admin\sql\db_new_big_data.sql" devuser@192.168.192.143:/opt/burstroy/tmp
 toor
 
 виртуалка большой тест
@@ -37,8 +49,17 @@ cd /opt/burstroy/tcm/
 psql -U postgres -h localhost -d postgres
 
 4. выполнение скриптов на базе данных
-sudo -u postgres psql -d sensordb_mu -f /opt/burstroy/tmp/addcameras.sql
-sudo -u postgres psql -d sensordb_mu -f /opt/burstroy/tmp/user.sql
+
+
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/create_database.sql
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_insert.sql
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/user.sql
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/monitoring_posts.sql
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_new_big_data.sql
+
+
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/addcameras.sql
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/user.sql
 sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_insert_kr.sql
 sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_insert.sql
 sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/monitoring_posts.sql

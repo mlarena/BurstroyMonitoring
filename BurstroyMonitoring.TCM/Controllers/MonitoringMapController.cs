@@ -78,7 +78,6 @@ namespace BurstroyMonitoring.TCM.Controllers
                     Longitude = s.Longitude,
                     SensorTypeId = s.SensorTypeId,
                     LastActivityUTC = s.LastActivityUTC,
-                    CheckIntervalSeconds = s.CheckIntervalSeconds,
                     MonitoringPostId = s.MonitoringPostId,
                     IsActive = s.IsActive,
                     SensorTypeName = s.SensorType != null ? s.SensorType.SensorTypeName : ""

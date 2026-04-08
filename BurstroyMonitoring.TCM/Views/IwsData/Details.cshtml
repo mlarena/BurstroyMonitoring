@@ -134,10 +134,6 @@
                                 <td class="ps-3 small">@(Model.SensorLatitude?.ToString("F6") ?? "—"), @(Model.SensorLongitude?.ToString("F6") ?? "—")</td>
                             </tr>
                             <tr>
-                                <th class="ps-3">Интервал проверки</th>
-                                <td class="ps-3 small">@Model.CheckIntervalSeconds сек.</td>
-                            </tr>
-                            <tr>
                                 <th class="ps-3">Последняя активность</th>
                                 <td class="ps-3 small">@(Model.LastActivityUtc?.ToString("dd.MM.yyyy HH:mm:ss") ?? "—")</td>
                             </tr>

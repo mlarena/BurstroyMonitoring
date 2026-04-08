@@ -126,7 +126,7 @@ try
     builder.Services.AddScoped<IAuthService, AuthService>();
     builder.Services.AddScoped<IWebPartService, WebPartService>();
     builder.Services.AddSingleton<RtspStreamService>();
-
+    builder.Services.AddScoped<IDatabaseService, DatabaseService>();
     // Настройка аутентификации JWT
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
@@ -187,7 +187,7 @@ try
                 
                 // Создаём таблицу web_parts если не существует
                 await dbContext.Database.ExecuteSqlRawAsync(@"
-                    CREATE TABLE IF NOT EXISTS public.web_parts (
+                    CREATE TABLE IF NOT EXISTS public.""WebParts"" (
                         id          SERIAL PRIMARY KEY,
                         title       VARCHAR(200) NOT NULL DEFAULT '',
                         type        INTEGER NOT NULL DEFAULT 0,

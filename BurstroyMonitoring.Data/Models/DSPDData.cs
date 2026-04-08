@@ -31,6 +31,19 @@ public class DSPDData
     public decimal? GPSLongitude { get; set; }
     public bool IsGpsValid { get; set; } = true;
     public decimal? DistanceToSurface { get; set; }
-    // Навигационное свойство
+    
+    [Column("PollingSessionId")]
+    public Guid? PollingSessionId { get; set; }
+    
+    [Column("MonitoringPostId")]
+    public int? MonitoringPostId { get; set; }
+
+    // Навигационные свойства
     public Sensor? Sensor { get; set; }
+    
+    [ForeignKey("PollingSessionId")]
+    public virtual PollingSession? PollingSession { get; set; }
+    
+    [ForeignKey("MonitoringPostId")]
+    public virtual MonitoringPost? MonitoringPost { get; set; }
 }

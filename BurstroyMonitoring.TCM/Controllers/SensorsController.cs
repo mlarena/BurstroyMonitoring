@@ -52,7 +52,7 @@ namespace BurstroyMonitoring.TCM.Controllers
 
         if (selectedMonitoringPosts != null && selectedMonitoringPosts.Any())
         {
-            query = query.Where(s => selectedMonitoringPosts.Contains(s.MonitoringPostId.Value));
+            query = query.Where(s => selectedMonitoringPosts.Contains(s.MonitoringPostId));
             ViewBag.SelectedMonitoringPostIds = selectedMonitoringPosts;
         }
 
@@ -105,11 +105,6 @@ namespace BurstroyMonitoring.TCM.Controllers
             case "lastactivityutc":
                 query = sortDesc ? query.OrderByDescending(s => s.LastActivityUTC) 
                                 : query.OrderBy(s => s.LastActivityUTC);
-                break;
-            case "checkinterval":
-            case "checkintervalseconds":
-                query = sortDesc ? query.OrderByDescending(s => s.CheckIntervalSeconds) 
-                                : query.OrderBy(s => s.CheckIntervalSeconds);
                 break;
             case "created":
             case "createdat":
@@ -181,7 +176,7 @@ namespace BurstroyMonitoring.TCM.Controllers
         // POST: Sensors/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,SensorTypeId,Longitude,Latitude,SerialNumber,EndPointsName,Url,CheckIntervalSeconds,LastActivityUTC,IsActive,MonitoringPostId")] Sensor sensor)
+        public async Task<IActionResult> Create([Bind("Id,SensorTypeId,Longitude,Latitude,SerialNumber,EndPointsName,Url,LastActivityUTC,IsActive,MonitoringPostId")] Sensor sensor)
         {
             if (ModelState.IsValid)
             {
@@ -223,7 +218,7 @@ namespace BurstroyMonitoring.TCM.Controllers
         // POST: Sensors/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,SensorTypeId,Longitude,Latitude,SerialNumber,EndPointsName,Url,CheckIntervalSeconds,LastActivityUTC,CreatedAt,IsActive,MonitoringPostId")] Sensor sensor)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,SensorTypeId,Longitude,Latitude,SerialNumber,EndPointsName,Url,LastActivityUTC,CreatedAt,IsActive,MonitoringPostId")] Sensor sensor)
         {
             if (id != sensor.Id)
             {

@@ -42,6 +42,12 @@
                             </div>
                         </div>
                         
+                        <div class="mb-3">
+                            <label asp-for="PollingIntervalSeconds" class="form-label small fw-bold">Интервал опроса (сек)</label>
+                            <input asp-for="PollingIntervalSeconds" class="form-control form-control-sm" />
+                            <span asp-validation-for="PollingIntervalSeconds" class="text-danger small"></span>
+                        </div>
+
                         <div class="row mb-3">
                             <div class="col-6">
                                 <div class="form-check form-switch">

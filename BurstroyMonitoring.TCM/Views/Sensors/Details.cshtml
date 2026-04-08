@@ -78,13 +78,6 @@
                                 </td>
                             </tr>
                             <tr>
-                                <th class="bg-light ps-3">Интервал проверки</th>
-                                <td class="ps-3">
-                                    @Model.CheckIntervalSeconds сек. 
-                                    <span class="text-muted small">(@(Model.CheckIntervalSeconds / 60) мин.)</span>
-                                </td>
-                            </tr>
-                            <tr>
                                 <th class="bg-light ps-3">Активность</th>
                                 <td class="ps-3 small">
                                     @if (Model.LastActivityUTC.HasValue)

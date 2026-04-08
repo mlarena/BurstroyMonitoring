@@ -194,7 +194,7 @@ namespace BurstroyMonitoring.Api.Controllers
                     MeteoHumidity = (float?)lastData.Humidity,
                     MeteoAir_Pressure = (float?)lastData.PressureHPa,
                     MeteoWind_Velocity = (float?)lastData.WindSpeed,
-                    MeteoWind_Gusts = null,
+                    MeteoWind_Gusts = -9999,
                     MeteoWind_Direction = (float?)lastData.WindDirection,
                     MeteoPrecip_Amount = (float?)lastData.PrecipitationQuantity,
                     MeteoPrecip_Intensity = (float?)lastData.PrecipitationIntensity,

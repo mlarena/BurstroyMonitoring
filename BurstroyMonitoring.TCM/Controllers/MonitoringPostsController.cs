@@ -69,6 +69,10 @@ namespace BurstroyMonitoring.TCM.Controllers
                     query = sortDesc ? query.OrderByDescending(mp => mp.CreatedAt) 
                                     : query.OrderBy(mp => mp.CreatedAt);
                     break;
+                case "pollinginterval":
+                    query = sortDesc ? query.OrderByDescending(mp => mp.PollingIntervalSeconds) 
+                                    : query.OrderBy(mp => mp.PollingIntervalSeconds);
+                    break;
                 default: // "id" или по умолчанию
                     query = sortDesc ? query.OrderByDescending(mp => mp.Id) 
                                     : query.OrderBy(mp => mp.Id);
@@ -114,7 +118,7 @@ namespace BurstroyMonitoring.TCM.Controllers
         // POST: MonitoringPosts/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Address,Description,Longitude,Latitude,IsMobile,IsActive")] MonitoringPost monitoringPost)
+        public async Task<IActionResult> Create([Bind("Id,Name,Address,Description,Longitude,Latitude,IsMobile,IsActive,PollingIntervalSeconds")] MonitoringPost monitoringPost)
         {
             Console.WriteLine($"=== !СОЗДАНИЕ ПОСТА ===");
             Console.WriteLine($"Name: {monitoringPost.Name}");
@@ -166,7 +170,7 @@ namespace BurstroyMonitoring.TCM.Controllers
         // POST: MonitoringPosts/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Address,Description,Longitude,Latitude,IsMobile,IsActive,CreatedAt")] MonitoringPost monitoringPost)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Address,Description,Longitude,Latitude,IsMobile,IsActive,CreatedAt,PollingIntervalSeconds")] MonitoringPost monitoringPost)
         {
             if (id != monitoringPost.Id)
             {
@@ -191,6 +195,7 @@ namespace BurstroyMonitoring.TCM.Controllers
                     existingPost.Latitude = monitoringPost.Latitude;
                     existingPost.IsMobile = monitoringPost.IsMobile;
                     existingPost.IsActive = monitoringPost.IsActive;
+                    existingPost.PollingIntervalSeconds = monitoringPost.PollingIntervalSeconds;
                     existingPost.UpdatedAt = DateTime.UtcNow;
 
                     await _context.SaveChangesAsync();

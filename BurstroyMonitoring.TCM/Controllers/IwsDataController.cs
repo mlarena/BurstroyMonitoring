@@ -57,7 +57,6 @@ namespace BurstroyMonitoring.TCM.Controllers
                 ["SerialNumber"] = "Серийный номер",
                 ["EndpointName"] = "Конечная точка",
                 ["SensorUrl"] = "URL датчика",
-                ["CheckIntervalSeconds"] = "Интервал проверки (сек)",
                 ["LastActivityUtc"] = "Последняя активность",
                 ["SensorIsActive"] = "Датчик активен",
                 ["SensorTypeName"] = "Тип датчика",

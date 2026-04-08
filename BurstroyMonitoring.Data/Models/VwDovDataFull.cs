@@ -45,9 +45,7 @@ namespace BurstroyMonitoring.Data.Models
         [Column("sensor_url")]
         public string? SensorUrl { get; set; }
 
-        [Column("check_interval_seconds")]
-        public int? CheckIntervalSeconds { get; set; }
-
+        
         [Column("last_activity_utc")]
         public DateTime? LastActivityUtc { get; set; }
 

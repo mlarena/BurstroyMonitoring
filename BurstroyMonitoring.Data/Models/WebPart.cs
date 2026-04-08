@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BurstroyMonitoring.Data.Models;
 
-[Table("web_parts")]
+[Table("WebParts")]
 public class WebPart
 {
     [Key]

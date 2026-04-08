@@ -16,7 +16,13 @@ public class SensorResults
     public JsonDocument? ResponseBody { get; set; }
     public long ResponseTimeMs { get; set; }
     public bool IsSuccess { get; set; }
+    
+    [Column("PollingSessionId")]
+    public Guid? PollingSessionId { get; set; }
 
-    // Навигационное свойство
+    // Навигационные свойства
     public Sensor? Sensor { get; set; }
+    
+    [ForeignKey("PollingSessionId")]
+    public virtual PollingSession? PollingSession { get; set; }
 }

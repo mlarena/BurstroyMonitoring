@@ -11,7 +11,7 @@ namespace BurstroyMonitoring.Data.Models
         [Column("Id")]
         public int Id { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Поле Тип датчика обязательно для заполнения")]
         [Column("SensorTypeId")]
         public int SensorTypeId { get; set; }
 
@@ -26,22 +26,19 @@ namespace BurstroyMonitoring.Data.Models
         [Range(-90.0, 90.0, ErrorMessage = "Широта должна быть от -90 до 90")]
         public double? Latitude { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Поле Серийный номер обязательно для заполнения")]
         [StringLength(64)]
         [Column("SerialNumber")]
         public string SerialNumber { get; set; } = string.Empty;
 
-        [Required]
+        [Required(ErrorMessage = "Поле Название обязательно для заполнения")]
         [StringLength(255)]
         [Column("EndPointsName")]
         public string EndPointsName { get; set; } = string.Empty;
 
-        [Required]
+        [Required(ErrorMessage = "Поле URL API обязательно для заполнения")]
         [Column("Url")]
         public string Url { get; set; } = string.Empty;
-
-        [Column("CheckIntervalSeconds")]
-        public int CheckIntervalSeconds { get; set; } = 300;
 
         [Column("LastActivityUTC")]
         public DateTime? LastActivityUTC { get; set; }
@@ -52,8 +49,9 @@ namespace BurstroyMonitoring.Data.Models
         [Column("IsActive")]
         public bool IsActive { get; set; } = true;
 
+        [Required(ErrorMessage = "Поле Пост мониторинга обязательно для заполнения")]
         [Column("MonitoringPostId")]
-        public int? MonitoringPostId { get; set; }
+        public int MonitoringPostId { get; set; }
 
         [ForeignKey("MonitoringPostId")]
         public virtual MonitoringPost? MonitoringPost { get; set; }

@@ -20,16 +20,15 @@ BEGIN
             post_record."Name", 
             post_record."IsActive";
         
-		INSERT INTO public."Sensor"     ("SensorTypeId",      "MonitoringPostId",     "SerialNumber",     "EndPointsName",     "Url",      "CheckIntervalSeconds",     "IsActive")
-		VALUES
-		    -- Основные датчики
-		    ((SELECT "Id" FROM "SensorType" WHERE "SensorTypeName" = 'DSPD'),   post_record."Id", 'DSPD_M', 'состояние дорожного полотна', 'http://localhost:6009/api/Sensors/DSPD', 60, true),    
-		    ((SELECT "Id" FROM "SensorType" WHERE "SensorTypeName" = 'DOV'),    post_record."Id", 'DOV_001', 'видимость', 'http://localhost:6009/api/Sensors/DOV', 60, true),
-		    ((SELECT "Id" FROM "SensorType" WHERE "SensorTypeName" = 'MUEKS'), post_record."Id", 'MUEKS_001', 'управление энергоснабжением', 'http://localhost:6009/api/Sensors/MUEKS', 60, true),
-		    ((SELECT "Id" FROM "SensorType" WHERE "SensorTypeName" = 'IWS'),    post_record."Id", 'IWS_001', 'параметроы атмосферы', 'http://localhost:6009/api/Sensors/IWS', 60, true),
-		    ((SELECT "Id" FROM "SensorType" WHERE "SensorTypeName" = 'DUST'),    post_record."Id", 'DUST_001', 'концентрация пыли', 'http://localhost:6009/api/Sensors/DUST', 60, true)
+		INSERT INTO public."Sensor"     ("SensorTypeId",      "MonitoringPostId",     "SerialNumber",     "EndPointsName",     "Url",           "IsActive")
+	    VALUES
+		    ((SELECT "Id" FROM "SensorType" WHERE "SensorTypeName" = 'DOV'),    post_record."Id", 'DOV_local',      'dov_local',    'http://192.168.192.145:6009/api/Sensors/DOV',  true),
+		    ((SELECT "Id" FROM "SensorType" WHERE "SensorTypeName" = 'DSPD'),   post_record."Id", 'DSPD_local_1',   'dspd_local_1', 'http://192.168.192.145:6009/api/Sensors/DSPD',  true),
+		    ((SELECT "Id" FROM "SensorType" WHERE "SensorTypeName" = 'DUST'),    post_record."Id", 'DUST_001__local', 'dust_local', 'http://192.168.192.145:6009/api/Sensors/DUST',  true),
+		    ((SELECT "Id" FROM "SensorType" WHERE "SensorTypeName" = 'MUEKS'), post_record."Id", 'MUEKS_001_local',   'mueks_local', 'http://192.168.192.145:6009/api/Sensors/MUEKS',  true),
+		    ((SELECT "Id" FROM "SensorType" WHERE "SensorTypeName" = 'IWS'),    post_record."Id", 'IWS_001_local',   'iws_local',    'http://192.168.192.145:6009/api/Sensors/IWS',  true)
 		ON CONFLICT DO NOTHING;
-		    
+			    
     END LOOP;
     
     -- Закрываем курсор

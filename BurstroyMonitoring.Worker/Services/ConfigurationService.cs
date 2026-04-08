@@ -3,21 +3,15 @@ using Microsoft.Extensions.Logging;
 
 namespace BurstroyMonitoring.Worker.Services;
 
-
-
-/// <summary>
-/// Сервис для управления конфигурацией
-/// </summary>
 public class ConfigurationService
 {
     private readonly IConfiguration _configuration;
     private readonly DatabaseService _dbService;
     private readonly ILogger<ConfigurationService> _logger;
     
-    // Кэш конфигурации
-    private Dictionary<string, string> _configCache = new();
-    private DateTime _lastConfigRefresh = DateTime.MinValue;
-    private readonly object _lock = new();
+    private System.Collections.Generic.Dictionary<string, string> _configCache = new System.Collections.Generic.Dictionary<string, string>();
+    private System.DateTime _lastConfigRefresh = System.DateTime.MinValue;
+    private readonly object _lock = new object();
 
     public ConfigurationService(
         IConfiguration configuration,
@@ -29,29 +23,15 @@ public class ConfigurationService
         _logger = logger;
     }
 
-    /// <summary>
-    /// Обновление конфигурации из базы данных.
-    /// Проверяет интервал обновления, чтобы не нагружать БД слишком частыми запросами.
-    /// </summary>
-    public async Task RefreshConfigurationAsync()
+    public async System.Threading.Tasks.Task RefreshConfigurationAsync()
     {
         var refreshInterval = GetRefreshIntervalSeconds();
-        
-        // Проверка времени последнего обновления
-        if ((DateTime.UtcNow - _lastConfigRefresh).TotalSeconds < refreshInterval)
+        if ((System.DateTime.UtcNow - _lastConfigRefresh).TotalSeconds < refreshInterval)
             return;
-
-        lock (_lock)
-        {
-            if ((DateTime.UtcNow - _lastConfigRefresh).TotalSeconds < refreshInterval)
-                return;
-        }
 
         try
         {
-            // Загрузка всех активных настроек из таблицы WorkerConfigurations
             var configs = await _dbService.GetConfigurationAsync();
-            
             lock (_lock)
             {
                 _configCache.Clear();
@@ -59,90 +39,52 @@ public class ConfigurationService
                 {
                     _configCache[config.Key] = config.Value;
                 }
-                _lastConfigRefresh = DateTime.UtcNow;
-                
+                _lastConfigRefresh = System.DateTime.UtcNow;
                 _logger.LogInformation("Configuration refreshed. Loaded {count} items", configs.Count);
             }
         }
-        catch (Exception ex)
+        catch (System.Exception ex)
         {
             _logger.LogError(ex, "Error refreshing configuration");
         }
     }
 
-    /// <summary>
-    /// Получение значения конфигурации.
-    /// Приоритет: 1. База данных (кэш), 2. Файл appsettings.json, 3. Значение по умолчанию.
-    /// </summary>
     public string GetConfigValue(string key, string defaultValue = "")
     {
-        // 1. Попытка получить из кэша базы данных
         if (_configCache.TryGetValue(key, out var cachedValue))
             return cachedValue;
 
-        // 2. Попытка получить из appsettings.json
         var appSettingsValue = _configuration[key];
         if (!string.IsNullOrEmpty(appSettingsValue))
             return appSettingsValue;
 
-        // 3. Возврат значения по умолчанию
         return defaultValue;
     }
 
-    /// <summary>
-    /// Проверка, нужно ли сохранять тело ответа для датчика
-    /// </summary>
-    public bool ShouldSaveResponseBody(int sensorId)
-    {
-        // Сначала проверяем конкретную настройку для датчика
-        var sensorSpecificKey = $"SaveResponseBody.Sensor.{sensorId}";
-        var sensorSpecificValue = GetConfigValue(sensorSpecificKey);
-        
-        if (!string.IsNullOrEmpty(sensorSpecificValue))
-            return bool.Parse(sensorSpecificValue);
-
-        // Используем значение по умолчанию
-        var defaultValue = GetConfigValue("SaveResponseBody.Default", "true");
-        return bool.Parse(defaultValue);
-    }
-
-    /// <summary>
-    /// Получение максимального количества параллельных задач
-    /// </summary>
     public int GetMaxConcurrentTasks()
     {
         var value = GetConfigValue("Polling.MaxConcurrentTasks", "100");
         return int.TryParse(value, out int result) ? result : 100;
     }
 
-    /// <summary>
-    /// Получение количества повторных попыток
-    /// </summary>
     public int GetRetryCount()
     {
         var value = GetConfigValue("Polling.RetryCount", "3");
         return int.TryParse(value, out int result) ? result : 3;
     }
 
-    /// <summary>
-    /// Получение задержки между повторными попытками
-    /// </summary>
     public int GetRetryDelayMs()
     {
         var value = GetConfigValue("Polling.RetryDelayMs", "1000");
         return int.TryParse(value, out int result) ? result : 1000;
     }
 
-    /// <summary>
-    /// Получение интервала обновления конфигурации
-    /// </summary>
     private int GetRefreshIntervalSeconds()
     {
         var value = GetConfigValue("Configuration.RefreshIntervalSeconds", "60");
         return int.TryParse(value, out int result) ? result : 60;
     }
 
-    //Добавить в базу!
     public int GetHttpTimeoutSeconds()
     {
         var value = GetConfigValue("Polling.HttpTimeoutSeconds", "30");

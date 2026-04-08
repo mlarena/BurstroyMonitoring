@@ -40,51 +40,7 @@ public class SensorPollingService
         };
     }
 
-    /// <summary>
-    /// Основной метод для опроса списка датчиков.
-    /// Использует семафор для ограничения количества одновременных HTTP-запросов.
-    /// </summary>
-    public async Task PollSensorsAsync(List<BurstroyMonitoring.Data.Models.Sensor> sensors, CancellationToken cancellationToken)
-    {
-        // Получаем лимит параллельных задач из конфигурации
-        var maxConcurrentTasks = _configService.GetMaxConcurrentTasks();
-        var tasks = new List<Task>();
-        var semaphore = new SemaphoreSlim(maxConcurrentTasks);
-        
-        foreach (var sensor in sensors)
-        {
-            // Ожидаем свободный слот в семафоре
-            await semaphore.WaitAsync(cancellationToken);
-            
-            var task = Task.Run(async () =>
-            {
-                try
-                {
-                    // Опрос конкретного датчика
-                    await PollSensorAsync(sensor, cancellationToken);
-                }
-                finally
-                {
-                    // Освобождаем слот семафора после завершения опроса
-                    semaphore.Release();
-                }
-            }, cancellationToken);
-            
-            tasks.Add(task);
-            
-            // Небольшая задержка между запуском задач для снижения пиковой нагрузки на CPU
-            if (sensors.Count > 10)
-                await Task.Delay(10, cancellationToken);
-        }
-        
-        // Ожидаем завершения всех запущенных задач опроса
-        await Task.WhenAll(tasks);
-    }
-
-    /// <summary>
-    /// Опрос одного датчика с поддержкой повторных попыток и таймаутов.
-    /// </summary>
-    private async Task PollSensorAsync(BurstroyMonitoring.Data.Models.Sensor sensor, CancellationToken cancellationToken)
+    public async Task<(string? ResponseBody, int StatusCode, long ResponseTimeMs, bool IsSuccess, Exception? Exception)> PollSensorAsync(BurstroyMonitoring.Data.Models.Sensor sensor, CancellationToken cancellationToken)
     {
         var startTime = DateTime.UtcNow;
         HttpResponseMessage? response = null;
@@ -92,23 +48,20 @@ public class SensorPollingService
         int statusCode = 0;
         long responseTimeMs = 0;
         bool isSuccess = false;
-        bool shouldSaveResult = true;
+        Exception? lastException = null;
 
         try
         {
             var client = _httpClientFactory.CreateClient("SensorClient");
             
-            // Создаем отдельный токен отмены с таймаутом из настроек
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             cts.CancelAfter(TimeSpan.FromSeconds(_configService.GetHttpTimeoutSeconds() + 5));
             
-            // Цикл повторных попыток при сбоях (Retry Policy)
             for (int attempt = 1; attempt <= _configService.GetRetryCount(); attempt++)
             {
                 try
                 {
                     var requestStart = DateTime.UtcNow;
-                    // Выполнение GET запроса к датчику
                     response = await client.GetAsync(sensor.Url, cts.Token);
                     responseTimeMs = (long)(DateTime.UtcNow - requestStart).TotalMilliseconds;
                     
@@ -117,12 +70,10 @@ public class SensorPollingService
 
                     if (response.IsSuccessStatusCode)
                     {
-                        // Чтение тела ответа при успехе
                         responseBody = await response.Content.ReadAsStringAsync(cts.Token);
-                        break; // Выход из цикла попыток при успехе
+                        break;
                     }
                     
-                    // Пауза перед следующей попыткой
                     if (attempt < _configService.GetRetryCount())
                     {
                         await Task.Delay(_configService.GetRetryDelayMs(), cts.Token);
@@ -130,48 +81,31 @@ public class SensorPollingService
                 }
                 catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException || cts.Token.IsCancellationRequested)
                 {
-                    _logger.LogDebug("Timeout on attempt {attempt} for sensor {sensorId}", attempt, sensor.Id);
-                    statusCode = 408; // Request Timeout
-                    
-                    if (attempt == _configService.GetRetryCount())
-                        throw new HttpRequestException("Request timeout", null, System.Net.HttpStatusCode.RequestTimeout);
-                    
+                    statusCode = 408;
+                    lastException = ex;
+                    if (attempt == _configService.GetRetryCount()) break;
+                    await Task.Delay(_configService.GetRetryDelayMs(), cts.Token);
+                }
+                catch (Exception ex)
+                {
+                    lastException = ex;
+                    if (attempt == _configService.GetRetryCount()) break;
                     await Task.Delay(_configService.GetRetryDelayMs(), cts.Token);
                 }
             }
         }
-        catch (OperationCanceledException)
-        {
-            // Отмена операции - не логируем как ошибку
-            _logger.LogDebug("Polling cancelled for sensor {sensorId}", sensor.Id);
-            return;
-        }
-        catch (HttpRequestException httpEx)
-        {
-            shouldSaveResult = false;
-            await HandleAccessErrorAsync(sensor, httpEx, cancellationToken);
-            return;
-        }
         catch (Exception ex)
         {
-            shouldSaveResult = false;
-            await HandleAccessErrorAsync(sensor, ex, cancellationToken);
-            return;
+            _logger.LogWarning("Error polling sensor {sensorId}: {message}", sensor.Id, ex.Message);
+            isSuccess = false;
+            lastException = ex;
         }
         finally
         {
             response?.Dispose();
         }
 
-        // Обработка успешного ответа
-        if (isSuccess && !string.IsNullOrEmpty(responseBody))
-        {
-            await ProcessSuccessfulResponseAsync(sensor, responseBody, statusCode, responseTimeMs, startTime, cancellationToken);
-        }
-        else if (shouldSaveResult)
-        {
-            await HandleUnsuccessfulResponseAsync(sensor, statusCode, responseTimeMs, responseBody, startTime, cancellationToken);
-        }
+        return (responseBody, statusCode, responseTimeMs, isSuccess, lastException);
     }
 
 
@@ -241,15 +175,10 @@ private async Task HandleAccessErrorAsync(
     {
         try
         {
-            // Проверка, нужно ли сохранять тело ответа
-            bool saveResponseBody = _configService.ShouldSaveResponseBody(sensor.Id);
-            
-            // Сохранение результата в базу данных
-            JsonDocument? responseBodyJson = null;
-            if (saveResponseBody && !string.IsNullOrEmpty(responseBody))
-            {
-                responseBodyJson = JsonDocument.Parse(responseBody);
-            }
+            // Сохранение результата в базу данных (всегда сохраняем тело ответа)
+            JsonDocument? responseBodyJson = !string.IsNullOrEmpty(responseBody) 
+                ? JsonDocument.Parse(responseBody) 
+                : null;
 
             var result = new BurstroyMonitoring.Data.Models.SensorResults
             {
@@ -305,7 +234,7 @@ private async Task HandleAccessErrorAsync(
         // Используем DataProcessingService
         using var scope = _serviceProvider.CreateScope();
         var dataProcessingService = scope.ServiceProvider.GetRequiredService<DataProcessingService>();
-        await dataProcessingService.ProcessSensorDataAsync(sensor, jsonDocument, cancellationToken);
+        await dataProcessingService.ProcessSensorDataAsync(sensor, jsonDocument, null, cancellationToken);
     }
 
     /// <summary>
@@ -319,13 +248,9 @@ private async Task HandleAccessErrorAsync(
         DateTime checkedAt,
         CancellationToken cancellationToken)
     {
-        bool saveResponseBody = _configService.ShouldSaveResponseBody(sensor.Id);
-        
-        JsonDocument? responseBodyJson = null;
-        if (saveResponseBody && !string.IsNullOrEmpty(responseBody))
-        {
-            responseBodyJson = JsonDocument.Parse(responseBody);
-        }
+        JsonDocument? responseBodyJson = !string.IsNullOrEmpty(responseBody) 
+            ? JsonDocument.Parse(responseBody) 
+            : null;
 
         var result = new BurstroyMonitoring.Data.Models.SensorResults
         {
@@ -336,6 +261,7 @@ private async Task HandleAccessErrorAsync(
             ResponseTimeMs = responseTimeMs,
             IsSuccess = false
         };
+
 
         await _dbService.SaveSensorResultAsync(result);
         
