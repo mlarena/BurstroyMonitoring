@@ -3,7 +3,7 @@ $ErrorActionPreference = "Stop"
 
 $basePath = "C:\git\BurstroyMonitoring"
 $outputDir = "$basePath\admin\publish_cmd"
-$zipPath = Join-Path $outputDir "tcm_arm.zip"
+$zipPath = Join-Path $outputDir "tcm.zip"
 
 # List of files to include in the bundle
 $filesToInclude = @(
@@ -15,10 +15,10 @@ $filesToInclude = @(
     "$basePath\admin\bash\check-dependencies.sh"
     
     # Application binaries (Linux x64)
-    "$basePath\BurstroyMonitoring.VideoMonitoring\release\linux-arm64\BurstroyMonitoring.VideoMonitoring.zip",
-    "$basePath\BurstroyMonitoring.Worker\release\linux-arm64\BurstroyMonitoring.Worker.zip",
-    "$basePath\BurstroyMonitoring.TCM\release\linux-arm64\BurstroyMonitoring.TCM.zip",
-    "$basePath\BurstroyMonitoring.Api\release\linux-arm64\BurstroyMonitoring.Api.zip"
+    "$basePath\BurstroyMonitoring.VideoMonitoring\release\linux-x64\BurstroyMonitoring.VideoMonitoring.zip",
+    "$basePath\BurstroyMonitoring.Worker\release\linux-x64\BurstroyMonitoring.Worker.zip",
+    "$basePath\BurstroyMonitoring.TCM\release\linux-x64\BurstroyMonitoring.TCM.zip",
+    "$basePath\BurstroyMonitoring.Api\release\linux-x64\BurstroyMonitoring.Api.zip",
     
     # SQL structure
     "$basePath\admin\sql\create_database.sql",
@@ -28,13 +28,13 @@ $filesToInclude = @(
     "$basePath\admin\bash\create-service-burstroy-monitoring-video.sh",
     "$basePath\admin\bash\create-service-burstroy-monitoring-worker.sh",
     "$basePath\admin\bash\create-service-burstroy-monitoring-api.sh",
-    
+
     # Installation scripts
     "$basePath\admin\bash\install_tcm.sh",
     "$basePath\admin\bash\install_video-monitoring.sh",
     "$basePath\admin\bash\install_worker.sh",
     "$basePath\admin\bash\install_api.sh",
-    
+
     # Update scripts
     "$basePath\admin\bash\update_tcm.sh",
     "$basePath\admin\bash\update_video-monitoring.sh",

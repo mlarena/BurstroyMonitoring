@@ -4,8 +4,12 @@ pg_dump -h localhost -U postgres -d sensordb > D:\backup\backup_sensordb_last.sq
 
 
 создание резервной копии базы только структура
-pg_dump -h localhost -U postgres -d sensordb_mu -s > /opt/burstroy/tmp/backup_structure.sql
-pg_dump -h localhost -U postgres -d sensordb_mu -s > D:\backup\create_database.sql
+pg_dump -h localhost -U postgres -d sensordb -s > /opt/burstroy/tmp/backup_structure_new1.sql
+.\pg_dump -h localhost -U postgres -d sensordb_mu -s > D:\backup\create_database_new.sql
+.\pg_dump -h localhost -U postgres -d sensordb -s --encoding=UTF8 --no-comments -f D:\backup\create_database_new.sql
+
+set PGCLIENTENCODING=UTF8
+.\pg_dump -h localhost -U postgres -d sensordb -s --encoding=UTF8 -f D:\backup\create_database_new.sql
 
 загрузка резервной кпии на хост
 scp -P 9022 bsp@192.168.3.19:/opt/burstroy/tmp/backup_structure.sql D:\backup\

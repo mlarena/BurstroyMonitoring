@@ -11,10 +11,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
     volumes:
       - postgres_data:/var/lib/postgresql
-      - ./admin/sql/db_db.sql:/docker-entrypoint-initdb.d/01_db_db.sql:ro
-      - ./admin/sql/user.sql:/docker-entrypoint-initdb.d/02_user.sql:ro
-      - ./admin/sql/addcameras.sql:/docker-entrypoint-initdb.d/03_addcameras.sql:ro
-      - ./admin/sql/db_vw.sql:/docker-entrypoint-initdb.d/04_db_vw.sql:ro
+      - ./admin/sql/create_database.sql:/docker-entrypoint-initdb.d/01_db_db.sql:ro
     networks:
       - burstroy_net
     healthcheck:

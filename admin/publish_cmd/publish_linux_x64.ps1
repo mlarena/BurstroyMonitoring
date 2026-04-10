@@ -8,7 +8,8 @@ $publishDirName = "release\$runtime"
 $projects = @(
     @{ Name = "BurstroyMonitoring.TCM"; Path = "$basePath\BurstroyMonitoring.TCM\BurstroyMonitoring.TCM.csproj"; Out = "$basePath\BurstroyMonitoring.TCM\$publishDirName" },
     @{ Name = "BurstroyMonitoring.Worker"; Path = "$basePath\BurstroyMonitoring.Worker\BurstroyMonitoring.Worker.csproj"; Out = "$basePath\BurstroyMonitoring.Worker\$publishDirName" },
-    @{ Name = "BurstroyMonitoring.VideoMonitoring"; Path = "$basePath\BurstroyMonitoring.VideoMonitoring\BurstroyMonitoring.VideoMonitoring.csproj"; Out = "$basePath\BurstroyMonitoring.VideoMonitoring\$publishDirName" }
+    @{ Name = "BurstroyMonitoring.VideoMonitoring"; Path = "$basePath\BurstroyMonitoring.VideoMonitoring\BurstroyMonitoring.VideoMonitoring.csproj"; Out = "$basePath\BurstroyMonitoring.VideoMonitoring\$publishDirName" },
+    @{ Name = "BurstroyMonitoring.Api"; Path = "$basePath\BurstroyMonitoring.Api\BurstroyMonitoring.Api.csproj"; Out = "$basePath\BurstroyMonitoring.Api\$publishDirName" }
 )
 
 foreach ($project in $projects) {

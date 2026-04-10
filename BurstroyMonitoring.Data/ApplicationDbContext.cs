@@ -65,6 +65,7 @@ namespace BurstroyMonitoring.Data
         public DbSet<VwDustDataFull> VwDustDataFull { get; set; }
         public DbSet<VwSensorResultsFull> VwSensorResultsFull { get; set; }
         public DbSet<VwSensorErrorsFull> VwSensorErrorsFull { get; set; }
+        public DbSet<VwMeteoStandartLast> VwMeteoStandartLast { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -99,6 +100,10 @@ namespace BurstroyMonitoring.Data
             modelBuilder.Entity<VwSensorErrorsFull>()
                 .HasNoKey()
                 .ToView("vw_sensor_errors_full");
+
+            modelBuilder.Entity<VwMeteoStandartLast>()
+                .HasNoKey()
+                .ToView("vw_meteo_standart_last");
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

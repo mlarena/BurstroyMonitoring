@@ -96,20 +96,6 @@ CREATE TABLE public."DOVData" (
 ALTER TABLE public."DOVData" OWNER TO postgres;
 
 --
--- Name: COLUMN "DOVData"."PollingSessionId"; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public."DOVData"."PollingSessionId" IS '╨í╤ü╤ï╨╗╨║╨░ ╨╜╨░ ╤ü╨╡╤ü╤ü╨╕╤Ä ╨╛╨┐╤Ç╨╛╤ü╨░, ╨▓ ╤Ç╨░╨╝╨║╨░╤à ╨║╨╛╤é╨╛╤Ç╨╛╨╣ ╨▒╤ï╨╗╨╕ ╨┐╨╛╨╗╤â╤ç╨╡╨╜╤ï ╤ì╤é╨╕ ╨┤╨░╨╜╨╜╤ï╨╡';
-
-
---
--- Name: COLUMN "DOVData"."MonitoringPostId"; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public."DOVData"."MonitoringPostId" IS '╨ö╨╡╨╜╨╛╤Ç╨╝╨░╨╗╨╕╨╖╨╛╨▓╨░╨╜╨╜╨╛╨╡ ╨┐╨╛╨╗╨╡ ID ╨┐╨╛╤ü╤é╨░ ╨┤╨╗╤Å ╤â╤ü╨║╨╛╤Ç╨╡╨╜╨╕╤Å ╨╖╨░╨┐╤Ç╨╛╤ü╨╛╨▓';
-
-
---
 -- Name: DOVData_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -166,20 +152,6 @@ CREATE TABLE public."DSPDData" (
 ALTER TABLE public."DSPDData" OWNER TO postgres;
 
 --
--- Name: COLUMN "DSPDData"."PollingSessionId"; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public."DSPDData"."PollingSessionId" IS '╨í╤ü╤ï╨╗╨║╨░ ╨╜╨░ ╤ü╨╡╤ü╤ü╨╕╤Ä ╨╛╨┐╤Ç╨╛╤ü╨░, ╨▓ ╤Ç╨░╨╝╨║╨░╤à ╨║╨╛╤é╨╛╤Ç╨╛╨╣ ╨▒╤ï╨╗╨╕ ╨┐╨╛╨╗╤â╤ç╨╡╨╜╤ï ╤ì╤é╨╕ ╨┤╨░╨╜╨╜╤ï╨╡';
-
-
---
--- Name: COLUMN "DSPDData"."MonitoringPostId"; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public."DSPDData"."MonitoringPostId" IS '╨ö╨╡╨╜╨╛╤Ç╨╝╨░╨╗╨╕╨╖╨╛╨▓╨░╨╜╨╜╨╛╨╡ ╨┐╨╛╨╗╨╡ ID ╨┐╨╛╤ü╤é╨░ ╨┤╨╗╤Å ╤â╤ü╨║╨╛╤Ç╨╡╨╜╨╕╤Å ╨╖╨░╨┐╤Ç╨╛╤ü╨╛╨▓';
-
-
---
 -- Name: DSPDData_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -227,20 +199,6 @@ CREATE TABLE public."DustData" (
 
 
 ALTER TABLE public."DustData" OWNER TO postgres;
-
---
--- Name: COLUMN "DustData"."PollingSessionId"; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public."DustData"."PollingSessionId" IS '╨í╤ü╤ï╨╗╨║╨░ ╨╜╨░ ╤ü╨╡╤ü╤ü╨╕╤Ä ╨╛╨┐╤Ç╨╛╤ü╨░, ╨▓ ╤Ç╨░╨╝╨║╨░╤à ╨║╨╛╤é╨╛╤Ç╨╛╨╣ ╨▒╤ï╨╗╨╕ ╨┐╨╛╨╗╤â╤ç╨╡╨╜╤ï ╤ì╤é╨╕ ╨┤╨░╨╜╨╜╤ï╨╡';
-
-
---
--- Name: COLUMN "DustData"."MonitoringPostId"; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public."DustData"."MonitoringPostId" IS '╨ö╨╡╨╜╨╛╤Ç╨╝╨░╨╗╨╕╨╖╨╛╨▓╨░╨╜╨╜╨╛╨╡ ╨┐╨╛╨╗╨╡ ID ╨┐╨╛╤ü╤é╨░ ╨┤╨╗╤Å ╤â╤ü╨║╨╛╤Ç╨╡╨╜╨╕╤Å ╨╖╨░╨┐╤Ç╨╛╤ü╨╛╨▓';
-
 
 --
 -- Name: DustData_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -306,20 +264,6 @@ CREATE TABLE public."IWSData" (
 ALTER TABLE public."IWSData" OWNER TO postgres;
 
 --
--- Name: COLUMN "IWSData"."PollingSessionId"; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public."IWSData"."PollingSessionId" IS '╨í╤ü╤ï╨╗╨║╨░ ╨╜╨░ ╤ü╨╡╤ü╤ü╨╕╤Ä ╨╛╨┐╤Ç╨╛╤ü╨░, ╨▓ ╤Ç╨░╨╝╨║╨░╤à ╨║╨╛╤é╨╛╤Ç╨╛╨╣ ╨▒╤ï╨╗╨╕ ╨┐╨╛╨╗╤â╤ç╨╡╨╜╤ï ╤ì╤é╨╕ ╨┤╨░╨╜╨╜╤ï╨╡';
-
-
---
--- Name: COLUMN "IWSData"."MonitoringPostId"; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public."IWSData"."MonitoringPostId" IS '╨ö╨╡╨╜╨╛╤Ç╨╝╨░╨╗╨╕╨╖╨╛╨▓╨░╨╜╨╜╨╛╨╡ ╨┐╨╛╨╗╨╡ ID ╨┐╨╛╤ü╤é╨░ ╨┤╨╗╤Å ╤â╤ü╨║╨╛╤Ç╨╡╨╜╨╕╤Å ╨╖╨░╨┐╤Ç╨╛╤ü╨╛╨▓';
-
-
---
 -- Name: IWSData_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -373,20 +317,6 @@ CREATE TABLE public."MUEKSData" (
 ALTER TABLE public."MUEKSData" OWNER TO postgres;
 
 --
--- Name: COLUMN "MUEKSData"."PollingSessionId"; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public."MUEKSData"."PollingSessionId" IS '╨í╤ü╤ï╨╗╨║╨░ ╨╜╨░ ╤ü╨╡╤ü╤ü╨╕╤Ä ╨╛╨┐╤Ç╨╛╤ü╨░, ╨▓ ╤Ç╨░╨╝╨║╨░╤à ╨║╨╛╤é╨╛╤Ç╨╛╨╣ ╨▒╤ï╨╗╨╕ ╨┐╨╛╨╗╤â╤ç╨╡╨╜╤ï ╤ì╤é╨╕ ╨┤╨░╨╜╨╜╤ï╨╡';
-
-
---
--- Name: COLUMN "MUEKSData"."MonitoringPostId"; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public."MUEKSData"."MonitoringPostId" IS '╨ö╨╡╨╜╨╛╤Ç╨╝╨░╨╗╨╕╨╖╨╛╨▓╨░╨╜╨╜╨╛╨╡ ╨┐╨╛╨╗╨╡ ID ╨┐╨╛╤ü╤é╨░ ╨┤╨╗╤Å ╤â╤ü╨║╨╛╤Ç╨╡╨╜╨╕╤Å ╨╖╨░╨┐╤Ç╨╛╤ü╨╛╨▓';
-
-
---
 -- Name: MUEKSData_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -432,20 +362,6 @@ CREATE TABLE public."MonitoringPost" (
 ALTER TABLE public."MonitoringPost" OWNER TO postgres;
 
 --
--- Name: COLUMN "MonitoringPost"."PollingIntervalSeconds"; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public."MonitoringPost"."PollingIntervalSeconds" IS '╨ÿ╨╜╤é╨╡╤Ç╨▓╨░╨╗ ╨╛╨┐╤Ç╨╛╤ü╨░ ╨┤╨░╤é╤ç╨╕╨║╨╛╨▓ ╤ì╤é╨╛╨│╨╛ ╨┐╨╛╤ü╤é╨░ ╨▓ ╤ü╨╡╨║╤â╨╜╨┤╨░╤à';
-
-
---
--- Name: COLUMN "MonitoringPost"."LastPolledAt"; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public."MonitoringPost"."LastPolledAt" IS '╨Æ╤Ç╨╡╨╝╤Å ╨┐╨╛╤ü╨╗╨╡╨┤╨╜╨╡╨│╨╛ ╤â╤ü╨┐╨╡╤ê╨╜╨╛╨│╨╛ ╨╛╨┐╤Ç╨╛╤ü╨░ ╨▓╤ü╨╡╤à ╨┤╨░╤é╤ç╨╕╨║╨╛╨▓ ╨┐╨╛╤ü╤é╨░ (UTC)';
-
-
---
 -- Name: MonitoringPost_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -480,74 +396,11 @@ CREATE TABLE public."PollingSessions" (
     "TotalSensorsCount" integer DEFAULT 0 NOT NULL,
     "SuccessfulSensorsCount" integer DEFAULT 0 NOT NULL,
     "FailedSensorsDetails" jsonb,
-    CONSTRAINT "CHK_PollingSessions_Status" CHECK ((("Status")::text = ANY ((ARRAY['IN_PROGRESS'::character varying, 'COMPLETED'::character varying, 'PARTIALLY_COMPLETED'::character varying, 'FAILED'::character varying])::text[])))
+    CONSTRAINT "CHK_PollingSessions_Status" CHECK ((("Status")::text = ANY (ARRAY[('IN_PROGRESS'::character varying)::text, ('COMPLETED'::character varying)::text, ('PARTIALLY_COMPLETED'::character varying)::text, ('FAILED'::character varying)::text])))
 );
 
 
 ALTER TABLE public."PollingSessions" OWNER TO postgres;
-
---
--- Name: TABLE "PollingSessions"; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON TABLE public."PollingSessions" IS '╨ô╤Ç╤â╨┐╨┐╨╕╤Ç╤â╨╡╤é ╨╛╨┐╤Ç╨╛╤ü╤ï ╨┤╨░╤é╤ç╨╕╨║╨╛╨▓ ╨╛╨┤╨╜╨╛╨│╨╛ ╨┐╨╛╤ü╤é╨░ ╨╝╨╛╨╜╨╕╤é╨╛╤Ç╨╕╨╜╨│╨░ ╨┤╨╗╤Å ╤ü╨╕╨╜╤à╤Ç╨╛╨╜╨╕╨╖╨░╤å╨╕╨╕ ╨┤╨░╨╜╨╜╤ï╤à';
-
-
---
--- Name: COLUMN "PollingSessions"."Id"; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public."PollingSessions"."Id" IS '╨ú╨╜╨╕╨║╨░╨╗╤î╨╜╤ï╨╣ ╨╕╨┤╨╡╨╜╤é╨╕╤ä╨╕╨║╨░╤é╨╛╤Ç ╤ü╨╡╤ü╤ü╨╕╨╕ ╨╛╨┐╤Ç╨╛╤ü╨░';
-
-
---
--- Name: COLUMN "PollingSessions"."MonitoringPostId"; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public."PollingSessions"."MonitoringPostId" IS 'ID ╨┐╨╛╤ü╤é╨░ ╨╝╨╛╨╜╨╕╤é╨╛╤Ç╨╕╨╜╨│╨░, ╨┤╨░╤é╤ç╨╕╨║╨╕ ╨║╨╛╤é╨╛╤Ç╨╛╨│╨╛ ╨╛╨┐╤Ç╨░╤ê╨╕╨▓╨░╤Ä╤é╤ü╤Å';
-
-
---
--- Name: COLUMN "PollingSessions"."StartedAt"; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public."PollingSessions"."StartedAt" IS '╨Æ╤Ç╨╡╨╝╤Å ╨╜╨░╤ç╨░╨╗╨░ ╨╛╨┐╤Ç╨╛╤ü╨░ ╨│╤Ç╤â╨┐╨┐╤ï ╨┤╨░╤é╤ç╨╕╨║╨╛╨▓ (UTC)';
-
-
---
--- Name: COLUMN "PollingSessions"."CompletedAt"; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public."PollingSessions"."CompletedAt" IS '╨Æ╤Ç╨╡╨╝╤Å ╨╖╨░╨▓╨╡╤Ç╤ê╨╡╨╜╨╕╤Å ╨╛╨┐╤Ç╨╛╤ü╨░ ╨▓╤ü╨╡╤à ╨┤╨░╤é╤ç╨╕╨║╨╛╨▓ ╨│╤Ç╤â╨┐╨┐╤ï (UTC)';
-
-
---
--- Name: COLUMN "PollingSessions"."Status"; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public."PollingSessions"."Status" IS '╨í╤é╨░╤é╤â╤ü ╤ü╨╡╤ü╤ü╨╕╨╕: IN_PROGRESS, COMPLETED (╨▓╤ü╨╡ ╤â╤ü╨┐╨╡╤ê╨╜╨╛), PARTIALLY_COMPLETED (╤ç╨░╤ü╤é╨╕╤ç╨╜╨╛), FAILED (╨╜╨╕ ╨╛╨┤╨╕╨╜ ╨┤╨░╤é╤ç╨╕╨║ ╨╜╨╡ ╨╛╤é╨▓╨╡╤é╨╕╨╗)';
-
-
---
--- Name: COLUMN "PollingSessions"."TotalSensorsCount"; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public."PollingSessions"."TotalSensorsCount" IS '╨₧╨▒╤ë╨╡╨╡ ╨║╨╛╨╗╨╕╤ç╨╡╤ü╤é╨▓╨╛ ╨┤╨░╤é╤ç╨╕╨║╨╛╨▓, ╨║╨╛╤é╨╛╤Ç╤ï╨╡ ╨┐╨╗╨░╨╜╨╕╤Ç╨╛╨▓╨░╨╗╨╛╤ü╤î ╨╛╨┐╤Ç╨╛╤ü╨╕╤é╤î ╨▓ ╤ì╤é╨╛╨╣ ╤ü╨╡╤ü╤ü╨╕╨╕';
-
-
---
--- Name: COLUMN "PollingSessions"."SuccessfulSensorsCount"; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public."PollingSessions"."SuccessfulSensorsCount" IS '╨Ü╨╛╨╗╨╕╤ç╨╡╤ü╤é╨▓╨╛ ╨┤╨░╤é╤ç╨╕╨║╨╛╨▓, ╤â╤ü╨┐╨╡╤ê╨╜╨╛ ╨╛╨┐╤Ç╨╛╤ê╨╡╨╜╨╜╤ï╤à ╨▓ ╤ì╤é╨╛╨╣ ╤ü╨╡╤ü╤ü╨╕╨╕';
-
-
---
--- Name: COLUMN "PollingSessions"."FailedSensorsDetails"; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public."PollingSessions"."FailedSensorsDetails" IS 'JSON ╤ü ╨┤╨╡╤é╨░╨╗╤Å╨╝╨╕ ╨╛╤ê╨╕╨▒╨╛╨║ ╨┐╨╛ ╨┤╨░╤é╤ç╨╕╨║╨░╨╝, ╨║╨╛╤é╨╛╤Ç╤ï╨╡ ╨╜╨╡ ╤â╨┤╨░╨╗╨╛╤ü╤î ╨╛╨┐╤Ç╨╛╤ü╨╕╤é╤î. ╨ƒ╤Ç╨╕╨╝╨╡╤Ç: {"failed_sensor_ids": [101,103], "errors": {"101":"Timeout", "103":"HTTP 500"}}';
-
 
 --
 -- Name: Sensor; Type: TABLE; Schema: public; Owner: postgres
@@ -1050,6 +903,58 @@ CREATE VIEW public.vw_iws_data_full AS
 
 
 ALTER VIEW public.vw_iws_data_full OWNER TO postgres;
+
+--
+-- Name: vw_meteo_standart_last; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW public.vw_meteo_standart_last AS
+ SELECT ps."Id" AS "PollingSessionId",
+    ps."MonitoringPostId",
+    ps."StartedAt",
+    ps."CompletedAt",
+    ps."Status",
+    dov."VisibleRange",
+    iws."EnvTemperature",
+    iws."Humidity",
+    iws."DewPoint",
+    iws."PressureHPa",
+    iws."PressureQNHHPa",
+    iws."PressureMmHg",
+    iws."WindSpeed",
+    iws."WindDirection",
+    iws."WindVSound",
+    iws."PrecipitationType",
+    iws."PrecipitationIntensity",
+    iws."PrecipitationQuantity",
+    iws."PrecipitationElapsed",
+    iws."PrecipitationPeriod",
+    dspd."Grip",
+    dspd."Shake",
+    dspd."UPower",
+    dspd."TemperatureCase",
+    dspd."TemperatureRoad",
+    dspd."HeightH2O",
+    dspd."HeightIce",
+    dspd."HeightSnow",
+    dspd."PercentICE",
+    dspd."PercentPGM",
+    dspd."RoadStatus",
+    dspd."AngleToRoad",
+    dspd."TemperatureFreezePGM"
+   FROM (((public."PollingSessions" ps
+     LEFT JOIN public."DOVData" dov ON ((ps."Id" = dov."PollingSessionId")))
+     LEFT JOIN public."IWSData" iws ON ((ps."Id" = iws."PollingSessionId")))
+     LEFT JOIN public."DSPDData" dspd ON ((ps."Id" = dspd."PollingSessionId")))
+  WHERE (ps."Id" = ( SELECT "PollingSessions"."Id"
+           FROM public."PollingSessions"
+          WHERE (("PollingSessions"."Status")::text <> 'IN_PROGRESS'::text)
+          ORDER BY "PollingSessions"."CompletedAt" DESC
+         LIMIT 1))
+  ORDER BY dov."Id", iws."Id", dspd."Id";
+
+
+ALTER VIEW public.vw_meteo_standart_last OWNER TO postgres;
 
 --
 -- Name: vw_mueks_data_full; Type: VIEW; Schema: public; Owner: postgres
@@ -1958,3 +1863,36 @@ ALTER TABLE ONLY public."Sensor"
 
 
 
+
+
+
+-- 1. Заполнение типов датчиков
+INSERT INTO public."SensorType" 
+    ("SensorTypeName", "Description", "CreatedAt")
+VALUES
+    ('DSPD',  'Датчик состояния дорожного полотна', NOW()),
+    ('IWS',   'IWS', NOW()),
+    ('DOV',   'Датчик оптической видимости', NOW()),    
+    ('DUST',  'Датчик концентрации пыли', NOW()),
+    ('MUEKS', 'Модуль управления электроснабжением', NOW())
+ON CONFLICT ("SensorTypeName") DO NOTHING;
+
+-- 4. Стандартные конфигурации worker'ов
+INSERT INTO public."WorkerConfiguration" 
+    ("Key", "Value", "DataType", "Description", "IsActive")
+VALUES 
+    ('Polling.MaxConcurrentTasks', '100', 'integer', 'Максимальное количество параллельных задач опроса', true),
+    ('Polling.TimeoutSeconds', '30', 'integer', 'Таймаут HTTP запросов в секундах', true),
+    ('Polling.RetryCount', '3', 'integer', 'Количество повторных попыток при ошибке', true),
+    ('Polling.RetryDelayMs', '1000', 'integer', 'Задержка между повторными попытками в мс', true),
+    ('Logging.FileLogLevel', 'Information', 'string', 'Уровень логирования в файл', true),
+    ('Logging.DatabaseLogLevel', 'Warning', 'string', 'Уровень логирования в базу данных', true),
+    ('Configuration.RefreshIntervalSeconds', '60', 'integer', 'Интервал обновления конфигурации', true)
+ON CONFLICT ("Key") DO NOTHING;
+
+
+INSERT INTO public."Users"
+("UserName", "PasswordHash", "Salt", "Role", "CreatedAt")
+values
+('user', 'knEX8Xp8Waa9/P89Qxy7DbEd5oumdgBA0/EVIh3XoFs=', 'FQjkR08swP471JN0g4F3UwG9zk61jjbTXx37rEHn17s=', 'User', CURRENT_TIMESTAMP),
+('admin', '/WoSMsEmxNWymBFOfmcgNHAG/k0r2wGlNhDdEiHhKB8=', '5Wqvx4NTar97BqqKy7ozPSpV8Giys2GIt+fmIKYbAxI=', 'Admin', CURRENT_TIMESTAMP);

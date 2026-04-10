@@ -12,4 +12,12 @@
 
 <style>
     .hidden { display: none !important; }
+        /* ГАРАНТИРОВАННОЕ СКРЫТИЕ АТРИБУЦИИ LEAFLET */
+    .leaflet-control-attribution, 
+    .leaflet-bottom.leaflet-right {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
 </style>

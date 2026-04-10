@@ -73,6 +73,17 @@ public class DataProcessingService
                         try 
                         {
                             using var doc = JsonDocument.Parse(responseBody);
+                            
+                            // Обновляем серийный номер, если он есть в JSON
+                            if (doc.RootElement.TryGetProperty("Serial", out var serialElement))
+                            {
+                                var serialNumber = serialElement.GetString();
+                                if (!string.IsNullOrEmpty(serialNumber))
+                                {
+                                    await _dbService.UpdateSensorSerialNumberAsync(sensor.Id, serialNumber);
+                                }
+                            }
+
                             await ProcessSensorDataAsync(sensor, doc, sessionId, cancellationToken);
                             Interlocked.Increment(ref successCount);
                         }
