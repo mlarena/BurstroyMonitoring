@@ -18,25 +18,28 @@ $filesToInclude = @(
     "$basePath\BurstroyMonitoring.VideoMonitoring\release\linux-x64\BurstroyMonitoring.VideoMonitoring.zip",
     "$basePath\BurstroyMonitoring.Worker\release\linux-x64\BurstroyMonitoring.Worker.zip",
     "$basePath\BurstroyMonitoring.TCM\release\linux-x64\BurstroyMonitoring.TCM.zip",
+    "$basePath\BurstroyMonitoring.Api\release\linux-x64\BurstroyMonitoring.Api.zip",
     
     # SQL structure
-    "$basePath\admin\sql\structure.sql",
-    "$basePath\admin\sql\db_vw.sql",
+    "$basePath\admin\sql\create_database.sql",
     
     # Service creation scripts
     "$basePath\admin\bash\create-service-burstroy-monitoring-tcm.sh",
     "$basePath\admin\bash\create-service-burstroy-monitoring-video.sh",
     "$basePath\admin\bash\create-service-burstroy-monitoring-worker.sh",
+    "$basePath\admin\bash\create-service-burstroy-monitoring-api.sh",
     
     # Installation scripts
     "$basePath\admin\bash\install_tcm.sh",
     "$basePath\admin\bash\install_video-monitoring.sh",
     "$basePath\admin\bash\install_worker.sh",
+    "$basePath\admin\bash\install_api.sh",
     
     # Update scripts
     "$basePath\admin\bash\update_tcm.sh",
     "$basePath\admin\bash\update_video-monitoring.sh",
-    "$basePath\admin\bash\update_worker.sh"
+    "$basePath\admin\bash\update_worker.sh",
+    "$basePath\admin\bash\update_api.sh"
 )
 
 Write-Host "Creating deployment bundle: $zipPath" -ForegroundColor Cyan
