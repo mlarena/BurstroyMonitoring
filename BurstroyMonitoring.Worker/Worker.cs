@@ -25,11 +25,12 @@ public class Worker : BackgroundService
     {
         _logger.LogInformation("Worker started at: {time}", DateTimeOffset.Now);
 
+        // Основной цикл работы воркера
         while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
-                // 1. Получаем посты, которые пора опрашивать
+                // 1. Получаем посты мониторинга, которые пора опрашивать согласно их интервалу
                 var postsToPoll = await _dbService.GetPostsToPollAsync();
                 
                 if (postsToPoll.Count > 0)
@@ -46,14 +47,42 @@ public class Worker : BackgroundService
                 {
                     _logger.LogDebug("No posts to poll at this time");
                 }
+
+                // 3. Опрос PUID датчиков (трафик). Выполняется отдельно по своему расписанию
+                await ProcessPuidsAsync(stoppingToken);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in worker main loop");
             }
 
-            // Пауза между проверками расписания
+            // Пауза 10 секунд между проверками расписания в базе данных
             await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+        }
+    }
+
+    /// <summary>
+    /// Логика поиска и запуска опроса для всех активных PUID-устройств.
+    /// </summary>
+    private async Task ProcessPuidsAsync(CancellationToken stoppingToken)
+    {
+        try
+        {
+            // Выбираем PUID, у которых подошло время опроса (LastActivityUTC + IntervalSeconds <= Now)
+            var puidsToPoll = await _dbService.GetPuidsToPollAsync();
+            if (puidsToPoll.Count == 0) return;
+
+            _logger.LogInformation("Found {count} PUIDs to poll", puidsToPoll.Count);
+
+            // Запускаем опрос каждого PUID параллельно
+            var puidTasks = puidsToPoll.Select(puid => 
+                _dataProcessingService.ProcessPuidPollingAsync(puid, stoppingToken));
+
+            await Task.WhenAll(puidTasks);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error processing PUIDs");
         }
     }
 }

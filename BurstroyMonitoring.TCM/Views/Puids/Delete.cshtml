@@ -1,0 +1,31 @@
+@model BurstroyMonitoring.Data.Models.Puid
+
+@{
+    ViewData["Title"] = "Удалить PUID";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">Удалить PUID устройство?</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-center fw-bold">Вы уверены, что хотите удалить это устройство?</p>
+                    <div class="alert alert-warning small">
+                        <strong>Внимание!</strong> Это действие удалит устройство <strong>@Model.EndPointsName</strong> (S/N: @Model.SerialNumber) и все связанные с ним данные телеметрии.
+                    </div>
+
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-flex justify-content-between mt-4">
+                            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Отмена</a>
+                            <button type="submit" class="btn btn-danger btn-sm">Удалить навсегда</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

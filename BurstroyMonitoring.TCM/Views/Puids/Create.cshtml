@@ -1,0 +1,81 @@
+@model BurstroyMonitoring.Data.Models.Puid
+
+@{
+    ViewData["Title"] = "Добавить PUID";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Добавить PUID устройство</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" asp-for="SensorType" value="PUID" />
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="SerialNumber" class="form-label fw-bold small">Серийный номер</label>
+                                <input asp-for="SerialNumber" class="form-control form-control-sm" required />
+                                <span asp-validation-for="SerialNumber" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="EndPointsName" class="form-label fw-bold small">Название (конечная точка)</label>
+                                <input asp-for="EndPointsName" class="form-control form-control-sm" required />
+                                <span asp-validation-for="EndPointsName" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Url" class="form-label fw-bold small">URL API</label>
+                            <input asp-for="Url" class="form-control form-control-sm" required />
+                            <span asp-validation-for="Url" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="MonitoringPostId" class="form-label fw-bold small">Пост мониторинга</label>
+                                <select asp-for="MonitoringPostId" class="form-select form-select-sm" asp-items="ViewBag.MonitoringPostId">
+                                    <option value="">-- Выберите пост --</option>
+                                </select>
+                                <span asp-validation-for="MonitoringPostId" class="text-danger small"></span>
+                            </div>                            <div class="col-md-6">
+                                <label asp-for="IntervalSeconds" class="form-label fw-bold small">Интервал опроса (сек)</label>
+                                <input asp-for="IntervalSeconds" class="form-control form-control-sm" type="number" min="10" />
+                                <span asp-validation-for="IntervalSeconds" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Latitude" class="form-label fw-bold small">Широта</label>
+                                <input asp-for="Latitude" class="form-control form-control-sm" type="number" step="any" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Longitude" class="form-label fw-bold small">Долгота</label>
+                                <input asp-for="Longitude" class="form-control form-control-sm" type="number" step="any" />
+                            </div>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input asp-for="IsActive" class="form-check-input" />
+                            <label asp-for="IsActive" class="form-check-label small">Активен</label>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Назад к списку</a>
+                            <button type="submit" class="btn btn-primary btn-sm">Создать</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

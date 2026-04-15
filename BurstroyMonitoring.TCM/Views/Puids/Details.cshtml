@@ -1,0 +1,64 @@
+@model BurstroyMonitoring.Data.Models.Puid
+
+@{
+    ViewData["Title"] = "Детали PUID";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Детали PUID: @Model.EndPointsName</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row small">
+                        <dt class="col-sm-4 fw-bold">ID</dt>
+                        <dd class="col-sm-8">@Model.Id</dd>
+
+                        <dt class="col-sm-4 fw-bold">Серийный номер</dt>
+                        <dd class="col-sm-8">@Model.SerialNumber</dd>
+
+                        <dt class="col-sm-4 fw-bold">Название</dt>
+                        <dd class="col-sm-8">@Model.EndPointsName</dd>
+
+                        <dt class="col-sm-4 fw-bold">URL API</dt>
+                        <dd class="col-sm-8">@Model.Url</dd>
+
+                        <dt class="col-sm-4 fw-bold">Пост мониторинга</dt>
+                        <dd class="col-sm-8">@(Model.MonitoringPost?.Name ?? "—")</dd>
+
+                        <dt class="col-sm-4 fw-bold">Интервал опроса</dt>
+                        <dd class="col-sm-8">@Model.IntervalSeconds сек.</dd>
+
+                        <dt class="col-sm-4 fw-bold">Координаты</dt>
+                        <dd class="col-sm-8">
+                            @if (Model.Latitude.HasValue && Model.Longitude.HasValue) {
+                                <span>@Model.Latitude, @Model.Longitude</span>
+                            } else {
+                                <span>—</span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4 fw-bold">Статус</dt>
+                        <dd class="col-sm-8">
+                            @if (Model.IsActive) { <span class="badge bg-success">Активен</span> }
+                            else { <span class="badge bg-danger">Неактивен</span> }
+                        </dd>
+
+                        <dt class="col-sm-4 fw-bold">Последняя активность</dt>
+                        <dd class="col-sm-8">@(Model.LastActivityUTC?.ToString("dd.MM.yyyy HH:mm:ss") ?? "—")</dd>
+
+                        <dt class="col-sm-4 fw-bold">Дата создания</dt>
+                        <dd class="col-sm-8">@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")</dd>
+                    </dl>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Назад к списку</a>
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-sm">Редактировать</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

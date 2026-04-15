@@ -69,7 +69,6 @@ public class DatabaseService
             
             context.PollingSessions.Add(session);
             
-            // Также обновляем время последнего опроса у поста
             var post = await context.MonitoringPosts.FindAsync(postId);
             if (post != null)
             {
@@ -121,7 +120,6 @@ public class DatabaseService
 
     /// <summary>
     /// Получение списка активных датчиков.
-    /// Датчик считается активным, если у него IsActive = true и его пост мониторинга также активен.
     /// </summary>
     public async Task<List<Sensor>> GetActiveSensorsAsync()
     {
@@ -189,7 +187,7 @@ public class DatabaseService
     }
 
     /// <summary>
-    /// Сохранение метаданных результата опроса (статус-код, время ответа).
+    /// Сохранение метаданных результата опроса.
     /// </summary>
     public async Task SaveSensorResultAsync(SensorResults result)
     {
@@ -227,6 +225,57 @@ public class DatabaseService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating last activity for sensor {sensorId}", sensorId);
+        }
+    }
+
+    /// <summary>
+    /// Получение списка активных PUID, которые пора опрашивать.
+    /// </summary>
+    public async Task<List<Puid>> GetPuidsToPollAsync()
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        
+        try
+        {
+            var now = DateTime.UtcNow;
+            return await context.Puids
+                .Where(p => p.IsActive && 
+                           (p.LastActivityUTC == null || 
+                            p.LastActivityUTC.Value.AddSeconds(p.IntervalSeconds) <= now))
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting PUIDs to poll");
+            return new List<Puid>();
+        }
+    }
+
+    /// <summary>
+    /// Сохранение данных PUID и обновление метки времени его последней активности.
+    /// </summary>
+    public async Task SavePuidDataAsync(int puidId, List<PuidData> dataList)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        
+        try
+        {
+            var puid = await context.Puids.FindAsync(puidId);
+            if (puid != null)
+            {
+                puid.LastActivityUTC = DateTime.UtcNow;
+                if (dataList.Any())
+                {
+                    await context.PuidData.AddRangeAsync(dataList);
+                }
+                await context.SaveChangesAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error saving PUID data for PUID {puidId}", puidId);
         }
     }
 
@@ -375,8 +424,7 @@ public class DatabaseService
             _logger.LogError(ex, "Error saving DUST data for sensor {sensorId}", data.SensorId);
         }
     }
-
-    /// <summary>
+     /// <summary>
     /// Сохранение данных датчика пыли (DUST).
     /// </summary>
     public async Task SaveDustDataAsync(DUSTData data)
@@ -413,9 +461,6 @@ public class DatabaseService
                 {
                     sensor.SerialNumber = serialNumber;
                     await context.SaveChangesAsync();
-                    
-                    _logger.LogInformation("Updated serial number for sensor {sensorId}: {serialNumber}", 
-                        sensorId, serialNumber);
                 }
             }
         }
@@ -425,21 +470,13 @@ public class DatabaseService
         }
     }
 
-    /// <summary>
-    /// Вспомогательный метод для извлечения чистого серийного номера.
-    /// </summary>
-    public string ExtractSerialNumber(string input)
+    private string ExtractSerialNumber(string input)
     {
-        if (string.IsNullOrEmpty(input))
-            return input;
-        
+        if (string.IsNullOrEmpty(input)) return input;
         string[] parts = input.Split('_');
         return parts.Length > 1 ? parts[1] : input;
     }
 
-    /// <summary>
-    /// Обновление географических координат для датчика DSPD.
-    /// </summary>
     public async Task UpdateDspdSensorCoordinatesAsync(int sensorId, decimal? latitude, decimal? longitude)
     {
         using var scope = _scopeFactory.CreateScope();
@@ -450,27 +487,18 @@ public class DatabaseService
             var sensor = await context.Sensors.FindAsync(sensorId);
             if (sensor != null && latitude.HasValue && longitude.HasValue)
             {
-                if (latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180)
-                {
-                    sensor.Latitude = (double?)latitude;
-                    sensor.Longitude = (double?)longitude;
-                    await context.SaveChangesAsync();
-                    
-                    _logger.LogInformation("Updated coordinates for DSPD sensor {sensorId}: Lat={latitude}, Lon={longitude}", 
-                        sensorId, latitude, longitude);
-                }
+                sensor.Latitude = (double?)latitude;
+                sensor.Longitude = (double?)longitude;
+                await context.SaveChangesAsync();
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error updating coordinates for DSPD sensor {sensorId}", sensorId);
+            _logger.LogError(ex, "Error updating coordinates for sensor {sensorId}", sensorId);
         }
     }
 
-    /// <summary>
-    /// Обновление географических координат для датчика IWS.
-    /// </summary>
-    public async Task UpdateIwsSensorCoordinatesAsync(int sensorId, decimal? latitude, decimal? longitude, decimal? altitude)
+    public async Task UpdateIwsSensorCoordinatesAsync(int sensorId, decimal? latitude, decimal? longitude)
     {
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -480,20 +508,14 @@ public class DatabaseService
             var sensor = await context.Sensors.FindAsync(sensorId);
             if (sensor != null && latitude.HasValue && longitude.HasValue)
             {
-                if (latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180)
-                {
-                    sensor.Latitude = (double?)latitude;
-                    sensor.Longitude = (double?)longitude;
-                    await context.SaveChangesAsync();
-                    
-                    _logger.LogInformation("Updated coordinates for IWS sensor {sensorId}: Lat={latitude}, Lon={longitude}, Alt={altitude}", 
-                        sensorId, latitude, longitude, altitude);
-                }
+                sensor.Latitude = (double?)latitude;
+                sensor.Longitude = (double?)longitude;
+                await context.SaveChangesAsync();
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error updating coordinates for IWS sensor {sensorId}", sensorId);
+            _logger.LogError(ex, "Error updating coordinates for sensor {sensorId}", sensorId);
         }
     }
 }

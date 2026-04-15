@@ -1,6 +1,6 @@
 создание резервной копии базы
 pg_dump -h localhost -U postgres -d sensordb > /opt/burstroy/tmp/backup_sensordb_last.sql
-pg_dump -h localhost -U postgres -d sensordb > D:\backup\backup_sensordb_last.sql
+pg_dump -h localhost -U postgres -d sensordb > D:\backup\backup_sensordb_last1.sql
 
 
 создание резервной копии базы только структура

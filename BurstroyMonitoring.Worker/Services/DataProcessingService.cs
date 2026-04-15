@@ -3,9 +3,14 @@ using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using BurstroyMonitoring.Data.Models;
 using BurstroyMonitoring.Data.Models.JsonModels;
+using System.Net.Http.Json;
 
 namespace BurstroyMonitoring.Worker.Services;
 
+/// <summary>
+/// Сервис для обработки данных, полученных от датчиков.
+/// Отвечает за десериализацию JSON и сохранение в соответствующие таблицы БД.
+/// </summary>
 public class DataProcessingService
 {
     private readonly DatabaseService _dbService;
@@ -32,6 +37,125 @@ public class DataProcessingService
         };
     }
 
+    /// <summary>
+    /// Выполняет полный цикл опроса одного PUID-устройства: запрос, парсинг и сохранение.
+    /// </summary>
+    public async Task ProcessPuidPollingAsync(Puid puid, CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation("[INFO] Processing PUID: {EndPointsName} (ID: {Id})", puid.EndPointsName, puid.Id);
+
+            var tempSensor = new Sensor 
+            { 
+                Url = puid.Url, 
+                SerialNumber = puid.SerialNumber,
+                Id = -puid.Id 
+            };
+
+            var (responseBody, statusCode, responseTimeMs, isSuccess, exception) = 
+                await _pollingService.PollSensorAsync(tempSensor, cancellationToken);
+
+            if (!isSuccess || string.IsNullOrEmpty(responseBody))
+            {
+                _logger.LogWarning("[ERROR] API Request failed for {EndPointsName}: Status {StatusCode}", puid.EndPointsName, statusCode);
+                return;
+            }
+
+            SmartRoadPuidResult? response;
+            try
+            {
+                response = JsonSerializer.Deserialize<SmartRoadPuidResult>(responseBody, _jsonOptions);
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogError("[ERROR] JSON Deserialization failed for {EndPointsName}: {Message}", puid.EndPointsName, ex.Message);
+                return;
+            }
+
+            if (response?.message_data == null || string.IsNullOrEmpty(response.message_id))
+            {
+                _logger.LogWarning("[WARNING] No valid data received for {EndPointsName}.", puid.EndPointsName);
+                return;
+            }
+
+            if (!Guid.TryParse(response.message_id, out Guid messageId))
+            {
+                _logger.LogError("[ERROR] Invalid MessageId format for {EndPointsName}: {MessageId}", puid.EndPointsName, response.message_id);
+                return;
+            }
+
+            var dataToSave = new List<PuidData>();
+            int savedInThisRequest = 0;
+
+            foreach (var message in response.message_data)
+            {
+                if (!Guid.TryParse(message.sensor_id, out Guid sensorId))
+                {
+                    _logger.LogWarning("[WARNING] Skipping sensor with invalid ID in {EndPointsName}: {SensorId}", puid.EndPointsName, message.sensor_id);
+                    continue;
+                }
+
+                foreach (var interval in message.data)
+                {
+                    foreach (var lane in interval.lanes)
+                    {
+                        var entity = new PuidData
+                        {
+                            PuidId = puid.Id,
+                            MessageId = messageId,
+                            SensorId = sensorId,
+                            SensorName = message.name,
+                            Direction = message.direction,
+                            Lane = lane.lane,
+                            Volume = lane.volume,
+                            Class0 = lane.class_0,
+                            Class1 = lane.class_1,
+                            Class2 = lane.class_2,
+                            Class3 = lane.class_3,
+                            Class4 = lane.class_4,
+                            Class5 = lane.class_5,
+                            GapAvg = lane.gap_avg,
+                            GapSum = lane.gap_sum,
+                            SpeedAvg = lane.speed_avg,
+                            HeadwayAvg = lane.headway_avg,
+                            HeadwaySum = lane.headway_sum,
+                            Speed85Avg = lane.speed85_avg,
+                            OccupancyPer = lane.occupancy_per,
+                            OccupancyPrc = lane.occupancy_prc,
+                            OccupancySum = lane.occupancy_sum,
+                            RangeStart = DateTime.SpecifyKind(interval.range_start, DateTimeKind.Utc),
+                            RangeEnd = DateTime.SpecifyKind(interval.range_end, DateTimeKind.Utc),
+                            RangeValue = interval.range_value,
+                            CreatedAt = DateTime.UtcNow
+                        };
+
+                        dataToSave.Add(entity);
+                        savedInThisRequest++;
+                    }
+                }
+            }
+
+            if (savedInThisRequest > 0)
+            {
+                await _dbService.SavePuidDataAsync(puid.Id, dataToSave);
+                _logger.LogInformation("[SUCCESS] {EndPointsName}: Saved {Count} records (MessageId: {MessageId})", 
+                    puid.EndPointsName, savedInThisRequest, messageId);
+            }
+            else
+            {
+                await _dbService.SavePuidDataAsync(puid.Id, new List<PuidData>());
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("[ERROR] Failed to process {EndPointsName}: {Message}", puid.EndPointsName, ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Опрос всех датчиков на конкретном посту мониторинга.
+    /// </summary>
     public async Task ProcessPostPollingAsync(MonitoringPost post, CancellationToken cancellationToken)
     {
         var sensors = post.Sensors.Where(s => s.IsActive).ToList();
@@ -56,7 +180,6 @@ public class DataProcessingService
 
                     if (isSuccess && !string.IsNullOrEmpty(responseBody))
                     {
-                        // 1. Сохраняем метаданные результата (SensorResults) ТОЛЬКО при успехе
                         var result = new SensorResults
                         {
                             SensorId = sensor.Id,
@@ -69,12 +192,9 @@ public class DataProcessingService
                         };
                         await _dbService.SaveSensorResultAsync(result);
 
-                        // 2. Обрабатываем данные
                         try 
                         {
                             using var doc = JsonDocument.Parse(responseBody);
-                            
-                            // Обновляем серийный номер, если он есть в JSON
                             if (doc.RootElement.TryGetProperty("Serial", out var serialElement))
                             {
                                 var serialNumber = serialElement.GetString();
@@ -89,29 +209,23 @@ public class DataProcessingService
                         }
                         catch (Exception ex)
                         {
-                            // Ошибка парсинга или обработки данных (например, пришел HTML вместо JSON)
                             await _loggerService.LogAccessErrorAsync(sensor, ex, cancellationToken);
                             errors.Add($"Sensor {sensor.Id} ({sensor.EndPointsName ?? "Unknown"}): {ex.Message}");
                         }
                     }
                     else
                     {
-                        // 3. Если ошибка сети/таймаут - пишем в таблицу SensorError
                         var ex = exception ?? new Exception($"Polling failed with status {statusCode}");
                         await _loggerService.LogAccessErrorAsync(sensor, ex, cancellationToken);
-                        
                         errors.Add($"Sensor {sensor.Id} ({sensor.SensorType?.SensorTypeName ?? "Unknown"}): Status {statusCode}");
                     }
                 }
                 catch (Exception ex)
                 {
-                    // Глобальная ошибка для конкретного датчика
                     await _loggerService.LogAccessErrorAsync(sensor, ex, cancellationToken);
-                    var sensorName = sensor.EndPointsName ?? "Unknown";
-                    errors.Add($"Sensor {sensor.Id} ({sensorName}) critical error: {ex.Message}");
+                    errors.Add($"Sensor {sensor.Id} critical error: {ex.Message}");
                 }
             });
-
 
             await Task.WhenAll(pollingTasks);
         }
@@ -157,6 +271,8 @@ public class DataProcessingService
             }
             await _dbService.SaveDspdDataAsync(data, pollingSessionId, sensor.MonitoringPostId);
             
+            await _dbService.UpdateDspdSensorCoordinatesAsync(sensor.Id, data.GPSLatitude, data.GPSLongitude);
+
             string sensorInfo = $"sensor '{sensor.SerialNumber}' ({sensor.EndPointsName})";
             string postInfo = sensor.MonitoringPost != null ? $" on post '{sensor.MonitoringPost.Name}'" : "";
             _logger.LogInformation("DSPD data saved for {sensorInfo}{postInfo} ({url})", 
@@ -166,7 +282,6 @@ public class DataProcessingService
             await _loggerService.LogDatabaseErrorAsync(sensor, "PARSE_ERROR", "DSPD JSON parse error: " + ex.Message, ex);
         }
     }
-
 
     private async Task ProcessIwsDataAsync(Sensor sensor, string jsonString, Guid? pollingSessionId, CancellationToken cancellationToken)
     {
@@ -189,6 +304,8 @@ public class DataProcessingService
             };
             await _dbService.SaveIwsDataAsync(data, pollingSessionId, sensor.MonitoringPostId);
             
+            await _dbService.UpdateIwsSensorCoordinatesAsync(sensor.Id, (decimal?)data.Latitude, (decimal?)data.Longitude);
+
             string sensorInfo = $"sensor '{sensor.SerialNumber}' ({sensor.EndPointsName})";
             string postInfo = sensor.MonitoringPost != null ? $" on post '{sensor.MonitoringPost.Name}'" : "";
             _logger.LogInformation("IWS data saved for {sensorInfo}{postInfo} ({url})", 
@@ -198,7 +315,6 @@ public class DataProcessingService
             await _loggerService.LogDatabaseErrorAsync(sensor, "PARSE_ERROR", "IWS JSON parse error: " + ex.Message, ex);
         }
     }
-
 
     private async Task ProcessMueksDataAsync(Sensor sensor, string jsonString, Guid? pollingSessionId, CancellationToken cancellationToken)
     {
@@ -216,7 +332,7 @@ public class DataProcessingService
                 PollingSessionId = pollingSessionId, MonitoringPostId = sensor.MonitoringPostId
             };
             await _dbService.SaveMueksDataAsync(data, pollingSessionId, sensor.MonitoringPostId);
-            
+
             string sensorInfo = $"sensor '{sensor.SerialNumber}' ({sensor.EndPointsName})";
             string postInfo = sensor.MonitoringPost != null ? $" on post '{sensor.MonitoringPost.Name}'" : "";
             _logger.LogInformation("MUEKS data saved for {sensorInfo}{postInfo} ({url})", 
@@ -226,7 +342,6 @@ public class DataProcessingService
             await _loggerService.LogDatabaseErrorAsync(sensor, "PARSE_ERROR", "MUEKS JSON parse error: " + ex.Message, ex);
         }
     }
-
 
     private async Task ProcessDovDataAsync(Sensor sensor, string jsonString, Guid? pollingSessionId, CancellationToken cancellationToken)
     {
@@ -240,7 +355,7 @@ public class DataProcessingService
                 PollingSessionId = pollingSessionId, MonitoringPostId = sensor.MonitoringPostId
             };
             await _dbService.SaveDovDataAsync(data, pollingSessionId, sensor.MonitoringPostId);
-            
+
             string sensorInfo = $"sensor '{sensor.SerialNumber}' ({sensor.EndPointsName})";
             string postInfo = sensor.MonitoringPost != null ? $" on post '{sensor.MonitoringPost.Name}'" : "";
             _logger.LogInformation("DOV data saved for {sensorInfo}{postInfo} ({url})", 
@@ -250,7 +365,6 @@ public class DataProcessingService
             await _loggerService.LogDatabaseErrorAsync(sensor, "PARSE_ERROR", "DOV JSON parse error: " + ex.Message, ex);
         }
     }
-
 
     private async Task ProcessDustDataAsync(Sensor sensor, string jsonString, Guid? pollingSessionId, CancellationToken cancellationToken)
     {
@@ -267,7 +381,7 @@ public class DataProcessingService
                 PollingSessionId = pollingSessionId, MonitoringPostId = sensor.MonitoringPostId
             };
             await _dbService.SaveDustDataAsync(data, pollingSessionId, sensor.MonitoringPostId);
-            
+
             string sensorInfo = $"sensor '{sensor.SerialNumber}' ({sensor.EndPointsName})";
             string postInfo = sensor.MonitoringPost != null ? $" on post '{sensor.MonitoringPost.Name}'" : "";
             _logger.LogInformation("DUST data saved for {sensorInfo}{postInfo} ({url})", 
@@ -278,7 +392,6 @@ public class DataProcessingService
         }
     }
 
-
     private DateTime ParseDateTimeToUtc(string? dateTimeStr, string format)
     {
         if (string.IsNullOrEmpty(dateTimeStr)) return DateTime.UtcNow;
@@ -287,13 +400,14 @@ public class DataProcessingService
         return DateTime.UtcNow;
     }
 
-    private (decimal? Latitude, decimal? Longitude, bool IsValid) ParseGpsCoordinates(string? latStr, string? lonStr)
+    private (decimal? lat, decimal? lon, bool valid) ParseGpsCoordinates(string? latStr, string? lonStr)
     {
         if (string.IsNullOrEmpty(latStr) || string.IsNullOrEmpty(lonStr)) return (null, null, false);
-        try {
-            decimal lat = decimal.Parse(latStr, CultureInfo.InvariantCulture);
-            decimal lon = decimal.Parse(lonStr, CultureInfo.InvariantCulture);
+        if (decimal.TryParse(latStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var lat) &&
+            decimal.TryParse(lonStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var lon))
+        {
             return (lat, lon, true);
-        } catch { return (null, null, false); }
+        }
+        return (null, null, false);
     }
 }

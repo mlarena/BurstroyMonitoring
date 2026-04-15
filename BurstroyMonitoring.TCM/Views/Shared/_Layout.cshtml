@@ -109,11 +109,11 @@
                         <li class="nav-item">
                             <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index">Главная</a>
                         </li>
-                        <li class="nav-item">
+                        <!-- <li class="nav-item">
                             <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Dashboard" ? "active" : "")" asp-controller="Dashboard" asp-action="Index">
                                 Дашборд
                             </a>
-                        </li>
+                        </li> -->
                         
                         <li class="nav-item dropdown">
                             @{
@@ -127,6 +127,7 @@
                                 <li><a class="dropdown-item @(currentController == "MonitoringPosts" ? "active" : "")" asp-controller="MonitoringPosts" asp-action="Index">Посты мониторинга</a></li>
                                 <li><a class="dropdown-item @(currentController == "SensorTypes" ? "active" : "")" asp-controller="SensorTypes" asp-action="Index">Типы датчиков</a></li>
                                 <li><a class="dropdown-item @(currentController == "Sensors" ? "active" : "")" asp-controller="Sensors" asp-action="Index">Датчики</a></li>
+                                <li><a class="dropdown-item @(currentController == "Puids" ? "active" : "")" asp-controller="Puids" asp-action="Index">ПУИД</a></li>
                                 <!-- <li><hr class="dropdown-divider"></li> -->
                             </ul>
                         </li>
