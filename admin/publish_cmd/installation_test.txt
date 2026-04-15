@@ -6,11 +6,10 @@ apt-get update
 apt-get install -y dos2unix
 
 # Конвертируйте все .sh файлы
-dos2unix *.sh
+dos2unix *.sql
 
 
-scp "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" devuser@192.168.19.137:/opt/burstroy/tmp 
-scp "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" devuser@192.168.19.137:/opt/burstroy/tmp 
+scp "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" devuser@192.168.192.143:/opt/burstroy/tmp 
 scp -P 58222 "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" usermeteo@192.168.192.137:/opt/burstroy/tmp 
 
 ssh devuser@192.168.192.143
@@ -31,7 +30,7 @@ psql -U postgres -h localhost -d postgres
 create database sensordb;
 
 4. выполнение скриптов на базе данных
-sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/create_database.sql
+sudo -u postgres psql -d sensordb_mu -f /opt/burstroy/tmp/db_vw.sql
 \dt
 \dv
 
@@ -63,16 +62,14 @@ sudo systemctl status burstroy-monitoring-video.service
 sudo journalctl -u burstroy-monitoring-video.service -f
 sudo systemctl enable burstroy-monitoring-video.service
 sudo systemctl disable burstroy-monitoring-video.service
-sudo systemctl stop burstroy-monitoring-video.service
+sudo systemctl stop burstroy-video-monitoring.service
 
-sudo systemctl start burstroy-monitoring-api.service
-sudo systemctl stop burstroy-monitoring-api.service
-sudo systemctl restart burstroy-monitoring-api.service
-sudo systemctl status burstroy-monitoring-api.service
-sudo journalctl -u burstroy-monitoring-api.service -f
-sudo systemctl enable burstroy-monitoring-api.service
-sudo systemctl disable burstroy-monitoring-api.service
-sudo systemctl stop burstroy-monitoring-api.service
-
+DROP VIEW  vw_dov_data_full;
+DROP VIEW  vw_dspd_data_full;
+DROP VIEW  vw_dust_data_full;
+DROP VIEW   vw_iws_data_full;
+DROP VIEW  vw_mueks_data_full;
+DROP VIEW  vw_sensor_errors_full;
+DROP VIEW vw_sensor_results_full;
 
 /opt/burstroy/tcm/wwwroot/snapshots
