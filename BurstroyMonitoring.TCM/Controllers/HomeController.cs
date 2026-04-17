@@ -10,36 +10,124 @@ namespace BurstroyMonitoring.TCM.Controllers;
 public class HomeController : Controller
 {
     private readonly ApplicationDbContext _context;
+    private readonly ILogger<HomeController> _logger;
 
-    public HomeController(ApplicationDbContext context)
+    public HomeController(ApplicationDbContext context, ILogger<HomeController> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     public async Task<IActionResult> Index()
     {
-        var posts = await _context.MonitoringPosts
-            .OrderBy(mp => mp.Name)
-            .ToListAsync();
-        return View(posts);
+        try
+        {
+            var postsData = await _context.MonitoringPosts
+                .OrderBy(mp => mp.Name)
+                .Select(p => new
+                {
+                    Post = p,
+                    TotalSensors = p.Sensors.Count(s => s.IsActive),
+                    ErrorSensors = p.Sensors.Where(s => s.IsActive).Count(s => 
+                        _context.SensorError.Any(e => e.SensorId == s.Id && 
+                        (!_context.SensorResults.Any(r => r.SensorId == s.Id) || 
+                         e.CreatedAt > _context.SensorResults.Where(r => r.SensorId == s.Id).Max(r => r.CheckedAt)))
+                    )
+                })
+                .ToListAsync();
+
+            // Преобразуем в список объектов, которые удобно использовать во View
+            var viewModel = postsData.Select(d => {
+                var p = d.Post;
+                // Логика статуса:
+                // 1. Если не активен -> inactive (красный)
+                // 2. Если активен и есть ошибки, но не все -> warning (желтый)
+                // 3. Если активен и все в ошибке -> danger (красный)
+                // 4. Если все ок -> active (зеленый)
+                
+                string statusClass = "active";
+                if (!p.IsActive) statusClass = "inactive";
+                else if (d.TotalSensors > 0)
+                {
+                    if (d.ErrorSensors == d.TotalSensors) statusClass = "danger";
+                    else if (d.ErrorSensors > 0) statusClass = "warning";
+                }
+
+                // Используем TempData или ViewBag для передачи классов, 
+                // но лучше добавить свойство в модель или использовать анонимный тип.
+                // Для простоты добавим информацию в ViewBag или расширим модель.
+                return new { Post = p, StatusClass = statusClass, ErrorCount = d.ErrorSensors };
+            }).ToList();
+
+            ViewBag.PostStatuses = viewModel.ToDictionary(x => x.Post.Id, x => x.StatusClass);
+            
+            return View(postsData.Select(d => d.Post).ToList());
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in HomeController.Index");
+            return View(new List<MonitoringPost>());
+        }
     }
 
     [HttpGet]
     public async Task<IActionResult> GetPostSensors(int postId)
     {
-        var sensors = await _context.Sensors
-            .Include(s => s.SensorType)
-            .Where(s => s.MonitoringPostId == postId && s.IsActive)
-            .Select(s => new
-            {
-                s.Id,
-                s.EndPointsName,
-                s.SerialNumber,
-                SensorTypeName = s.SensorType != null ? s.SensorType.SensorTypeName : "Unknown"
-            })
-            .ToListAsync();
+        try
+        {
+            var sensorsData = await _context.Sensors
+                .Include(s => s.SensorType)
+                .Where(s => s.MonitoringPostId == postId && s.IsActive)
+                .Select(s => new
+                {
+                    s.Id,
+                    s.EndPointsName,
+                    s.SerialNumber,
+                    SensorTypeName = s.SensorType != null ? s.SensorType.SensorTypeName : "Unknown",
+                    LastResult = _context.SensorResults
+                        .Where(r => r.SensorId == s.Id)
+                        .OrderByDescending(r => r.CheckedAt)
+                        .Select(r => new { r.IsSuccess, r.CheckedAt })
+                        .FirstOrDefault(),
+                    LastError = _context.SensorError
+                        .Where(e => e.SensorId == s.Id)
+                        .OrderByDescending(e => e.CreatedAt)
+                        .Select(e => new { e.ErrorMessage, e.CreatedAt })
+                        .FirstOrDefault()
+                })
+                .ToListAsync();
 
-        return Json(sensors);
+            var result = sensorsData.Select(s =>
+            {
+                // Определяем, что считать ошибкой:
+                // 1. Если в результатах явно стоит IsSuccess = false
+                // 2. ИЛИ если в таблице ошибок есть запись, которая появилась ПОСЛЕ последней успешной проверки
+                bool hasExplicitFailure = s.LastResult != null && !s.LastResult.IsSuccess;
+                bool hasRecentError = s.LastError != null && (s.LastResult == null || s.LastError.CreatedAt > s.LastResult.CheckedAt);
+                
+                bool isSuccess = !hasExplicitFailure && !hasRecentError;
+
+                return new
+                {
+                    s.Id,
+                    s.EndPointsName,
+                    s.SerialNumber,
+                    s.SensorTypeName,
+                    IsSuccess = isSuccess,
+                    ErrorMessage = !isSuccess 
+                        ? (s.LastError?.ErrorMessage ?? "Ошибка опроса") 
+                        : null,
+                    LastCheck = s.LastResult?.CheckedAt ?? s.LastError?.CreatedAt
+                };
+            });
+
+            return Json(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in GetPostSensors for postId: {PostId}", postId);
+            return StatusCode(500, new { error = "Internal server error" });
+        }
     }
 
     [HttpGet]
@@ -74,18 +162,18 @@ public class HomeController : Controller
 
             if (data != null)
             {
-                Console.WriteLine($"[HomeController] Returned data for sensor {sensorId} ({type})");
+                _logger.LogDebug("Returned data for sensor {SensorId} ({Type})", sensorId, type);
             }
             else
             {
-                Console.WriteLine($"[HomeController] No data found for sensor {sensorId} ({type})");
+                _logger.LogDebug("No data found for sensor {SensorId} ({Type})", sensorId, type);
             }
 
             return Json(data);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[HomeController] Error getting data for sensor {sensorId}: {ex.Message}");
+            _logger.LogError(ex, "Error getting data for sensor {SensorId} ({Type})", sensorId, type);
             return StatusCode(500, new { error = ex.Message });
         }
     }

@@ -62,8 +62,19 @@ sudo systemctl status burstroy-monitoring-video.service
 sudo journalctl -u burstroy-monitoring-video.service -f
 sudo systemctl enable burstroy-monitoring-video.service
 sudo systemctl disable burstroy-monitoring-video.service
-sudo systemctl stop burstroy-video-monitoring.service
+sudo systemctl stop burstroy-monitoring-video.service
 
+sudo systemctl start burstroy-monitoring-api
+sudo systemctl stop burstroy-monitoring-api
+sudo systemctl restart burstroy-monitoring-api
+sudo systemctl status burstroy-monitoring-api
+sudo journalctl -u burstroy-monitoring-api -f
+sudo systemctl enable burstroy-monitoring-api
+sudo systemctl disable burstroy-monitoring-api
+sudo systemctl stop burstroy-monitoring-api
+
+
+ 
 DROP VIEW  vw_dov_data_full;
 DROP VIEW  vw_dspd_data_full;
 DROP VIEW  vw_dust_data_full;

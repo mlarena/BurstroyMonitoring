@@ -23,6 +23,9 @@ namespace BurstroyMonitoring.Data.Models.ViewModels
         [Display(Name = "Конечная точка")]
         public string? EndpointName { get; set; }
         
+        [Display(Name = "Пост")]
+        public string? PostName { get; set; }
+        
         [Display(Name = "Выводить по")]
         public string? PageSize { get; set; } = "10";
         

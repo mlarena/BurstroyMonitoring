@@ -11,7 +11,7 @@ Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
     .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", Serilog.Events.LogEventLevel.Warning)
     .WriteTo.Console()
-    .WriteTo.File("logs/worker-.log", rollingInterval: RollingInterval.Day)
+    .WriteTo.File("logs/log-video-.log", rollingInterval: RollingInterval.Day)
     .CreateLogger();
 builder.Services.AddSerilog();
 

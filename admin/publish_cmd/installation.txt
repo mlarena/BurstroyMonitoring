@@ -33,7 +33,8 @@ ssh bsp@192.168.3.19 -p 9022
 bsp
 scp -P 9022 "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm_arm.zip" bsp@192.168.3.19:/opt/burstroy/tmp
 
-
+ssh bspuser@192.168.3.229
+scp "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm_arm.zip" bspuser@192.168.3.230:/opt/burstroy/tmp
 
 sudo timedatectl set-timezone Europe/Moscow
 /opt/burstroy/tcm/wwwroot/snapshots/
@@ -52,29 +53,9 @@ psql -U postgres -h localhost -d postgres
 
 
 sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/create_database.sql
-sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_insert.sql
-sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/user.sql
-sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/monitoring_posts.sql
-sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_new_big_data.sql
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_insert_internal_test_MonitoringPost.sql
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_insert_sensors_default.sql
 
-
-sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/addcameras.sql
-sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/user.sql
-sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_insert_kr.sql
-sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_insert.sql
-sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/monitoring_posts.sql
-
-sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_new_sensors.sql
-sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_vw.sql
-
-sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_new_sensors.sql
-sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_vw.sql
-sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/monitoring_mini_posts.sql
-sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_insert.sql
-sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_db.sql
-
-sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/monitoring_posts.sql
-sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_new_big_data.sql
 
 monitoring_posts.sql
 SELECT * FROM public."Sensor";
@@ -106,6 +87,15 @@ sudo journalctl -u burstroy-monitoring-video -f
 sudo systemctl enable burstroy-monitoring-video
 sudo systemctl disable burstroy-monitoring-video
 
+
+sudo systemctl start burstroy-monitoring-api
+sudo systemctl stop burstroy-monitoring-api
+sudo systemctl restart burstroy-monitoring-api
+sudo systemctl status burstroy-monitoring-api
+sudo journalctl -u burstroy-monitoring-api -f
+sudo systemctl enable burstroy-monitoring-api
+sudo systemctl disable burstroy-monitoring-api
+sudo systemctl stop burstroy-monitoring-api
 
 DROP VIEW  vw_dov_data_full;
 DROP VIEW  vw_dspd_data_full;

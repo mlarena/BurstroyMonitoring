@@ -18,45 +18,55 @@ namespace BurstroyMonitoring.TCM.Controllers
     public class ReportController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<ReportController> _logger;
 
-        public ReportController(ApplicationDbContext context)
+        public ReportController(ApplicationDbContext context, ILogger<ReportController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Index()
         {
-            var viewModel = new SensorSelectionViewModel();
-            
-            var monitoringPosts = await _context.MonitoringPosts
-                .Where(mp => mp.IsActive)
-                .OrderBy(mp => mp.Name)
-                .ToListAsync();
-
-            viewModel.MonitoringPosts = monitoringPosts
-                .Select(mp => new SelectListItem
-                {
-                    Value = mp.Id.ToString(),
-                    Text = mp.Name
-                })
-                .ToList();
-
-            viewModel.MonitoringPosts.Insert(0, new SelectListItem
+            try
             {
-                Value = "",
-                Text = "Выберите пост мониторинга"
-            });
+                var viewModel = new SensorSelectionViewModel();
+                
+                var monitoringPosts = await _context.MonitoringPosts
+                    .Where(mp => mp.IsActive)
+                    .OrderBy(mp => mp.Name)
+                    .ToListAsync();
 
-            viewModel.Sensors = new List<SelectListItem>
-            {
-                new SelectListItem
+                viewModel.MonitoringPosts = monitoringPosts
+                    .Select(mp => new SelectListItem
+                    {
+                        Value = mp.Id.ToString(),
+                        Text = mp.Name
+                    })
+                    .ToList();
+
+                viewModel.MonitoringPosts.Insert(0, new SelectListItem
                 {
                     Value = "",
-                    Text = "Сначала выберите пост мониторинга"
-                }
-            };
+                    Text = "Выберите пост мониторинга"
+                });
 
-            return View(viewModel);
+                viewModel.Sensors = new List<SelectListItem>
+                {
+                    new SelectListItem
+                    {
+                        Value = "",
+                        Text = "Сначала выберите пост мониторинга"
+                    }
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in ReportController.Index");
+                return View(new SensorSelectionViewModel());
+            }
         }
 
         /// <summary>
@@ -87,10 +97,12 @@ namespace BurstroyMonitoring.TCM.Controllers
             }
             catch (ArgumentException ex)
             {
+                _logger.LogWarning(ex, "Invalid arguments for report: postId={PostId}, start={Start}, end={End}", postId, startDate, endDate);
                 return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error generating report data for postId: {PostId}", postId);
                 // В случае ошибки возвращаем 500 статус и текст ошибки для отладки на фронтенде.
                 return StatusCode(500, new { error = ex.Message });
             }
@@ -342,6 +354,7 @@ namespace BurstroyMonitoring.TCM.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error exporting report for postId: {PostId}, format: {Format}", postId, format);
                 return StatusCode(500, ex.Message);
             }
         }

@@ -22,7 +22,10 @@ $filesToInclude = @(
     
     # SQL structure
     "$basePath\admin\sql\create_database.sql",
-    
+    "$basePath\admin\sql\db_insert_internal_test_MonitoringPost.sql",
+    "$basePath\admin\sql\db_insert_sensors_default.sql",
+
+
     # Service creation scripts
     "$basePath\admin\bash\create-service-burstroy-monitoring-tcm.sh",
     "$basePath\admin\bash\create-service-burstroy-monitoring-video.sh",
@@ -34,6 +37,12 @@ $filesToInclude = @(
     "$basePath\admin\bash\install_video-monitoring.sh",
     "$basePath\admin\bash\install_worker.sh",
     "$basePath\admin\bash\install_api.sh",
+    
+    "$basePath\admin\bash\1_install_system.sh",
+    "$basePath\admin\bash\2_update_system.sh",
+    "$basePath\admin\bash\3_start_services.sh",
+    "$basePath\admin\bash\4_status_services.sh",
+    "$basePath\admin\bash\5_stop_services.sh",
     
     # Update scripts
     "$basePath\admin\bash\update_tcm.sh",

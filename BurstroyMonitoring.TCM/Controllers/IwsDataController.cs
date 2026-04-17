@@ -12,8 +12,9 @@ namespace BurstroyMonitoring.TCM.Controllers
     {
         public IwsDataController(
             ApplicationDbContext context,
-            IExportService exportService)
-            : base(context, exportService)
+            IExportService exportService,
+            ILogger<IwsDataController> logger)
+            : base(context, exportService, logger)
         {
         }
 
@@ -27,44 +28,51 @@ namespace BurstroyMonitoring.TCM.Controllers
             {
                 ["IwsDataId"] = "ID данных",
                 ["ReceivedAt"] = "Время получения",
-                ["DataTimestamp"] = "Метка времени",
-                ["EnvironmentTemperature"] = "Температура окружающей среды",
-                ["HumidityPercentage"] = "Влажность воздуха",
+                ["SerialNumber"] = "Серийный номер",
+                ["EnvironmentTemperature"] = "Температура воздуха",
+                ["HumidityPercentage"] = "Относительная влажность воздуха",
                 ["DewPoint"] = "Точка росы",
-                ["PressureHpa"] = "Давление (гПа)",
-                ["PressureQnhHpa"] = "Давление QNH (гПа)",
-                ["PressureMmhg"] = "Давление (мм рт.ст.)",
+                ["PressureHpa"] = "Атмосферное давление (гПа)",
+                ["PressureQnhHpa"] = "Давление, приведенное к уровню моря (QNH)",
+                ["PressureMmhg"] = "Атмосферное давление (мм рт. ст.)",
                 ["WindSpeed"] = "Скорость ветра",
                 ["WindDirection"] = "Направление ветра",
-                ["WindVsSound"] = "Ветер vs звук",
+                ["WindVsSound"] = "Скорость звука",
                 ["PrecipitationType"] = "Тип осадков",
                 ["PrecipitationIntensity"] = "Интенсивность осадков",
                 ["PrecipitationQuantity"] = "Количество осадков",
-                ["PrecipitationElapsed"] = "Продолжительность осадков",
-                ["PrecipitationPeriod"] = "Период осадков",
-                ["SupplyVoltage"] = "Напряжение питания",
-                ["IwsLatitude"] = "Широта IWS",
-                ["IwsLongitude"] = "Долгота IWS",
-                ["Altitude"] = "Высота",
-                ["KspValue"] = "Значение KSP",
-                ["GpsSpeed"] = "Скорость GPS",
-                ["AccelerationStdDev"] = "Стандартное отклонение ускорения",
-                ["RollAngle"] = "Угол крена",
-                ["PitchAngle"] = "Угол тангажа",
-                ["StatusOk"] = "Статус ОК",
-                ["SensorLongitude"] = "Долгота датчика",
-                ["SensorLatitude"] = "Широта датчика",
-                ["SerialNumber"] = "Серийный номер",
-                ["EndpointName"] = "Конечная точка",
-                ["SensorUrl"] = "URL датчика",
-                ["LastActivityUtc"] = "Последняя активность",
-                ["SensorIsActive"] = "Датчик активен",
-                ["SensorTypeName"] = "Тип датчика",
-                ["SensorTypeDescription"] = "Описание типа",
+                ["PrecipitationElapsed"] = "Накопленное время осадков",
+                ["PrecipitationPeriod"] = "Период накопления осадков",
                 ["PostName"] = "Имя поста",
-                ["PostDescription"] = "Описание поста",
-                ["PostIsMobile"] = "Мобильный пост",
+                ["PostAddress"] = "Адрес поста",
                 ["PostIsActive"] = "Пост активен"
+            };
+        }
+
+        protected override List<string> GetAvailableFields<U>()
+        {
+            return new List<string>
+            {
+                "IwsDataId",
+                "ReceivedAt",
+                "SerialNumber",
+                "EnvironmentTemperature",
+                "HumidityPercentage",
+                "DewPoint",
+                "PressureHpa",
+                "PressureQnhHpa",
+                "PressureMmhg",
+                "WindSpeed",
+                "WindDirection",
+                "WindVsSound",
+                "PrecipitationType",
+                "PrecipitationIntensity",
+                "PrecipitationQuantity",
+                "PrecipitationElapsed",
+                "PrecipitationPeriod",
+                "PostName",
+                "PostAddress",
+                "PostIsActive"
             };
         }
 

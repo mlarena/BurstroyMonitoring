@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS "Puid" (
     "Latitude" FLOAT8 NULL,
     "SerialNumber" VARCHAR(64) NOT NULL,
     "EndPointsName" VARCHAR(255) NOT NULL,
-    "IntervalSeconds" int4 DEFAULT 60 NOT NULL
+    "IntervalSeconds" int4 DEFAULT 60 NOT NULL,
     "Url" TEXT NOT NULL,
     "LastActivityUTC" TIMESTAMPTZ NULL,
     "CreatedAt" TIMESTAMPTZ DEFAULT NOW() NOT NULL,
@@ -50,7 +50,30 @@ CREATE INDEX IF NOT EXISTS "IX_PuidData_PuidId" ON "PuidData" ("PuidId");
 CREATE INDEX IF NOT EXISTS "IX_PuidData_RangeStart" ON "PuidData" ("RangeStart");
 
 
+-- public."PuidResults" definition
+
+-- Drop table
+
+-- DROP TABLE public."PuidResults";
+
+CREATE TABLE public."PuidResults" (
+	"Id" serial4 NOT NULL,
+	"PuidId" int4 NOT NULL,
+	"CheckedAt" timestamptz NOT NULL,
+	"StatusCode" int4 NOT NULL,
+	"ResponseBody" jsonb NULL,
+	"ResponseTimeMs" int8 NOT NULL,
+	"IsSuccess" bool NOT NULL,
+	CONSTRAINT "PuidResults_pkey" PRIMARY KEY ("Id")
+);
+
+
+-- public."PuidResults" foreign keys
+
+ALTER TABLE public."PuidResults" ADD CONSTRAINT "PuidResults_PuidId_fkey" FOREIGN KEY ("PuidId") REFERENCES public."Puid"("Id") ON DELETE CASCADE;
+
 INSERT INTO public."Puid"
 ( "SensorType", "MonitoringPostId", "Longitude", "Latitude", "SerialNumber", "EndPointsName", "Url", "LastActivityUTC", "CreatedAt", "IsActive")
 VALUES
-( 'PUID', 1, 0, 0, 'sn', 'puid22', 'http://85.26.215.244:8180/api/integration/stat?email=userstats&password=userstats&sensor_id=b0ffd7f7-7ad9-4021-8c0a-e9d5b547639f&interval=3600', NULL, now(), true);
+( 'PUID', 1, 0, 0, 'sn', 'puid_001', 'http://85.26.215.244:8180/api/integration/stat?email=userstats&password=userstats&sensor_id=b0ffd7f7-7ad9-4021-8c0a-e9d5b547639f&interval=3600', NULL, now(), true);
+

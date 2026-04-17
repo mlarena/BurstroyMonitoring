@@ -141,11 +141,13 @@
                                 Данные
                             </a>
                             <ul class="dropdown-menu shadow" style="z-index: 1001;">
-                                <li><a class="dropdown-item @(currentController == "MueksData" ? "active" : "")" asp-controller="MueksData" asp-action="Index">MUEKS</a></li>
-                                <li><a class="dropdown-item @(currentController == "IwsData" ? "active" : "")" asp-controller="IwsData" asp-action="Index">IWS</a></li>
-                                <li><a class="dropdown-item @(currentController == "DspdData" ? "active" : "")" asp-controller="DspdData" asp-action="Index">DSPD</a></li>
-                                <li><a class="dropdown-item @(currentController == "DovData" ? "active" : "")" asp-controller="DovData" asp-action="Index">DOV</a></li>
-                                <li><a class="dropdown-item @(currentController == "DustData" ? "active" : "")" asp-controller="DustData" asp-action="Index">DUST</a></li>
+                                <li><a class="dropdown-item @(currentController == "MueksData" ? "active" : "")" asp-controller="MueksData" asp-action="Index">Питание</a></li>
+                                <li><a class="dropdown-item @(currentController == "IwsData" ? "active" : "")" asp-controller="IwsData" asp-action="Index">Погода / Метео</a></li>
+                                <li><a class="dropdown-item @(currentController == "DspdData" ? "active" : "")" asp-controller="DspdData" asp-action="Index">Состояние дороги</a></li>
+                                <li><a class="dropdown-item @(currentController == "DovData" ? "active" : "")" asp-controller="DovData" asp-action="Index">Дальность видимости</a></li>
+                                <li><a class="dropdown-item @(currentController == "DustData" ? "active" : "")" asp-controller="DustData" asp-action="Index">Датчик  пыли</a></li>
+                                <li><a class="dropdown-item @(currentController == "PuidData" ? "active" : "")" asp-controller="PuidData" asp-action="Index">Плотность потока</a></li>
+                                
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item @(currentController == "SensorResults" ? "active" : "")" asp-controller="SensorResults" asp-action="Index">Результаты</a></li>
                             </ul>

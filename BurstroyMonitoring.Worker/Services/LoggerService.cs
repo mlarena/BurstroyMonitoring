@@ -107,7 +107,7 @@ public class LoggerService
             if (!Directory.Exists(logDirectory))
                 Directory.CreateDirectory(logDirectory);
 
-            var logFile = Path.Combine(logDirectory, $"errors-{DateTime.UtcNow:yyyy-MM-dd}.log");
+            var logFile = Path.Combine(logDirectory, $"log-worker-errors-{DateTime.UtcNow:yyyyMMdd}.log");
             
             lock (_fileLock)
             {
@@ -124,7 +124,7 @@ public class LoggerService
                     }
                     catch (IOException)
                     {
-                        var backupFile = Path.Combine(logDirectory, $"errors-backup-{DateTime.UtcNow:yyyy-MM-dd-HHmmss}.log");
+                        var backupFile = Path.Combine(logDirectory, $"log-worker-errors-backup-{DateTime.UtcNow:yyyyMMdd-HHmmss}.log");
                         File.AppendAllText(backupFile, logEntry);
                         _logger.LogWarning("Could not write to main error log, wrote to backup file: {backupFile}", backupFile);
                     }
@@ -150,7 +150,7 @@ public class LoggerService
             if (!Directory.Exists(logDirectory))
                 Directory.CreateDirectory(logDirectory);
 
-            var logFile = Path.Combine(logDirectory, $"app-{DateTime.UtcNow:yyyy-MM-dd}.log");
+            var logFile = Path.Combine(logDirectory, $"log-worker-{DateTime.UtcNow:yyyyMMdd}.log");
             
             lock (_fileLock)
             {
@@ -178,8 +178,9 @@ public class LoggerService
     {
         try
         {
-            // Формируем информативное сообщение с серийным номером, названием точки и именем поста
-            string sensorInfo = $"sensor '{sensor.SerialNumber}' ({sensor.EndPointsName})";
+            // Формируем информативное сообщение с типом датчика, серийным номером, названием точки и именем поста
+            string sensorType = sensor.SensorType?.SensorTypeName ?? "Unknown";
+            string sensorInfo = $"{sensorType} sensor '{sensor.SerialNumber}' ({sensor.EndPointsName})";
             string postInfo = sensor.MonitoringPost != null 
                 ? $" on post '{sensor.MonitoringPost.Name}'" 
                 : "";

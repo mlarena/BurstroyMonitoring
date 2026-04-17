@@ -17,13 +17,13 @@
                         <tbody>
                             <tr class="table-light"><th colspan="2" class="ps-3 py-2">Основная информация</th></tr>
                             <tr>
-                                <th class="ps-3" style="width: 40%;">Дата получения (UTC)</th>
-                                <td class="ps-3">@(Model.ReceivedAt?.ToString("dd.MM.yyyy HH:mm:ss") ?? "—")</td>
+                                <th class="ps-3" style="width: 40%;">Дата и время получения</th>
+                                <td class="ps-3">@(Model.ReceivedAt?.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss") ?? "—")</td>
                             </tr>
-                            <tr>
+                            <!-- <tr>
                                 <th class="ps-3">Метка времени данных</th>
                                 <td class="ps-3">@(Model.DataTimestamp?.ToString("dd.MM.yyyy HH:mm:ss") ?? "—")</td>
-                            </tr>
+                            </tr> -->
                             <tr>
                                 <th class="ps-3">Серийный номер</th>
                                 <td class="ps-3 fw-bold">@Model.SerialNumber</td>

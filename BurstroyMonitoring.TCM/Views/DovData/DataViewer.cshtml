@@ -8,6 +8,7 @@
     var totalCount = ViewBag.TotalCount as int? ?? 0;
     var displayedCount = Model.Count();
     var fieldDisplayNames = ViewBag.ColumnNames as Dictionary<string, string> ?? new Dictionary<string, string>();
+    var posts = ViewBag.Posts as IEnumerable<dynamic> ?? new List<dynamic>();
 }
 
 @section Styles {
@@ -51,15 +52,24 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <label class="form-label small fw-bold mb-1">Выводить по</label>
+                            <label class="form-label small fw-bold mb-1">Пост</label>
+                            <select class="form-select form-select-sm" name="PostName">
+                                <option value="">Все</option>
+                                @foreach (var post in posts) {
+                                    <option value="@post.Value" selected="@(post.Value == filter.PostName ? "selected" : null)">@post.Text</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-1">
+                            <label class="form-label small fw-bold mb-1">Выводить</label>
                             <select class="form-select form-select-sm" name="PageSize">
                                 <option value="10" selected="@(filter.PageSize == "10" ? "selected" : null)">10</option>
                                 <option value="100" selected="@(filter.PageSize == "100" ? "selected" : null)">100</option>
                                 <option value="all" selected="@(filter.PageSize == "all" ? "selected" : null)">Всё</option>
                             </select>
                         </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary btn-sm w-100">Применить</button>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary btn-sm w-100">Найти</button>
                         </div>
                     </div>
                     

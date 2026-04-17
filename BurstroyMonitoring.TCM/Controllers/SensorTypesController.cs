@@ -8,10 +8,12 @@ namespace BurstroyMonitoring.TCM.Controllers
     public class SensorTypesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<SensorTypesController> _logger;
 
-        public SensorTypesController(ApplicationDbContext context)
+        public SensorTypesController(ApplicationDbContext context, ILogger<SensorTypesController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
        // GET: SensorTypes
@@ -20,93 +22,109 @@ namespace BurstroyMonitoring.TCM.Controllers
             bool sortDesc = true,
             string search = "")
         {
-            // Включаем датчики для подсчета
-            var query = _context.SensorTypes
-                .Include(st => st.Sensors) // Включаем для подсчета
-                .AsQueryable();
-
-            // Применяем поиск, если есть
-            if (!string.IsNullOrEmpty(search))
+            try
             {
-                search = search.ToLower();
-                query = query.Where(st => 
-                    st.SensorTypeName.ToLower().Contains(search) ||
-                    st.Description.ToLower().Contains(search));
-                
-                ViewBag.Search = search;
-            }
+                // Включаем датчики для подсчета
+                var query = _context.SensorTypes
+                    .Include(st => st.Sensors) // Включаем для подсчета
+                    .AsQueryable();
 
-            // Применяем сортировку
-            switch (sortBy?.ToLower())
+                // Применяем поиск, если есть
+                if (!string.IsNullOrEmpty(search))
+                {
+                    search = search.ToLower();
+                    query = query.Where(st => 
+                        st.SensorTypeName.ToLower().Contains(search) ||
+                        st.Description.ToLower().Contains(search));
+                    
+                    ViewBag.Search = search;
+                }
+
+                // Применяем сортировку
+                switch (sortBy?.ToLower())
+                {
+                    case "sensortypename":
+                    case "name":
+                        query = sortDesc ? query.OrderByDescending(st => st.SensorTypeName) 
+                                        : query.OrderBy(st => st.SensorTypeName);
+                        break;
+                    case "description":
+                        query = sortDesc ? query.OrderByDescending(st => st.Description) 
+                                        : query.OrderBy(st => st.Description);
+                        break;
+                    case "created":
+                    case "createdat":
+                        query = sortDesc ? query.OrderByDescending(st => st.CreatedAt) 
+                                        : query.OrderBy(st => st.CreatedAt);
+                        break;
+                    case "sensors":
+                    case "sensorscount":
+                    case "count":
+                        // Сортировка по количеству датчиков
+                        query = sortDesc ? 
+                            query.OrderByDescending(st => st.Sensors.Count) :
+                            query.OrderBy(st => st.Sensors.Count);
+                        break;
+                    default: // "id" или по умолчанию
+                        query = sortDesc ? query.OrderByDescending(st => st.Id) 
+                                        : query.OrderBy(st => st.Id);
+                        sortBy = "Id";
+                        break;
+                }
+
+                // Сохраняем параметры сортировки в ViewBag
+                ViewBag.SortBy = sortBy;
+                ViewBag.SortDesc = sortDesc;
+
+                var sensorTypes = await query.ToListAsync();
+                return View(sensorTypes);
+            }
+            catch (Exception ex)
             {
-                case "sensortypename":
-                case "name":
-                    query = sortDesc ? query.OrderByDescending(st => st.SensorTypeName) 
-                                    : query.OrderBy(st => st.SensorTypeName);
-                    break;
-                case "description":
-                    query = sortDesc ? query.OrderByDescending(st => st.Description) 
-                                    : query.OrderBy(st => st.Description);
-                    break;
-                case "created":
-                case "createdat":
-                    query = sortDesc ? query.OrderByDescending(st => st.CreatedAt) 
-                                    : query.OrderBy(st => st.CreatedAt);
-                    break;
-                case "sensors":
-                case "sensorscount":
-                case "count":
-                    // Сортировка по количеству датчиков
-                    query = sortDesc ? 
-                        query.OrderByDescending(st => st.Sensors.Count) :
-                        query.OrderBy(st => st.Sensors.Count);
-                    break;
-                default: // "id" или по умолчанию
-                    query = sortDesc ? query.OrderByDescending(st => st.Id) 
-                                    : query.OrderBy(st => st.Id);
-                    sortBy = "Id";
-                    break;
+                _logger.LogError(ex, "Error in SensorTypesController.Index");
+                return View(new List<SensorType>());
             }
-
-            // Сохраняем параметры сортировки в ViewBag
-            ViewBag.SortBy = sortBy;
-            ViewBag.SortDesc = sortDesc;
-
-            var sensorTypes = await query.ToListAsync();
-            return View(sensorTypes);
         }
 
        // GET: SensorTypes/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
+            try
             {
-                return NotFound();
-            }
+                if (id == null)
+                {
+                    return NotFound();
+                }
 
-            // Загружаем сам тип датчика
-            var sensorType = await _context.SensorTypes
-                .FirstOrDefaultAsync(m => m.Id == id);
-            
-            if (sensorType == null)
+                // Загружаем сам тип датчика
+                var sensorType = await _context.SensorTypes
+                    .FirstOrDefaultAsync(m => m.Id == id);
+                
+                if (sensorType == null)
+                {
+                    return NotFound();
+                }
+
+                // Загружаем датчики отдельно
+                var sensors = await _context.Sensors
+                    .Where(s => s.SensorTypeId == id)
+                    .Include(s => s.MonitoringPost) // Загружаем посты
+                    .Take(10) // Ограничиваем количество для отображения
+                    .ToListAsync();
+
+                // Передаем в ViewBag
+                ViewBag.Sensors = sensors;
+                ViewBag.TotalSensorCount = await _context.Sensors
+                    .Where(s => s.SensorTypeId == id)
+                    .CountAsync();
+
+                return View(sensorType);
+            }
+            catch (Exception ex)
             {
-                return NotFound();
+                _logger.LogError(ex, "Error in SensorTypesController.Details for id: {Id}", id);
+                return RedirectToAction(nameof(Index));
             }
-
-            // Загружаем датчики отдельно
-            var sensors = await _context.Sensors
-                .Where(s => s.SensorTypeId == id)
-                .Include(s => s.MonitoringPost) // Загружаем посты
-                .Take(10) // Ограничиваем количество для отображения
-                .ToListAsync();
-
-            // Передаем в ViewBag
-            ViewBag.Sensors = sensors;
-            ViewBag.TotalSensorCount = await _context.Sensors
-                .Where(s => s.SensorTypeId == id)
-                .CountAsync();
-
-            return View(sensorType);
         }
 
         // GET: SensorTypes/Create
@@ -120,30 +138,48 @@ namespace BurstroyMonitoring.TCM.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,SensorTypeName,Description")] SensorType sensorType)
         {
-            if (ModelState.IsValid)
+            try
             {
-                sensorType.CreatedAt = DateTime.UtcNow;
-                _context.Add(sensorType);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (ModelState.IsValid)
+                {
+                    sensorType.CreatedAt = DateTime.UtcNow;
+                    _context.Add(sensorType);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Sensor type created successfully: {Name}", sensorType.SensorTypeName);
+                    return RedirectToAction(nameof(Index));
+                }
+                return View(sensorType);
             }
-            return View(sensorType);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in SensorTypesController.Create (POST)");
+                ModelState.AddModelError("", "Ошибка при создании типа датчика");
+                return View(sensorType);
+            }
         }
 
         // GET: SensorTypes/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
+            try
             {
-                return NotFound();
-            }
+                if (id == null)
+                {
+                    return NotFound();
+                }
 
-            var sensorType = await _context.SensorTypes.FindAsync(id);
-            if (sensorType == null)
-            {
-                return NotFound();
+                var sensorType = await _context.SensorTypes.FindAsync(id);
+                if (sensorType == null)
+                {
+                    return NotFound();
+                }
+                return View(sensorType);
             }
-            return View(sensorType);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in SensorTypesController.Edit (GET) for id: {Id}", id);
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         // POST: SensorTypes/Edit/5
@@ -168,8 +204,10 @@ namespace BurstroyMonitoring.TCM.Controllers
                     
                     _context.Update(sensorType);
                     await _context.SaveChangesAsync();
+                    _logger.LogInformation("Sensor type updated successfully: {Name}", sensorType.SensorTypeName);
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateConcurrencyException ex)
                 {
                     if (!SensorTypeExists(sensorType.Id))
                     {
@@ -177,10 +215,15 @@ namespace BurstroyMonitoring.TCM.Controllers
                     }
                     else
                     {
+                        _logger.LogError(ex, "Concurrency error in SensorTypesController.Edit for id: {Id}", id);
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error in SensorTypesController.Edit (POST) for id: {Id}", id);
+                    ModelState.AddModelError("", "Ошибка при сохранении изменений");
+                }
             }
             return View(sensorType);
         }
@@ -188,19 +231,27 @@ namespace BurstroyMonitoring.TCM.Controllers
         // GET: SensorTypes/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
+            try
             {
-                return NotFound();
-            }
+                if (id == null)
+                {
+                    return NotFound();
+                }
 
-            var sensorType = await _context.SensorTypes
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (sensorType == null)
+                var sensorType = await _context.SensorTypes
+                    .FirstOrDefaultAsync(m => m.Id == id);
+                if (sensorType == null)
+                {
+                    return NotFound();
+                }
+
+                return View(sensorType);
+            }
+            catch (Exception ex)
             {
-                return NotFound();
+                _logger.LogError(ex, "Error in SensorTypesController.Delete (GET) for id: {Id}", id);
+                return RedirectToAction(nameof(Index));
             }
-
-            return View(sensorType);
         }
 
         // POST: SensorTypes/Delete/5
@@ -208,14 +259,23 @@ namespace BurstroyMonitoring.TCM.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var sensorType = await _context.SensorTypes.FindAsync(id);
-            if (sensorType != null)
+            try
             {
-                _context.SensorTypes.Remove(sensorType);
+                var sensorType = await _context.SensorTypes.FindAsync(id);
+                if (sensorType != null)
+                {
+                    _context.SensorTypes.Remove(sensorType);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Sensor type deleted successfully: {Id}", id);
+                }
+                return RedirectToAction(nameof(Index));
             }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in SensorTypesController.DeleteConfirmed for id: {Id}", id);
+                TempData["ErrorMessage"] = "Ошибка при удалении типа датчика";
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         private bool SensorTypeExists(int id)

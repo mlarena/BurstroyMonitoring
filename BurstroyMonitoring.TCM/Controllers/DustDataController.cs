@@ -12,8 +12,9 @@ namespace BurstroyMonitoring.TCM.Controllers
     {
         public DustDataController(
             ApplicationDbContext context,
-            IExportService exportService)
-            : base(context, exportService)
+            IExportService exportService,
+            ILogger<DustDataController> logger)
+            : base(context, exportService, logger)
         {
         }
 
@@ -27,31 +28,41 @@ namespace BurstroyMonitoring.TCM.Controllers
             {
                 ["DustDataId"] = "ID данных",
                 ["ReceivedAt"] = "Время получения",
-                ["DataTimestamp"] = "Метка времени",
-                ["PM10Act"] = "PM10 (текущее)",
-                ["PM25Act"] = "PM2.5 (текущее)",
-                ["PM1Act"] = "PM1.0 (текущее)",
-                ["PM10AWG"] = "PM10 (среднее)",
-                ["PM25AWG"] = "PM2.5 (среднее)",
-                ["PM1AWG"] = "PM1.0 (среднее)",
-                ["FlowProbe"] = "Поток датчика",
-                ["TemperatureProbe"] = "Температура датчика",
-                ["HumidityProbe"] = "Влажность датчика",
-                ["LaserStatus"] = "Статус лазера",
-                ["SupplyVoltage"] = "Напряжение питания",
-                ["SensorLongitude"] = "Долгота датчика",
-                ["SensorLatitude"] = "Широта датчика",
                 ["SerialNumber"] = "Серийный номер",
-                ["EndpointName"] = "Конечная точка",
-                ["SensorUrl"] = "URL датчика",
-                ["LastActivityUtc"] = "Последняя активность",
-                ["SensorIsActive"] = "Датчик активен",
-                ["SensorTypeName"] = "Тип датчика",
-                ["SensorTypeDescription"] = "Описание типа",
+                ["PM10Act"] = "Концентрация PM10",
+                ["PM25Act"] = "Концентрация PM2.5",
+                ["PM1Act"] = "Концентрация PM1",
+                ["PM10AWG"] = "Концентрация PM10 средняя",
+                ["PM25AWG"] = "Концентрация PM2.5 средняя",
+                ["PM1AWG"] = "Концентрация PM1 средняя",
+                ["FlowProbe"] = "Расход воздуха через пробоотборник",
+                ["TemperatureProbe"] = "Температура пробоотборника",
+                ["HumidityProbe"] = "Влажность пробоотборника",
                 ["PostName"] = "Имя поста",
-                ["PostDescription"] = "Описание поста",
-                ["PostIsMobile"] = "Мобильный пост",
+                ["PostAddress"] = "Адрес поста",
                 ["PostIsActive"] = "Пост активен"
+            };
+        }
+
+        protected override List<string> GetAvailableFields<U>()
+        {
+            return new List<string>
+            {
+                "DustDataId",
+                "ReceivedAt",
+                "SerialNumber",
+                "PM10Act",
+                "PM25Act",
+                "PM1Act",
+                "PM10AWG",
+                "PM25AWG",
+                "PM1AWG",
+                "FlowProbe",
+                "TemperatureProbe",
+                "HumidityProbe",
+                "PostName",
+                "PostAddress",
+                "PostIsActive"
             };
         }
 

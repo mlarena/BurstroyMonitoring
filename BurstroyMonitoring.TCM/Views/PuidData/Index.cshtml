@@ -1,0 +1,250 @@
+@using BurstroyMonitoring.TCM.Models
+@model PuidViewModel
+
+@{
+    ViewData["Title"] = "Анализ трафика PUID";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+        <h3>ПУИД</h3>
+    </div>
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-light">
+            <i class="fas fa-filter me-1"></i>
+            Фильтрация
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label for="puidId" class="form-label small">Датчик (EndPoint):</label>
+                    <select id="puidId" name="puidId" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="">-- Все датчики --</option>
+                        @foreach (var puid in Model.AvailablePuids)
+                        {
+                            <option value="@puid.Id" selected="@(Model.SelectedPuidId == puid.Id ? "selected" : null)">
+                                @puid.EndPointsName (@puid.SerialNumber)
+                            </option>
+                        }
+                    </select>                </div>
+                <div class="col-md-3">
+                    <label for="fromDate" class="form-label small">С:</label>
+                    <input type="datetime-local" id="fromDate" name="fromDate" class="form-control form-control-sm" 
+                           value="@(Model.FromDate?.ToString("yyyy-MM-ddTHH:mm"))" />
+                </div>
+                <div class="col-md-3">
+                    <label for="toDate" class="form-label small">По:</label>
+                    <input type="datetime-local" id="toDate" name="toDate" class="form-control form-control-sm" 
+                           value="@(Model.ToDate?.ToString("yyyy-MM-ddTHH:mm"))" />
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-sm btn-primary me-2">Применить</button>
+                    <a asp-action="Index" class="btn btn-sm btn-secondary">Сбросить</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row g-2 mb-3">
+        <div class="col-md-6">
+            <div class="card border-primary h-100 shadow-sm">
+                <div class="card-header bg-primary text-white py-1 px-2 small">
+                    <i class="fas fa-chart-bar me-1"></i> Суммарная статистика (на странице)
+                </div>
+                <div class="card-body p-2">
+                    <div class="row g-0 align-items-center mb-2">
+                        <div class="col-6 text-center border-end">
+                            <div class="text-muted small">Общий объем</div>
+                            <div class="h4 mb-0">@Model.TotalStats.TotalVolume</div>
+                        </div>
+                        <div class="col-6 text-center">
+                            <div class="text-muted small">Ср. скорость</div>
+                            <div class="h4 mb-0">@Model.TotalStats.AvgSpeed.ToString("F1") <small>км/ч</small></div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-borderless mb-0" style="font-size: 0.75rem;">
+                            <tbody>
+                                <tr>
+                                    <td class="py-0"><strong>Легковые:</strong> @Model.TotalStats.Class0</td>
+                                    <td class="py-0"><strong>Автобусы:</strong> @Model.TotalStats.Class1</td>
+                                    <td class="py-0"><strong>Груз. <5т:</strong> @Model.TotalStats.Class2</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-0"><strong>Груз. 5-12т:</strong> @Model.TotalStats.Class3</td>
+                                    <td class="py-0"><strong>Груз. 12-20т:</strong> @Model.TotalStats.Class4</td>
+                                    <td class="py-0"><strong>Груз. >20т:</strong> @Model.TotalStats.Class5</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-success h-100 shadow-sm">
+                <div class="card-header bg-success text-white py-1 px-2 small">
+                    <i class="fas fa-calculator me-1"></i> Средняя статистика (на интервал)
+                </div>
+                <div class="card-body p-2">
+                    <div class="row g-0 align-items-center mb-2">
+                        <div class="col-6 text-center border-end">
+                            <div class="text-muted small">Ср. объем</div>
+                            <div class="h4 mb-0">@Model.AverageStats.TotalVolume</div>
+                        </div>
+                        <div class="col-6 text-center">
+                            <div class="text-muted small">Загруженность</div>
+                            <div class="h4 mb-0">@Model.AverageStats.AvgOccupancy.ToString("F2")%</div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-borderless mb-0" style="font-size: 0.75rem;">
+                            <tbody>
+                                <tr>
+                                    <td class="py-0"><strong>Легковые:</strong> @Model.AverageStats.Class0</td>
+                                    <td class="py-0"><strong>Автобусы:</strong> @Model.AverageStats.Class1</td>
+                                    <td class="py-0"><strong>Груз. <5т:</strong> @Model.AverageStats.Class2</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-0"><strong>Груз. 5-12т:</strong> @Model.AverageStats.Class3</td>
+                                    <td class="py-0"><strong>Груз. 12-20т:</strong> @Model.AverageStats.Class4</td>
+                                    <td class="py-0"><strong>Груз. >20т:</strong> @Model.AverageStats.Class5</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center py-2">
+            <div>
+                <i class="fas fa-table me-1"></i>
+                <strong>Детальные данные по интервалам и полосам</strong>
+            </div>
+            @if (!string.IsNullOrEmpty(Model.CurrentEndPointName) || !string.IsNullOrEmpty(Model.CurrentSensorName))
+            {
+                <span class="badge bg-info text-dark">
+                    Датчик: @Model.CurrentEndPointName @Model.CurrentSensorName
+                </span>
+            }
+        </div>
+        @if (Model.TotalPages > 1)
+        {
+            <div class="card-header bg-white py-2 border-bottom-0">
+                <nav aria-label="Page navigation top">
+                    <ul class="pagination pagination-sm justify-content-center mb-0">
+                        <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+                            <a class="page-link" href="@Url.Action("Index", new { puidId = Model.SelectedPuidId, fromDate = Model.FromDate, toDate = Model.ToDate, page = Model.PageNumber - 1 })">Назад</a>
+                        </li>
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            if (i == 1 || i == Model.TotalPages || (i >= Model.PageNumber - 2 && i <= Model.PageNumber + 2))
+                            {
+                                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                                    <a class="page-link" href="@Url.Action("Index", new { puidId = Model.SelectedPuidId, fromDate = Model.FromDate, toDate = Model.ToDate, page = i })">@i</a>
+                                </li>
+                            }
+                            else if (i == Model.PageNumber - 3 || i == Model.PageNumber + 3)
+                            {
+                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                            }
+                        }
+                        <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
+                            <a class="page-link" href="@Url.Action("Index", new { puidId = Model.SelectedPuidId, fromDate = Model.FromDate, toDate = Model.ToDate, page = Model.PageNumber + 1 })">Вперед</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        }
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover table-sm mb-0" style="font-size: 0.875rem;">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Период (Начало - Конец)</th>
+                            <th>Полоса</th>
+                            <th>Объем</th>
+                            <th>Скор. (ср)</th>
+                            <th>Загр. %</th>
+                            <th>Легковые</th>
+                            <th>Автобусы</th>
+                            <th>Груз. <5т</th>
+                            <th>Груз. 5-12т</th>
+                            <th>Груз. 12-20т</th>
+                            <th>Груз. >20т</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var group in Model.GroupedItems)
+                        {
+                            <tr class="table-secondary fw-bold">
+                                <td>
+                                    @group.RangeStart.ToString("dd.MM.yyyy HH:mm:ss") - @group.RangeEnd.ToString("HH:mm:ss")
+                                </td>                                <td>ИТОГО:</td>
+                                <td>@group.TotalVolume</td>
+                                <td>@group.AvgSpeed.ToString("F1")</td>
+                                <td>-</td>
+                                <td>@group.Lanes.Sum(l => l.Class0)</td>
+                                <td>@group.Lanes.Sum(l => l.Class1)</td>
+                                <td>@group.Lanes.Sum(l => l.Class2)</td>
+                                <td>@group.Lanes.Sum(l => l.Class3)</td>
+                                <td>@group.Lanes.Sum(l => l.Class4)</td>
+                                <td>@group.Lanes.Sum(l => l.Class5)</td>
+                            </tr>
+                            @foreach (var lane in group.Lanes)
+                            {
+                                <tr>
+                                    <td class="text-muted small text-center">-</td>
+                                    <td>Полоса @lane.Lane</td>
+                                    <td>@lane.Volume</td>
+                                    <td>@lane.SpeedAvg.ToString("F1")</td>
+                                    <td>@lane.OccupancyPrc.ToString("F2")</td>
+                                    <td>@lane.Class0</td>
+                                    <td>@lane.Class1</td>
+                                    <td>@lane.Class2</td>
+                                    <td>@lane.Class3</td>
+                                    <td>@lane.Class4</td>
+                                    <td>@lane.Class5</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @if (Model.TotalPages > 1)
+        {
+            <div class="card-footer py-2">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination pagination-sm justify-content-center mb-0">
+                        <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+                            <a class="page-link" href="@Url.Action("Index", new { puidId = Model.SelectedPuidId, fromDate = Model.FromDate, toDate = Model.ToDate, page = Model.PageNumber - 1 })">Назад</a>
+                        </li>
+                        
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            if (i == 1 || i == Model.TotalPages || (i >= Model.PageNumber - 2 && i <= Model.PageNumber + 2))
+                            {
+                                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                                    <a class="page-link" href="@Url.Action("Index", new { puidId = Model.SelectedPuidId, fromDate = Model.FromDate, toDate = Model.ToDate, page = i })">@i</a>
+                                </li>
+                            }
+                            else if (i == Model.PageNumber - 3 || i == Model.PageNumber + 3)
+                            {
+                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                            }
+                        }
+
+                        <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
+                            <a class="page-link" href="@Url.Action("Index", new { puidId = Model.SelectedPuidId, fromDate = Model.FromDate, toDate = Model.ToDate, page = Model.PageNumber + 1 })">Вперед</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        }
+    </div>
+</div>

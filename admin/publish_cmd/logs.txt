@@ -1,0 +1,16 @@
+добавить логи в архив
+sudo apt install zip
+zip logs.zip *.txt
+
+
+scp -P 58222 usermeteo@192.168.192.137:/opt/burstroy/tcm/logs/logs.zip "C:\logs\logs_137_tcm.zip"
+scp -P 58222 usermeteo@192.168.192.137:/opt/burstroy/worker/logs/logs.zip "C:\logs\logs_137_worker.zip"
+scp -P 58222 usermeteo@192.168.192.137:/opt/burstroy/api/logs/logs.zip "C:\logs\logs_137_api.zip"
+scp -P 58222 usermeteo@192.168.192.137:/opt/burstroy/video/logs/logs.zip "C:\logs\logs_137_video.zip"
+
+
+
+scp -P 9022 bsp@192.168.3.19:/opt/burstroy/tcm/logs/logs.zip "C:\logs\logs_3-19_tcm.zip"
+scp -P 9022 bsp@192.168.3.19:/opt/burstroy/worker/logs/logs.zip "C:\logs\logs_3-19_worker.zip"
+scp -P 9022 bsp@192.168.3.19:/opt/burstroy/api/logs/logs.zip "C:\logs\logs_3-19_api.zip"
+scp -P 9022 bsp@192.168.3.19:/opt/burstroy/video/logs/logs.zip "C:\logs\logs_3-19_video.zip"

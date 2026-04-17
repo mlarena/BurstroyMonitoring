@@ -12,8 +12,9 @@ namespace BurstroyMonitoring.TCM.Controllers
     {
         public DspdDataController(
             ApplicationDbContext context,
-            IExportService exportService)
-            : base(context, exportService)
+            IExportService exportService,
+            ILogger<DspdDataController> logger)
+            : base(context, exportService, logger)
         {
         }
 
@@ -28,38 +29,49 @@ namespace BurstroyMonitoring.TCM.Controllers
             {
                 ["DspdDataId"] = "ID данных",
                 ["ReceivedAt"] = "Время получения",
-                ["DataTimestamp"] = "Метка времени",
+                ["SerialNumber"] = "Серийный номер",
                 ["GripCoefficient"] = "Коэффициент сцепления",
                 ["ShakeLevel"] = "Уровень вибрации",
                 ["VoltagePower"] = "Напряжение питания",
-                ["CaseTemperature"] = "Температура корпуса",
-                ["RoadTemperature"] = "Температура дороги",
-                ["WaterHeight"] = "Высота воды",
-                ["IceHeight"] = "Высота льда",
-                ["SnowHeight"] = "Высота снега",
-                ["IcePercentage"] = "Процент льда",
-                ["PgmPercentage"] = "Процент ПГМ",
-                ["RoadStatusCode"] = "Статус дороги",
-                ["RoadAngle"] = "Угол дороги",
+                ["CaseTemperature"] = "Температура внутри корпуса",
+                ["RoadTemperature"] = "Температура дорожного покрытия",
+                ["WaterHeight"] = "Высота слоя воды",
+                ["IceHeight"] = "Высота слоя льда",
+                ["SnowHeight"] = "Высота слоя снега",
+                ["IcePercentage"] = "Процент обледенения",
+                ["PgmPercentage"] = "Процент реагента",
+                ["RoadStatusCode"] = "Код состояния дороги",
                 ["FreezeTemperature"] = "Температура замерзания",
-                ["CalibrationNeeded"] = "Требуется калибровка",
-                ["GpsLatitude"] = "Широта GPS",
-                ["GpsLongitude"] = "Долгота GPS",
-                ["GpsValid"] = "GPS валиден",
                 ["DistanceToSurface"] = "Расстояние до поверхности",
-                ["SensorLongitude"] = "Долгота датчика",
-                ["SensorLatitude"] = "Широта датчика",
-                ["SerialNumber"] = "Серийный номер",
-                ["EndpointName"] = "Конечная точка",
-                ["SensorUrl"] = "URL датчика",
-                ["LastActivityUtc"] = "Последняя активность",
-                ["SensorIsActive"] = "Датчик активен",
-                ["SensorTypeName"] = "Тип датчика",
-                ["SensorTypeDescription"] = "Описание типа",
                 ["PostName"] = "Имя поста",
-                ["PostDescription"] = "Описание поста",
-                ["PostIsMobile"] = "Мобильный пост",
+                ["PostAddress"] = "Адрес поста",
                 ["PostIsActive"] = "Пост активен"
+            };
+        }
+
+        protected override List<string> GetAvailableFields<U>()
+        {
+            return new List<string>
+            {
+                "DspdDataId",
+                "ReceivedAt",
+                "SerialNumber",
+                "GripCoefficient",
+                "ShakeLevel",
+                "VoltagePower",
+                "CaseTemperature",
+                "RoadTemperature",
+                "WaterHeight",
+                "IceHeight",
+                "SnowHeight",
+                "IcePercentage",
+                "PgmPercentage",
+                "RoadStatusCode",
+                "FreezeTemperature",
+                "DistanceToSurface",
+                "PostName",
+                "PostAddress",
+                "PostIsActive"
             };
         }
 

@@ -26,6 +26,12 @@
     .post-card.active {
         border-color: var(--bs-success) !important;
     }
+    .post-card.warning {
+        border-color: var(--bs-warning) !important;
+    }
+    .post-card.danger {
+        border-color: var(--bs-danger) !important;
+    }
     .post-header {
         padding: 1.25rem;
         cursor: pointer;
@@ -60,6 +66,18 @@
     .sensor-item:hover {
         border-color: var(--primary-color);
         transform: translateX(4px);
+    }
+
+    .sensor-item.error {
+        border-color: var(--bs-danger) !important;
+        background-color: rgba(220, 53, 69, 0.05);
+    }
+    .sensor-error-msg {
+        color: var(--bs-danger);
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+        padding-top: 0.5rem;
+        border-top: 1px dashed rgba(220, 53, 69, 0.2);
     }
 
     .sensor-preview {
@@ -151,7 +169,8 @@
         @foreach (var post in Model)
         {
             bool isFirst = postIndex == 0;
-            <div class="post-card @(post.IsActive ? "active" : "inactive")" id="post-card-@post.Id">
+            var statusClass = (ViewBag.PostStatuses as Dictionary<int, string>)?.GetValueOrDefault(post.Id) ?? (post.IsActive ? "active" : "inactive");
+            <div class="post-card @statusClass" id="post-card-@post.Id">
                 <div class="post-header @(isFirst ? "expanded" : "")" onclick="togglePost(@post.Id)">
                     <div class="d-flex align-items-center">
                         <div class="bg-primary text-white rounded-3 p-2 me-3 shadow-sm">
@@ -183,6 +202,14 @@
                 const postId = firstPost.attr('id').split('-').pop();
                 loadSensors(postId);
             }
+
+            // Автообновление каждые 30 секунд для открытых постов
+            setInterval(function() {
+                $('.sensor-list:visible').each(function() {
+                    const postId = this.id.split('-').pop();
+                    refreshSensors(postId);
+                });
+            }, 30000);
         });
 
         const roadStatuses = {
@@ -242,35 +269,78 @@
         function loadSensors(postId) {
             const container = $(`#sensors-${postId}`);
             if (container.data('loaded')) return;
+            refreshSensors(postId, true);
+            container.data('loaded', true);
+        }
 
+        function refreshSensors(postId, isInitial = false) {
+            const container = $(`#sensors-${postId}`);
             $.get('/Home/GetPostSensors', { postId: postId }, function(sensors) {
-                container.empty();
+                if (isInitial) container.empty();
+                
+                let errorCount = 0;
+                let totalCount = sensors.length;
+
                 sensors.forEach(s => {
-                    const html = `
-                        <div class="sensor-item" id="sensor-${s.id}" onclick="toggleSensor(${s.id}, '${s.sensorTypeName}', event)">
-                            <div class="sensor-preview">
-                                <div class="sensor-info">
-                                    <div>
-                                        <h6 class="mb-0">${s.endPointsName}</h6>
-                                        <div class="d-flex flex-column">
-                                            <small class="text-muted">SN: ${s.serialNumber}</small>
-                                            <small class="text-primary fw-bold" id="time-${s.id}" style="font-size: 0.75rem;"></small>
+                    const errorClass = s.isSuccess ? '' : 'error';
+                    const errorHtml = s.isSuccess ? '' : `<div class="sensor-error-msg"><i class="bi bi-exclamation-triangle-fill me-1"></i>${s.errorMessage}</div>`;
+                    
+                    if (isInitial) {
+                        const html = `
+                            <div class="sensor-item ${errorClass}" id="sensor-${s.id}" onclick="toggleSensor(${s.id}, '${s.sensorTypeName}', event)">
+                                <div class="sensor-preview">
+                                    <div class="sensor-info">
+                                        <div>
+                                            <h6 class="mb-0">${s.endPointsName}</h6>
+                                            <div class="d-flex flex-column">
+                                                <small class="text-muted">SN: ${s.serialNumber}</small>
+                                                <small class="text-primary fw-bold" id="time-${s.id}" style="font-size: 0.75rem;"></small>
+                                            </div>
                                         </div>
                                     </div>
+                                    <div class="sensor-compact-data" id="compact-${s.id}">
+                                        <div class="spinner-border spinner-border-sm text-muted"></div>
+                                    </div>
+                                    <i class="bi bi-chevron-right ms-2" id="icon-sensor-${s.id}"></i>
                                 </div>
-                                <div class="sensor-compact-data" id="compact-${s.id}">
-                                    <div class="spinner-border spinner-border-sm text-muted"></div>
+                                ${errorHtml}
+                                <div class="sensor-detail" id="detail-${s.id}">
+                                    <div class="metrics-table" id="table-${s.id}"></div>
                                 </div>
-                                <i class="bi bi-chevron-right ms-2" id="icon-sensor-${s.id}"></i>
-                            </div>
-                            <div class="sensor-detail" id="detail-${s.id}">
-                                <div class="metrics-table" id="table-${s.id}"></div>
-                            </div>
-                        </div>`;
-                    container.append(html);
+                            </div>`;
+                        container.append(html);
+                    } else {
+                        const item = $(`#sensor-${s.id}`);
+                        if (!s.isSuccess) {
+                            errorCount++;
+                            item.addClass('error');
+                            if (item.find('.sensor-error-msg').length === 0) {
+                                item.find('.sensor-preview').after(errorHtml);
+                            } else {
+                                item.find('.sensor-error-msg').html(`<i class="bi bi-exclamation-triangle-fill me-1"></i>${s.errorMessage}`);
+                            }
+                        } else {
+                            item.removeClass('error');
+                            item.find('.sensor-error-msg').remove();
+                        }
+                    }
                     loadCompactData(s.id, s.sensorTypeName);
                 });
-                container.data('loaded', true);
+
+                if (!isInitial) {
+                    // Обновляем статус карточки поста
+                    const postCard = $(`#post-card-${postId}`);
+                    if (postCard.hasClass('inactive')) return;
+
+                    postCard.removeClass('active warning danger');
+                    if (totalCount > 0) {
+                        if (errorCount === totalCount) postCard.addClass('danger');
+                        else if (errorCount > 0) postCard.addClass('warning');
+                        else postCard.addClass('active');
+                    } else {
+                        postCard.addClass('active');
+                    }
+                }
             });
         }
 

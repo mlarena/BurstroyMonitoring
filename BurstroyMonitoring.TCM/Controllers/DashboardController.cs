@@ -21,16 +21,24 @@ public class DashboardController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var userId = GetCurrentUserId();
-        var webParts = await _webPartService.GetUserWebPartsAsync(userId);
-
-        var model = new DashboardViewModel
+        try
         {
-            WebParts = webParts,
-            AvailableWebParts = Enum.GetValues<WebPartType>().ToList()
-        };
+            var userId = GetCurrentUserId();
+            var webParts = await _webPartService.GetUserWebPartsAsync(userId);
 
-        return View(model);
+            var model = new DashboardViewModel
+            {
+                WebParts = webParts,
+                AvailableWebParts = Enum.GetValues<WebPartType>().ToList()
+            };
+
+            return View(model);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in DashboardController.Index");
+            return View(new DashboardViewModel { WebParts = new List<WebPart>(), AvailableWebParts = new List<WebPartType>() });
+        }
     }
 
     [HttpPost]
@@ -44,7 +52,7 @@ public class DashboardController : Controller
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Ошибка при добавлении веб-части");
+            _logger.LogError(ex, "Ошибка при добавлении веб-части: {Type}, {Title}", type, title);
             return BadRequest("Ошибка при добавлении веб-части");
         }
     }

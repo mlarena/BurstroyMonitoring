@@ -42,6 +42,7 @@ namespace BurstroyMonitoring.Data
         public DbSet<DUSTData> DustData { get; set; }
         public DbSet<Puid> Puids { get; set; }
         public DbSet<PuidData> PuidData { get; set; }
+        public DbSet<PuidResults> PuidResults { get; set; }
 
         // Системные таблицы
         public DbSet<SensorResults> SensorResults { get; set; }

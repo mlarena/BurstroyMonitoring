@@ -79,7 +79,7 @@
                                         <th class="small">Использовано</th>
                                         <th class="small">Доступно</th>
                                         <th class="small" style="width: 120px;">%</th>
-                                        <th class="small">Монтаж</th>
+                                        <th class="small">Точка монтирования</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -97,18 +97,19 @@
                                                     int.TryParse(percentValue, out percent);
                                                     var progressClass = percent > 80 ? "bg-danger" : (percent > 60 ? "bg-warning" : "bg-success");
                                                 }
-                                                <div class="progress" style="height: 12px;">
-                                                    <div class="progress-bar @progressClass" 
-                                                         role="progressbar" 
-                                                         style="width: @percent%"
-                                                         aria-valuenow="@percent" 
-                                                         aria-valuemin="0" 
-                                                         aria-valuemax="100">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="progress flex-grow-1" style="height: 12px;">
+                                                        <div class="progress-bar @progressClass" 
+                                                             role="progressbar" 
+                                                             style="width: @percent%"
+                                                             aria-valuenow="@percent" 
+                                                             aria-valuemin="0" 
+                                                             aria-valuemax="100">
+                                                        </div>
                                                     </div>
+                                                    <span class="ms-2 small" style="font-size: 0.75rem; min-width: 35px;">@disk.UsePercent</span>
                                                 </div>
-                                                <div class="text-center small mt-1" style="font-size: 0.7rem;">@disk.UsePercent</div>
-                                            </td>
-                                            <td class="small">@disk.MountedOn</td>
+                                            </td>                                            <td class="small">@disk.MountedOn</td>
                                         </tr>
                                     }
                                 </tbody>
@@ -126,21 +127,8 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-12 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-header py-2">
-                    <h5 class="mb-0">Вывод команды df -h</h5>
-                </div>
-                <div class="card-body p-0">
-                    <pre class="bg-light text-dark p-3 mb-0 small" style="overflow-x: auto; font-family: monospace; font-size: 0.85rem;">@Model.DiskUsageInfo</pre>
-                </div>
-                <div class="card-footer py-1 text-muted text-end">
-                    <small>Информация о дисковом пространстве системы</small>
-                </div>
-            </div>
-        </div>
-    </div>
+    
+
 </div>
 
 <style>

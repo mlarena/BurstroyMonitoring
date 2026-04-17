@@ -11,8 +11,11 @@ namespace BurstroyMonitoring.TCM.Controllers
     public class DovDataController : BaseDataController<VwDovDataFull>
     {
         protected override string FilterSessionKey => "DovDataFilter";
-        public DovDataController( ApplicationDbContext context, IExportService exportService)
-            : base(context, exportService)
+        public DovDataController(
+            ApplicationDbContext context,
+            IExportService exportService,
+            ILogger<DovDataController> logger)
+            : base(context, exportService, logger)
         {
         }
 
@@ -37,9 +40,24 @@ namespace BurstroyMonitoring.TCM.Controllers
                 ["SensorTypeName"]      = "Тип датчика",
                 ["SensorTypeDescription"] = "Описание типа",
                 ["PostName"]            = "Имя поста",
+                ["PostAddress"]         = "Адрес поста",
                 ["PostDescription"]     = "Описание поста",
                 ["PostIsMobile"]        = "Мобильный пост",
                 ["PostIsActive"]        = "Пост активен"
+            };
+        }
+
+        protected override List<string> GetAvailableFields<U>()
+        {
+            return new List<string>
+            {
+                "DovDataId",
+                "ReceivedAt",
+                "SerialNumber",
+                "VisibleRange",
+                "PostName",
+                "PostAddress",
+                "PostIsActive"
             };
         }
 

@@ -9,11 +9,13 @@ namespace BurstroyMonitoring.TCM.Controllers
     public abstract class BaseViewController<T> : Controller where T : class
     {
         protected readonly ApplicationDbContext _context;
+        protected readonly ILogger _logger;
         protected abstract DbSet<T> DbSet { get; }
 
-        protected BaseViewController(ApplicationDbContext context)
+        protected BaseViewController(ApplicationDbContext context, ILogger logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: Index с пагинацией, поиском и фильтрацией
@@ -172,7 +174,7 @@ namespace BurstroyMonitoring.TCM.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ERROR] Autocomplete error in {typeof(T).Name}: {ex.Message}");
+                _logger.LogError(ex, "Autocomplete error in {ControllerName}", typeof(T).Name);
                 return Json(new List<string>()); // Возвращаем пустой список вместо ошибки
             }
         }

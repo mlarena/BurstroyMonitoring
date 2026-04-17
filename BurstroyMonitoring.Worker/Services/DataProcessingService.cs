@@ -44,7 +44,7 @@ public class DataProcessingService
     {
         try
         {
-            _logger.LogInformation("[INFO] Processing PUID: {EndPointsName} (ID: {Id})", puid.EndPointsName, puid.Id);
+            _logger.LogInformation("PUID Processing: {EndPointsName} (ID: {Id})", puid.EndPointsName, puid.Id);
 
             var tempSensor = new Sensor 
             { 
@@ -56,9 +56,21 @@ public class DataProcessingService
             var (responseBody, statusCode, responseTimeMs, isSuccess, exception) = 
                 await _pollingService.PollSensorAsync(tempSensor, cancellationToken);
 
+            // Сохраняем результат опроса в любом случае
+            var puidResult = new PuidResults
+            {
+                PuidId = puid.Id,
+                CheckedAt = DateTime.UtcNow,
+                StatusCode = statusCode,
+                ResponseTimeMs = responseTimeMs,
+                IsSuccess = isSuccess,
+                ResponseBody = responseBody
+            };
+            await _dbService.SavePuidResultAsync(puidResult);
+
             if (!isSuccess || string.IsNullOrEmpty(responseBody))
             {
-                _logger.LogWarning("[ERROR] API Request failed for {EndPointsName}: Status {StatusCode}", puid.EndPointsName, statusCode);
+                _logger.LogWarning("API Request failed for {EndPointsName}: Status {StatusCode}", puid.EndPointsName, statusCode);
                 return;
             }
 
@@ -69,19 +81,19 @@ public class DataProcessingService
             }
             catch (JsonException ex)
             {
-                _logger.LogError("[ERROR] JSON Deserialization failed for {EndPointsName}: {Message}", puid.EndPointsName, ex.Message);
+                _logger.LogError("JSON Deserialization failed for {EndPointsName}: {Message}", puid.EndPointsName, ex.Message);
                 return;
             }
 
             if (response?.message_data == null || string.IsNullOrEmpty(response.message_id))
             {
-                _logger.LogWarning("[WARNING] No valid data received for {EndPointsName}.", puid.EndPointsName);
+                _logger.LogWarning("No valid data received for {EndPointsName}.", puid.EndPointsName);
                 return;
             }
 
             if (!Guid.TryParse(response.message_id, out Guid messageId))
             {
-                _logger.LogError("[ERROR] Invalid MessageId format for {EndPointsName}: {MessageId}", puid.EndPointsName, response.message_id);
+                _logger.LogError("Invalid MessageId format for {EndPointsName}: {MessageId}", puid.EndPointsName, response.message_id);
                 return;
             }
 
@@ -92,7 +104,7 @@ public class DataProcessingService
             {
                 if (!Guid.TryParse(message.sensor_id, out Guid sensorId))
                 {
-                    _logger.LogWarning("[WARNING] Skipping sensor with invalid ID in {EndPointsName}: {SensorId}", puid.EndPointsName, message.sensor_id);
+                    _logger.LogWarning("Skipping sensor with invalid ID in {EndPointsName}: {SensorId}", puid.EndPointsName, message.sensor_id);
                     continue;
                 }
 
@@ -139,7 +151,7 @@ public class DataProcessingService
             if (savedInThisRequest > 0)
             {
                 await _dbService.SavePuidDataAsync(puid.Id, dataToSave);
-                _logger.LogInformation("[SUCCESS] {EndPointsName}: Saved {Count} records (MessageId: {MessageId})", 
+                _logger.LogInformation("PUID {EndPointsName}: Saved {Count} records (MessageId: {MessageId})", 
                     puid.EndPointsName, savedInThisRequest, messageId);
             }
             else
@@ -149,7 +161,7 @@ public class DataProcessingService
         }
         catch (Exception ex)
         {
-            _logger.LogError("[ERROR] Failed to process {EndPointsName}: {Message}", puid.EndPointsName, ex.Message);
+            _logger.LogError("Failed to process {EndPointsName}: {Message}", puid.EndPointsName, ex.Message);
         }
     }
 

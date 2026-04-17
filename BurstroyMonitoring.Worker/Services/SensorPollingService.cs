@@ -79,12 +79,21 @@ public class SensorPollingService
                         await Task.Delay(_configService.GetRetryDelayMs(), cts.Token);
                     }
                 }
-                catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException || cts.Token.IsCancellationRequested)
+                catch (TaskCanceledException ex)
                 {
+                    // Если отмена пришла от внешнего токена (остановка воркера), пробрасываем дальше
+                    if (cancellationToken.IsCancellationRequested)
+                        throw;
+
+                    // Иначе это наш внутренний таймаут
                     statusCode = 408;
                     lastException = ex;
+                    var sensorType = sensor.SensorType?.SensorTypeName ?? "Unknown";
+                    _logger.LogWarning("Timeout polling {sensorType} sensor {sensorId} (Attempt {attempt}/{maxAttempts})", 
+                        sensorType, sensor.Id, attempt, _configService.GetRetryCount());
+                    
                     if (attempt == _configService.GetRetryCount()) break;
-                    await Task.Delay(_configService.GetRetryDelayMs(), cts.Token);
+                    await Task.Delay(_configService.GetRetryDelayMs(), cancellationToken);
                 }
                 catch (Exception ex)
                 {
@@ -96,7 +105,8 @@ public class SensorPollingService
         }
         catch (Exception ex)
         {
-            _logger.LogWarning("Error polling sensor {sensorId}: {message}", sensor.Id, ex.Message);
+            var sensorType = sensor.SensorType?.SensorTypeName ?? "Unknown";
+            _logger.LogWarning("Error polling {sensorType} sensor {sensorId}: {message}", sensorType, sensor.Id, ex.Message);
             isSuccess = false;
             lastException = ex;
         }

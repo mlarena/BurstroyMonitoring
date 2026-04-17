@@ -9,10 +9,12 @@ namespace BurstroyMonitoring.TCM.Controllers
     public class SensorsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<SensorsController> _logger;
 
-        public SensorsController(ApplicationDbContext context)
+        public SensorsController(ApplicationDbContext context, ILogger<SensorsController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
     // GET: Sensors
@@ -25,152 +27,176 @@ namespace BurstroyMonitoring.TCM.Controllers
         List<int> selectedSensorTypes = null,
         List<int> selectedMonitoringPosts = null)
     {
-        var query = _context.Sensors
-            .Include(s => s.SensorType)
-            .Include(s => s.MonitoringPost)
-            .AsQueryable();
-
-        // Фильтрация по параметрам из ссылки
-        if (sensorTypeId.HasValue)
+        try
         {
-            query = query.Where(s => s.SensorTypeId == sensorTypeId.Value);
-            ViewBag.SelectedSensorTypeId = sensorTypeId.Value;
-        }
+            var query = _context.Sensors
+                .Include(s => s.SensorType)
+                .Include(s => s.MonitoringPost)
+                .AsQueryable();
 
-        if (monitoringPostId.HasValue)
-        {
-            query = query.Where(s => s.MonitoringPostId == monitoringPostId.Value);
-            ViewBag.SelectedMonitoringPostId = monitoringPostId.Value;
-        }
+            // Фильтрация по параметрам из ссылки
+            if (sensorTypeId.HasValue)
+            {
+                query = query.Where(s => s.SensorTypeId == sensorTypeId.Value);
+                ViewBag.SelectedSensorTypeId = sensorTypeId.Value;
+            }
 
-        // Фильтрация по выбранным чекбоксам
-        if (selectedSensorTypes != null && selectedSensorTypes.Any())
-        {
-            query = query.Where(s => selectedSensorTypes.Contains(s.SensorTypeId));
-            ViewBag.SelectedSensorTypeIds = selectedSensorTypes;
-        }
+            if (monitoringPostId.HasValue)
+            {
+                query = query.Where(s => s.MonitoringPostId == monitoringPostId.Value);
+                ViewBag.SelectedMonitoringPostId = monitoringPostId.Value;
+            }
 
-        if (selectedMonitoringPosts != null && selectedMonitoringPosts.Any())
-        {
-            query = query.Where(s => selectedMonitoringPosts.Contains(s.MonitoringPostId));
-            ViewBag.SelectedMonitoringPostIds = selectedMonitoringPosts;
-        }
+            // Фильтрация по выбранным чекбоксам
+            if (selectedSensorTypes != null && selectedSensorTypes.Any())
+            {
+                query = query.Where(s => selectedSensorTypes.Contains(s.SensorTypeId));
+                ViewBag.SelectedSensorTypeIds = selectedSensorTypes;
+            }
 
-        // Поиск по серийному номеру и названию конечной точки
-        if (!string.IsNullOrEmpty(search))
-        {
-            search = search.ToLower();
-            query = query.Where(s => 
-                s.SerialNumber.ToLower().Contains(search) ||
-                s.EndPointsName.ToLower().Contains(search) ||
-                (s.SensorType != null && s.SensorType.SensorTypeName.ToLower().Contains(search)) ||
-                (s.MonitoringPost != null && s.MonitoringPost.Name.ToLower().Contains(search)));
+            if (selectedMonitoringPosts != null && selectedMonitoringPosts.Any())
+            {
+                query = query.Where(s => selectedMonitoringPosts.Contains(s.MonitoringPostId));
+                ViewBag.SelectedMonitoringPostIds = selectedMonitoringPosts;
+            }
+
+            // Поиск по серийному номеру и названию конечной точки
+            if (!string.IsNullOrEmpty(search))
+            {
+                search = search.ToLower();
+                query = query.Where(s => 
+                    s.SerialNumber.ToLower().Contains(search) ||
+                    s.EndPointsName.ToLower().Contains(search) ||
+                    (s.SensorType != null && s.SensorType.SensorTypeName.ToLower().Contains(search)) ||
+                    (s.MonitoringPost != null && s.MonitoringPost.Name.ToLower().Contains(search)));
+                
+                ViewBag.Search = search;
+            }
+
+            // Применяем сортировку
+            switch (sortBy?.ToLower())
+            {
+                case "serialnumber":
+                    query = sortDesc ? query.OrderByDescending(s => s.SerialNumber) 
+                                    : query.OrderBy(s => s.SerialNumber);
+                    break;
+                case "endpointsname":
+                    query = sortDesc ? query.OrderByDescending(s => s.EndPointsName) 
+                                    : query.OrderBy(s => s.EndPointsName);
+                    break;
+                case "sensortype":
+                case "type":
+                    query = sortDesc ? 
+                        query.OrderByDescending(s => s.SensorType != null ? s.SensorType.SensorTypeName : "") :
+                        query.OrderBy(s => s.SensorType != null ? s.SensorType.SensorTypeName : "");
+                    break;
+                case "monitoringpost":
+                case "post":
+                    query = sortDesc ? 
+                        query.OrderByDescending(s => s.MonitoringPost != null ? s.MonitoringPost.Name : "") :
+                        query.OrderBy(s => s.MonitoringPost != null ? s.MonitoringPost.Name : "");
+                    break;
+                case "url":
+                    query = sortDesc ? query.OrderByDescending(s => s.Url) 
+                                    : query.OrderBy(s => s.Url);
+                    break;
+                case "isactive":
+                case "active":
+                    query = sortDesc ? query.OrderByDescending(s => s.IsActive) 
+                                    : query.OrderBy(s => s.IsActive);
+                    break;
+                case "lastactivity":
+                case "lastactivityutc":
+                    query = sortDesc ? query.OrderByDescending(s => s.LastActivityUTC) 
+                                    : query.OrderBy(s => s.LastActivityUTC);
+                    break;
+                case "created":
+                case "createdat":
+                    query = sortDesc ? query.OrderByDescending(s => s.CreatedAt) 
+                                    : query.OrderBy(s => s.CreatedAt);
+                    break;
+                default: // "id" или по умолчанию
+                    query = sortDesc ? query.OrderByDescending(s => s.Id) 
+                                    : query.OrderBy(s => s.Id);
+                    sortBy = "Id";
+                    break;
+            }
+
+            // Получаем уникальные значения для фильтров
+            var sensorTypes = await _context.Sensors
+                .Where(s => s.SensorTypeId != null)
+                .Select(s => new { s.SensorTypeId, s.SensorType.SensorTypeName })
+                .Distinct()
+                .OrderBy(x => x.SensorTypeName)
+                .ToListAsync();
+
+            var monitoringPosts = await _context.Sensors
+                .Where(s => s.MonitoringPostId != null)
+                .Select(s => new { s.MonitoringPostId, s.MonitoringPost.Name })
+                .Distinct()
+                .OrderBy(x => x.Name)
+                .ToListAsync();
+
+            ViewBag.SensorTypes = sensorTypes;
+            ViewBag.MonitoringPosts = monitoringPosts;
+            ViewBag.AllSensorCount = await _context.Sensors.CountAsync();
             
-            ViewBag.Search = search;
-        }
+            // Сохраняем параметры сортировки
+            ViewBag.SortBy = sortBy;
+            ViewBag.SortDesc = sortDesc;
 
-        // Применяем сортировку
-        switch (sortBy?.ToLower())
+            var sensors = await query.ToListAsync();
+            return View(sensors);
+        }
+        catch (Exception ex)
         {
-            case "serialnumber":
-                query = sortDesc ? query.OrderByDescending(s => s.SerialNumber) 
-                                : query.OrderBy(s => s.SerialNumber);
-                break;
-            case "endpointsname":
-                query = sortDesc ? query.OrderByDescending(s => s.EndPointsName) 
-                                : query.OrderBy(s => s.EndPointsName);
-                break;
-            case "sensortype":
-            case "type":
-                query = sortDesc ? 
-                    query.OrderByDescending(s => s.SensorType != null ? s.SensorType.SensorTypeName : "") :
-                    query.OrderBy(s => s.SensorType != null ? s.SensorType.SensorTypeName : "");
-                break;
-            case "monitoringpost":
-            case "post":
-                query = sortDesc ? 
-                    query.OrderByDescending(s => s.MonitoringPost != null ? s.MonitoringPost.Name : "") :
-                    query.OrderBy(s => s.MonitoringPost != null ? s.MonitoringPost.Name : "");
-                break;
-            case "url":
-                query = sortDesc ? query.OrderByDescending(s => s.Url) 
-                                : query.OrderBy(s => s.Url);
-                break;
-            case "isactive":
-            case "active":
-                query = sortDesc ? query.OrderByDescending(s => s.IsActive) 
-                                : query.OrderBy(s => s.IsActive);
-                break;
-            case "lastactivity":
-            case "lastactivityutc":
-                query = sortDesc ? query.OrderByDescending(s => s.LastActivityUTC) 
-                                : query.OrderBy(s => s.LastActivityUTC);
-                break;
-            case "created":
-            case "createdat":
-                query = sortDesc ? query.OrderByDescending(s => s.CreatedAt) 
-                                : query.OrderBy(s => s.CreatedAt);
-                break;
-            default: // "id" или по умолчанию
-                query = sortDesc ? query.OrderByDescending(s => s.Id) 
-                                : query.OrderBy(s => s.Id);
-                sortBy = "Id";
-                break;
+            _logger.LogError(ex, "Error in SensorsController.Index");
+            return View(new List<Sensor>());
         }
-
-        // Получаем уникальные значения для фильтров
-        var sensorTypes = await _context.Sensors
-            .Where(s => s.SensorTypeId != null)
-            .Select(s => new { s.SensorTypeId, s.SensorType.SensorTypeName })
-            .Distinct()
-            .OrderBy(x => x.SensorTypeName)
-            .ToListAsync();
-
-        var monitoringPosts = await _context.Sensors
-            .Where(s => s.MonitoringPostId != null)
-            .Select(s => new { s.MonitoringPostId, s.MonitoringPost.Name })
-            .Distinct()
-            .OrderBy(x => x.Name)
-            .ToListAsync();
-
-        ViewBag.SensorTypes = sensorTypes;
-        ViewBag.MonitoringPosts = monitoringPosts;
-        ViewBag.AllSensorCount = await _context.Sensors.CountAsync();
-        
-        // Сохраняем параметры сортировки
-        ViewBag.SortBy = sortBy;
-        ViewBag.SortDesc = sortDesc;
-
-        var sensors = await query.ToListAsync();
-        return View(sensors);
     }
 
         // GET: Sensors/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
+            try
             {
-                return NotFound();
-            }
+                if (id == null)
+                {
+                    return NotFound();
+                }
 
-            var sensor = await _context.Sensors
-                .Include(s => s.SensorType)
-                .Include(s => s.MonitoringPost)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (sensor == null)
+                var sensor = await _context.Sensors
+                    .Include(s => s.SensorType)
+                    .Include(s => s.MonitoringPost)
+                    .FirstOrDefaultAsync(m => m.Id == id);
+                if (sensor == null)
+                {
+                    return NotFound();
+                }
+
+                return View(sensor);
+            }
+            catch (Exception ex)
             {
-                return NotFound();
+                _logger.LogError(ex, "Error in SensorsController.Details for id: {Id}", id);
+                return RedirectToAction(nameof(Index));
             }
-
-            return View(sensor);
         }
 
         // GET: Sensors/Create
         public IActionResult Create()
         {
-            ViewData["MonitoringPostId"] = new SelectList(_context.MonitoringPosts, "Id", "Name");
-            ViewData["SensorTypeId"] = new SelectList(_context.SensorTypes, "Id", "SensorTypeName");
-            return View();
+            try
+            {
+                ViewData["MonitoringPostId"] = new SelectList(_context.MonitoringPosts, "Id", "Name");
+                ViewData["SensorTypeId"] = new SelectList(_context.SensorTypes, "Id", "SensorTypeName");
+                return View();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in SensorsController.Create (GET)");
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         // POST: Sensors/Create
@@ -178,41 +204,61 @@ namespace BurstroyMonitoring.TCM.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,SensorTypeId,Longitude,Latitude,SerialNumber,EndPointsName,Url,LastActivityUTC,IsActive,MonitoringPostId")] Sensor sensor)
         {
-            if (ModelState.IsValid)
+            try
             {
-                sensor.CreatedAt = DateTime.UtcNow;
-                
-                // Преобразуем LastActivityUTC в UTC, если оно указано
-                if (sensor.LastActivityUTC.HasValue && sensor.LastActivityUTC.Value.Kind != DateTimeKind.Utc)
+                if (ModelState.IsValid)
                 {
-                    sensor.LastActivityUTC = sensor.LastActivityUTC.Value.ToUniversalTime();
+                    sensor.CreatedAt = DateTime.UtcNow;
+                    
+                    // Преобразуем LastActivityUTC в UTC, если оно указано
+                    if (sensor.LastActivityUTC.HasValue && sensor.LastActivityUTC.Value.Kind != DateTimeKind.Utc)
+                    {
+                        sensor.LastActivityUTC = sensor.LastActivityUTC.Value.ToUniversalTime();
+                    }
+                    
+                    _context.Add(sensor);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Sensor created successfully: {SerialNumber}", sensor.SerialNumber);
+                    return RedirectToAction(nameof(Index));
                 }
-                
-                _context.Add(sensor);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                ViewData["MonitoringPostId"] = new SelectList(_context.MonitoringPosts, "Id", "Name", sensor.MonitoringPostId);
+                ViewData["SensorTypeId"] = new SelectList(_context.SensorTypes, "Id", "SensorTypeName", sensor.SensorTypeId);
+                return View(sensor);
             }
-            ViewData["MonitoringPostId"] = new SelectList(_context.MonitoringPosts, "Id", "Name", sensor.MonitoringPostId);
-            ViewData["SensorTypeId"] = new SelectList(_context.SensorTypes, "Id", "SensorTypeName", sensor.SensorTypeId);
-            return View(sensor);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in SensorsController.Create (POST)");
+                ModelState.AddModelError("", "Ошибка при создании датчика");
+                ViewData["MonitoringPostId"] = new SelectList(_context.MonitoringPosts, "Id", "Name", sensor.MonitoringPostId);
+                ViewData["SensorTypeId"] = new SelectList(_context.SensorTypes, "Id", "SensorTypeName", sensor.SensorTypeId);
+                return View(sensor);
+            }
         }
 
         // GET: Sensors/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
+            try
             {
-                return NotFound();
-            }
+                if (id == null)
+                {
+                    return NotFound();
+                }
 
-            var sensor = await _context.Sensors.FindAsync(id);
-            if (sensor == null)
-            {
-                return NotFound();
+                var sensor = await _context.Sensors.FindAsync(id);
+                if (sensor == null)
+                {
+                    return NotFound();
+                }
+                ViewData["MonitoringPostId"] = new SelectList(_context.MonitoringPosts, "Id", "Name", sensor.MonitoringPostId);
+                ViewData["SensorTypeId"] = new SelectList(_context.SensorTypes, "Id", "SensorTypeName", sensor.SensorTypeId);
+                return View(sensor);
             }
-            ViewData["MonitoringPostId"] = new SelectList(_context.MonitoringPosts, "Id", "Name", sensor.MonitoringPostId);
-            ViewData["SensorTypeId"] = new SelectList(_context.SensorTypes, "Id", "SensorTypeName", sensor.SensorTypeId);
-            return View(sensor);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in SensorsController.Edit (GET) for id: {Id}", id);
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         // POST: Sensors/Edit/5
@@ -243,8 +289,10 @@ namespace BurstroyMonitoring.TCM.Controllers
                     
                     _context.Update(sensor);
                     await _context.SaveChangesAsync();
+                    _logger.LogInformation("Sensor updated successfully: {SerialNumber}", sensor.SerialNumber);
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateConcurrencyException ex)
                 {
                     if (!SensorExists(sensor.Id))
                     {
@@ -252,10 +300,15 @@ namespace BurstroyMonitoring.TCM.Controllers
                     }
                     else
                     {
+                        _logger.LogError(ex, "Concurrency error in SensorsController.Edit for id: {Id}", id);
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error in SensorsController.Edit (POST) for id: {Id}", id);
+                    ModelState.AddModelError("", "Ошибка при сохранении изменений");
+                }
             }
             ViewData["MonitoringPostId"] = new SelectList(_context.MonitoringPosts, "Id", "Name", sensor.MonitoringPostId);
             ViewData["SensorTypeId"] = new SelectList(_context.SensorTypes, "Id", "SensorTypeName", sensor.SensorTypeId);

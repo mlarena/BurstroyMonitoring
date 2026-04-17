@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BurstroyMonitoring.Data;
+using BurstroyMonitoring.Data.Models;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -9,105 +10,131 @@ namespace BurstroyMonitoring.TCM.Controllers
     public class MonitoringMapController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<MonitoringMapController> _logger;
 
-        public MonitoringMapController(ApplicationDbContext context)
+        public MonitoringMapController(ApplicationDbContext context, ILogger<MonitoringMapController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Index()
         {
-            // Убираем фильтр по активности - получаем все посты
-            var posts = await _context.MonitoringPosts
-                .Include(p => p.Sensors) // Убираем фильтр Where(s => s.IsActive)
-                .ToListAsync();
+            try
+            {
+                // Убираем фильтр по активности - получаем все посты
+                var posts = await _context.MonitoringPosts
+                    .Include(p => p.Sensors) // Убираем фильтр Where(s => s.IsActive)
+                    .ToListAsync();
 
-            // Получаем все датчики без постов (и активные и неактивные)
-            var sensorsWithoutPost = await _context.Sensors
-                .Where(s => s.MonitoringPostId == null && s.Latitude != null && s.Longitude != null)
-                .ToListAsync();
+                // Получаем все датчики без постов (и активные и неактивные)
+                var sensorsWithoutPost = await _context.Sensors
+                    .Where(s => s.MonitoringPostId == null && s.Latitude != null && s.Longitude != null)
+                    .ToListAsync();
 
-            ViewData["TotalPosts"] = posts.Count;
-            ViewData["TotalSensors"] = posts.Sum(p => p.Sensors.Count) + sensorsWithoutPost.Count;
-            ViewData["ActivePosts"] = posts.Count(p => p.IsActive);
-            ViewData["InactivePosts"] = posts.Count(p => !p.IsActive);
-            ViewData["ActiveSensors"] = posts.Sum(p => p.Sensors.Count(s => s.IsActive)) + sensorsWithoutPost.Count(s => s.IsActive);
-            ViewData["InactiveSensors"] = posts.Sum(p => p.Sensors.Count(s => !s.IsActive)) + sensorsWithoutPost.Count(s => !s.IsActive);
+                ViewData["TotalPosts"] = posts.Count;
+                ViewData["TotalSensors"] = posts.Sum(p => p.Sensors.Count) + sensorsWithoutPost.Count;
+                ViewData["ActivePosts"] = posts.Count(p => p.IsActive);
+                ViewData["InactivePosts"] = posts.Count(p => !p.IsActive);
+                ViewData["ActiveSensors"] = posts.Sum(p => p.Sensors.Count(s => s.IsActive)) + sensorsWithoutPost.Count(s => s.IsActive);
+                ViewData["InactiveSensors"] = posts.Sum(p => p.Sensors.Count(s => !s.IsActive)) + sensorsWithoutPost.Count(s => !s.IsActive);
 
-            return View(posts);
+                return View(posts);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in MonitoringMapController.Index");
+                return View(new List<MonitoringPost>());
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> GetMapData()
         {
-            // Получаем все посты с координатами (и активные и неактивные)
-            var posts = await _context.MonitoringPosts
-                .Where(p => p.Latitude != null && p.Longitude != null) // Убираем фильтр p.IsActive
-                .Select(p => new
-                {
-                    Id = p.Id,
-                    Type = "post",
-                    Name = p.Name,
-                    Address = p.Address,
-                    Description = p.Description,
-                    Latitude = p.Latitude,
-                    Longitude = p.Longitude,
-                    IsMobile = p.IsMobile,
-                    IsActive = p.IsActive,
-                    SensorCount = p.Sensors.Count, // Считаем все датчики
-                    Sensors = p.Sensors.Select(s => new {
-                        s.Id,
-                        s.EndPointsName,
-                        SensorTypeName = s.SensorType != null ? s.SensorType.SensorTypeName : "",
-                        s.SensorTypeId
-                    }).ToList()
-                })
-                .ToListAsync();
+            try
+            {
+                // Получаем все посты с координатами (и активные и неактивные)
+                var posts = await _context.MonitoringPosts
+                    .Where(p => p.Latitude != null && p.Longitude != null) // Убираем фильтр p.IsActive
+                    .Select(p => new
+                    {
+                        Id = p.Id,
+                        Type = "post",
+                        Name = p.Name,
+                        Address = p.Address,
+                        Description = p.Description,
+                        Latitude = p.Latitude,
+                        Longitude = p.Longitude,
+                        IsMobile = p.IsMobile,
+                        IsActive = p.IsActive,
+                        SensorCount = p.Sensors.Count, // Считаем все датчики
+                        Sensors = p.Sensors.Select(s => new {
+                            s.Id,
+                            s.EndPointsName,
+                            SensorTypeName = s.SensorType != null ? s.SensorType.SensorTypeName : "",
+                            s.SensorTypeId
+                        }).ToList()
+                    })
+                    .ToListAsync();
 
-            // Получаем все датчики с координатами (и активные и неактивные)
-            var sensors = await _context.Sensors
-                .Where(s => s.Latitude != null && s.Longitude != null) // Убираем фильтр s.IsActive
-                .Select(s => new
-                {
-                    Id = s.Id,
-                    Type = "sensor",
-                    Name = s.EndPointsName,
-                    SerialNumber = s.SerialNumber,
-                    Description = s.Url,
-                    Latitude = s.Latitude,
-                    Longitude = s.Longitude,
-                    SensorTypeId = s.SensorTypeId,
-                    LastActivityUTC = s.LastActivityUTC,
-                    MonitoringPostId = s.MonitoringPostId,
-                    IsActive = s.IsActive,
-                    SensorTypeName = s.SensorType != null ? s.SensorType.SensorTypeName : ""
-                })
-                .ToListAsync();
+                // Получаем все датчики с координатами (и активные и неактивные)
+                var sensors = await _context.Sensors
+                    .Where(s => s.Latitude != null && s.Longitude != null) // Убираем фильтр s.IsActive
+                    .Select(s => new
+                    {
+                        Id = s.Id,
+                        Type = "sensor",
+                        Name = s.EndPointsName,
+                        SerialNumber = s.SerialNumber,
+                        Description = s.Url,
+                        Latitude = s.Latitude,
+                        Longitude = s.Longitude,
+                        SensorTypeId = s.SensorTypeId,
+                        LastActivityUTC = s.LastActivityUTC,
+                        MonitoringPostId = s.MonitoringPostId,
+                        IsActive = s.IsActive,
+                        SensorTypeName = s.SensorType != null ? s.SensorType.SensorTypeName : ""
+                    })
+                    .ToListAsync();
 
-            return Json(new { posts, sensors });
+                return Json(new { posts, sensors });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in MonitoringMapController.GetMapData");
+                return Json(new { posts = new object[] { }, sensors = new object[] { } });
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> SearchPosts(string query)
         {
-            if (string.IsNullOrWhiteSpace(query) || query.Length < 2)
+            try
+            {
+                if (string.IsNullOrWhiteSpace(query) || query.Length < 2)
+                    return Json(new object[] { });
+
+                // Поиск без учета регистра (и активные и неактивные)
+                var posts = await _context.MonitoringPosts
+                    .Where(p => EF.Functions.ILike(p.Name, $"%{query}%") && p.Latitude != null && p.Longitude != null)
+                    .Select(p => new
+                    {
+                        p.Id,
+                        p.Name,
+                        p.Latitude,
+                        p.Longitude,
+                        p.IsActive
+                    })
+                    .Take(10)
+                    .ToListAsync();
+
+                return Json(posts);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in MonitoringMapController.SearchPosts for query: {Query}", query);
                 return Json(new object[] { });
-
-            // Поиск без учета регистра (и активные и неактивные)
-            var posts = await _context.MonitoringPosts
-                .Where(p => EF.Functions.ILike(p.Name, $"%{query}%") && p.Latitude != null && p.Longitude != null)
-                .Select(p => new
-                {
-                    p.Id,
-                    p.Name,
-                    p.Latitude,
-                    p.Longitude,
-                    p.IsActive
-                })
-                .Take(10)
-                .ToListAsync();
-
-            return Json(posts);
+            }
         }
 
         [HttpGet]
@@ -130,8 +157,8 @@ namespace BurstroyMonitoring.TCM.Controllers
                 
                 string endPointsName = sensor.EndPointsName;
                 
-                Console.WriteLine($"=== ЗАПРОС ДАННЫХ ДАТЧИКА ===");
-                Console.WriteLine($"SensorId: {sensorId}, Post: {postName}, Type: {sensorTypeName}, Endpoint: {endPointsName}");
+                _logger.LogDebug("=== ЗАПРОС ДАННЫХ ДАТЧИКА === SensorId: {SensorId}, Post: {Post}, Type: {Type}, Endpoint: {Endpoint}", 
+                    sensorId, postName, sensorTypeName, endPointsName);
 
                 dynamic latestData = null;
 
@@ -293,7 +320,7 @@ namespace BurstroyMonitoring.TCM.Controllers
                 // Отладочный вывод
                 if (latestData != null)
                 {
-                    Console.WriteLine("=== Данные найдены ===");
+                    _logger.LogDebug("=== Данные найдены ===");
                     
                     var jsonOptions = new System.Text.Json.JsonSerializerOptions 
                     { 
@@ -311,12 +338,10 @@ namespace BurstroyMonitoring.TCM.Controllers
                 }
                 else
                 {
-                    Console.WriteLine($"=== Данные НЕ найдены ===");
-                    Console.WriteLine($"В таблице для типа {sensorTypeName} нет записей для sensorId = {sensorId}");
+                    _logger.LogDebug("=== Данные НЕ найдены === В таблице для типа {Type} нет записей для sensorId = {SensorId}", sensorTypeName, sensorId);
                 }
                 
-                Console.WriteLine("===========================");
-                Console.WriteLine();
+                _logger.LogDebug("===========================");
                 
                 if (latestData == null)
                 {
@@ -331,8 +356,7 @@ namespace BurstroyMonitoring.TCM.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"!!! ОШИБКА в GetLatestSensorData: {ex.Message}");
-                Console.WriteLine($"StackTrace: {ex.StackTrace}");
+                _logger.LogError(ex, "!!! ОШИБКА в GetLatestSensorData for sensorId: {SensorId}", sensorId);
                 return Content($"Ошибка: {ex.Message}");
             }
         }
@@ -340,24 +364,32 @@ namespace BurstroyMonitoring.TCM.Controllers
         [HttpGet]
         public async Task<IActionResult> TestSensorData(int sensorId)
         {
-            var results = new List<string>();
-            
-            var iwsCount = await _context.IWSData.CountAsync(d => d.SensorId == sensorId);
-            results.Add($"IWSData: {iwsCount} записей");
-            
-            var dspdCount = await _context.DSPDData.CountAsync(d => d.SensorId == sensorId);
-            results.Add($"DSPDData: {dspdCount} записей");
-            
-            var dustCount = await _context.DustData.CountAsync(d => d.SensorId == sensorId);
-            results.Add($"DustData: {dustCount} записей");
-            
-            var dovCount = await _context.DOVData.CountAsync(d => d.SensorId == sensorId);
-            results.Add($"DOVData: {dovCount} записей");
-            
-            var mueksCount = await _context.MUEKSData.CountAsync(d => d.SensorId == sensorId);
-            results.Add($"MUEKSData: {mueksCount} записей");
-            
-            return Content(string.Join("\n", results));
+            try
+            {
+                var results = new List<string>();
+                
+                var iwsCount = await _context.IWSData.CountAsync(d => d.SensorId == sensorId);
+                results.Add($"IWSData: {iwsCount} записей");
+                
+                var dspdCount = await _context.DSPDData.CountAsync(d => d.SensorId == sensorId);
+                results.Add($"DSPDData: {dspdCount} записей");
+                
+                var dustCount = await _context.DustData.CountAsync(d => d.SensorId == sensorId);
+                results.Add($"DustData: {dustCount} записей");
+                
+                var dovCount = await _context.DOVData.CountAsync(d => d.SensorId == sensorId);
+                results.Add($"DOVData: {dovCount} записей");
+                
+                var mueksCount = await _context.MUEKSData.CountAsync(d => d.SensorId == sensorId);
+                results.Add($"MUEKSData: {mueksCount} записей");
+                
+                return Content(string.Join("\n", results));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in TestSensorData for sensorId: {SensorId}", sensorId);
+                return Content($"Ошибка: {ex.Message}");
+            }
         }
     }
 }

@@ -54,8 +54,12 @@ WHERE datname = 'sensordb';
 --завершить подключения к текущей базе данных
 SELECT pg_terminate_backend(pid)
 FROM pg_stat_activity
-WHERE datname = 'sensordb'
+WHERE datname = 'sensordb_prod'
 AND pid <> pg_backend_pid();
 
 
+SELECT pid, usename, application_name, client_addr, state FROM pg_stat_activity WHERE datname = 'sensordb_prod';
 
+INSERT INTO public."MonitoringPost"
+( "Name", "Description", "Longitude", "Latitude", "IsMobile", "IsActive", "CreatedAt", "UpdatedAt", "Address", "PollingIntervalSeconds", "LastPolledAt")
+VALUES(nextval( '', '', 0, 0, false, true, now(), now(), '', 60, '');

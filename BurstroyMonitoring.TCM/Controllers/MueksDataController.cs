@@ -12,8 +12,9 @@ namespace BurstroyMonitoring.TCM.Controllers
     {
         public MueksDataController(
             ApplicationDbContext context,
-            IExportService exportService)
-            : base(context, exportService)
+            IExportService exportService,
+            ILogger<MueksDataController> logger)
+            : base(context, exportService, logger)
         {
         }
 
@@ -27,35 +28,45 @@ namespace BurstroyMonitoring.TCM.Controllers
             {
                 ["MueksDataId"] = "ID данных",
                 ["ReceivedAt"] = "Время получения",
-                ["DataTimestamp"] = "Метка времени",
-                ["TemperatureBox"] = "Температура в боксе",
-                ["VoltagePowerIn12B"] = "Напряжение питания 12B",
-                ["VoltageOut12B"] = "Напряжение на выходе 12B",
-                ["CurrentOut12B"] = "Ток на выходе 12B",
-                ["CurrentOut48B"] = "Ток на выходе 48B",
-                ["VoltageAkb"] = "Напряжение АКБ",
-                ["CurrentAkb"] = "Ток АКБ",
-                ["Sensor220B"] = "Датчик 220B",
-                ["WattHoursAkb"] = "Вт-часы АКБ",
-                ["VisibleRange"] = "Видимая дальность",
-                ["DoorStatus"] = "Статус двери",
-                ["TdsH"] = "TDS H",
-                ["TdsTds"] = "TDS значение",
-                ["TkosaT1"] = "Ткоса T1",
-                ["TkosaT3"] = "Ткоса T3",
-                ["SensorLongitude"] = "Долгота датчика",
-                ["SensorLatitude"] = "Широта датчика",
                 ["SerialNumber"] = "Серийный номер",
-                ["EndpointName"] = "Конечная точка",
-                ["SensorUrl"] = "URL датчика",
-                ["LastActivityUtc"] = "Последняя активность",
-                ["SensorIsActive"] = "Датчик активен",
-                ["SensorTypeName"] = "Тип датчика",
-                ["SensorTypeDescription"] = "Описание типа",
+                ["TemperatureBox"] = "Температура внутри шкафа",
+                ["VoltagePowerIn12B"] = "Входное напряжение 12В",
+                ["VoltageOut12B"] = "Выходное напряжение 12В",
+                ["VoltageAkb"] = "Напряжение аккумуляторной батареи",
+                ["CurrentOut12B"] = "Выходной ток 12В",
+                ["CurrentOut48B"] = "Выходной ток 48В",
+                ["CurrentAkb"] = "Ток аккумуляторной батареи",
+                ["WattHoursAkb"] = "Емкость аккумуляторной батареи",
+                ["VisibleRange"] = "Дальность видимости",
+                ["Sensor220B"] = "Наличие питания 220В",
+                ["DoorStatus"] = "Состояние двери",
                 ["PostName"] = "Имя поста",
-                ["PostDescription"] = "Описание поста",
-                ["PostIsMobile"] = "Мобильный пост",
+                ["PostAddress"] = "Адрес поста",
                 ["PostIsActive"] = "Пост активен"
+            };
+        }
+
+        protected override List<string> GetAvailableFields<U>()
+        {
+            return new List<string>
+            {
+                "MueksDataId",
+                "ReceivedAt",
+                "SerialNumber",
+                "TemperatureBox",
+                "VoltagePowerIn12B",
+                "VoltageOut12B",
+                "VoltageAkb",
+                "CurrentOut12B",
+                "CurrentOut48B",
+                "CurrentAkb",
+                "WattHoursAkb",
+                "VisibleRange",
+                "Sensor220B",
+                "DoorStatus",
+                "PostName",
+                "PostAddress",
+                "PostIsActive"
             };
         }
 

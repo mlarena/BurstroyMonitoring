@@ -8,7 +8,7 @@ namespace BurstroyMonitoring.TCM.Controllers
 {
     public class SensorResultsController : BaseViewController<VwSensorResultsFull>
     {
-        public SensorResultsController(ApplicationDbContext context) : base(context) { }
+        public SensorResultsController(ApplicationDbContext context, ILogger<SensorResultsController> logger) : base(context, logger) { }
 
         protected override DbSet<VwSensorResultsFull> DbSet => _context.VwSensorResultsFull;
 

@@ -21,7 +21,7 @@ public class Program
             .Build();
 
         // Настройка логирования
-        var filePath = configuration["Logging:FilePath"] ?? "logs/burstroy-worker-.log";
+        var filePath = configuration["Logging:FilePath"] ?? "logs/log-worker-.log";
         var fileRetainedCount = configuration.GetValue<int?>("Logging:FileRetainedFileCountLimit") ?? 30;
         var consoleMinLevel = Enum.TryParse<LogEventLevel>(configuration["Logging:ConsoleMinimumLevel"], out var consoleLevel) 
             ? consoleLevel 

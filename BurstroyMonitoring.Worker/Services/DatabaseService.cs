@@ -253,7 +253,26 @@ public class DatabaseService
     }
 
     /// <summary>
-    /// Сохранение данных PUID и обновление метки времени его последней активности.
+    /// Сохранение результата опроса PUID.
+    /// </summary>
+    public async Task SavePuidResultAsync(PuidResults result)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        
+        try
+        {
+            context.PuidResults.Add(result);
+            await context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error saving PUID result for PUID {puidId}", result.PuidId);
+        }
+    }
+
+    /// <summary>
+    /// Сохранение данных PUID и обновление времени последней активности.
     /// </summary>
     public async Task SavePuidDataAsync(int puidId, List<PuidData> dataList)
     {

@@ -16,84 +16,111 @@ namespace BurstroyMonitoring.TCM.Controllers
     public class GraphsAndChartsController : Controller
     {
         private readonly ApplicationDbContext _context;
-        public GraphsAndChartsController(ApplicationDbContext context)
+        private readonly ILogger<GraphsAndChartsController> _logger;
+
+        public GraphsAndChartsController(ApplicationDbContext context, ILogger<GraphsAndChartsController> logger)
         {
             _context = context;
+            _logger = logger;
         }
         public async Task<IActionResult> Index()
         {
-            var viewModel = new SensorSelectionViewModel();
-            var monitoringPosts = await _context.MonitoringPosts
-                .Where(mp => mp.IsActive)
-                .OrderBy(mp => mp.Name)
-                .ToListAsync();
-            viewModel.MonitoringPosts = monitoringPosts
-                .Select(mp => new SelectListItem
-                {
-                    Value = mp.Id.ToString(),
-                    Text = mp.Name
-                })
-                .ToList();
-            viewModel.MonitoringPosts.Insert(0, new SelectListItem
+            try
             {
-                Value = "",
-                Text = "Выберите пост мониторинга"
-            });
-            viewModel.Sensors = new List<SelectListItem>
-            {
-                new SelectListItem
+                var viewModel = new SensorSelectionViewModel();
+                var monitoringPosts = await _context.MonitoringPosts
+                    .Where(mp => mp.IsActive)
+                    .OrderBy(mp => mp.Name)
+                    .ToListAsync();
+                viewModel.MonitoringPosts = monitoringPosts
+                    .Select(mp => new SelectListItem
+                    {
+                        Value = mp.Id.ToString(),
+                        Text = mp.Name
+                    })
+                    .ToList();
+                viewModel.MonitoringPosts.Insert(0, new SelectListItem
                 {
                     Value = "",
-                    Text = "Сначала выберите пост мониторинга"
-                }
-            };
-            return View(viewModel);
+                    Text = "Выберите пост мониторинга"
+                });
+                viewModel.Sensors = new List<SelectListItem>
+                {
+                    new SelectListItem
+                    {
+                        Value = "",
+                        Text = "Сначала выберите пост мониторинга"
+                    }
+                };
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in GraphsAndChartsController.Index");
+                return View(new SensorSelectionViewModel());
+            }
         }
         [HttpGet]
         public async Task<IActionResult> GetSensorsByPost(int monitoringPostId)
         {
-            var sensors = await _context.Sensors
-                .Include(s => s.SensorType)
-                .Where(s => s.MonitoringPostId == monitoringPostId && s.IsActive)
-                .OrderBy(s => s.SensorType != null ? s.SensorType.SensorTypeName : "")
-                .ThenBy(s => s.EndPointsName)
-                .ToListAsync();
-            var sensorItems = sensors
-                .Select(s => new SelectListItem
-                {
-                    Value = s.Id.ToString(),
-                    Text = $"{s.SensorType?.SensorTypeName} ({s.EndPointsName})"
-                })
-                .ToList();
-            sensorItems.Insert(0, new SelectListItem
+            try
             {
-                Value = "",
-                Text = "Выберите датчик"
-            });
-            Console.WriteLine($"GetSensorsByPost called with monitoringPostId: {monitoringPostId}");
-            return Json(sensorItems);
+                var sensors = await _context.Sensors
+                    .Include(s => s.SensorType)
+                    .Where(s => s.MonitoringPostId == monitoringPostId && s.IsActive)
+                    .OrderBy(s => s.SensorType != null ? s.SensorType.SensorTypeName : "")
+                    .ThenBy(s => s.EndPointsName)
+                    .ToListAsync();
+                var sensorItems = sensors
+                    .Select(s => new SelectListItem
+                    {
+                        Value = s.Id.ToString(),
+                        Text = $"{s.SensorType?.SensorTypeName} ({s.EndPointsName})"
+                    })
+                    .ToList();
+                sensorItems.Insert(0, new SelectListItem
+                {
+                    Value = "",
+                    Text = "Выберите датчик"
+                });
+                _logger.LogDebug("GetSensorsByPost called with monitoringPostId: {MonitoringPostId}", monitoringPostId);
+                return Json(sensorItems);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in GetSensorsByPost for monitoringPostId: {MonitoringPostId}", monitoringPostId);
+                return Json(new List<SelectListItem>());
+            }
         }
         
         [HttpGet]
         public async Task<IActionResult> GetSensorData(int sensorId)
         {
-            var sensor = await _context.Sensors
-                .Include(s => s.SensorType)
-                .Include(s => s.MonitoringPost)
-                .FirstOrDefaultAsync(s => s.Id == sensorId);
-            if (sensor == null || sensor.SensorType == null)
+            try
             {
-                return NotFound();
+                var sensor = await _context.Sensors
+                    .Include(s => s.SensorType)
+                    .Include(s => s.MonitoringPost)
+                    .FirstOrDefaultAsync(s => s.Id == sensorId);
+                if (sensor == null || sensor.SensorType == null)
+                {
+                    return NotFound();
+                }
+                var viewModel = new SensorViewModel
+                {
+                    Id = sensor.Id,
+                    SensorTypeName = sensor.SensorType.SensorTypeName,
+                    EndPointsName = sensor.EndPointsName,
+                    SerialNumber = sensor.SerialNumber,
+                    MonitoringPostName = sensor.MonitoringPost?.Name
+                };
+                return Json(viewModel);
             }
-            var viewModel = new SensorViewModel
+            catch (Exception ex)
             {
-                Id = sensor.Id,
-                SensorTypeName = sensor.SensorType.SensorTypeName,
-                EndPointsName = sensor.EndPointsName,
-                SerialNumber = sensor.SerialNumber,
-                MonitoringPostName = sensor.MonitoringPost?.Name
-            };
-            return Json(viewModel);
+                _logger.LogError(ex, "Error in GetSensorData for sensorId: {SensorId}", sensorId);
+                return StatusCode(500, new { error = "Internal server error" });
+            }
         }
 
 
@@ -153,12 +180,12 @@ namespace BurstroyMonitoring.TCM.Controllers
                     PostName = sensor?.MonitoringPost?.Name,
                     Measurements = measurements
                 };
-                Console.WriteLine($"GetDOVData called with sensorId: {sensorId}, days: {days}");
+                _logger.LogDebug("GetDOVData called with sensorId: {SensorId}, days: {Days}", sensorId, days);
                 return Json(viewModel);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка при загрузке данных DOV: {ex.Message}");
+                _logger.LogError(ex, "Ошибка при загрузке данных DOV for sensorId: {SensorId}", sensorId);
                 return StatusCode(500, new { error = "Ошибка при загрузке данных" });
             }
         }
@@ -244,12 +271,12 @@ namespace BurstroyMonitoring.TCM.Controllers
                     PostName = sensor?.MonitoringPost?.Name,
                     Measurements = measurements
                 };
-                Console.WriteLine($"GetDSPDData called with sensorId: {sensorId}, days: {days}");
+                _logger.LogDebug("GetDSPDData called with sensorId: {SensorId}, days: {Days}", sensorId, days);
                 return Json(viewModel);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка при загрузке данных DSPD: {ex.Message}");
+                _logger.LogError(ex, "Ошибка при загрузке данных DSPD for sensorId: {SensorId}", sensorId);
                 return StatusCode(500, new { error = "Ошибка при загрузке данных" });
             }
         }

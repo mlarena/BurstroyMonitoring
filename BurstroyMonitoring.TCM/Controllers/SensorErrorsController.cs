@@ -10,7 +10,7 @@ namespace BurstroyMonitoring.TCM.Controllers
      [Authorize(Roles = "Admin")]
     public class SensorErrorsController : BaseViewController<VwSensorErrorsFull>
     {
-        public SensorErrorsController(ApplicationDbContext context) : base(context) { }
+        public SensorErrorsController(ApplicationDbContext context, ILogger<SensorErrorsController> logger) : base(context, logger) { }
 
         protected override DbSet<VwSensorErrorsFull> DbSet => _context.VwSensorErrorsFull;
 

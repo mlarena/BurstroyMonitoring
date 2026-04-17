@@ -12,7 +12,7 @@ namespace BurstroyMonitoring.TCM.Controllers
     {
         private readonly IExportService _exportService;
 
-        protected BaseDataController(ApplicationDbContext context, IExportService exportService) : base(context)
+        protected BaseDataController(ApplicationDbContext context, IExportService exportService, ILogger logger) : base(context, logger)
         {
             _exportService = exportService;
         }
@@ -23,48 +23,65 @@ namespace BurstroyMonitoring.TCM.Controllers
         // GET: Details/5 (общий для всех)
         public virtual async Task<IActionResult> Details(int? id)
         {
-            if (id == null) return NotFound();
+            try
+            {
+                if (id == null) return NotFound();
 
-            var data = await DbSet.FirstOrDefaultAsync(m => EF.Property<int>(m, $"{typeof(T).Name.Replace("Vw", "").Replace("Full", "")}Id") == id);
-            if (data == null) return NotFound();
+                var data = await DbSet.FirstOrDefaultAsync(m => EF.Property<int>(m, $"{typeof(T).Name.Replace("Vw", "").Replace("Full", "")}Id") == id);
+                if (data == null) return NotFound();
 
-            return View(data);
+                return View(data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in Details for {ControllerName}, ID: {Id}", typeof(T).Name, id);
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         // DataViewer (общая логика)
         public async Task<IActionResult> DataViewer(DataFilterViewModel filter)
         {
-            // Логируем входные параметры
-            Console.WriteLine($"[DEBUG] DataViewer вызван. SelectedFields count: {filter.SelectedFields?.Count ?? 0}");
-
-            // Обработка сессии для фильтра (идентичная логика)
-            if (HttpContext.Session.TryGetValue(FilterSessionKey, out byte[] sessionData))
+            try
             {
-                var savedFilter = DeserializeFromSession(sessionData);
-
-                if (IsFilterEmpty(filter))
+                // Установка дат по умолчанию, если они не заданы в запросе
+                if (!filter.StartDate.HasValue && !filter.EndDate.HasValue)
                 {
-                    Console.WriteLine($"[DEBUG] Используем сохраненный фильтр из сессии");
-                    filter = savedFilter;
+                    filter.EndDate = DateTime.UtcNow;
+                    filter.StartDate = DateTime.UtcNow.AddDays(-30);
+                }
+
+                // Логируем входные параметры
+                _logger.LogDebug("DataViewer вызван. SelectedFields count: {Count}", filter.SelectedFields?.Count ?? 0);
+
+                // Обработка сессии для фильтра (идентичная логика)
+                if (HttpContext.Session.TryGetValue(FilterSessionKey, out byte[] sessionData))
+                {
+                    var savedFilter = DeserializeFromSession(sessionData);
+
+                    if (IsFilterEmpty(filter))
+                    {
+                        _logger.LogDebug("Используем сохраненный фильтр из сессии");
+                        filter = savedFilter;
+                    }
+                    else
+                    {
+                        if (filter.SelectedFields == null || !filter.SelectedFields.Any())
+                        {
+                            filter.SelectedFields = savedFilter.SelectedFields;
+                            _logger.LogDebug("Восстановили SelectedFields из сессии: {Count} полей", filter.SelectedFields?.Count ?? 0);
+                        }
+                        SaveFilterToSession(filter);
+                    }
                 }
                 else
                 {
-                    if (filter.SelectedFields == null || !filter.SelectedFields.Any())
+                    if (!IsFilterEmpty(filter))
                     {
-                        filter.SelectedFields = savedFilter.SelectedFields;
-                        Console.WriteLine($"[DEBUG] Восстановили SelectedFields из сессии: {filter.SelectedFields?.Count ?? 0} полей");
+                        SaveFilterToSession(filter);
+                        _logger.LogDebug("Сохранили новый фильтр в сессию");
                     }
-                    SaveFilterToSession(filter);
                 }
-            }
-            else
-            {
-                if (!IsFilterEmpty(filter))
-                {
-                    SaveFilterToSession(filter);
-                    Console.WriteLine($"[DEBUG] Сохранили новый фильтр в сессию");
-                }
-            }
 
             var query = DbSet.AsQueryable();
 
@@ -84,6 +101,22 @@ namespace BurstroyMonitoring.TCM.Controllers
                 .Distinct()
                 .OrderBy(x => x)
                 .ToListAsync();
+
+            var posts = await DbSet
+                .Where(x => EF.Property<string>(x, "PostName") != null &&
+                            !string.IsNullOrEmpty(EF.Property<string>(x, "PostName")))
+                .Select(x => new { 
+                    Name = EF.Property<string>(x, "PostName")!, 
+                    Address = EF.Property<string>(x, "PostAddress") ?? "" 
+                })
+                .Distinct()
+                .OrderBy(x => x.Name)
+                .ToListAsync();
+
+            var postList = posts.Select(p => new { 
+                Value = p.Name, 
+                Text = string.IsNullOrEmpty(p.Address) ? p.Name : $"{p.Name} ({p.Address})" 
+            }).ToList();
 
             // Применение фильтров (общее, с исправлением на Contains для SerialNumber)
             if (filter.StartDate.HasValue)
@@ -114,6 +147,9 @@ namespace BurstroyMonitoring.TCM.Controllers
             if (!string.IsNullOrEmpty(filter.EndpointName))
                 query = query.Where(x => EF.Property<string>(x, "EndpointName") == filter.EndpointName);
 
+            if (!string.IsNullOrEmpty(filter.PostName))
+                query = query.Where(x => EF.Property<string>(x, "PostName") == filter.PostName);
+
             int totalCount = await query.CountAsync();
 
             // Пагинация (общая)
@@ -134,11 +170,11 @@ namespace BurstroyMonitoring.TCM.Controllers
                     break;
             }
 
-            // Выбор полей по умолчанию
+            // Выбор полей по умолчанию (все доступные поля при первом входе)
             if (filter.SelectedFields == null || !filter.SelectedFields.Any())
             {
                 var allFields = GetAvailableFields<T>();
-                filter.SelectedFields = allFields.Take(5).ToList();
+                filter.SelectedFields = allFields.ToList();
                 SaveFilterToSession(filter);
             }
 
@@ -146,11 +182,18 @@ namespace BurstroyMonitoring.TCM.Controllers
             ViewBag.AvailableFields = GetAvailableFields<T>();
             ViewBag.SerialNumbers = serialNumbers;
             ViewBag.EndpointNames = endpointNames;
+            ViewBag.Posts = postList;
             ViewBag.TotalCount = totalCount;
             ViewBag.ColumnNames = GetRussianColumnNames();
 
             return View(resultData);
         }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in DataViewer for {ControllerName}", typeof(T).Name);
+            return View(new List<T>());
+        }
+    }
 
         // Export (общая логика)
         [HttpPost]
@@ -158,7 +201,7 @@ namespace BurstroyMonitoring.TCM.Controllers
         {
             try
             {
-                Console.WriteLine($"[DEBUG] Начало экспорта. Формат: {format}, ExportAllData: {exportAllData}");
+                _logger.LogDebug("Начало экспорта. Формат: {Format}, ExportAllData: {ExportAllData}", format, exportAllData);
 
                 // Восстановление SelectedFields из сессии
                 if (filter.SelectedFields == null || !filter.SelectedFields.Any())
@@ -167,7 +210,7 @@ namespace BurstroyMonitoring.TCM.Controllers
                     {
                         var savedFilter = DeserializeFromSession(sessionData);
                         filter.SelectedFields = savedFilter.SelectedFields;
-                        Console.WriteLine($"[DEBUG] Восстановили поля для экспорта из сессии: {filter.SelectedFields?.Count ?? 0}");
+                        _logger.LogDebug("Восстановили поля для экспорта из сессии: {Count}", filter.SelectedFields?.Count ?? 0);
                     }
                 }
 
@@ -202,6 +245,9 @@ namespace BurstroyMonitoring.TCM.Controllers
                 if (!string.IsNullOrEmpty(filter.EndpointName))
                     query = query.Where(x => EF.Property<string>(x, "EndpointName") == filter.EndpointName);
 
+                if (!string.IsNullOrEmpty(filter.PostName))
+                    query = query.Where(x => EF.Property<string>(x, "PostName") == filter.PostName);
+
                 query = query.OrderByDescending(x => EF.Property<DateTime>(x, "ReceivedAt"));
 
                 int totalRecords = await query.CountAsync();
@@ -210,7 +256,7 @@ namespace BurstroyMonitoring.TCM.Controllers
                 if (exportAllData || filter.PageSize?.ToLower() is "all" or "всё")
                 {
                     data = await query.ToListAsync();
-                    Console.WriteLine($"[DEBUG] Экспорт ВСЕХ данных с фильтрами: {data.Count} из {totalRecords} записей");
+                    _logger.LogDebug("Экспорт ВСЕХ данных с фильтрами: {Count} из {Total} записей", data.Count, totalRecords);
                 }
                 else
                 {
@@ -220,17 +266,33 @@ namespace BurstroyMonitoring.TCM.Controllers
                         _ => 10
                     };
                     data = await query.Take(take).ToListAsync();
-                    Console.WriteLine($"[DEBUG] Экспорт первых {take} записей: {data.Count} из {totalRecords}");
+                    _logger.LogDebug("Экспорт первых {Take} записей: {Count} из {Total}", take, data.Count, totalRecords);
+                }
+
+                // Преобразование всех DateTime полей в локальное время для экспорта
+                foreach (var item in data)
+                {
+                    var properties = item.GetType().GetProperties()
+                        .Where(p => p.PropertyType == typeof(DateTime) || p.PropertyType == typeof(DateTime?));
+                    
+                    foreach (var prop in properties)
+                    {
+                        var val = prop.GetValue(item);
+                        if (val is DateTime dt)
+                        {
+                            prop.SetValue(item, dt.ToLocalTime());
+                        }
+                    }
                 }
 
                 if (filter.SelectedFields == null || !filter.SelectedFields.Any())
                 {
                     filter.SelectedFields = GetAvailableFields<T>();
-                    Console.WriteLine($"[DEBUG] Используем все поля: {filter.SelectedFields.Count}");
+                    _logger.LogDebug("Используем все поля: {Count}", filter.SelectedFields.Count);
                 }
                 else
                 {
-                    Console.WriteLine($"[DEBUG] Выбранные поля: {string.Join(", ", filter.SelectedFields)}");
+                    _logger.LogDebug("Выбранные поля: {Fields}", string.Join(", ", filter.SelectedFields));
                 }
 
                 // Подготовка полей и названий (используем абстрактный метод)
@@ -245,25 +307,25 @@ namespace BurstroyMonitoring.TCM.Controllers
 
                 if (format == "excel")
                 {
-                    Console.WriteLine($"[DEBUG] Создание Excel файла...");
+                    _logger.LogDebug("Создание Excel файла...");
                     fileContents = _exportService.ExportToExcel(data, exportFields, exportDisplayNames);
                     contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
                     fileName += ".xlsx";
                 }
                 else
                 {
-                    Console.WriteLine($"[DEBUG] Создание CSV файла...");
+                    _logger.LogDebug("Создание CSV файла...");
                     fileContents = _exportService.ExportToCsv(data, exportFields, exportDisplayNames);
                     contentType = "text/csv; charset=utf-8";
                     fileName += ".csv";
                 }
 
-                Console.WriteLine($"[DEBUG] Экспорт завершен успешно ({fileContents.Length} байт)");
+                _logger.LogDebug("Экспорт завершен успешно ({Length} байт)", fileContents.Length);
                 return File(fileContents, contentType, fileName);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ERROR] Ошибка экспорта: {ex.Message}\n[ERROR] StackTrace: {ex.StackTrace}");
+                _logger.LogError(ex, "Ошибка экспорта в {ControllerName}", typeof(T).Name);
                 TempData["ErrorMessage"] = $"Ошибка при экспорте: {ex.Message}";
                 return RedirectToAction("DataViewer", filter);
             }
@@ -273,7 +335,7 @@ namespace BurstroyMonitoring.TCM.Controllers
         public IActionResult Reset()
         {
             HttpContext.Session.Remove(FilterSessionKey);
-            Console.WriteLine($"[DEBUG] Фильтры сброшены");
+            _logger.LogDebug("Фильтры сброшены для {ControllerName}", typeof(T).Name);
             TempData["Message"] = "Фильтры сброшены";
             return RedirectToAction("DataViewer");
         }
@@ -283,7 +345,7 @@ namespace BurstroyMonitoring.TCM.Controllers
         public IActionResult SaveFilter([FromBody] DataFilterViewModel filter)
         {
             SaveFilterToSession(filter);
-            Console.WriteLine($"[DEBUG] Фильтр сохранен вручную");
+            _logger.LogDebug("Фильтр сохранен вручную для {ControllerName}", typeof(T).Name);
             return Json(new { success = true });
         }
 
@@ -314,7 +376,7 @@ namespace BurstroyMonitoring.TCM.Controllers
                    (!filter.SelectedFields?.Any() ?? true);
         }
 
-        private List<string> GetAvailableFields<U>()
+        protected virtual List<string> GetAvailableFields<U>()
         {
             return typeof(U).GetProperties().Select(p => p.Name).ToList();
         }
