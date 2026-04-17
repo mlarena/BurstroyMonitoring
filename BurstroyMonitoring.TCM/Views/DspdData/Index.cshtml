@@ -105,21 +105,9 @@
                             }
                         </td>
                         <td>
-                            @{
-                                string roadStatus = item.RoadStatusCode switch {
-                                    0 => "Измерение невозможно",
-                                    1 => "Сухо",
-                                    2 => "Влажно",
-                                    3 => "Мокро",
-                                    4 => "Слякоть",
-                                    5 => "Лёд",
-                                    6 => "Снег",
-                                    9 => "Реагенты",
-                                    10 => "Снег со льдом",
-                                    _ => "—"
-                                };
-                            }
-                            <span title="Код: @item.RoadStatusCode">@roadStatus</span>
+                            <span title="Код: @item.RoadStatusCode">
+                                @BurstroyMonitoring.TCM.Helpers.RoadStatusHelper.GetRoadStatusText(item.RoadStatusCode)
+                            </span>
                         </td>
                         <td class="text-end">
                             <a asp-action="Details" asp-route-id="@item.DspdDataId" 

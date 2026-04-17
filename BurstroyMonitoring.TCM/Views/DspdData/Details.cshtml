@@ -73,7 +73,11 @@
                             </tr>
                             <tr>
                                 <th class="ps-3">Статус дороги</th>
-                                <td class="ps-3"><span class="badge bg-light text-dark border fw-normal">@Model.RoadStatusCode</span></td>
+                                <td class="ps-3">
+                                    <span class="badge bg-light text-dark border fw-normal">
+                                        @BurstroyMonitoring.TCM.Helpers.RoadStatusHelper.GetRoadStatusText(Model.RoadStatusCode)
+                                    </span>
+                                </td>
                             </tr>
                             <tr>
                                 <th class="ps-3">Калибровка</th>

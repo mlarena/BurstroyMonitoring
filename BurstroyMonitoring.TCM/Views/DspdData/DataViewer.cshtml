@@ -147,7 +147,8 @@
                                 @{
                                     var property = item.GetType().GetProperty(field);
                                     var value = property?.GetValue(item);
-                                    if (value is DateTime dt) { @dt.ToLocalTime().ToString("dd.MM.yyyy HH:mm") }
+                                    if (field == "RoadStatusCode") { @BurstroyMonitoring.TCM.Helpers.RoadStatusHelper.GetRoadStatusText(value as int?) }
+                                    else if (value is DateTime dt) { @dt.ToLocalTime().ToString("dd.MM.yyyy HH:mm") }
                                     else if (value is bool b) { @(b ? "Да" : "Нет") }
                                     else if (value is double d) { @d.ToString("F2") }
                                     else if (value is decimal dec) { @dec.ToString("F2") }
