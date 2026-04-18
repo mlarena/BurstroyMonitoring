@@ -29,8 +29,10 @@ public class MUEKSData
     public string? TkosaT1 { get; set; }
     public string? TkosaT3 { get; set; }
     
-    [Column("PollingSessionId")]
-    public Guid? PollingSessionId { get; set; }
+    public decimal? OwenCh1 { get; set; }
+    public decimal? OwenCh2 { get; set; }
+    
+    [Column("PollingSessionId")]    public Guid? PollingSessionId { get; set; }
     
     [Column("MonitoringPostId")]
     public int? MonitoringPostId { get; set; }

@@ -341,9 +341,9 @@ public class DataProcessingService
                 IOut12B = p.IOut12B, IOut48B = p.IOut48B, UAkb = p.UAkb, IAkb = p.IAkb,
                 Sens220B = p.Sens220B, WhAkb = p.WhAkb, VisibleRange = p.VisibleRange, DoorStatus = p.DoorStatus,
                 TdsH = p.TdsH, TdsTds = p.TdsTds, TkosaT1 = p.TkosaT1, TkosaT3 = p.TkosaT3,
+                OwenCh1 = p.OwenCh1, OwenCh2 = p.OwenCh2,
                 PollingSessionId = pollingSessionId, MonitoringPostId = sensor.MonitoringPostId
-            };
-            await _dbService.SaveMueksDataAsync(data, pollingSessionId, sensor.MonitoringPostId);
+            };            await _dbService.SaveMueksDataAsync(data, pollingSessionId, sensor.MonitoringPostId);
 
             string sensorInfo = $"sensor '{sensor.SerialNumber}' ({sensor.EndPointsName})";
             string postInfo = sensor.MonitoringPost != null ? $" on post '{sensor.MonitoringPost.Name}'" : "";

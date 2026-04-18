@@ -65,9 +65,9 @@
                     <th title="Выход 48B (Ток)">Выход 48B</th>
                     <th title="АКБ (Напряжение / Ток)">АКБ (U/I)</th>
                     <th title="Вт·ч АКБ">Вт·ч АКБ</th>
+                    <th title="Температура грунта (Owen CH1 / CH2)">Темп. грунта</th>
                     <th title="Датчик 220B">220B</th>
-                    <th class="text-end">Детали</th>
-                </tr>
+                    <th class="text-end">Детали</th>                </tr>
             </thead>
             <tbody>
                 @foreach (var item in Model)
@@ -93,8 +93,10 @@
                             @(item.VoltageAkb?.ToString("F1") ?? "—")V / @(item.CurrentAkb?.ToString("F2") ?? "—")A
                         </td>
                         <td class="small">@(item.WattHoursAkb?.ToString("F0") ?? "—")</td>
-                        <td class="small text-center">
-                            @if (item.Sensor220B == 1) { <span class="text-success">Есть</span> }
+                        <td class="small">
+                            @(item.OwenCh1?.ToString("F1") ?? "—")°C / @(item.OwenCh2?.ToString("F1") ?? "—")°C
+                        </td>
+                        <td class="small text-center">                            @if (item.Sensor220B == 1) { <span class="text-success">Есть</span> }
                             else if (item.Sensor220B == 0) { <span class="text-danger">Нет</span> }
                             else { <span class="text-muted">—</span> }
                         </td>

@@ -65,10 +65,15 @@ namespace BurstroyMonitoring.Data.Models
         [Column("tkosa_t3")]
         public string? TkosaT3 { get; set; }
 
+        [Column("owen_ch1")]
+        public decimal? OwenCh1 { get; set; }
+
+        [Column("owen_ch2")]
+        public decimal? OwenCh2 { get; set; }
+
         // ========== Sensor поля ==========
         [Column("sensor_id")]
         public int? SensorId { get; set; }
-
         [Column("sensor_longitude")]
         public double? SensorLongitude { get; set; }
 

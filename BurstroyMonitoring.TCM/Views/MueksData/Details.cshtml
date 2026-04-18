@@ -100,9 +100,16 @@
                                 <th class="ps-3">Ткоса (T1/T3)</th>
                                 <td class="ps-3 small">@Model.TkosaT1 / @Model.TkosaT3</td>
                             </tr>
-
-                            <tr class="table-light"><th colspan="2" class="ps-3 py-2">Параметры датчика</th></tr>
                             <tr>
+                                <th class="ps-3">Температура грунта (Owen CH1)</th>
+                                <td class="ps-3 small">@(Model.OwenCh1?.ToString("F2") ?? "—")°C</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Температура грунта (Owen CH2)</th>
+                                <td class="ps-3 small">@(Model.OwenCh2?.ToString("F2") ?? "—")°C</td>
+                            </tr>
+
+                            <tr class="table-light"><th colspan="2" class="ps-3 py-2">Параметры датчика</th></tr>                            <tr>
                                 <th class="ps-3">Координаты</th>
                                 <td class="ps-3 small">@(Model.SensorLatitude?.ToString("F6") ?? "—"), @(Model.SensorLongitude?.ToString("F6") ?? "—")</td>
                             </tr>

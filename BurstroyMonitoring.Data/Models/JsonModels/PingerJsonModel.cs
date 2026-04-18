@@ -34,8 +34,9 @@ public class MueksPacket
     public string? TdsTds { get; set; }
     public string? TkosaT1 { get; set; }
     public string? TkosaT3 { get; set; }
+    public decimal? OwenCh1 { get; set; }
+    public decimal? OwenCh2 { get; set; }
 }
-
 public class MueksPacketConverter : JsonConverter<MueksPacket>
 {
     public override MueksPacket Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -105,8 +106,13 @@ public class MueksPacketConverter : JsonConverter<MueksPacket>
                     case "tkosa_t3":
                         packet.TkosaT3 = reader.GetString();
                         break;
-                    default:
-                        reader.Skip();
+                    case "owen_ch1":
+                        packet.OwenCh1 = GetNullableDecimal(ref reader);
+                        break;
+                    case "owen_ch2":
+                        packet.OwenCh2 = GetNullableDecimal(ref reader);
+                        break;
+                    default:                        reader.Skip();
                         break;
                 }
             }
