@@ -22,8 +22,9 @@ namespace BurstroyMonitoring.Data.Models.ViewModels
         public string? TdsTds { get; set; }
         public string? TkosaT1 { get; set; }
         public string? TkosaT3 { get; set; }
+        public decimal? OwenCh1 { get; set; }
+        public decimal? OwenCh2 { get; set; }
     }
-
     public class MUEKSDataViewModel
     {
         public int SensorId { get; set; }

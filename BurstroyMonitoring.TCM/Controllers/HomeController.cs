@@ -293,9 +293,10 @@ public class HomeController : Controller
                 CurrentAkb = GetDecimal(reader, "current_akb"),
                 WattHoursAkb = GetDecimal(reader, "watt_hours_akb"),
                 VisibleRange = GetDecimal(reader, "visible_range"),
-                Sensor220b = GetInt(reader, "sensor_220b")
-            };
-        }
+                Sensor220b = GetInt(reader, "sensor_220b"),
+                OwenCh1 = GetDecimal(reader, "owen_ch1"),
+                OwenCh2 = GetDecimal(reader, "owen_ch2")
+            };        }
         return null;
     }
 

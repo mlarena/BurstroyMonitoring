@@ -96,17 +96,20 @@
 
     .sensor-compact-data {
         display: flex;
-        gap: 1.5rem;
+        gap: 1rem;
         flex: 1;
         justify-content: flex-end;
         font-size: 0.85rem;
+        flex-wrap: wrap;
     }
 
     .compact-metric {
         text-align: center;
-        min-width: 70px;
-    }
-    .compact-value { font-weight: 700; display: block; }
+        min-width: 60px;
+        padding: 2px 4px;
+        background: var(--bs-secondary-bg);
+        border-radius: 6px;
+    }    .compact-value { font-weight: 700; display: block; }
     .compact-label { font-size: 0.7rem; color: var(--bs-secondary-color); }
 
     .sensor-detail {
@@ -358,29 +361,43 @@
                 
                 let html = '';
                 if (type === 'IWS') {
-                    html += renderCompact("Темп.", data.environmentTemperature, "°C");
+                    html += renderCompact("Темп. возд.", data.environmentTemperature, "°C");
+                    html += renderCompact("Влажность", data.humidityPercentage, "%");
+                    html += renderCompact("Давление", data.pressureMmHg, "мм");
                     html += renderCompact("Ветер", data.windSpeed, "м/с");
+                    html += renderCompact("Напр. ветра", data.windDirection, "°");
                     html += renderCompact("Осадки", precipTypes[data.precipitationType] || "Нет");
+                    html += renderCompact("Интенс.", data.precipitationIntensity, "мм/ч");
                 } else if (type === 'DSPD') {
                     html += renderCompact("Сцепл.", data.gripCoefficient);
                     html += renderCompact("Дорога", data.roadTemperature, "°C");
+                    html += renderCompact("Вода", data.waterHeight, "мм");
+                    html += renderCompact("Снег", data.snowHeight, "мм");
+                    html += renderCompact("Лёд", data.iceHeight, "мм");
                     html += renderCompact("Статус", roadStatuses[data.roadStatusCode] || "—");
                 } else if (type === 'DOV') {
                     html += renderCompact("Видим.", data.visibleRange, "м");
                 } else if (type === 'DUST') {
-                    html += renderCompact("PM10", data.pm10Act);
-                    html += renderCompact("PM2.5", data.pm25Act);
+                    html += renderCompact("PM10", data.pm10Act, "мкг");
+                    html += renderCompact("PM2.5", data.pm25Act, "мкг");
+                    html += renderCompact("PM1", data.pm1Act, "мкг");
+                    html += renderCompact("Поток", data.flowProbe, "л/м");
                 } else if (type === 'MUEKS') {
                     html += renderCompact("Шкаф", data.temperatureBox, "°C");
-                    html += renderCompact("АКБ", data.voltageAkb, "В");
+                    html += renderCompact("Вход 12В", data.voltagePowerIn12b, "В");
+                    html += renderCompact("АКБ U", data.voltageAkb, "В");
+                    html += renderCompact("АКБ I", data.currentAkb, "А");
+                    html += renderCompact("Грунт 1", data.owenCh1, "°C");
+                    html += renderCompact("Грунт 2", data.owenCh2, "°C");
+                    html += renderCompact("220В", data.sensor220b === 1 ? "Есть" : "Нет");
+                    html += renderCompact("Дверь", data.doorStatus === 1 ? "Откр" : "Закр");
                 }
                 compact.append(html);
                 $(`#sensor-${sensorId}`).data('full-data', data);
             });
         }
 
-        function toggleSensor(sensorId, type, event) {
-            event.stopPropagation();
+        function toggleSensor(sensorId, type, event) {            event.stopPropagation();
             const detail = $(`#detail-${sensorId}`);
             const icon = $(`#icon-sensor-${sensorId}`);
             const data = $(`#sensor-${sensorId}`).data('full-data');
@@ -451,8 +468,9 @@
                 html += renderRow("Общая минерализация (TDS)", data.tdsTds, "ppm");
                 html += renderRow("Температура T1 (КОСА)", data.tkosaT1, "°C");
                 html += renderRow("Температура T3 (КОСА)", data.tkosaT3, "°C");
+                html += renderRow("Температура грунта 1 (Owen CH1)", data.owenCh1, "°C");
+                html += renderRow("Температура грунта 2 (Owen CH2)", data.owenCh2, "°C");
             }
-
             table.append(html);
         }
 
