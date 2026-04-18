@@ -184,9 +184,11 @@
                             <small class="text-muted">@post.Description</small>
                         </div>
                     </div>
+                    <div class="ms-auto me-3 d-none update-timer-container" id="timer-container-@post.Id">
+                        <small class="text-muted" style="font-size: 0.7rem;">Обновление через: <span class="update-timer" id="timer-@post.Id">30</span>с</small>
+                    </div>
                     <i class="bi bi-chevron-down fs-5 transition-icon" id="icon-post-@post.Id" style="@(isFirst ? "transform: rotate(180deg);" : "")"></i>
-                </div>
-                <div class="sensor-list" id="sensors-@post.Id" style="@(isFirst ? "display: block;" : "")">
+                </div>                <div class="sensor-list" id="sensors-@post.Id" style="@(isFirst ? "display: block;" : "")">
                     <div class="text-center p-4">
                         <div class="spinner-border text-primary"></div>
                     </div>
@@ -204,17 +206,26 @@
             if (firstPost.length) {
                 const postId = firstPost.attr('id').split('-').pop();
                 loadSensors(postId);
+                $(`#timer-container-${postId}`).removeClass('d-none');
             }
 
-            // Автообновление каждые 30 секунд для открытых постов
+            // Таймер автообновления
+            let timeLeft = 10;
             setInterval(function() {
-                $('.sensor-list:visible').each(function() {
-                    const postId = this.id.split('-').pop();
-                    refreshSensors(postId);
-                });
-            }, 30000);
+                timeLeft--;
+                
+                if (timeLeft <= 0) {
+                    $('.sensor-list:visible').each(function() {
+                        const postId = this.id.split('-').pop();
+                        refreshSensors(postId);
+                    });
+                    timeLeft = 10;
+                }
+                
+                // Обновляем видимые счетчики
+                $('.update-timer-container:not(.d-none) .update-timer').text(timeLeft);
+            }, 1000);
         });
-
         const roadStatuses = {
             "0": "Измерение невозможно", "1": "Сухо", "2": "Влажно", "3": "Мокро",
             "5": "Лёд", "6": "Снег", "9": "Противогололёдные материалы",
@@ -256,19 +267,21 @@
             const container = $(`#sensors-${postId}`);
             const icon = $(`#icon-post-${postId}`);
             const header = icon.closest('.post-header');
+            const timer = $(`#timer-container-${postId}`);
             
             if (container.is(':visible')) {
                 container.slideUp();
                 header.removeClass('expanded');
                 icon.css('transform', 'rotate(0deg)');
+                timer.addClass('d-none');
             } else {
                 container.slideDown();
                 header.addClass('expanded');
                 icon.css('transform', 'rotate(180deg)');
+                timer.removeClass('d-none');
                 loadSensors(postId);
             }
         }
-
         function loadSensors(postId) {
             const container = $(`#sensors-${postId}`);
             if (container.data('loaded')) return;
