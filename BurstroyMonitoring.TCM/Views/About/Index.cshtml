@@ -1,0 +1,66 @@
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@{
+    ViewData["Title"] = "О программе";
+    var appSettings = Configuration.GetSection("AppSettings");
+    var title = appSettings["Title"] ?? "Burstroy Monitoring System";
+    var version = appSettings["SoftwareVersion"] ?? "1.0.0";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="card shadow-sm border-0 overflow-hidden">
+                <div class="card-header bg-primary text-white py-4 text-center">
+                    <h1 class="h2 mb-0">@title</h1>
+                    <p class="mb-0 opacity-75">@version</p>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <h4 class="border-bottom pb-2 mb-3 text-primary">О системе</h4>
+                            <p class="text-muted">
+                                Программный комплекс предназначен для сбора, обработки и визуализации данных с различных типов датчиков мониторинга. 
+                                Система обеспечивает оперативный контроль состояния дорожного покрытия, метеорологических условий и интенсивности транспортных потоков.
+                            </p>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h5 class="fw-bold mb-3"><i class="bi bi-cpu me-2 text-primary"></i>Поддерживаемые датчики</h5>
+                            <ul class="list-unstyled small text-muted">
+                                <li class="mb-2"><i class="bi bi-check2-circle me-2 text-success"></i><strong>IWS</strong> — Метеорологические станции</li>
+                                <li class="mb-2"><i class="bi bi-check2-circle me-2 text-success"></i><strong>DSPD</strong> — Датчики состояния дорожного полотна</li>
+                                <li class="mb-2"><i class="bi bi-check2-circle me-2 text-success"></i><strong>DOV</strong> — Датчики видимости</li>
+                                <li class="mb-2"><i class="bi bi-check2-circle me-2 text-success"></i><strong>DUST</strong> — Анализаторы пыли и частиц</li>
+                                <li class="mb-2"><i class="bi bi-check2-circle me-2 text-success"></i><strong>PUID</strong> — Системы учета трафика</li>
+                                <li class="mb-2"><i class="bi bi-check2-circle me-2 text-success"></i><strong>MUEKS</strong> — Инженерные системы шкафов</li>
+                            </ul>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h5 class="fw-bold mb-3"><i class="bi bi-gear me-2 text-primary"></i>Ключевые функции</h5>
+                            <ul class="list-unstyled small text-muted">
+                                <li class="mb-2"><i class="bi bi-dot me-1"></i>Мониторинг в реальном времени</li>
+                                <li class="mb-2"><i class="bi bi-dot me-1"></i>Архивация и экспорт данных (Excel/CSV)</li>
+                                <li class="mb-2"><i class="bi bi-dot me-1"></i>Система логирования ошибок</li>
+                                <li class="mb-2"><i class="bi bi-dot me-1"></i>Анализ интенсивности движения</li>
+                                <li class="mb-2"><i class="bi bi-dot me-1"></i>Управление правами доступа</li>
+                            </ul>
+                        </div>
+
+                        <div class="col-12 mt-5 pt-4 border-top text-center">
+                            <div class="small text-muted">
+                                <p class="mb-1">&copy; @DateTime.Now.Year <strong>@title</strong>. Все права защищены.</p>
+                                <p class="mb-0">@version</p>
+                                @if (!string.IsNullOrEmpty(appSettings["VerificationResults"]))
+                                {
+                                    <p class="mt-2 mb-0 fw-bold text-primary">@appSettings["VerificationResults"]</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
