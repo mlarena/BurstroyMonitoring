@@ -58,7 +58,7 @@ WHERE datname = 'sensordb_prod'
 AND pid <> pg_backend_pid();
 
 
-SELECT pid, usename, application_name, client_addr, state FROM pg_stat_activity WHERE datname = 'sensordb_prod';
+SELECT pid, usename, application_name, client_addr, state FROM pg_stat_activity WHERE datname = 'sensordb';
 
 INSERT INTO public."MonitoringPost"
 ( "Name", "Description", "Longitude", "Latitude", "IsMobile", "IsActive", "CreatedAt", "UpdatedAt", "Address", "PollingIntervalSeconds", "LastPolledAt")

@@ -86,11 +86,36 @@
             font-weight: 800 !important;
             font-size: 1.2rem;
             letter-spacing: 0.5px;
+            position: relative;
         }
-        
-        /* Стили для заголовков выпадающих меню */
-        .dropdown-toggle {
-            font-weight: 600 !important;
+
+        .brand-info-popup {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 1050;
+            min-width: 250px;
+            padding: 0.75rem 1rem;
+            margin-top: 0.5rem;
+            background-color: #ffffff;
+            color: #212529;
+            border: 2px solid #0d6efd; /* Более отчетливый контур (цвет Bootstrap primary) */
+            border-radius: 0.5rem;
+            box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.2);
+            font-size: 0.9rem;
+            font-weight: 600; /* Немного жирнее текст */
+            line-height: 1.4;
+            text-transform: none;
+        }
+
+        [data-bs-theme="dark"] .brand-info-popup {
+            background-color: #212529;
+            color: #f8f9fa;
+            border-color: #0d6efd; /* Оставляем синий контур и в темной теме для акцента */
+        }
+        .navbar-brand:hover .brand-info-popup {
+            display: block;
         }
         
     </style>
@@ -100,7 +125,13 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm py-1">
             <div class="container-fluid">
-                <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">@Configuration["AppSettings:Title"]</a>
+                <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
+                    @Configuration["AppSettings:Title"]
+                    <div class="brand-info-popup">
+                        <div>@Configuration["AppSettings:SoftwareVersion"]</div>
+                        <div>@Configuration["AppSettings:VerificationResults"]</div>
+                    </div>
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -109,11 +140,6 @@
                         <li class="nav-item">
                             <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index">Главная</a>
                         </li>
-                        <!-- <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Dashboard" ? "active" : "")" asp-controller="Dashboard" asp-action="Index">
-                                Дашборд
-                            </a>
-                        </li> -->
                         
                         <li class="nav-item dropdown">
                             @{
@@ -128,7 +154,6 @@
                                 <li><a class="dropdown-item @(currentController == "SensorTypes" ? "active" : "")" asp-controller="SensorTypes" asp-action="Index">Типы датчиков</a></li>
                                 <li><a class="dropdown-item @(currentController == "Sensors" ? "active" : "")" asp-controller="Sensors" asp-action="Index">Датчики</a></li>
                                 <li><a class="dropdown-item @(currentController == "Puids" ? "active" : "")" asp-controller="Puids" asp-action="Index">ПУИД</a></li>
-                                <!-- <li><hr class="dropdown-divider"></li> -->
                             </ul>
                         </li>
 
@@ -152,9 +177,6 @@
                                 <li><a class="dropdown-item @(currentController == "SensorResults" ? "active" : "")" asp-controller="SensorResults" asp-action="Index">Результаты</a></li>
                             </ul>
                         </li>
-                        <!-- <li class="nav-item">
-                            <a class="nav-link @(currentController == "SensorResults" ? "active" : "")" asp-controller="SensorResults" asp-action="Index">Результаты</a>
-                        </li> -->
 
                         <li class="nav-item">
                             <a class="nav-link @(currentController == "GraphsAndCharts" ? "active" : "")" asp-controller="GraphsAndCharts" asp-action="Index">Графики</a>
