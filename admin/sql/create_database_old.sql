@@ -1,4 +1,3 @@
-
 CREATE TABLE public."AuditLogs" (
     "Id" integer NOT NULL,
     "Type" integer NOT NULL,
@@ -48,7 +47,7 @@ CREATE TABLE public."Cameras" (
     "Name" character varying(200) NOT NULL,
     "WebUrl" text,
     "RtspUrl" text NOT NULL,
-    "PollingInterval" integer NOT NULL,
+    "PollingInterval" integer CONSTRAINT "Cameras_Port_not_null" NOT NULL,
     "Username" text,
     "Password" text,
     "IsPtzSupported" boolean NOT NULL,
@@ -95,6 +94,20 @@ CREATE TABLE public."DOVData" (
 
 
 ALTER TABLE public."DOVData" OWNER TO postgres;
+
+--
+-- Name: COLUMN "DOVData"."PollingSessionId"; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public."DOVData"."PollingSessionId" IS 'Γò¿├¡Γòñ├╝Γòñ├»Γò¿ΓòùΓò¿ΓòæΓò¿Γûæ Γò¿Γò£Γò¿Γûæ Γòñ├╝Γò¿ΓòíΓòñ├╝Γòñ├╝Γò¿ΓòòΓòñ├ä Γò¿Γò¢Γò¿ΓöÉΓòñ├çΓò¿Γò¢Γòñ├╝Γò¿Γûæ, Γò¿Γûô Γòñ├çΓò¿ΓûæΓò¿Γò¥Γò¿ΓòæΓò¿ΓûæΓòñ├á Γò¿ΓòæΓò¿Γò¢Γòñ├⌐Γò¿Γò¢Γòñ├çΓò¿Γò¢Γò¿Γòú Γò¿ΓûÆΓòñ├»Γò¿ΓòùΓò¿Γòò Γò¿ΓöÉΓò¿Γò¢Γò¿ΓòùΓòñ├óΓòñ├ºΓò¿ΓòíΓò¿Γò£Γòñ├» Γòñ├¼Γòñ├⌐Γò¿Γòò Γò¿ΓöñΓò¿ΓûæΓò¿Γò£Γò¿Γò£Γòñ├»Γò¿Γòí';
+
+
+--
+-- Name: COLUMN "DOVData"."MonitoringPostId"; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public."DOVData"."MonitoringPostId" IS 'Γò¿├╢Γò¿ΓòíΓò¿Γò£Γò¿Γò¢Γòñ├çΓò¿Γò¥Γò¿ΓûæΓò¿ΓòùΓò¿ΓòòΓò¿ΓòûΓò¿Γò¢Γò¿ΓûôΓò¿ΓûæΓò¿Γò£Γò¿Γò£Γò¿Γò¢Γò¿Γòí Γò¿ΓöÉΓò¿Γò¢Γò¿ΓòùΓò¿Γòí ID Γò¿ΓöÉΓò¿Γò¢Γòñ├╝Γòñ├⌐Γò¿Γûæ Γò¿ΓöñΓò¿ΓòùΓòñ├à Γòñ├óΓòñ├╝Γò¿ΓòæΓò¿Γò¢Γòñ├çΓò¿ΓòíΓò¿Γò£Γò¿ΓòòΓòñ├à Γò¿ΓòûΓò¿ΓûæΓò¿ΓöÉΓòñ├çΓò¿Γò¢Γòñ├╝Γò¿Γò¢Γò¿Γûô';
+
 
 --
 -- Name: DOVData_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -153,6 +166,20 @@ CREATE TABLE public."DSPDData" (
 ALTER TABLE public."DSPDData" OWNER TO postgres;
 
 --
+-- Name: COLUMN "DSPDData"."PollingSessionId"; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public."DSPDData"."PollingSessionId" IS 'Γò¿├¡Γòñ├╝Γòñ├»Γò¿ΓòùΓò¿ΓòæΓò¿Γûæ Γò¿Γò£Γò¿Γûæ Γòñ├╝Γò¿ΓòíΓòñ├╝Γòñ├╝Γò¿ΓòòΓòñ├ä Γò¿Γò¢Γò¿ΓöÉΓòñ├çΓò¿Γò¢Γòñ├╝Γò¿Γûæ, Γò¿Γûô Γòñ├çΓò¿ΓûæΓò¿Γò¥Γò¿ΓòæΓò¿ΓûæΓòñ├á Γò¿ΓòæΓò¿Γò¢Γòñ├⌐Γò¿Γò¢Γòñ├çΓò¿Γò¢Γò¿Γòú Γò¿ΓûÆΓòñ├»Γò¿ΓòùΓò¿Γòò Γò¿ΓöÉΓò¿Γò¢Γò¿ΓòùΓòñ├óΓòñ├ºΓò¿ΓòíΓò¿Γò£Γòñ├» Γòñ├¼Γòñ├⌐Γò¿Γòò Γò¿ΓöñΓò¿ΓûæΓò¿Γò£Γò¿Γò£Γòñ├»Γò¿Γòí';
+
+
+--
+-- Name: COLUMN "DSPDData"."MonitoringPostId"; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public."DSPDData"."MonitoringPostId" IS 'Γò¿├╢Γò¿ΓòíΓò¿Γò£Γò¿Γò¢Γòñ├çΓò¿Γò¥Γò¿ΓûæΓò¿ΓòùΓò¿ΓòòΓò¿ΓòûΓò¿Γò¢Γò¿ΓûôΓò¿ΓûæΓò¿Γò£Γò¿Γò£Γò¿Γò¢Γò¿Γòí Γò¿ΓöÉΓò¿Γò¢Γò¿ΓòùΓò¿Γòí ID Γò¿ΓöÉΓò¿Γò¢Γòñ├╝Γòñ├⌐Γò¿Γûæ Γò¿ΓöñΓò¿ΓòùΓòñ├à Γòñ├óΓòñ├╝Γò¿ΓòæΓò¿Γò¢Γòñ├çΓò¿ΓòíΓò¿Γò£Γò¿ΓòòΓòñ├à Γò¿ΓòûΓò¿ΓûæΓò¿ΓöÉΓòñ├çΓò¿Γò¢Γòñ├╝Γò¿Γò¢Γò¿Γûô';
+
+
+--
 -- Name: DSPDData_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -200,6 +227,20 @@ CREATE TABLE public."DustData" (
 
 
 ALTER TABLE public."DustData" OWNER TO postgres;
+
+--
+-- Name: COLUMN "DustData"."PollingSessionId"; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public."DustData"."PollingSessionId" IS 'Γò¿├¡Γòñ├╝Γòñ├»Γò¿ΓòùΓò¿ΓòæΓò¿Γûæ Γò¿Γò£Γò¿Γûæ Γòñ├╝Γò¿ΓòíΓòñ├╝Γòñ├╝Γò¿ΓòòΓòñ├ä Γò¿Γò¢Γò¿ΓöÉΓòñ├çΓò¿Γò¢Γòñ├╝Γò¿Γûæ, Γò¿Γûô Γòñ├çΓò¿ΓûæΓò¿Γò¥Γò¿ΓòæΓò¿ΓûæΓòñ├á Γò¿ΓòæΓò¿Γò¢Γòñ├⌐Γò¿Γò¢Γòñ├çΓò¿Γò¢Γò¿Γòú Γò¿ΓûÆΓòñ├»Γò¿ΓòùΓò¿Γòò Γò¿ΓöÉΓò¿Γò¢Γò¿ΓòùΓòñ├óΓòñ├ºΓò¿ΓòíΓò¿Γò£Γòñ├» Γòñ├¼Γòñ├⌐Γò¿Γòò Γò¿ΓöñΓò¿ΓûæΓò¿Γò£Γò¿Γò£Γòñ├»Γò¿Γòí';
+
+
+--
+-- Name: COLUMN "DustData"."MonitoringPostId"; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public."DustData"."MonitoringPostId" IS 'Γò¿├╢Γò¿ΓòíΓò¿Γò£Γò¿Γò¢Γòñ├çΓò¿Γò¥Γò¿ΓûæΓò¿ΓòùΓò¿ΓòòΓò¿ΓòûΓò¿Γò¢Γò¿ΓûôΓò¿ΓûæΓò¿Γò£Γò¿Γò£Γò¿Γò¢Γò¿Γòí Γò¿ΓöÉΓò¿Γò¢Γò¿ΓòùΓò¿Γòí ID Γò¿ΓöÉΓò¿Γò¢Γòñ├╝Γòñ├⌐Γò¿Γûæ Γò¿ΓöñΓò¿ΓòùΓòñ├à Γòñ├óΓòñ├╝Γò¿ΓòæΓò¿Γò¢Γòñ├çΓò¿ΓòíΓò¿Γò£Γò¿ΓòòΓòñ├à Γò¿ΓòûΓò¿ΓûæΓò¿ΓöÉΓòñ├çΓò¿Γò¢Γòñ├╝Γò¿Γò¢Γò¿Γûô';
+
 
 --
 -- Name: DustData_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -265,6 +306,20 @@ CREATE TABLE public."IWSData" (
 ALTER TABLE public."IWSData" OWNER TO postgres;
 
 --
+-- Name: COLUMN "IWSData"."PollingSessionId"; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public."IWSData"."PollingSessionId" IS 'Γò¿├¡Γòñ├╝Γòñ├»Γò¿ΓòùΓò¿ΓòæΓò¿Γûæ Γò¿Γò£Γò¿Γûæ Γòñ├╝Γò¿ΓòíΓòñ├╝Γòñ├╝Γò¿ΓòòΓòñ├ä Γò¿Γò¢Γò¿ΓöÉΓòñ├çΓò¿Γò¢Γòñ├╝Γò¿Γûæ, Γò¿Γûô Γòñ├çΓò¿ΓûæΓò¿Γò¥Γò¿ΓòæΓò¿ΓûæΓòñ├á Γò¿ΓòæΓò¿Γò¢Γòñ├⌐Γò¿Γò¢Γòñ├çΓò¿Γò¢Γò¿Γòú Γò¿ΓûÆΓòñ├»Γò¿ΓòùΓò¿Γòò Γò¿ΓöÉΓò¿Γò¢Γò¿ΓòùΓòñ├óΓòñ├ºΓò¿ΓòíΓò¿Γò£Γòñ├» Γòñ├¼Γòñ├⌐Γò¿Γòò Γò¿ΓöñΓò¿ΓûæΓò¿Γò£Γò¿Γò£Γòñ├»Γò¿Γòí';
+
+
+--
+-- Name: COLUMN "IWSData"."MonitoringPostId"; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public."IWSData"."MonitoringPostId" IS 'Γò¿├╢Γò¿ΓòíΓò¿Γò£Γò¿Γò¢Γòñ├çΓò¿Γò¥Γò¿ΓûæΓò¿ΓòùΓò¿ΓòòΓò¿ΓòûΓò¿Γò¢Γò¿ΓûôΓò¿ΓûæΓò¿Γò£Γò¿Γò£Γò¿Γò¢Γò¿Γòí Γò¿ΓöÉΓò¿Γò¢Γò¿ΓòùΓò¿Γòí ID Γò¿ΓöÉΓò¿Γò¢Γòñ├╝Γòñ├⌐Γò¿Γûæ Γò¿ΓöñΓò¿ΓòùΓòñ├à Γòñ├óΓòñ├╝Γò¿ΓòæΓò¿Γò¢Γòñ├çΓò¿ΓòíΓò¿Γò£Γò¿ΓòòΓòñ├à Γò¿ΓòûΓò¿ΓûæΓò¿ΓöÉΓòñ├çΓò¿Γò¢Γòñ├╝Γò¿Γò¢Γò¿Γûô';
+
+
+--
 -- Name: IWSData_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -311,13 +366,25 @@ CREATE TABLE public."MUEKSData" (
     "TkosaT1" character varying(50),
     "TkosaT3" character varying(50),
     "PollingSessionId" uuid,
-    "MonitoringPostId" integer,
-    "OwenCh1" numeric(5,2),
-    "OwenCh2" numeric(5,2)
+    "MonitoringPostId" integer
 );
 
 
 ALTER TABLE public."MUEKSData" OWNER TO postgres;
+
+--
+-- Name: COLUMN "MUEKSData"."PollingSessionId"; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public."MUEKSData"."PollingSessionId" IS 'Γò¿├¡Γòñ├╝Γòñ├»Γò¿ΓòùΓò¿ΓòæΓò¿Γûæ Γò¿Γò£Γò¿Γûæ Γòñ├╝Γò¿ΓòíΓòñ├╝Γòñ├╝Γò¿ΓòòΓòñ├ä Γò¿Γò¢Γò¿ΓöÉΓòñ├çΓò¿Γò¢Γòñ├╝Γò¿Γûæ, Γò¿Γûô Γòñ├çΓò¿ΓûæΓò¿Γò¥Γò¿ΓòæΓò¿ΓûæΓòñ├á Γò¿ΓòæΓò¿Γò¢Γòñ├⌐Γò¿Γò¢Γòñ├çΓò¿Γò¢Γò¿Γòú Γò¿ΓûÆΓòñ├»Γò¿ΓòùΓò¿Γòò Γò¿ΓöÉΓò¿Γò¢Γò¿ΓòùΓòñ├óΓòñ├ºΓò¿ΓòíΓò¿Γò£Γòñ├» Γòñ├¼Γòñ├⌐Γò¿Γòò Γò¿ΓöñΓò¿ΓûæΓò¿Γò£Γò¿Γò£Γòñ├»Γò¿Γòí';
+
+
+--
+-- Name: COLUMN "MUEKSData"."MonitoringPostId"; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public."MUEKSData"."MonitoringPostId" IS 'Γò¿├╢Γò¿ΓòíΓò¿Γò£Γò¿Γò¢Γòñ├çΓò¿Γò¥Γò¿ΓûæΓò¿ΓòùΓò¿ΓòòΓò¿ΓòûΓò¿Γò¢Γò¿ΓûôΓò¿ΓûæΓò¿Γò£Γò¿Γò£Γò¿Γò¢Γò¿Γòí Γò¿ΓöÉΓò¿Γò¢Γò¿ΓòùΓò¿Γòí ID Γò¿ΓöÉΓò¿Γò¢Γòñ├╝Γòñ├⌐Γò¿Γûæ Γò¿ΓöñΓò¿ΓòùΓòñ├à Γòñ├óΓòñ├╝Γò¿ΓòæΓò¿Γò¢Γòñ├çΓò¿ΓòíΓò¿Γò£Γò¿ΓòòΓòñ├à Γò¿ΓòûΓò¿ΓûæΓò¿ΓöÉΓòñ├çΓò¿Γò¢Γòñ├╝Γò¿Γò¢Γò¿Γûô';
+
 
 --
 -- Name: MUEKSData_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -365,6 +432,20 @@ CREATE TABLE public."MonitoringPost" (
 ALTER TABLE public."MonitoringPost" OWNER TO postgres;
 
 --
+-- Name: COLUMN "MonitoringPost"."PollingIntervalSeconds"; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public."MonitoringPost"."PollingIntervalSeconds" IS 'Γò¿├┐Γò¿Γò£Γòñ├⌐Γò¿ΓòíΓòñ├çΓò¿ΓûôΓò¿ΓûæΓò¿Γòù Γò¿Γò¢Γò¿ΓöÉΓòñ├çΓò¿Γò¢Γòñ├╝Γò¿Γûæ Γò¿ΓöñΓò¿ΓûæΓòñ├⌐Γòñ├ºΓò¿ΓòòΓò¿ΓòæΓò¿Γò¢Γò¿Γûô Γòñ├¼Γòñ├⌐Γò¿Γò¢Γò¿ΓöéΓò¿Γò¢ Γò¿ΓöÉΓò¿Γò¢Γòñ├╝Γòñ├⌐Γò¿Γûæ Γò¿Γûô Γòñ├╝Γò¿ΓòíΓò¿ΓòæΓòñ├óΓò¿Γò£Γò¿ΓöñΓò¿ΓûæΓòñ├á';
+
+
+--
+-- Name: COLUMN "MonitoringPost"."LastPolledAt"; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public."MonitoringPost"."LastPolledAt" IS 'Γò¿├åΓòñ├çΓò¿ΓòíΓò¿Γò¥Γòñ├à Γò¿ΓöÉΓò¿Γò¢Γòñ├╝Γò¿ΓòùΓò¿ΓòíΓò¿ΓöñΓò¿Γò£Γò¿ΓòíΓò¿ΓöéΓò¿Γò¢ Γòñ├óΓòñ├╝Γò¿ΓöÉΓò¿ΓòíΓòñ├¬Γò¿Γò£Γò¿Γò¢Γò¿ΓöéΓò¿Γò¢ Γò¿Γò¢Γò¿ΓöÉΓòñ├çΓò¿Γò¢Γòñ├╝Γò¿Γûæ Γò¿ΓûôΓòñ├╝Γò¿ΓòíΓòñ├á Γò¿ΓöñΓò¿ΓûæΓòñ├⌐Γòñ├ºΓò¿ΓòòΓò¿ΓòæΓò¿Γò¢Γò¿Γûô Γò¿ΓöÉΓò¿Γò¢Γòñ├╝Γòñ├⌐Γò¿Γûæ (UTC)';
+
+
+--
 -- Name: MonitoringPost_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -404,6 +485,69 @@ CREATE TABLE public."PollingSessions" (
 
 
 ALTER TABLE public."PollingSessions" OWNER TO postgres;
+
+--
+-- Name: TABLE "PollingSessions"; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON TABLE public."PollingSessions" IS 'Γò¿├┤Γòñ├çΓòñ├óΓò¿ΓöÉΓò¿ΓöÉΓò¿ΓòòΓòñ├çΓòñ├óΓò¿ΓòíΓòñ├⌐ Γò¿Γò¢Γò¿ΓöÉΓòñ├çΓò¿Γò¢Γòñ├╝Γòñ├» Γò¿ΓöñΓò¿ΓûæΓòñ├⌐Γòñ├ºΓò¿ΓòòΓò¿ΓòæΓò¿Γò¢Γò¿Γûô Γò¿Γò¢Γò¿ΓöñΓò¿Γò£Γò¿Γò¢Γò¿ΓöéΓò¿Γò¢ Γò¿ΓöÉΓò¿Γò¢Γòñ├╝Γòñ├⌐Γò¿Γûæ Γò¿Γò¥Γò¿Γò¢Γò¿Γò£Γò¿ΓòòΓòñ├⌐Γò¿Γò¢Γòñ├çΓò¿ΓòòΓò¿Γò£Γò¿ΓöéΓò¿Γûæ Γò¿ΓöñΓò¿ΓòùΓòñ├à Γòñ├╝Γò¿ΓòòΓò¿Γò£Γòñ├áΓòñ├çΓò¿Γò¢Γò¿Γò£Γò¿ΓòòΓò¿ΓòûΓò¿ΓûæΓòñ├ÑΓò¿ΓòòΓò¿Γòò Γò¿ΓöñΓò¿ΓûæΓò¿Γò£Γò¿Γò£Γòñ├»Γòñ├á';
+
+
+--
+-- Name: COLUMN "PollingSessions"."Id"; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public."PollingSessions"."Id" IS 'Γò¿├║Γò¿Γò£Γò¿ΓòòΓò¿ΓòæΓò¿ΓûæΓò¿ΓòùΓòñ├«Γò¿Γò£Γòñ├»Γò¿Γòú Γò¿ΓòòΓò¿ΓöñΓò¿ΓòíΓò¿Γò£Γòñ├⌐Γò¿ΓòòΓòñ├ñΓò¿ΓòòΓò¿ΓòæΓò¿ΓûæΓòñ├⌐Γò¿Γò¢Γòñ├ç Γòñ├╝Γò¿ΓòíΓòñ├╝Γòñ├╝Γò¿ΓòòΓò¿Γòò Γò¿Γò¢Γò¿ΓöÉΓòñ├çΓò¿Γò¢Γòñ├╝Γò¿Γûæ';
+
+
+--
+-- Name: COLUMN "PollingSessions"."MonitoringPostId"; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public."PollingSessions"."MonitoringPostId" IS 'ID Γò¿ΓöÉΓò¿Γò¢Γòñ├╝Γòñ├⌐Γò¿Γûæ Γò¿Γò¥Γò¿Γò¢Γò¿Γò£Γò¿ΓòòΓòñ├⌐Γò¿Γò¢Γòñ├çΓò¿ΓòòΓò¿Γò£Γò¿ΓöéΓò¿Γûæ, Γò¿ΓöñΓò¿ΓûæΓòñ├⌐Γòñ├ºΓò¿ΓòòΓò¿ΓòæΓò¿Γòò Γò¿ΓòæΓò¿Γò¢Γòñ├⌐Γò¿Γò¢Γòñ├çΓò¿Γò¢Γò¿ΓöéΓò¿Γò¢ Γò¿Γò¢Γò¿ΓöÉΓòñ├çΓò¿ΓûæΓòñ├¬Γò¿ΓòòΓò¿ΓûôΓò¿ΓûæΓòñ├äΓòñ├⌐Γòñ├╝Γòñ├à';
+
+
+--
+-- Name: COLUMN "PollingSessions"."StartedAt"; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public."PollingSessions"."StartedAt" IS 'Γò¿├åΓòñ├çΓò¿ΓòíΓò¿Γò¥Γòñ├à Γò¿Γò£Γò¿ΓûæΓòñ├ºΓò¿ΓûæΓò¿ΓòùΓò¿Γûæ Γò¿Γò¢Γò¿ΓöÉΓòñ├çΓò¿Γò¢Γòñ├╝Γò¿Γûæ Γò¿ΓöéΓòñ├çΓòñ├óΓò¿ΓöÉΓò¿ΓöÉΓòñ├» Γò¿ΓöñΓò¿ΓûæΓòñ├⌐Γòñ├ºΓò¿ΓòòΓò¿ΓòæΓò¿Γò¢Γò¿Γûô (UTC)';
+
+
+--
+-- Name: COLUMN "PollingSessions"."CompletedAt"; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public."PollingSessions"."CompletedAt" IS 'Γò¿├åΓòñ├çΓò¿ΓòíΓò¿Γò¥Γòñ├à Γò¿ΓòûΓò¿ΓûæΓò¿ΓûôΓò¿ΓòíΓòñ├çΓòñ├¬Γò¿ΓòíΓò¿Γò£Γò¿ΓòòΓòñ├à Γò¿Γò¢Γò¿ΓöÉΓòñ├çΓò¿Γò¢Γòñ├╝Γò¿Γûæ Γò¿ΓûôΓòñ├╝Γò¿ΓòíΓòñ├á Γò¿ΓöñΓò¿ΓûæΓòñ├⌐Γòñ├ºΓò¿ΓòòΓò¿ΓòæΓò¿Γò¢Γò¿Γûô Γò¿ΓöéΓòñ├çΓòñ├óΓò¿ΓöÉΓò¿ΓöÉΓòñ├» (UTC)';
+
+
+--
+-- Name: COLUMN "PollingSessions"."Status"; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public."PollingSessions"."Status" IS 'Γò¿├¡Γòñ├⌐Γò¿ΓûæΓòñ├⌐Γòñ├óΓòñ├╝ Γòñ├╝Γò¿ΓòíΓòñ├╝Γòñ├╝Γò¿ΓòòΓò¿Γòò: IN_PROGRESS, COMPLETED (Γò¿ΓûôΓòñ├╝Γò¿Γòí Γòñ├óΓòñ├╝Γò¿ΓöÉΓò¿ΓòíΓòñ├¬Γò¿Γò£Γò¿Γò¢), PARTIALLY_COMPLETED (Γòñ├ºΓò¿ΓûæΓòñ├╝Γòñ├⌐Γò¿ΓòòΓòñ├ºΓò¿Γò£Γò¿Γò¢), FAILED (Γò¿Γò£Γò¿Γòò Γò¿Γò¢Γò¿ΓöñΓò¿ΓòòΓò¿Γò£ Γò¿ΓöñΓò¿ΓûæΓòñ├⌐Γòñ├ºΓò¿ΓòòΓò¿Γòæ Γò¿Γò£Γò¿Γòí Γò¿Γò¢Γòñ├⌐Γò¿ΓûôΓò¿ΓòíΓòñ├⌐Γò¿ΓòòΓò¿Γòù)';
+
+
+--
+-- Name: COLUMN "PollingSessions"."TotalSensorsCount"; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public."PollingSessions"."TotalSensorsCount" IS 'Γò¿ΓéºΓò¿ΓûÆΓòñ├½Γò¿ΓòíΓò¿Γòí Γò¿ΓòæΓò¿Γò¢Γò¿ΓòùΓò¿ΓòòΓòñ├ºΓò¿ΓòíΓòñ├╝Γòñ├⌐Γò¿ΓûôΓò¿Γò¢ Γò¿ΓöñΓò¿ΓûæΓòñ├⌐Γòñ├ºΓò¿ΓòòΓò¿ΓòæΓò¿Γò¢Γò¿Γûô, Γò¿ΓòæΓò¿Γò¢Γòñ├⌐Γò¿Γò¢Γòñ├çΓòñ├»Γò¿Γòí Γò¿ΓöÉΓò¿ΓòùΓò¿ΓûæΓò¿Γò£Γò¿ΓòòΓòñ├çΓò¿Γò¢Γò¿ΓûôΓò¿ΓûæΓò¿ΓòùΓò¿Γò¢Γòñ├╝Γòñ├« Γò¿Γò¢Γò¿ΓöÉΓòñ├çΓò¿Γò¢Γòñ├╝Γò¿ΓòòΓòñ├⌐Γòñ├« Γò¿Γûô Γòñ├¼Γòñ├⌐Γò¿Γò¢Γò¿Γòú Γòñ├╝Γò¿ΓòíΓòñ├╝Γòñ├╝Γò¿ΓòòΓò¿Γòò';
+
+
+--
+-- Name: COLUMN "PollingSessions"."SuccessfulSensorsCount"; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public."PollingSessions"."SuccessfulSensorsCount" IS 'Γò¿├£Γò¿Γò¢Γò¿ΓòùΓò¿ΓòòΓòñ├ºΓò¿ΓòíΓòñ├╝Γòñ├⌐Γò¿ΓûôΓò¿Γò¢ Γò¿ΓöñΓò¿ΓûæΓòñ├⌐Γòñ├ºΓò¿ΓòòΓò¿ΓòæΓò¿Γò¢Γò¿Γûô, Γòñ├óΓòñ├╝Γò¿ΓöÉΓò¿ΓòíΓòñ├¬Γò¿Γò£Γò¿Γò¢ Γò¿Γò¢Γò¿ΓöÉΓòñ├çΓò¿Γò¢Γòñ├¬Γò¿ΓòíΓò¿Γò£Γò¿Γò£Γòñ├»Γòñ├á Γò¿Γûô Γòñ├¼Γòñ├⌐Γò¿Γò¢Γò¿Γòú Γòñ├╝Γò¿ΓòíΓòñ├╝Γòñ├╝Γò¿ΓòòΓò¿Γòò';
+
+
+--
+-- Name: COLUMN "PollingSessions"."FailedSensorsDetails"; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public."PollingSessions"."FailedSensorsDetails" IS 'JSON Γòñ├╝ Γò¿ΓöñΓò¿ΓòíΓòñ├⌐Γò¿ΓûæΓò¿ΓòùΓòñ├àΓò¿Γò¥Γò¿Γòò Γò¿Γò¢Γòñ├¬Γò¿ΓòòΓò¿ΓûÆΓò¿Γò¢Γò¿Γòæ Γò¿ΓöÉΓò¿Γò¢ Γò¿ΓöñΓò¿ΓûæΓòñ├⌐Γòñ├ºΓò¿ΓòòΓò¿ΓòæΓò¿ΓûæΓò¿Γò¥, Γò¿ΓòæΓò¿Γò¢Γòñ├⌐Γò¿Γò¢Γòñ├çΓòñ├»Γò¿Γòí Γò¿Γò£Γò¿Γòí Γòñ├óΓò¿ΓöñΓò¿ΓûæΓò¿ΓòùΓò¿Γò¢Γòñ├╝Γòñ├« Γò¿Γò¢Γò¿ΓöÉΓòñ├çΓò¿Γò¢Γòñ├╝Γò¿ΓòòΓòñ├⌐Γòñ├«. Γò¿╞ÆΓòñ├çΓò¿ΓòòΓò¿Γò¥Γò¿ΓòíΓòñ├ç: {"failed_sensor_ids": [101,103], "errors": {"101":"Timeout", "103":"HTTP 500"}}';
+
 
 --
 -- Name: Puid; Type: TABLE; Schema: public; Owner: postgres
@@ -850,18 +994,6 @@ ALTER SEQUENCE public."WorkerConfiguration_Id_seq" OWNED BY public."WorkerConfig
 
 
 --
--- Name: __EFMigrationsHistory; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public."__EFMigrationsHistory" (
-    "MigrationId" character varying(150) NOT NULL,
-    "ProductVersion" character varying(32) NOT NULL
-);
-
-
-ALTER TABLE public."__EFMigrationsHistory" OWNER TO postgres;
-
---
 -- Name: vw_dov_data_full; Type: VIEW; Schema: public; Owner: postgres
 --
 
@@ -1124,8 +1256,6 @@ CREATE VIEW public.vw_mueks_data_full AS
     pd."TdsTds" AS tds_tds,
     pd."TkosaT1" AS tkosa_t1,
     pd."TkosaT3" AS tkosa_t3,
-    pd."OwenCh1" AS owen_ch1,
-    pd."OwenCh2" AS owen_ch2,
     s."Id" AS sensor_id,
     s."Longitude" AS sensor_longitude,
     s."Latitude" AS sensor_latitude,
@@ -1411,14 +1541,6 @@ ALTER TABLE ONLY public."Snapshots"
 
 ALTER TABLE ONLY public."Users"
     ADD CONSTRAINT "PK_Users" PRIMARY KEY ("Id");
-
-
---
--- Name: __EFMigrationsHistory PK___EFMigrationsHistory; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public."__EFMigrationsHistory"
-    ADD CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId");
 
 
 --
@@ -2122,3 +2244,5 @@ INSERT INTO public."Users"
 values
 ('user', 'knEX8Xp8Waa9/P89Qxy7DbEd5oumdgBA0/EVIh3XoFs=', 'FQjkR08swP471JN0g4F3UwG9zk61jjbTXx37rEHn17s=', 'User', CURRENT_TIMESTAMP),
 ('admin', '/WoSMsEmxNWymBFOfmcgNHAG/k0r2wGlNhDdEiHhKB8=', '5Wqvx4NTar97BqqKy7ozPSpV8Giys2GIt+fmIKYbAxI=', 'Admin', CURRENT_TIMESTAMP);
+
+
