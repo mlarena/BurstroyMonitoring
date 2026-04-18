@@ -9,6 +9,9 @@ apt-get install -y dos2unix
 dos2unix *.sql
 
 
+scp "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" devuser@192.168.19.137:/opt/burstroy/tmp 
+scp "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" devuser@192.168.19.139:/opt/burstroy/tmp 
+
 scp "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" devuser@192.168.192.143:/opt/burstroy/tmp 
 scp -P 58222 "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" usermeteo@192.168.192.137:/opt/burstroy/tmp 
 

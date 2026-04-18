@@ -12,7 +12,7 @@ $filesToInclude = @(
     "$basePath\admin\bash\setup_nginx.sh",
     "$basePath\admin\bash\setup_postgresql.sh",
     "$basePath\admin\bash\setup-nginx-proxy.sh",
-    "$basePath\admin\bash\check-dependencies.sh"
+    "$basePath\admin\bash\check-dependencies.sh",
     
     # Application binaries (Linux x64)
     "$basePath\BurstroyMonitoring.VideoMonitoring\release\linux-arm64\BurstroyMonitoring.VideoMonitoring.zip",
@@ -24,6 +24,7 @@ $filesToInclude = @(
     "$basePath\admin\sql\create_database.sql",
     "$basePath\admin\sql\db_insert_internal_test_MonitoringPost.sql",
     "$basePath\admin\sql\db_insert_sensors_default.sql",
+    "$basePath\admin\sql\db_insert_test_sensors_sintetic.sql",
 
 
     # Service creation scripts

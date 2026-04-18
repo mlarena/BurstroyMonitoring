@@ -54,7 +54,7 @@ psql -U postgres -h localhost -d postgres
 
 sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/create_database.sql
 sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_insert_internal_test_MonitoringPost.sql
-sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_insert_sensors_default.sql
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_insert_test_sensors_sintetic.sql
 
 
 monitoring_posts.sql
