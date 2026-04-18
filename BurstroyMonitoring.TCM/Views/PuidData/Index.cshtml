@@ -5,6 +5,10 @@
     ViewData["Title"] = "Анализ трафика PUID";
 }
 
+@section Styles {
+    <link rel="stylesheet" href="~/lib/flatpickr/flatpickr.min.css">
+}
+
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
         <h3>ПУИД</h3>
@@ -27,16 +31,17 @@
                                 @puid.EndPointsName (@puid.SerialNumber)
                             </option>
                         }
-                    </select>                </div>
+                    </select>
+                </div>
                 <div class="col-md-3">
                     <label for="fromDate" class="form-label small">С:</label>
-                    <input type="datetime-local" id="fromDate" name="fromDate" class="form-control form-control-sm" 
-                           value="@(Model.FromDate?.ToString("yyyy-MM-ddTHH:mm"))" />
+                    <input type="text" id="fromDate" name="fromDate" class="form-control form-control-sm bg-white" 
+                           value="@(Model.FromDate?.ToString("yyyy-MM-dd HH:mm"))" placeholder="Выберите дату" readonly />
                 </div>
                 <div class="col-md-3">
                     <label for="toDate" class="form-label small">По:</label>
-                    <input type="datetime-local" id="toDate" name="toDate" class="form-control form-control-sm" 
-                           value="@(Model.ToDate?.ToString("yyyy-MM-ddTHH:mm"))" />
+                    <input type="text" id="toDate" name="toDate" class="form-control form-control-sm bg-white" 
+                           value="@(Model.ToDate?.ToString("yyyy-MM-dd HH:mm"))" placeholder="Выберите дату" readonly />
                 </div>
                 <div class="col-md-3 d-flex align-items-end">
                     <button type="submit" class="btn btn-sm btn-primary me-2">Применить</button>
@@ -184,7 +189,8 @@
                             <tr class="table-secondary fw-bold">
                                 <td>
                                     @group.RangeStart.ToString("dd.MM.yyyy HH:mm:ss") - @group.RangeEnd.ToString("HH:mm:ss")
-                                </td>                                <td>ИТОГО:</td>
+                                </td>
+                                <td>ИТОГО:</td>
                                 <td>@group.TotalVolume</td>
                                 <td>@group.AvgSpeed.ToString("F1")</td>
                                 <td>-</td>
@@ -248,3 +254,25 @@
         }
     </div>
 </div>
+
+@section Scripts {
+    <script src="~/lib/flatpickr/flatpickr.min.js"></script>
+    <script src="~/lib/flatpickr/ru.js"></script>
+    <script>
+        $(document).ready(function () {
+            const flatpickrConfig = {
+                locale: "ru",
+                enableTime: true,
+                time_24hr: true,
+                dateFormat: "Y-m-d H:i",
+                altInput: true,
+                altFormat: "d.m.Y H:i",
+                allowInput: true,
+                disableMobile: "true"
+            };
+
+            flatpickr("#fromDate", flatpickrConfig);
+            flatpickr("#toDate", flatpickrConfig);
+        });
+    </script>
+}

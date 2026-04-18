@@ -1,151 +1,208 @@
 @model BurstroyMonitoring.Data.Models.VwSensorErrorsFull
 
 @{
-    ViewData["Title"] = "Подробности об ошибке получения данных датчика";
+    ViewData["Title"] = "Подробности ошибки датчика";
 }
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-10 col-lg-8">
-            <div class="card shadow-sm border-danger">
-                <div class="card-header bg-danger text-white py-2 d-flex justify-content-between align-items-center">
-                    <h1 class="h5 mb-0">Подробности об ошибке получения данных датчика</h1>
-                    <span class="badge bg-light text-dark">ID: @Model.ErrorId</span>
-                </div>
-                <div class="card-body p-0">
-                    <table class="table table-sm mb-0">
-                        <tbody>
-                            <tr class="table-light"><th colspan="2" class="ps-3 py-2 text-danger">Информация об ошибке</th></tr>
-                            <tr>
-                                <th class="ps-3" style="width: 40%;">Дата создания</th>
-                                <td class="ps-3">@(Model.ErrorCreatedAt?.ToString("dd.MM.yyyy HH:mm:ss") ?? "—")</td>
-                            </tr>
-                            <tr>
-                                <th class="ps-3">Уровень / Тип</th>
-                                <td class="ps-3">
-                                    <span class="badge bg-danger fw-normal">@Model.ErrorLevel</span>
-                                    <div class="small text-muted mt-1">@Model.ExceptionType</div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th class="ps-3">Сообщение</th>
-                                <td class="ps-3 fw-bold text-danger small">@Model.ErrorMessage</td>
-                            </tr>
-                            <tr>
-                                <th class="ps-3">Источник</th>
-                                <td class="ps-3 small">@Model.ErrorSource</td>
-                            </tr>
-                            <tr class="table-light"><th colspan="2" class="ps-3 py-2">Датчик и Пост</th></tr>
-                            <tr>
-                                <th class="ps-3">Серийный номер</th>
-                                <td class="ps-3 fw-bold">@Model.SerialNumber</td>
-                            </tr>
-                            <tr>
-                                <th class="ps-3">Конечная точка</th>
-                                <td class="ps-3">@Model.EndpointName</td>
-                            </tr>
-                            <tr>
-                                <th class="ps-3">Тип / Пост</th>
-                                <td class="ps-3 small">
-                                    <div>@Model.SensorTypeName</div>
-                                    <div class="text-muted">@Model.PostName @(Model.PostIsMobile == true ? "(Моб.)" : "")</div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th class="ps-3">Статус датчика</th>
-                                <td class="ps-3">
-                                    @if (Model.SensorIsActive == true) { <span class="badge bg-success fw-normal">Активен</span> }
-                                    else { <span class="badge bg-danger fw-normal">Неактивен</span> }
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+<style>
+    .json-key { color: #a52a2a; font-weight: bold; }
+    .json-string { color: #008000; }
+    .json-number { color: #0000ff; }
+    .json-boolean { color: #b22222; }
+    .json-null { color: #808080; }
+    
+    pre.code-block {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        font-size: 0.85rem;
+        line-height: 1.5;
+        max-height: 500px;
+        overflow: auto;
+        white-space: pre-wrap;
+        word-break: break-all;
+    }
 
-                    @if (!string.IsNullOrEmpty(Model.AdditionalData))
-                    {
-                        <div class="p-3 border-top bg-light">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <label class="small fw-bold text-muted">Дополнительные данные (JSON):</label>
-                                <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2" onclick="copyJson()" style="font-size: 0.7rem;">
+    .info-label {
+        font-weight: 600;
+        color: #6c757d;
+        width: 30%;
+    }
+</style>
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-xl-10">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-1">
+                            <li class="breadcrumb-item"><a asp-action="Index">Ошибки датчиков</a></li>
+                            <li class="breadcrumb-item active">Детали</li>
+                        </ol>
+                    </nav>
+                    <h2 class="h3 mb-0 text-gray-800">Ошибка #@Model.ErrorId</h2>
+                </div>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Назад к списку
+                </a>
+            </div>
+
+            <div class="row g-4">
+                <!-- Основная информация об ошибке -->
+                <div class="col-md-7">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-header bg-danger text-white py-3">
+                            <h5 class="card-title mb-0"><i class="bi bi-exclamation-octagon me-2"></i>Информация об исключении</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <label class="small text-muted text-uppercase fw-bold">Сообщение</label>
+                                <div class="p-3 bg-danger bg-opacity-10 border border-danger border-opacity-25 rounded text-danger fw-bold">
+                                    @Model.ErrorMessage
+                                </div>
+                            </div>
+
+                            <table class="table table-sm table-borderless">
+                                <tbody>
+                                    <tr>
+                                        <td class="info-label">Дата и время</td>
+                                        <td><i class="bi bi-clock me-1"></i> @(Model.ErrorCreatedAt?.ToString("dd.MM.yyyy HH:mm:ss") ?? "—")</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="info-label">Уровень</td>
+                                        <td><span class="badge bg-danger">@Model.ErrorLevel</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="info-label">Тип исключения</td>
+                                        <td class="text-break"><code>@Model.ExceptionType</code></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="info-label">Источник</td>
+                                        <td class="small text-muted">@Model.ErrorSource</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Информация о датчике и посте -->
+                <div class="col-md-5">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-header bg-primary text-white py-3">
+                            <h5 class="card-title mb-0"><i class="bi bi-cpu me-2"></i>Датчик и локация</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-4">
+                                <div class="bg-light rounded-circle p-3 me-3">
+                                    <i class="bi bi-geo-alt text-primary fs-4"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold">@Model.PostName</h6>
+                                    <small class="text-muted">@(Model.PostIsMobile == true ? "Мобильный пост" : "Стационарный пост")</small>
+                                </div>
+                            </div>
+
+                            <hr class="text-muted opacity-25">
+
+                            <table class="table table-sm table-borderless">
+                                <tbody>
+                                    <tr>
+                                        <td class="info-label">S/N</td>
+                                        <td class="fw-bold">@Model.SerialNumber</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="info-label">Тип датчика</td>
+                                        <td>@Model.SensorTypeName</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="info-label">Endpoint</td>
+                                        <td class="small">@Model.EndpointName</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="info-label">Статус</td>
+                                        <td>
+                                            @if (Model.SensorIsActive == true) {
+                                                <span class="badge bg-success-subtle text-success border border-success border-opacity-25">Активен</span>
+                                            } else {
+                                                <span class="badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25">Неактивен</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Дополнительные данные (JSON) -->
+                @if (!string.IsNullOrEmpty(Model.AdditionalData))
+                {
+                    <div class="col-12">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-header bg-light d-flex justify-content-between align-items-center py-3">
+                                <h5 class="card-title mb-0 text-dark"><i class="bi bi-braces me-2"></i>Дополнительные данные (JSON)</h5>
+                                <button class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('jsonCode', this)">
                                     <i class="bi bi-clipboard"></i> Копировать
                                 </button>
                             </div>
-                            <pre id="jsonCode" class="bg-white p-2 border rounded small mb-0" style="max-height: 300px; overflow: auto; font-size: 0.75rem;"></pre>
-                        </div>
-                    }
-                </div>
-                <div class="card-footer bg-light py-2">
-                    <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">Назад</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-@if (!string.IsNullOrEmpty(Model.AdditionalData))
-{
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            try {
-                const json = @Html.Raw(Model.AdditionalData);
-                document.getElementById('jsonCode').textContent = JSON.stringify(json, null, 2);
-            } catch (e) {
-                document.getElementById('jsonCode').textContent = `@Html.Raw(Model.AdditionalData)`;
-            }
-        });
-
-        function copyJson() {
-            const text = document.getElementById('jsonCode').textContent;
-            navigator.clipboard.writeText(text).then(() => {
-                alert('JSON скопирован в буфер обмена');
-            });
-        }
-    </script>
-}
-        <!-- Трассировка стека -->
-        <div class="details-row">
-            <div class="details-label">Трассировка стека</div>
-            <div class="details-value">
-                @if (!string.IsNullOrEmpty(Model.StackTrace))
-                {
-                    <div id="stackTraceContainer">
-                        <button type="button" id="toggleStackTraceBtn" class="button button--sm button--secondary"
-                                onclick="toggleStackTrace()" style="margin-bottom: 10px;">
-                            📄 Развернуть трассировку
-                        </button>
-                        <div id="stackTraceContent" style="display: none;">
-                            <pre id="stackTraceCode" style="margin: 0; padding: 15px; background: #f5f5f5; border-radius: 4px; border: 1px solid #ff8b00; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 12px; line-height: 1.5; max-height: 400px; overflow: auto; word-wrap: break-word; word-break: break-all; white-space: pre-wrap;">
-                                @Model.StackTrace
-                            </pre>
-                            <button type="button" id="copyStackTraceBtn" class="button button--sm button--secondary"
-                                    onclick="copyStackTrace()" style="margin-top: 10px;">
-                                📋 Копировать трассировку
-                            </button>
+                            <div class="card-body">
+                                <pre id="jsonCode" class="code-block mb-0"></pre>
+                            </div>
                         </div>
                     </div>
                 }
-                else
+
+                <!-- Трассировка стека -->
+                @if (!string.IsNullOrEmpty(Model.StackTrace))
                 {
-                    <span class="text-muted">-</span>
+                    <div class="col-12">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-header bg-light d-flex justify-content-between align-items-center py-3">
+                                <h5 class="card-title mb-0 text-dark"><i class="bi bi-list-nested me-2"></i>Трассировка стека</h5>
+                                <button class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('stackTraceCode', this)">
+                                    <i class="bi bi-clipboard"></i> Копировать
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <pre id="stackTraceCode" class="code-block mb-0">@Model.StackTrace</pre>
+                            </div>
+                        </div>
+                    </div>
                 }
             </div>
         </div>
-    </div>
-
-    <div class="details-actions">
-        <a asp-action="Index" class="button button--secondary">Назад к списку</a>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        let isJsonExpanded = false;
-        let isStackTraceExpanded = false;
-        let formattedJson = '';
+        document.addEventListener('DOMContentLoaded', function() {
+            // Обработка JSON
+            const rawJson = @Html.Raw(Json.Serialize(Model.AdditionalData));
+            if (rawJson) {
+                const jsonElement = document.getElementById('jsonCode');
+                try {
+                    let parsed;
+                    // Если это строка, которая выглядит как JSON, пробуем распарсить еще раз
+                    if (typeof rawJson === 'string') {
+                        parsed = JSON.parse(rawJson);
+                    } else {
+                        parsed = rawJson;
+                    }
+                    jsonElement.innerHTML = syntaxHighlight(JSON.stringify(parsed, null, 4));
+                } catch (e) {
+                    jsonElement.textContent = rawJson;
+                }
+            }
+        });
 
         function syntaxHighlight(json) {
             if (!json) return '';
-            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            json = json.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>');
             return json.replace(/("([^\\"]|\\\\")*":?|true|false|null|-?\d+(\.\d+)?([eE][+-]?\d+)?)/g, function(match) {
                 let cls = 'json-number';
                 if (/^"/.test(match)) {
@@ -157,107 +214,17 @@
             });
         }
 
-        function processJsonData() {
-            const jsonData = '@Html.Raw(Model.AdditionalData?.Replace("\\", "\\\\")?.Replace("'", "\\'"))';
-            if (!jsonData || jsonData === 'null' || jsonData === '""') {
-                formattedJson = '// Нет данных';
-                return;
-            }
-
-            try {
-                let rawJson = jsonData;
-                if (rawJson.startsWith('"') && rawJson.endsWith('"')) {
-                    rawJson = rawJson.slice(1, -1);
-                }
-                rawJson = rawJson.replace(/\\/g, '');
-                const obj = JSON.parse(rawJson);
-                formattedJson = JSON.stringify(obj, null, 4);
-            } catch (e) {
-                formattedJson = '// Ошибка парсинга JSON:\n' + jsonData;
-            }
-        }
-
-        function toggleJson() {
-            const jsonContent = document.getElementById('jsonContent');
-            const toggleBtn = document.getElementById('toggleJsonBtn');
-            const jsonCode = document.getElementById('jsonCode');
-
-            if (!isJsonExpanded) {
-                if (!formattedJson) {
-                    processJsonData();
-                }
-                jsonCode.innerHTML = syntaxHighlight(formattedJson);
-
-                jsonCode.style.whiteSpace = 'pre-wrap';
-                jsonCode.style.wordWrap = 'break-word';
-                jsonCode.style.wordBreak = 'break-word';
-                jsonCode.style.maxWidth = '100%';
-                jsonCode.style.boxSizing = 'border-box';
-
-                jsonContent.style.display = 'block';
-                toggleBtn.textContent = '📄 Свернуть JSON';
-                isJsonExpanded = true;
-            } else {
-                jsonContent.style.display = 'none';
-                toggleBtn.textContent = '📄 Развернуть JSON';
-                isJsonExpanded = false;
-            }
-        }
-
-        function toggleStackTrace() {
-            const stackTraceContent = document.getElementById('stackTraceContent');
-            const toggleBtn = document.getElementById('toggleStackTraceBtn');
-
-            if (!isStackTraceExpanded) {
-                stackTraceContent.style.display = 'block';
-                toggleBtn.textContent = '📄 Свернуть трассировку';
-                isStackTraceExpanded = true;
-            } else {
-                stackTraceContent.style.display = 'none';
-                toggleBtn.textContent = '📄 Развернуть трассировку';
-                isStackTraceExpanded = false;
-            }
-        }
-
-        function copyJson() {
-            if (!formattedJson) return;
-
-            navigator.clipboard.writeText(formattedJson).then(() => {
-                const copyBtn = document.getElementById('copyJsonBtn');
-                const oldText = copyBtn.textContent;
-                copyBtn.textContent = '✅ Скопировано!';
-                setTimeout(() => { copyBtn.textContent = '📋 Копировать JSON'; }, 2000);
-            }).catch(err => {
-                console.error('Ошибка копирования JSON:', err);
-                alert('Не удалось скопировать JSON');
+        function copyToClipboard(elementId, btn) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="bi bi-check2"></i> Скопировано!';
+                btn.classList.replace('btn-outline-primary', 'btn-success');
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                    btn.classList.replace('btn-success', 'btn-outline-primary');
+                }, 2000);
             });
         }
-
-        function copyStackTrace() {
-            const stackTraceText = document.getElementById('stackTraceCode').textContent;
-
-            if (!stackTraceText) return;
-
-            navigator.clipboard.writeText(stackTraceText).then(() => {
-                const copyBtn = document.getElementById('copyStackTraceBtn');
-                const oldText = copyBtn.textContent;
-                copyBtn.textContent = '✅ Скопировано!';
-                setTimeout(() => { copyBtn.textContent = '📋 Копировать трассировку'; }, 2000);
-            }).catch(err => {
-                console.error('Ошибка копирования трассировки:', err);
-                alert('Не удалось скопировать трассировку стека');
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            processJsonData();
-
-            const errorMessageDiv = document.querySelector('.error-message-box');
-            if (errorMessageDiv) {
-                errorMessageDiv.style.wordWrap = 'break-word';
-                errorMessageDiv.style.wordBreak = 'break-word';
-                errorMessageDiv.style.whiteSpace = 'normal';
-            }
-        });
     </script>
 }
