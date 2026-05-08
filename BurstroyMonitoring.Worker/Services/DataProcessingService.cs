@@ -392,12 +392,14 @@ public class DataProcessingService
                 LaserStatus = p.Laser_status, SupplyVoltage = p.Supply_voltage,
                 PollingSessionId = pollingSessionId, MonitoringPostId = sensor.MonitoringPostId
             };
-            await _dbService.SaveDustDataAsync(data, pollingSessionId, sensor.MonitoringPostId);
-
             string sensorInfo = $"sensor '{sensor.SerialNumber}' ({sensor.EndPointsName})";
             string postInfo = sensor.MonitoringPost != null ? $" on post '{sensor.MonitoringPost.Name}'" : "";
-            _logger.LogInformation("DUST data saved for {sensorInfo}{postInfo} ({url})", 
-                sensorInfo, postInfo, sensor.Url);
+            string fullInfo = $"{sensorInfo}{postInfo}";
+
+            await _dbService.SaveDustDataAsync(data, pollingSessionId, sensor.MonitoringPostId, fullInfo);
+
+            _logger.LogInformation("DUST data saved for {FullInfo} ({url})", 
+                fullInfo, sensor.Url);
         } catch (Exception ex) { 
             _logger.LogError(ex, "DUST parse error for sensor {sensorId}", sensor.Id);
             await _loggerService.LogDatabaseErrorAsync(sensor, "PARSE_ERROR", "DUST JSON parse error: " + ex.Message, ex);

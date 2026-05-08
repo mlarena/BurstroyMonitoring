@@ -32,6 +32,8 @@ function initAutoRefresh() {
     function startAutoRefresh() {
         if (intervalId) clearInterval(intervalId);
 
+        const interval = window.autoRefreshInterval || 30000; // Используем глобальную настройку или 30 сек по умолчанию
+
         intervalId = setInterval(() => {
             fetch(currentUrl, {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
@@ -49,7 +51,8 @@ function initAutoRefresh() {
 
                 if (newTable) {
                     tableContainer.innerHTML = newTable.innerHTML;
-                    console.log('Таблица обновлена автоматически');
+                    const now = new Date().toLocaleTimeString();
+                    console.log(`[${now}] Таблица обновлена автоматически (интервал: ${interval}мс)`);
                 } else {
                     console.warn('Не удалось найти новую таблицу в ответе сервера');
                 }
@@ -57,7 +60,7 @@ function initAutoRefresh() {
             .catch(err => {
                 console.error('Ошибка при автообновлении таблицы:', err);
             });
-        }, 30000); // 30 секунд 
+        }, interval); 
     }
 
     function stopAutoRefresh() {

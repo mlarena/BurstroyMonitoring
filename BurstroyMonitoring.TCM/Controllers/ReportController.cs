@@ -148,8 +148,15 @@ namespace BurstroyMonitoring.TCM.Controllers
                     FROM ""Sensor"" s
                     JOIN ""SensorType"" st ON s.""SensorTypeId"" = st.""Id""
                     WHERE s.""MonitoringPostId"" = @postId AND s.""IsActive"" = true
-                    ORDER BY st.""SensorTypeName"", s.""Id""";
-                
+                     ORDER BY 
+                        CASE 
+                            WHEN st.""SensorTypeName"" LIKE '%DOV%' THEN 1
+                            WHEN st.""SensorTypeName"" LIKE '%IWS%' THEN 2
+                            WHEN st.""SensorTypeName"" LIKE '%DSPD%' THEN 3
+                            WHEN st.""SensorTypeName"" LIKE '%DUST%' THEN 4
+                            WHEN st.""SensorTypeName"" LIKE '%MUEKS%' THEN 5
+                            ELSE 6
+                        END, s.""Id""";                
                 using (var cmd = new NpgsqlCommand(sensorsSql, conn))
                 {
                     cmd.Parameters.AddWithValue("postId", postId);
@@ -169,11 +176,11 @@ namespace BurstroyMonitoring.TCM.Controllers
                 // Словарь маппинга типов датчиков на таблицы и поля
                 var typeConfigs = new Dictionary<string, (string Table, string Prefix, string[] Fields)>
                 {
-                    { "DOV", ("vw_dov_data_full", "DOV", new[] { "visible_range" }) },
-                    { "DSPD", ("vw_dspd_data_full", "DSPD", new[] { "grip_coefficient", "shake_level", "voltage_power", "case_temperature", "road_temperature", "water_height", "ice_height", "snow_height", "ice_percentage", "pgm_percentage", "road_status_code", "road_angle", "freeze_temperature", "distance_to_surface" }) },
-                    { "DUST", ("vw_dust_data_full", "DUST", new[] { "pm10act", "pm25act", "pm1act", "pm10awg", "pm25awg", "pm1awg", "flowprobe", "temperatureprobe", "humidityprobe", "laserstatus", "supplyvoltage" }) },
                     { "IWS", ("vw_iws_data_full", "IWS", new[] { "environment_temperature", "humidity_percentage", "dew_point", "pressure_hpa", "pressure_qnh_hpa", "pressure_mmhg", "wind_speed", "wind_direction", "wind_vs_sound", "precipitation_type", "precipitation_intensity", "precipitation_quantity", "precipitation_elapsed", "precipitation_period", "co2_level" }) },
-                    { "MUEKS", ("vw_mueks_data_full", "MUEKS", new[] { "temperature_box", "voltage_power_in_12b", "voltage_out_12b", "current_out_12b", "current_out_48b", "voltage_akb", "current_akb", "sensor_220b", "watt_hours_akb", "tds_h", "tds_tds", "tkosa_t1", "tkosa_t3" }) }
+                    { "DSPD", ("vw_dspd_data_full", "DSPD", new[] { "grip_coefficient", "road_temperature", "water_height", "ice_height", "snow_height", "ice_percentage", "pgm_percentage", "road_status_code", "freeze_temperature" }) },
+                    { "DOV", ("vw_dov_data_full", "DOV", new[] { "visible_range" }) },
+                    { "DUST", ("vw_dust_data_full", "DUST", new[] { "pm10act", "pm25act", "pm1act", "pm10awg", "pm25awg", "pm1awg", "flowprobe", "temperatureprobe", "humidityprobe"}) },
+                    { "MUEKS", ("vw_mueks_data_full", "MUEKS", new[] { "temperature_box", "voltage_power_in_12b", "voltage_out_12b", "current_out_12b", "current_out_48b", "voltage_akb", "current_akb", "sensor_220b", "watt_hours_akb", "owen_ch1"}) }
                 };
 
                 // 4. Опрашиваем каждый датчик персонально
@@ -196,19 +203,35 @@ namespace BurstroyMonitoring.TCM.Controllers
 
                     string fieldsSql = string.Join(", ", config.Fields.Select(f => 
                     {
-                        if (config.Prefix == "MUEKS" && new[] { "tds_h", "tds_tds", "tkosa_t1", "tkosa_t3" }.Contains(f))
-                            return $"ROUND(AVG(NULLIF(NULLIF(\"{f}\", ''), 'NULL')::numeric), 3) as \"{f}\"";
-                        return $"ROUND(AVG(\"{f}\")::numeric, 3) as \"{f}\"";
+                        // Используем регулярное выражение для проверки, является ли строка числом.
+                        // Если это не число (например 'err'), возвращаем NULL, который AVG проигнорирует.
+                        return $@"ROUND(AVG(CASE WHEN ""{f}""::text ~ '^-?[0-9]+(\.[0-9]+)?$' THEN ""{f}""::text::numeric ELSE NULL END), 3) as ""{f}""";
                     }));
 
-                    string sql = $@"
-                        SELECT 
-                            (TRUNC(EXTRACT(EPOCH FROM received_at) / ({intervalMinutes} * 60)) * ({intervalMinutes} * 60))::int as bucket,
-                            {fieldsSql}
-                        FROM public.{config.Table}
-                        WHERE sensor_id = @sensorId AND received_at >= @start AND received_at < @end
-                        GROUP BY bucket
-                        ORDER BY bucket DESC";
+                    string sql;
+                    if (intervalMinutes > 0)
+                    {
+                        sql = $@"
+                            SELECT 
+                                (TRUNC(EXTRACT(EPOCH FROM received_at) / ({intervalMinutes} * 60)) * ({intervalMinutes} * 60))::int as bucket,
+                                {fieldsSql}
+                            FROM public.{config.Table}
+                            WHERE sensor_id = @sensorId AND received_at >= @start AND received_at < @end
+                            GROUP BY bucket
+                            ORDER BY bucket DESC";
+                    }
+                    else
+                    {
+                        sql = $@"
+                            SELECT 
+                                COALESCE(polling_session_id, '00000000-0000-0000-0000-000000000000'::uuid) as session_id,
+                                MAX(received_at) as session_time,
+                                {fieldsSql}
+                            FROM public.{config.Table}
+                            WHERE sensor_id = @sensorId AND received_at >= @start AND received_at < @end
+                            GROUP BY session_id
+                            ORDER BY session_time DESC";
+                    }
 
                     using (var cmd = new NpgsqlCommand(sql, conn))
                     {
@@ -220,8 +243,20 @@ namespace BurstroyMonitoring.TCM.Controllers
                         {
                             while (await reader.ReadAsync())
                             {
-                                var timestamp = reader.GetInt32(0);
-                                var time = DateTimeOffset.FromUnixTimeSeconds(timestamp).DateTime.ToLocalTime();
+                                DateTime time;
+                                if (intervalMinutes > 0)
+                                {
+                                    // Для группировки используем начало интервала как ключ
+                                    var bucketSeconds = reader.GetInt32(0);
+                                    time = DateTimeOffset.FromUnixTimeSeconds(bucketSeconds).DateTime.ToLocalTime();
+                                }
+                                else
+                                {
+                                    // Для режима без группировки используем время сессии
+                                    time = reader.GetDateTime(1).ToLocalTime();
+                                    // Округляем до минут для красоты
+                                    time = new DateTime(time.Year, time.Month, time.Day, time.Hour, time.Minute, 0);
+                                }
                                 
                                 if (!reportData.ContainsKey(time))
                                     reportData[time] = new Dictionary<string, string>();
@@ -416,7 +451,10 @@ namespace BurstroyMonitoring.TCM.Controllers
                 { "tds_h", "TDS H" },
                 { "tds_tds", "TDS TDS" },
                 { "tkosa_t1", "Tkosa T1" },
-                { "tkosa_t3", "Tkosa T3" }
+                { "tkosa_t3", "Tkosa T3" },
+                { "owen_ch1", "Темп. грунта" },
+
+                
             };
 
             return fieldNames.ContainsKey(field) ? fieldNames[field] : field;

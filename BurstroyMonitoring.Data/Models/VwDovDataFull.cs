@@ -80,5 +80,9 @@ namespace BurstroyMonitoring.Data.Models
 
         [Column("post_is_active")]
         public bool? PostIsActive { get; set; }
+
+        
+        [Column("polling_session_id")]
+        public Guid? PollingSessionId { get; set; }
     }
 }

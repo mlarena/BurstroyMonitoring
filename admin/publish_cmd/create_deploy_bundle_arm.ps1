@@ -7,13 +7,24 @@ $zipPath = Join-Path $outputDir "tcm_arm.zip"
 
 # List of files to include in the bundle
 $filesToInclude = @(
+
+     "$basePath\admin\bash\1_install_system.sh",
+    "$basePath\admin\bash\2_update_system.sh",
+    "$basePath\admin\bash\3_start_services.sh",
+    "$basePath\admin\bash\4_status_services.sh",
+    "$basePath\admin\bash\5_stop_services.sh",
+
+    "$basePath\admin\bash\1_install_system_internal.sh",
+    "$basePath\admin\bash\setup_postgresql_internal.sh",
+
     # Setup scripts
     "$basePath\admin\bash\setup_dotnet.sh",
     "$basePath\admin\bash\setup_nginx.sh",
     "$basePath\admin\bash\setup_postgresql.sh",
     "$basePath\admin\bash\setup-nginx-proxy.sh",
     "$basePath\admin\bash\check-dependencies.sh",
-    
+    "$basePath\admin\bash\setup_pg_timezone.sh",
+   
     # Application binaries (Linux x64)
     "$basePath\BurstroyMonitoring.VideoMonitoring\release\linux-arm64\BurstroyMonitoring.VideoMonitoring.zip",
     "$basePath\BurstroyMonitoring.Worker\release\linux-arm64\BurstroyMonitoring.Worker.zip",
@@ -25,6 +36,8 @@ $filesToInclude = @(
     "$basePath\admin\sql\db_insert_internal_test_MonitoringPost.sql",
     "$basePath\admin\sql\db_insert_sensors_default.sql",
     "$basePath\admin\sql\db_insert_test_sensors_sintetic.sql",
+    "$basePath\admin\sql\db_insert_test_sensors.sql",
+    
 
 
     # Service creation scripts
@@ -38,12 +51,6 @@ $filesToInclude = @(
     "$basePath\admin\bash\install_video-monitoring.sh",
     "$basePath\admin\bash\install_worker.sh",
     "$basePath\admin\bash\install_api.sh",
-    
-    "$basePath\admin\bash\1_install_system.sh",
-    "$basePath\admin\bash\2_update_system.sh",
-    "$basePath\admin\bash\3_start_services.sh",
-    "$basePath\admin\bash\4_status_services.sh",
-    "$basePath\admin\bash\5_stop_services.sh",
     
     # Update scripts
     "$basePath\admin\bash\update_tcm.sh",

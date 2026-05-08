@@ -136,26 +136,16 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
+                @{
+                                var currentController = ViewContext.RouteData.Values["Controller"]?.ToString();
+                                var isDictionariesActive = new[] { "MonitoringPosts", "SensorTypes", "Sensors", "WorkerConfiguration" }.Contains(currentController);
+                            }
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
                             <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index">Главная</a>
                         </li>
                         
-                        <li class="nav-item dropdown">
-                            @{
-                                var currentController = ViewContext.RouteData.Values["Controller"]?.ToString();
-                                var isDictionariesActive = new[] { "MonitoringPosts", "SensorTypes", "Sensors", "WorkerConfiguration" }.Contains(currentController);
-                            }
-                            <a class="nav-link dropdown-toggle @(isDictionariesActive ? "active" : "")" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Справочники
-                            </a>
-                            <ul class="dropdown-menu shadow" style="z-index: 1001;">
-                                <li><a class="dropdown-item @(currentController == "MonitoringPosts" ? "active" : "")" asp-controller="MonitoringPosts" asp-action="Index">Посты мониторинга</a></li>
-                                <li><a class="dropdown-item @(currentController == "SensorTypes" ? "active" : "")" asp-controller="SensorTypes" asp-action="Index">Типы датчиков</a></li>
-                                <li><a class="dropdown-item @(currentController == "Sensors" ? "active" : "")" asp-controller="Sensors" asp-action="Index">Датчики</a></li>
-                                <li><a class="dropdown-item @(currentController == "Puids" ? "active" : "")" asp-controller="Puids" asp-action="Index">ПУИД</a></li>
-                            </ul>
-                        </li>
+                       
 
                         <li class="nav-item dropdown">
                             @{
@@ -190,7 +180,15 @@
                         <li class="nav-item">
                             <a class="nav-link @(currentController == "Cameras" ? "active" : "")" asp-controller="Cameras" asp-action="Index">Камеры</a>
                         </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link @(currentController == "Forecast" ? "active" : "")" asp-controller="Forecast" asp-action="Index">Прогноз</a>
+                        </li>
+                        
 
+                        <li class="nav-item">
+                            <a class="nav-link @(currentController == "Poverka" ? "active" : "")" asp-controller="Poverka" asp-action="Index">Поверка</a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link @(currentController == "About" ? "active" : "")" asp-controller="About" asp-action="Index">О программе</a>
                         </li>
@@ -211,6 +209,18 @@
                                     <li><a class="dropdown-item @(currentController == "WorkerConfiguration" ? "active" : "")" asp-controller="WorkerConfiguration" asp-action="Index">Настройки</a></li>
                                 </ul>
                             </li>
+                             <li class="nav-item dropdown">
+                            
+                            <a class="nav-link dropdown-toggle @(isDictionariesActive ? "active" : "")" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Справочники
+                            </a>
+                            <ul class="dropdown-menu shadow" style="z-index: 1001;">
+                                <li><a class="dropdown-item @(currentController == "MonitoringPosts" ? "active" : "")" asp-controller="MonitoringPosts" asp-action="Index">Посты мониторинга</a></li>
+                                <li><a class="dropdown-item @(currentController == "SensorTypes" ? "active" : "")" asp-controller="SensorTypes" asp-action="Index">Типы датчиков</a></li>
+                                <li><a class="dropdown-item @(currentController == "Sensors" ? "active" : "")" asp-controller="Sensors" asp-action="Index">Датчики</a></li>
+                                <li><a class="dropdown-item @(currentController == "Puids" ? "active" : "")" asp-controller="Puids" asp-action="Index">ПУИД</a></li>
+                            </ul>
+                        </li>
                         }
                     </ul>
                     
@@ -238,7 +248,7 @@
 
     <footer class="footer mt-auto py-2 bg-body-tertiary border-top">
         <div class="container-fluid text-center">
-            <span class="text-muted small">&copy; @DateTime.Now.Year - BurstroyMonitoring.TCM</span>
+            <!-- <span class="text-muted small">&copy; @DateTime.Now.Year</span> -->
         </div>
     </footer>
     

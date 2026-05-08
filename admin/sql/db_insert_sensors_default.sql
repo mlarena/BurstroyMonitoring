@@ -16,14 +16,14 @@ VALUES
     ((SELECT "Id" FROM public."SensorType" WHERE "SensorTypeName" = 'MUEKS'),    
      1, 
      'MUEKS_01',      
-     'Модуль управления электроснабжением',    
+     'Датчик температеры грунта',    
      'http://192.168.1.14/json',  
      true),
     
     ((SELECT "Id" FROM public."SensorType" WHERE "SensorTypeName" = 'IWS'), 
      1, 
      'IWS_01',   
-     'IWS_01', 
+     'Датчик комплекный параметров атмосферы', 
      'http://192.168.1.16/json',  
      true),
     
@@ -32,11 +32,18 @@ VALUES
      'DUST_01',   
      'Датчик концентрации пыли', 
      'http://192.168.1.11/json',  
-     true),    
+     false),    
     
     ((SELECT "Id" FROM public."SensorType" WHERE "SensorTypeName" = 'DSPD'),    
      1, 
      'DSPD_01',
-     'Датчик состояния дорожного полотна',
+     'Датчик состояния дорожного полотна 1',
      'http://192.168.1.9/json',  
+     true),
+     
+     ((SELECT "Id" FROM public."SensorType" WHERE "SensorTypeName" = 'DSPD'),    
+     1, 
+     'DSPD_02',
+     'Датчик состояния дорожного полотна 2',
+     'http://192.168.1.8/json',  
      true);

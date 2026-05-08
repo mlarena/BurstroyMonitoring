@@ -20,24 +20,31 @@
 
     <!-- Фильтры -->
     <div class="card shadow-sm mb-4">
-        <div class="card-body py-3">
-            <form method="get" class="row g-3 align-items-end">
-                <div class="col-md-3">
-                    <label class="form-label small fw-bold">Камера</label>
-                    <select name="cameraId" class="form-select form-select-sm" asp-items="ViewBag.Cameras">
+        <div class="card-body py-2">
+            <form method="get" class="row g-2 align-items-end">
+                <div class="col-auto">
+                    <label class="form-label small fw-bold mb-1">Камера</label>
+                    <select name="cameraId" class="form-select form-select-sm" asp-items="ViewBag.Cameras" style="width: auto; min-width: 200px;">
                         <option value="">Все камеры</option>
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label small fw-bold">С даты</label>
-                    <input type="text" id="from" name="from" class="form-control form-control-sm bg-white" value="@(ViewBag.From is DateTime fromDate ? fromDate.ToString("yyyy-MM-dd HH:mm") : Context.Request.Query["from"])" placeholder="Выберите дату и время" readonly />
+                <div class="col-auto">
+                    <label class="form-label small fw-bold mb-1">С даты</label>
+                    <input type="text" id="from" name="from" class="form-control form-control-sm bg-white" style="width: 160px;" value="@(ViewBag.From is DateTime fromDate ? fromDate.ToString("yyyy-MM-dd HH:mm") : Context.Request.Query["from"])" placeholder="Выберите дату" readonly />
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label small fw-bold">По дату</label>
-                    <input type="text" id="to" name="to" class="form-control form-control-sm bg-white" value="@(ViewBag.To is DateTime toDate ? toDate.ToString("yyyy-MM-dd HH:mm") : Context.Request.Query["to"])" placeholder="Выберите дату и время" readonly />
+                <div class="col-auto">
+                    <label class="form-label small fw-bold mb-1">По дату</label>
+                    <input type="text" id="to" name="to" class="form-control form-control-sm bg-white" style="width: 160px;" value="@(ViewBag.To is DateTime toDate ? toDate.ToString("yyyy-MM-dd HH:mm") : Context.Request.Query["to"])" placeholder="Выберите дату" readonly />
                 </div>
-                <div class="col-md-3 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary btn-sm flex-grow-1">Применить</button>
+                <div class="col-auto d-flex gap-2 align-items-center">
+                    <button type="submit" class="btn btn-primary btn-sm">Применить</button>
+                    <button type="submit" asp-action="DownloadSnapshots" class="btn btn-success btn-sm" title="Выгрузить снимки в ZIP">
+                        <i class="bi bi-file-earmark-zip"></i> Выгрузить
+                    </button>
+                    <div class="form-check form-switch mb-0 ms-2" title="Автоматически обновлять страницу каждые 30 секунд">
+                        <input class="form-check-input" type="checkbox" id="autoRefreshCheck">
+                        <label class="form-check-label small" for="autoRefreshCheck">Автообновление</label>
+                    </div>
                     <a asp-action="Snapshots" class="btn btn-outline-secondary btn-sm">Сброс</a>
                 </div>
             </form>
@@ -241,6 +248,40 @@
 
             flatpickr("#from", flatpickrConfig);
             flatpickr("#to", flatpickrConfig);
+
+            // Логика автообновления
+            const autoRefreshCheck = document.getElementById('autoRefreshCheck');
+            const refreshInterval = 30000; // 30 секунд
+            let refreshTimer;
+
+            function startTimer() {
+                refreshTimer = setTimeout(() => {
+                    // Проверяем, не открыто ли модальное окно
+                    const modalOpen = document.querySelector('.modal.show');
+                    if (autoRefreshCheck.checked && !modalOpen) {
+                        window.location.reload();
+                    } else if (autoRefreshCheck.checked) {
+                        // Если модалка открыта, попробуем еще раз через 10 секунд
+                        startTimer();
+                    }
+                }, refreshInterval);
+            }
+
+            // Сохраняем состояние чекбокса в localStorage
+            const savedState = localStorage.getItem('snapshotsAutoRefresh');
+            if (savedState === 'true') {
+                autoRefreshCheck.checked = true;
+                startTimer();
+            }
+
+            autoRefreshCheck.addEventListener('change', function() {
+                localStorage.setItem('snapshotsAutoRefresh', this.checked);
+                if (this.checked) {
+                    startTimer();
+                } else {
+                    clearTimeout(refreshTimer);
+                }
+            });
         });
 
         function showModal(src, title, date) {

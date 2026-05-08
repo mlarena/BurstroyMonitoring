@@ -12,7 +12,7 @@ namespace BurstroyMonitoring.Api.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok("РГЦТ.00002  Версия ПО 1.0\n");
+            return Ok("РГЦТ.00002  Версия ПО 1.4\n");
         }    
     }
 }

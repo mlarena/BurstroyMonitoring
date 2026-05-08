@@ -42,7 +42,6 @@ namespace BurstroyMonitoring.TCM.Controllers
                 ["PgmPercentage"] = "Процент реагента",
                 ["RoadStatusCode"] = "Код состояния дороги",
                 ["FreezeTemperature"] = "Температура замерзания",
-                ["DistanceToSurface"] = "Расстояние до поверхности",
                 ["PostName"] = "Имя поста",
                 ["PostAddress"] = "Адрес поста",
                 ["PostIsActive"] = "Пост активен"
@@ -68,7 +67,6 @@ namespace BurstroyMonitoring.TCM.Controllers
                 "PgmPercentage",
                 "RoadStatusCode",
                 "FreezeTemperature",
-                "DistanceToSurface",
                 "PostName",
                 "PostAddress",
                 "PostIsActive"

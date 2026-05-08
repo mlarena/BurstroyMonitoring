@@ -1419,29 +1419,31 @@ namespace BurstroyMonitoring.TCM.Controllers
                
                 var connectionString = _context.Database.GetConnectionString();
                
-                var query = @"
-                    SELECT
-                        mueks_data_id AS MueksDataId,
-                        received_at AS ReceivedAt,
-                        temperature_box AS TemperatureBox,
-                        voltage_power_in_12b AS VoltagePowerIn12b,
-                        voltage_out_12b AS VoltageOut12b,
-                        current_out_12b AS CurrentOut12b,
-                        current_out_48b AS CurrentOut48b,
-                        voltage_akb AS VoltageAkb,
-                        current_akb AS CurrentAkb,
-                        sensor_220b AS Sensor220b,
-                        watt_hours_akb AS WattHoursAkb,
-                        visible_range AS VisibleRange,
-                        door_status AS DoorStatus,
-                        tds_h AS TdsH,
-                        tds_tds AS TdsTds,
-                        tkosa_t1 AS TkosaT1,
-                        tkosa_t3 AS TkosaT3
+               var query = @"
+                    SELECT 
+                        DATE_TRUNC('hour', received_at) + 
+                        (TRUNC(EXTRACT(MINUTE FROM received_at) / 10) * 10 || ' minutes')::interval AS ReceivedAt,
+                        ROUND(AVG(temperature_box)::numeric, 3) AS TemperatureBox,
+                        ROUND(AVG(voltage_power_in_12b)::numeric, 3) AS VoltagePowerIn12b,
+                        ROUND(AVG(voltage_out_12b)::numeric, 3) AS VoltageOut12b,
+                        ROUND(AVG(current_out_12b)::numeric, 3) AS CurrentOut12b,
+                        ROUND(AVG(current_out_48b)::numeric, 3) AS CurrentOut48b,
+                        ROUND(AVG(voltage_akb)::numeric, 3) AS VoltageAkb,
+                        ROUND(AVG(current_akb)::numeric, 3) AS CurrentAkb,
+                        ROUND(AVG(sensor_220b)::numeric, 0) AS Sensor220b,
+                        ROUND(AVG(watt_hours_akb)::numeric, 3) AS WattHoursAkb,
+                        ROUND(AVG(visible_range)::numeric, 3) AS VisibleRange,
+                        ROUND(AVG(door_status)::numeric, 0) AS DoorStatus,
+                        MAX(tds_h) AS TdsH,
+                        MAX(tds_tds) AS TdsTds,
+                        MAX(tkosa_t1) AS TkosaT1,
+                        MAX(tkosa_t3) AS TkosaT3
                     FROM public.vw_mueks_data_full
                     WHERE sensor_id = @sensorId
                         AND received_at >= @fromDate
-                    ORDER BY received_at ASC";
+                    GROUP BY DATE_TRUNC('hour', received_at), 
+                            TRUNC(EXTRACT(MINUTE FROM received_at) / 10)
+                    ORDER BY ReceivedAt ASC";
                
                 var measurements = new List<MUEKSMeasurementViewModel>();
                

@@ -1,3 +1,22 @@
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: AuditLogs; Type: TABLE; Schema: public; Owner: postgres
+--
 
 CREATE TABLE public."AuditLogs" (
     "Id" integer NOT NULL,
@@ -887,11 +906,13 @@ CREATE VIEW public.vw_dov_data_full AS
     mp."Address" AS post_address,
     mp."Description" AS post_description,
     mp."IsMobile" AS post_is_mobile,
-    mp."IsActive" AS post_is_active
-   FROM (((public."DOVData" dd
+    mp."IsActive" AS post_is_active,
+    ps."Id" AS polling_session_id
+   FROM ((((public."DOVData" dd
      LEFT JOIN public."Sensor" s ON ((dd."SensorId" = s."Id")))
      LEFT JOIN public."SensorType" st ON ((s."SensorTypeId" = st."Id")))
-     LEFT JOIN public."MonitoringPost" mp ON ((s."MonitoringPostId" = mp."Id")));
+     LEFT JOIN public."MonitoringPost" mp ON ((s."MonitoringPostId" = mp."Id")))
+     LEFT JOIN public."PollingSessions" ps ON ((dd."PollingSessionId" = ps."Id")));
 
 
 ALTER VIEW public.vw_dov_data_full OWNER TO postgres;
@@ -938,11 +959,13 @@ CREATE VIEW public.vw_dspd_data_full AS
     mp."Address" AS post_address,
     mp."Description" AS post_description,
     mp."IsMobile" AS post_is_mobile,
-    mp."IsActive" AS post_is_active
-   FROM (((public."DSPDData" dd
+    mp."IsActive" AS post_is_active,
+    ps."Id" AS polling_session_id
+   FROM ((((public."DSPDData" dd
      LEFT JOIN public."Sensor" s ON ((dd."SensorId" = s."Id")))
      LEFT JOIN public."SensorType" st ON ((s."SensorTypeId" = st."Id")))
-     LEFT JOIN public."MonitoringPost" mp ON ((s."MonitoringPostId" = mp."Id")));
+     LEFT JOIN public."MonitoringPost" mp ON ((s."MonitoringPostId" = mp."Id")))
+     LEFT JOIN public."PollingSessions" ps ON ((dd."PollingSessionId" = ps."Id")));
 
 
 ALTER VIEW public.vw_dspd_data_full OWNER TO postgres;
@@ -982,11 +1005,13 @@ CREATE VIEW public.vw_dust_data_full AS
     mp."Address" AS post_address,
     mp."Description" AS post_description,
     mp."IsMobile" AS post_is_mobile,
-    mp."IsActive" AS post_is_active
-   FROM (((public."DustData" dd
+    mp."IsActive" AS post_is_active,
+    ps."Id" AS polling_session_id
+   FROM ((((public."DustData" dd
      LEFT JOIN public."Sensor" s ON ((dd."SensorId" = s."Id")))
      LEFT JOIN public."SensorType" st ON ((s."SensorTypeId" = st."Id")))
-     LEFT JOIN public."MonitoringPost" mp ON ((s."MonitoringPostId" = mp."Id")));
+     LEFT JOIN public."MonitoringPost" mp ON ((s."MonitoringPostId" = mp."Id")))
+     LEFT JOIN public."PollingSessions" ps ON ((dd."PollingSessionId" = ps."Id")));
 
 
 ALTER VIEW public.vw_dust_data_full OWNER TO postgres;
@@ -1040,11 +1065,13 @@ CREATE VIEW public.vw_iws_data_full AS
     mp."Address" AS post_address,
     mp."Description" AS post_description,
     mp."IsMobile" AS post_is_mobile,
-    mp."IsActive" AS post_is_active
-   FROM (((public."IWSData" iws
+    mp."IsActive" AS post_is_active,
+    ps."Id" AS polling_session_id
+   FROM ((((public."IWSData" iws
      LEFT JOIN public."Sensor" s ON ((iws."SensorId" = s."Id")))
      LEFT JOIN public."SensorType" st ON ((s."SensorTypeId" = st."Id")))
-     LEFT JOIN public."MonitoringPost" mp ON ((s."MonitoringPostId" = mp."Id")));
+     LEFT JOIN public."MonitoringPost" mp ON ((s."MonitoringPostId" = mp."Id")))
+     LEFT JOIN public."PollingSessions" ps ON ((iws."PollingSessionId" = ps."Id")));
 
 
 ALTER VIEW public.vw_iws_data_full OWNER TO postgres;
@@ -1086,11 +1113,13 @@ CREATE VIEW public.vw_meteo_standart_last AS
     dspd."PercentPGM",
     dspd."RoadStatus",
     dspd."AngleToRoad",
-    dspd."TemperatureFreezePGM"
-   FROM (((public."PollingSessions" ps
+    dspd."TemperatureFreezePGM",
+    mueks."OwenCh1"
+   FROM ((((public."PollingSessions" ps
      LEFT JOIN public."DOVData" dov ON ((ps."Id" = dov."PollingSessionId")))
      LEFT JOIN public."IWSData" iws ON ((ps."Id" = iws."PollingSessionId")))
      LEFT JOIN public."DSPDData" dspd ON ((ps."Id" = dspd."PollingSessionId")))
+     LEFT JOIN public."MUEKSData" mueks ON ((ps."Id" = mueks."PollingSessionId")))
   WHERE (ps."Id" = ( SELECT "PollingSessions"."Id"
            FROM public."PollingSessions"
           WHERE (("PollingSessions"."Status")::text <> 'IN_PROGRESS'::text)
@@ -1142,11 +1171,13 @@ CREATE VIEW public.vw_mueks_data_full AS
     mp."Address" AS post_address,
     mp."Description" AS post_description,
     mp."IsMobile" AS post_is_mobile,
-    mp."IsActive" AS post_is_active
-   FROM (((public."MUEKSData" pd
+    mp."IsActive" AS post_is_active,
+    ps."Id" AS polling_session_id
+   FROM ((((public."MUEKSData" pd
      LEFT JOIN public."Sensor" s ON ((pd."SensorId" = s."Id")))
      LEFT JOIN public."SensorType" st ON ((s."SensorTypeId" = st."Id")))
-     LEFT JOIN public."MonitoringPost" mp ON ((s."MonitoringPostId" = mp."Id")));
+     LEFT JOIN public."MonitoringPost" mp ON ((s."MonitoringPostId" = mp."Id")))
+     LEFT JOIN public."PollingSessions" ps ON ((pd."PollingSessionId" = ps."Id")));
 
 
 ALTER VIEW public.vw_mueks_data_full OWNER TO postgres;
@@ -2090,6 +2121,7 @@ ALTER TABLE ONLY public."Sensor"
 
 ALTER TABLE ONLY public."Sensor"
     ADD CONSTRAINT "Sensor_SensorTypeId_fkey" FOREIGN KEY ("SensorTypeId") REFERENCES public."SensorType"("Id") ON DELETE RESTRICT;
+
 
 
 -- 1. Заполнение типов датчиков

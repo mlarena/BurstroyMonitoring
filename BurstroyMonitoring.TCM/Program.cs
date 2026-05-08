@@ -127,6 +127,7 @@ try
     builder.Services.AddScoped<IWebPartService, WebPartService>();
     builder.Services.AddSingleton<RtspStreamService>();
     builder.Services.AddScoped<IDatabaseService, DatabaseService>();
+    builder.Services.AddScoped<GismeteoService>();
     // Настройка аутентификации JWT
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>

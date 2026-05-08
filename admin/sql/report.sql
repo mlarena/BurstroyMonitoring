@@ -1,0 +1,1 @@
+динамический кросс-таблица (dynamic crosstab / pivot)

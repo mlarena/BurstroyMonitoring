@@ -78,6 +78,7 @@
                     <th>Давл.</th>
                     <th>Скорость ветра</th>
                     <th>Направление</th>
+                    <th>CO2</th>
                     <th>Осадки</th>
                     <th class="text-end">Детали</th>
                 </tr>
@@ -136,6 +137,16 @@
                                 <span title="@item.WindDirection.Value.ToString("F0")°">
                                     @GetWindDirection(item.WindDirection) (@item.WindDirection.Value.ToString("F0")°)
                                 </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted small">—</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.CO2Level.HasValue)
+                            {
+                                <span>@item.CO2Level.Value.ToString("F0") ppm</span>
                             }
                             else
                             {

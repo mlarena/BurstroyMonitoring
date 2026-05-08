@@ -111,5 +111,8 @@ namespace BurstroyMonitoring.Data.Models
 
         [Column("TemperatureFreezePGM")]
         public decimal? TemperatureFreezePGM { get; set; }
+
+         [Column("OwenCh1")]
+        public decimal? OwenCh1 { get; set; }
     }
 }

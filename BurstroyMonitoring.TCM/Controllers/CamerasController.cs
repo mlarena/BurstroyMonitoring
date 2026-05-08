@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using BurstroyMonitoring.Data;
 using BurstroyMonitoring.Data.Models;
 using BurstroyMonitoring.TCM.Services;
+using System.IO.Compression;
 
 namespace BurstroyMonitoring.TCM.Controllers
 {
@@ -33,6 +34,10 @@ namespace BurstroyMonitoring.TCM.Controllers
                 var snapshots = await _context.Snapshots
                     .OrderByDescending(s => s.CreatedAt)
                     .ToListAsync();
+
+                var today = DateTime.UtcNow.Date;
+                var snapshotsTodayCount = snapshots.Count(s => s.CreatedAt.Date == today);
+                ViewBag.SnapshotsTodayCount = snapshotsTodayCount;
 
                 var lastSnapshots = snapshots
                     .GroupBy(s => s.CameraId)
@@ -159,6 +164,59 @@ namespace BurstroyMonitoring.TCM.Controllers
             {
                 _logger.LogError(ex, "Error in CamerasController.Snapshots");
                 return View(new List<Snapshot>());
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DownloadSnapshots(int? cameraId, DateTime? from, DateTime? to)
+        {
+            try
+            {
+                var query = _context.Snapshots.Include(s => s.Camera).AsQueryable();
+
+                if (cameraId.HasValue)
+                    query = query.Where(s => s.CameraId == cameraId);
+                
+                if (from.HasValue)
+                    query = query.Where(s => s.CreatedAt >= from.Value.ToUniversalTime());
+                
+                if (to.HasValue)
+                    query = query.Where(s => s.CreatedAt <= to.Value.ToUniversalTime());
+
+                var snapshots = await query.OrderByDescending(s => s.CreatedAt).ToListAsync();
+
+                if (!snapshots.Any())
+                {
+                    return RedirectToAction(nameof(Snapshots), new { cameraId, from, to });
+                }
+
+                using (var ms = new MemoryStream())
+                {
+                    using (var archive = new System.IO.Compression.ZipArchive(ms, System.IO.Compression.ZipArchiveMode.Create, true))
+                    {
+                        foreach (var snap in snapshots)
+                        {
+                            var fullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", snap.FilePath.TrimStart('/'));
+                            if (System.IO.File.Exists(fullPath))
+                            {
+                                // Формируем имя: Дата_Время_ОригинальноеИмя.jpg
+                                var dateStr = snap.CreatedAt.ToLocalTime().ToString("yyyyMMdd_HHmmss");
+                                var originalName = Path.GetFileName(fullPath);
+                                var entryName = $"{dateStr}_{originalName}";
+                                
+                                archive.CreateEntryFromFile(fullPath, entryName);
+                            }
+                        }
+                    }
+                    ms.Position = 0;
+                    var zipName = $"snapshots_{DateTime.Now:yyyyMMddHHmmss}.zip";
+                    return File(ms.ToArray(), "application/zip", zipName);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error downloading snapshots zip");
+                return RedirectToAction(nameof(Snapshots));
             }
         }
         // Создание/подключение новой камеры

@@ -6,7 +6,9 @@ pg_dump -h localhost -U postgres -d sensordb > D:\backup\backup_sensordb_last11.
 создание резервной копии базы только структура
 pg_dump -h localhost -U postgres -d sensordb -s > /opt/burstroy/tmp/backup_structure_new1.sql
 .\pg_dump -h localhost -U postgres -d sensordb_mu -s > D:\backup\create_database_new1111.sql
+
 .\pg_dump -h localhost -U postgres -d sensordb -s --encoding=UTF8 --no-comments -f /tmp/create_database_new.sql
+.\pg_dump -h localhost -U postgres -d sensordb -s --encoding=UTF8 --no-comments -f D:\backup\create_database_new222.sql
 
 set PGCLIENTENCODING=UTF8
 .\pg_dump -h localhost -U postgres -d sensordb -s --encoding=UTF8 -f D:\backup\create_database_new.sql
@@ -24,4 +26,6 @@ cat /etc/systemd/system/burstroy-monitoring-video.service
 cat /etc/systemd/system/burstroy-monitoring-worker.service
 
 
-scp -P 22 devuser@192.168.19.129:/tmp/create_database_new.sql D:\backup\
+scp -P 22 devuser@192.168.192.145:/command/psql_commands.txt D:\backup\
+scp -P 22 devuser@192.168.192.145:/command/psql_help.txt D:\backup\
+scp -P 22 devuser@192.168.192.145:/command/psql_variables.txt D:\backup\

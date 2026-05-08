@@ -54,7 +54,7 @@ WHERE datname = 'sensordb';
 --завершить подключения к текущей базе данных
 SELECT pg_terminate_backend(pid)
 FROM pg_stat_activity
-WHERE datname = 'sensordb_prod'
+WHERE datname = 'sensordb'
 AND pid <> pg_backend_pid();
 
 

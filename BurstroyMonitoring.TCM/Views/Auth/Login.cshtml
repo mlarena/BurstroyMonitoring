@@ -28,6 +28,7 @@
                         </div>
 
                         <form asp-action="Login" method="post">
+                            <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
                             <div class="mb-3">
                                 <label asp-for="UserName" class="form-label small fw-bold">Имя пользователя</label>
                                 <input asp-for="UserName" class="form-control" placeholder="Введите логин" autofocus />

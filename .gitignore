@@ -23,6 +23,7 @@ bld/
 [Ll]og/
 logs/
 BurstroyMonitoring.TCM/wwwroot/snapshots
+BurstroyMonitoring.TCMV2/
 
 # Visual Studio 2015 cache/options directory
 .vs/
@@ -72,6 +73,7 @@ artifacts/
 *.pidb
 *.svclog
 *.scc
+*.exe
 
 # Chutzpah Test files
 _Chutzpah*

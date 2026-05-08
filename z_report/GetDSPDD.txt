@@ -1,5 +1,5 @@
 Данные сгруппирование по часам
-http://localhost:5282/GraphsAndCharts/GetDSPDDataHour?sensorId=3&days=1
+http://localhost:5282/GraphsAndCharts/GetDSPDDataHour?sensorId=5&days=1
 {
 sensorId: 3,
 serialNumber: "E1:40:50:03:EC:DE:E8:12",
@@ -27,7 +27,7 @@ distanceToSurface: 22146.585
 ]
 }
 Данные сгруппирование по 10 минут
-http://localhost:5282/GraphsAndCharts/GetDSPDDataTenMinuteInterval?sensorId=3&days=1
+http://localhost:5282/GraphsAndCharts/GetDSPDDataTenMinuteInterval?sensorId=5&days=1
 {
 sensorId: 3,
 serialNumber: "E1:40:50:03:EC:DE:E8:12",
@@ -55,7 +55,7 @@ distanceToSurface: 20846.75
 ]
 }
 Данные без группировки
-http://localhost:5282/GraphsAndCharts/GetDSPDData?sensorId=3&days=1
+http://localhost:5282/GraphsAndCharts/GetDSPDData?sensorId=5&days=1
 {
 sensorId: 3,
 serialNumber: "E1:40:50:03:EC:DE:E8:12",

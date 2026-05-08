@@ -1,6 +1,15 @@
 #!/bin/bash
 
 echo "Starting system update..."
+sudo apt update
+
+sudo apt install locales
+
+# Сгенерируйте русскую UTF-8 локаль
+sudo locale-gen ru_RU.UTF-8
+
+# Настройте локаль по умолчанию
+sudo update-locale LANG=ru_RU.UTF-8 LC_ALL=ru_RU.UTF-8
 
 ./update_api.sh
 if [ $? -ne 0 ]; then
@@ -26,9 +35,9 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-./start_services.sh
+./3_start_services.sh
 if [ $? -ne 0 ]; then
-    echo "start_services.sh failed!"
+    echo "3_start_services.sh failed!"
     exit 1
 fi
 

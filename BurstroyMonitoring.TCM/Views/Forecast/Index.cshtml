@@ -1,0 +1,324 @@
+@{
+    ViewData["Title"] = "Прогноз погоды Gismeteo";
+}
+
+<div class="container-fluid mt-4">
+    
+
+    <div class="d-flex justify-content-center gap-2 mb-4 flex-wrap" id="forecastButtons">
+        <!-- <button class="btn btn-outline-info" onclick="fetchWeather('GetCurrentWeather', this)">Текущая погода</button> -->
+        <button class="btn btn-outline-info" onclick="fetchWeather('GetForecastH1', this)">Прогноз (1ч)</button>
+        <button class="btn btn-outline-info" onclick="fetchWeather('GetForecastH3', this)">Прогноз (3ч)</button>
+        <button class="btn btn-outline-info" onclick="fetchWeather('GetForecastH6', this)">Прогноз (6ч)</button>
+        <button class="btn btn-outline-info" onclick="fetchWeather('GetForecastH24', this)">Прогноз (24ч)</button>
+    </div>
+
+    <div id="loading" class="text-center d-none my-5">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Загрузка...</span>
+        </div>
+        <p class="mt-2">Получение данных от Gismeteo...</p>
+    </div>
+
+    <div id="weatherContent">
+        <div class="text-center text-muted my-5">
+            <i class="bi bi-cloud-sun" style="font-size: 4rem;"></i>
+            <p>Выберите тип прогноза для отображения данных</p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function fetchWeather(action, btn) {
+            const contentDiv = document.getElementById('weatherContent');
+            const loadingElement = document.getElementById('loading');
+            
+            // Если кнопка не передана, пытаемся найти её по action
+            if (!btn && action) {
+                btn = document.querySelector(`button[onclick*="'${action}'"]`);
+            }
+
+            document.querySelectorAll('#forecastButtons .btn').forEach(b => {
+                b.classList.remove('btn-info');
+                b.classList.add('btn-outline-info');
+            });
+
+            if (btn) {
+                btn.classList.remove('btn-outline-info');
+                btn.classList.add('btn-info');
+            }
+
+            contentDiv.innerHTML = '';
+            loadingElement.classList.remove('d-none');
+            try {
+                const response = await fetch(`/Forecast/${action}`);
+                if (!response.ok) throw new Error(`Ошибка сервера: ${response.status}`);
+                
+                const result = await response.json();
+                const data = result.data;
+
+                if (Array.isArray(data)) {
+                    renderForecastTable(data, action);
+                } else {
+                    renderCurrentWeather(data);
+                }
+            } catch (error) {
+                contentDiv.innerHTML = `
+                    <div class="alert alert-danger" role="alert">
+                        <h4 class="alert-heading">Ошибка!</h4>
+                        <p>${error.message}</p>
+                    </div>`;
+            } finally {
+                loadingElement.classList.add('d-none');
+            }
+        }
+
+        // Автоматическая загрузка прогноза (1ч) при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchWeather('GetForecastH1');
+        });
+
+        function renderCurrentWeather(item) {            const contentDiv = document.getElementById('weatherContent');
+            const formatDate = (dateStr) => new Date(dateStr).toLocaleString('ru-RU');
+            const formatTime = (dateStr) => new Date(dateStr).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
+
+            contentDiv.innerHTML = `
+                <div class="card shadow-sm mx-auto" style="max-width: 900px;">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-geo-alt"></i> ${item.city.name} (${item.city.latitude}, ${item.city.longitude})</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-4 align-items-center">
+                            <div class="col-md-6 text-center border-end">
+                                <div class="display-1 mb-0">${item.icon.emoji} ${item.temperature.air.C}°C</div>
+                                <h3 class="text-muted">${item.description}</h3>
+                                <div class="badge bg-secondary">Тип: ${item.kind}</div>
+                            </div>
+                            <div class="col-md-6 ps-4">
+                                <div class="row g-3">
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Ощущается как</small>
+                                        <span class="h5">${item.temperature.comfort.C}°C</span>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Темп. воды</small>
+                                        <span class="h5">${item.temperature.water.C}°C</span>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Влажность</small>
+                                        <span class="h5">${item.humidity.percent}%</span>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Точка росы</small>
+                                        <span class="h5">${item.humidity.dew_point.C}°C</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-4">
+                            <div class="col-md-4">
+                                <div class="p-3 border rounded bg-light h-100">
+                                    <h6 class="border-bottom pb-2 mb-3"><i class="bi bi-wind"></i> Ветер</h6>
+                                    <div class="d-flex justify-content-between mb-1"><span>Скорость:</span><strong>${item.wind.speed.m_s} м/с</strong></div>
+                                    <div class="d-flex justify-content-between mb-1"><span>Порывы:</span><strong>${item.wind.gust_speed.m_s} м/с</strong></div>
+                                    <div class="d-flex justify-content-between mb-1"><span>Направление:</span><strong>${item.wind.direction.degree}° (${item.wind.direction.scale_8})</strong></div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 border rounded bg-light h-100">
+                                    <h6 class="border-bottom pb-2 mb-3"><i class="bi bi-cloud-rain"></i> Осадки и небо</h6>
+                                    <div class="d-flex justify-content-between mb-1"><span>Количество:</span><strong>${item.precipitation.amount} мм</strong></div>
+                                    <div class="d-flex justify-content-between mb-1"><span>Облачность:</span><strong>${item.cloudiness.percent}%</strong></div>
+                                    <div class="d-flex justify-content-between mb-1"><span>Видимость:</span><strong>${item.visibility.horizontal.m} м</strong></div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 border rounded bg-light h-100">
+                                    <h6 class="border-bottom pb-2 mb-3"><i class="bi bi-speedometer"></i> Атмосфера</h6>
+                                    <div class="d-flex justify-content-between mb-1"><span>Давление:</span><strong>${item.pressure.mm_hg_atm} мм</strong></div>
+                                    <div class="d-flex justify-content-between mb-1"><span>CAPE:</span><strong>${item.storm.cape}</strong></div>
+                                    <div class="d-flex justify-content-between mb-1"><span>Гроза:</span><strong>${item.storm.prediction ? 'Да' : 'Нет'}</strong></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="p-3 border rounded border-warning">
+                                    <h6 class="text-warning mb-3"><i class="bi bi-sun"></i> Солнце</h6>
+                                    <div class="row text-center">
+                                        <div class="col-6"><small class="text-muted d-block">Восход</small><strong>${formatTime(item.astro.sun.sunrise)}</strong></div>
+                                        <div class="col-6"><small class="text-muted d-block">Закат</small><strong>${formatTime(item.astro.sun.sunset)}</strong></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 border rounded border-info">
+                                    <h6 class="text-info mb-3"><i class="bi bi-moon"></i> Луна</h6>
+                                    <div class="row text-center">
+                                        <div class="col-4"><small class="text-muted d-block">Фаза</small><strong>${item.astro.moon.phase}</strong></div>
+                                        <div class="col-4"><small class="text-muted d-block">Освещ.</small><strong>${item.astro.moon.percent_illuminated}%</strong></div>
+                                        <div class="col-4"><small class="text-muted d-block">Полнол.</small><strong>${formatTime(item.astro.moon.next_full)}</strong></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        function renderForecastTable(items, actionName) {
+            const contentDiv = document.getElementById('weatherContent');
+            const isH1 = actionName === 'GetForecastH1';
+            const isH24 = actionName === 'GetForecastH24';
+            
+            const days = {};
+            items.forEach(item => {
+                const dateKey = new Date(item.date.local).toLocaleDateString('ru-RU');
+                if (!days[dateKey]) days[dateKey] = [];
+                days[dateKey].push(item);
+            });
+
+            let html = `<div class="forecast-container">`;
+
+            if (isH24) {
+                // Единая таблица для H24
+                html += `
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-primary text-white fw-bold">
+                            <i class="bi bi-calendar-range me-2"></i>Прогноз на 24 часа (по дням)
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover mb-0" style="font-size: 0.85rem;">
+                                    <thead class="table-light text-center">
+                                        <tr>
+                                            <th>Дата</th>
+                                            <th>Погода</th>
+                                            <th>Описание</th>
+                                            <th>Темп. (сред)</th>
+                                            <th>Ощущ. (макс)</th>
+                                            <th>Ветер (м/с)</th>
+                                            <th>Влажн.</th>
+                                            <th>Давл.</th>
+                                            <th>Осадки</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-center align-middle">`;
+                
+                items.forEach(item => {
+                    const date = new Date(item.date.local).toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'short' });
+                    html += `
+                        <tr>
+                            <td class="fw-bold">${date}</td>
+                            <td class="fs-4">${item.icon.emoji}</td>
+                            <td class="text-start">${item.description}</td>
+                            <td class="fw-bold text-primary">${item.temperature.air.avg.C}°</td>
+                            <td>${item.temperature.comfort.max.C}°</td>
+                            <td>${item.wind.speed.avg.m_s} <small class="text-muted">(пор. ${item.wind.gust_speed.max.m_s})</small></td>
+                            <td>${item.humidity.percent.avg}%</td>
+                            <td>${item.pressure.mm_hg_atm.max}</td>
+                            <td>${item.precipitation.amount} мм</td>
+                        </tr>`;
+                });
+                html += `</tbody></table></div></div></div>`;
+            } else {
+                // Группировка по карточкам для H1, H3, H6
+                let dayIndex = 0;
+                for (const [date, dayItems] of Object.entries(days)) {
+                    const collapseId = `collapse-${dayIndex}`;
+                    const isFirst = dayIndex === 0;
+                    
+                    html += `
+                        <div class="card shadow-sm mb-3">
+                            <div class="card-header bg-light fw-bold d-flex justify-content-between align-items-center" 
+                                 onclick="toggleForecastCard(this, '${collapseId}')" style="cursor: pointer;" role="button">
+                                <span><i class="bi bi-calendar3 me-2"></i>${date}</span>
+                                <div class="d-flex align-items-center">
+                                    <span class="small text-muted me-3 d-none d-sm-inline">${dayItems[0].city.name}</span>
+                                    <i class="bi bi-chevron-${isFirst ? 'up' : 'down'} collapse-icon"></i>
+                                </div>
+                            </div>
+                            <div id="${collapseId}" class="collapse-content" style="display: ${isFirst ? 'block' : 'none'};">
+                                <div class="card-body p-0 border-top">
+                    `;
+
+                    if (isH1) {
+                        // Сетка информеров для H1
+                        html += `<div style="display: grid !important; grid-template-columns: repeat(12, 1fr); gap: 2px; padding: 2px;">`;
+                        dayItems.forEach(item => {
+                            const time = new Date(item.date.local).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
+                            html += `
+                                <div class="informer-card border rounded p-1 text-center h-100" style="background: #f8f9fa; font-size: 0.65rem;">
+                                    <div class="fw-bold border-bottom mb-1 pb-1" style="font-size: 0.8rem;">${time}</div>
+                                    <div class="fs-6 mb-0">${item.icon.emoji}</div>
+                                    <div class="fw-bold" style="font-size: 0.75rem;">${item.temperature.air.C}°</div>
+                                    <div class="text-muted lh-1 mb-1 pb-1 border-bottom d-flex align-items-center justify-content-center fw-bold" style="font-size: 0.7rem; height: 55px; word-wrap: break-word; overflow-wrap: break-word; overflow: hidden;">
+                                        ${item.description}
+                                    </div>
+                                    <div class="mt-auto pt-1 text-center" style="font-size: 0.7rem; line-height: 1.1;">
+                                        <i class="bi bi-wind"></i> ${item.wind.speed.m_s}<br>
+                                        <i class="bi bi-droplet"></i> ${item.humidity.percent}%
+                                    </div>
+                                </div>`;
+                        });
+                        html += `</div>`;
+                    } else {
+                        // Таблица для H3, H6
+                        html += `
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover mb-0" style="font-size: 0.85rem;">
+                                    <thead class="table-light text-center">
+                                        <tr>
+                                            <th>Время</th>
+                                            <th>Погода</th>
+                                            <th>Описание</th>
+                                            <th>Темп.</th>
+                                            <th>Ощущ.</th>
+                                            <th>Ветер</th>
+                                            <th>Влажн.</th>
+                                            <th>Давл.</th>
+                                            <th>Осадки</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-center align-middle">`;
+                        dayItems.forEach(item => {
+                            const time = new Date(item.date.local).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
+                            html += `
+                                <tr>
+                                    <td class="fw-bold">${time}</td>
+                                    <td class="fs-4">${item.icon.emoji}</td>
+                                    <td class="text-start">${item.description}</td>
+                                    <td class="fw-bold text-primary">${item.temperature.air.C}°</td>
+                                    <td>${item.temperature.comfort.C}°</td>
+                                    <td>${item.wind.speed.m_s} <small class="text-muted">(${item.wind.direction.scale_8})</small></td>
+                                    <td>${item.humidity.percent}%</td>
+                                    <td>${item.pressure.mm_hg_atm}</td>
+                                    <td>${item.precipitation.amount} мм</td>
+                                </tr>`;
+                        });
+                        html += `</tbody></table></div>`;
+                    }
+                    html += `</div></div></div>`;
+                    dayIndex++;
+                }
+            }
+            html += `</div>`;
+            contentDiv.innerHTML = html;
+        }
+
+        function toggleForecastCard(header, collapseId) {
+            const content = document.getElementById(collapseId);
+            const icon = header.querySelector('.collapse-icon');
+            const isHidden = content.style.display === 'none';
+            
+            content.style.display = isHidden ? 'block' : 'none';
+            icon.classList.toggle('bi-chevron-down', !isHidden);
+            icon.classList.toggle('bi-chevron-up', isHidden);
+        }
+    </script>
+    <style>
+        .informer-card:hover { background: #e9ecef !important; }
+        .collapse-content { transition: all 0.3s ease; }
+    </style>
+}

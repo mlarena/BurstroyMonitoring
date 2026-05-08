@@ -33,7 +33,6 @@ namespace BurstroyMonitoring.TCM.Controllers
                 ["HumidityPercentage"] = "Относительная влажность воздуха",
                 ["DewPoint"] = "Точка росы",
                 ["PressureHpa"] = "Атмосферное давление (гПа)",
-                ["PressureQnhHpa"] = "Давление, приведенное к уровню моря (QNH)",
                 ["PressureMmhg"] = "Атмосферное давление (мм рт. ст.)",
                 ["WindSpeed"] = "Скорость ветра",
                 ["WindDirection"] = "Направление ветра",
@@ -43,6 +42,7 @@ namespace BurstroyMonitoring.TCM.Controllers
                 ["PrecipitationQuantity"] = "Количество осадков",
                 ["PrecipitationElapsed"] = "Накопленное время осадков",
                 ["PrecipitationPeriod"] = "Период накопления осадков",
+                ["CO2Level"] = "Уровень CO2",
                 ["PostName"] = "Имя поста",
                 ["PostAddress"] = "Адрес поста",
                 ["PostIsActive"] = "Пост активен"
@@ -60,7 +60,6 @@ namespace BurstroyMonitoring.TCM.Controllers
                 "HumidityPercentage",
                 "DewPoint",
                 "PressureHpa",
-                "PressureQnhHpa",
                 "PressureMmhg",
                 "WindSpeed",
                 "WindDirection",
@@ -70,6 +69,7 @@ namespace BurstroyMonitoring.TCM.Controllers
                 "PrecipitationQuantity",
                 "PrecipitationElapsed",
                 "PrecipitationPeriod",
+                "CO2Level",
                 "PostName",
                 "PostAddress",
                 "PostIsActive"

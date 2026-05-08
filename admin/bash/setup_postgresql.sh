@@ -26,6 +26,15 @@ systemctl enable postgresql@18-main
 # Изменение пароля пользователя postgres
 sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD '12345678';"
 
+# Создание базы данных
+sudo -u postgres psql -c "create database sensordb;"
+
+sudo -u postgres psql -d sensordb -f /tmp/create_database.sql
+sudo -u postgres psql -d sensordb -f /tmp/db_insert_internal_test_MonitoringPost.sql
+sudo -u postgres psql -d sensordb -f /tmp/db_insert_sensors_default.sql
+#sudo -u postgres psql -d sensordb -f /tmp/db_insert_test_sensors.sql
+
+
 echo ""
 echo "=== Установка завершена ==="
 echo "Пользователь: postgres"

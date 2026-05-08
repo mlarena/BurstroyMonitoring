@@ -28,42 +28,42 @@
 
     <!-- Статистика -->
     <div class="row g-3 mb-4">
-        <div class="col-md-3">
-            <div class="card shadow-sm border-start border-primary border-4">
+        <div class="col-md-2">
+            <div class="card shadow-sm border-start border-primary border-1">
                 <div class="card-body py-2">
                     <div class="small text-muted fw-bold">ВСЕГО КАМЕР</div>
                     <div class="h4 mb-0">@Model.Count()</div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card shadow-sm border-start border-success border-4">
+        <div class="col-md-2">
+            <div class="card shadow-sm border-start border-success border-1">
                 <div class="card-body py-2">
                     <div class="small text-muted fw-bold">ОНЛАЙН</div>
                     <div class="h4 mb-0">@Model.Count()</div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card shadow-sm border-start border-info border-4">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-start border-info border-1">
                 <div class="card-body py-2">
                     <div class="small text-muted fw-bold">СНИМКОВ СЕГОДНЯ</div>
-                    <div class="h4 mb-0">0</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card shadow-sm border-start border-warning border-4">
-                <div class="card-body py-2">
-                    <div class="small text-muted fw-bold">ОШИБКИ ЗАПИСИ</div>
-                    <div class="h4 mb-0">0</div>
+                    <div class="d-flex align-items-baseline gap-2">
+                        <div class="h4 mb-0">@ViewBag.SnapshotsTodayCount</div>
+                        <div class="small text-muted">
+                            (@string.Join(", ", Model.Select(c => {
+                                var count = (ViewBag.SnapshotCounts as Dictionary<int, int>)?.GetValueOrDefault(c.Id) ?? 0;
+                                return $"{c.Name}: {count}";
+                            })))
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Список камер -->
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
         @foreach (var item in Model)
         {
             var lastSnapshot = (ViewBag.LastSnapshots as Dictionary<int, string>)?.GetValueOrDefault(item.Id);
@@ -71,7 +71,7 @@
 
             <div class="col">
                 <div class="card h-100 shadow-sm">
-                    <div class="position-relative bg-dark text-white d-flex align-items-center justify-content-center overflow-hidden" style="height: 200px;">
+                    <div class="position-relative bg-dark text-white d-flex align-items-center justify-content-center overflow-hidden" style="aspect-ratio: 1 / 1;">
                         @if (!string.IsNullOrEmpty(lastSnapshot))
                         {
                             <img src="@lastSnapshot" class="w-100 h-100 object-fit-cover opacity-75" />

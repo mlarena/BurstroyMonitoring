@@ -63,20 +63,25 @@ public class DustPacketConverter : JsonConverter<DustPacket>
                         packet.PM10_act = GetNullableDecimal(ref reader);
                         break;
                     case "pm2.5_act":
+                    case "pm2_5_act":
                     case "pm25_act":
                         packet.PM2_5_act = GetNullableDecimal(ref reader);
                         break;
                     case "pm1.0_act":
+                    case "pm1_0_act":
+                    case "pm10_act_single": // на случай если будет такой вариант
                         packet.PM1_0_act = GetNullableDecimal(ref reader);
                         break;
                     case "pm10_awg":
                         packet.PM10_awg = GetNullableDecimal(ref reader);
                         break;
                     case "pm2.5_awg":
+                    case "pm2_5_awg":
                     case "pm25_awg":
                         packet.PM2_5_awg = GetNullableDecimal(ref reader);
                         break;
                     case "pm1.0_awg":
+                    case "pm1_0_awg":
                         packet.PM1_0_awg = GetNullableDecimal(ref reader);
                         break;
                     case "flow_probe":
@@ -112,13 +117,19 @@ public class DustPacketConverter : JsonConverter<DustPacket>
         if (reader.TokenType == JsonTokenType.String)
         {
             var str = reader.GetString();
-            if (decimal.TryParse(str, out var result))
+            if (decimal.TryParse(str, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var result))
                 return result;
-            return null;
+            return 0;
         }
         
         if (reader.TokenType == JsonTokenType.Number)
-            return reader.GetDecimal();
+        {
+            if (reader.TryGetDecimal(out var result))
+                return result;
+            
+            // Если число слишком большое для decimal (overflow), возвращаем 0, так как это "мусор"
+            return 0;
+        }
         
         return null;
     }

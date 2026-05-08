@@ -423,16 +423,43 @@ public class DatabaseService
         }
     }
 
+    private decimal? NormalizeDustValue(decimal? value, string fieldName, int sensorId, string sensorInfo = null)
+    {
+        if (value == null) return null;
+
+        // Максимальное значение для numeric(10,2) это 99 999 999.99
+        if (Math.Abs(value.Value) > 99999999.99m)
+        {
+            var info = string.IsNullOrEmpty(sensorInfo) ? $"ID: {sensorId}" : sensorInfo;
+            _logger.LogWarning("Anomalous value detected for {SensorInfo} in field {FieldName}: {Value}. Value was reset to 0 to prevent DB overflow.",
+                info, fieldName, value);
+            return 0;
+        }
+        return value;
+    }
+
     /// <summary>
     /// Сохранение данных датчика пыли (DUST).
     /// </summary>
-    public async Task SaveDustDataAsync(DUSTData data, Guid? pollingSessionId = null, int? monitoringPostId = null)
+    public async Task SaveDustDataAsync(DUSTData data, Guid? pollingSessionId = null, int? monitoringPostId = null, string sensorInfo = null)
     {
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
         try
         {
+            // Валидация полей перед сохранением
+            data.PM10Act = NormalizeDustValue(data.PM10Act, nameof(data.PM10Act), data.SensorId, sensorInfo);
+            data.PM25Act = NormalizeDustValue(data.PM25Act, nameof(data.PM25Act), data.SensorId, sensorInfo);
+            data.PM1Act = NormalizeDustValue(data.PM1Act, nameof(data.PM1Act), data.SensorId, sensorInfo);
+            data.PM10AWG = NormalizeDustValue(data.PM10AWG, nameof(data.PM10AWG), data.SensorId, sensorInfo);
+            data.PM25AWG = NormalizeDustValue(data.PM25AWG, nameof(data.PM25AWG), data.SensorId, sensorInfo);
+            data.PM1AWG = NormalizeDustValue(data.PM1AWG, nameof(data.PM1AWG), data.SensorId, sensorInfo);
+            data.TemperatureProbe = NormalizeDustValue(data.TemperatureProbe, nameof(data.TemperatureProbe), data.SensorId, sensorInfo);
+            data.HumidityProbe = NormalizeDustValue(data.HumidityProbe, nameof(data.HumidityProbe), data.SensorId, sensorInfo);
+            data.SupplyVoltage = NormalizeDustValue(data.SupplyVoltage, nameof(data.SupplyVoltage), data.SensorId, sensorInfo);
+            data.FlowProbe = NormalizeDustValue(data.FlowProbe, nameof(data.FlowProbe), data.SensorId, sensorInfo);
+
             data.PollingSessionId = pollingSessionId;
             data.MonitoringPostId = monitoringPostId;
             context.DustData.Add(data);

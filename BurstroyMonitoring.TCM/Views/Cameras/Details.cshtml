@@ -44,7 +44,7 @@
                     </div>
 
                     <!-- Видеопоток -->
-                    <img id="videoStream" style="display:none; width: 100%; height: 100%; object-fit: contain; position: relative; z-index: 2;" />
+                    <img id="videoStream" style="display:none; width: 100%; height: 100%; object-fit: contain; position: absolute; top: 0; left: 0; z-index: 10; background-color: black;" />
                 </div>
                 <div class="card-footer bg-transparent border-secondary py-3">
                     <div class="d-flex justify-content-center gap-4">
@@ -85,11 +85,11 @@
                         {
                             @foreach (var snap in (List<BurstroyMonitoring.Data.Models.Snapshot>)ViewBag.LastSnapshots)
                             {
-                                <div class="col-6">
-                                    <div class="position-relative border rounded overflow-hidden bg-light" style="height: 100px;">
+                                <div class="col-4">
+                                    <div class="position-relative border rounded overflow-hidden bg-light" style="aspect-ratio: 1 / 1;">
                                         <img src="@snap.FilePath" class="w-100 h-100 object-fit-cover" onclick="window.open(this.src)" style="cursor:pointer" />
-                                        <div class="position-absolute bottom-0 start-0 w-100 bg-dark bg-opacity-50 text-white p-1" style="font-size: 0.65rem;">
-                                            @snap.CreatedAt.ToLocalTime().ToString("HH:mm:ss")
+                                        <div class="position-absolute bottom-0 start-0 w-100 bg-dark bg-opacity-50 text-white p-1 text-center" style="font-size: 0.6rem;">
+                                            @snap.CreatedAt.ToLocalTime().ToString("HH:mm")
                                         </div>
                                     </div>
                                 </div>
@@ -114,8 +114,6 @@
                     <table class="table table-sm mb-0 small">
                         <tbody>
                             <tr><th class="ps-3 bg-light" style="width: 40%;">Статус</th><td id="connStatus" class="ps-3 text-warning fw-bold">Подключение...</td></tr>
-                            <tr><th class="ps-3 bg-light">IP/URL</th><td class="ps-3">@Model.RtspUrl</td></tr>
-                            <tr><th class="ps-3 bg-light">PTZ</th><td class="ps-3">@(Model.IsPtzSupported ? "Да" : "Нет")</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -209,10 +207,10 @@
                     if (emptyMsg) emptyMsg.remove();
 
                     const html = `
-                        <div class="col-6">
-                            <div class="position-relative border rounded overflow-hidden bg-light" style="height: 100px;">
+                        <div class="col-4">
+                            <div class="position-relative border rounded overflow-hidden bg-light" style="aspect-ratio: 1 / 1;">
                                 <img src="${data.filePath}" class="w-100 h-100 object-fit-cover" onclick="window.open(this.src)" style="cursor:pointer" />
-                                <div class="position-absolute bottom-0 start-0 w-100 bg-dark bg-opacity-50 text-white p-1" style="font-size: 0.65rem;">
+                                <div class="position-absolute bottom-0 start-0 w-100 bg-dark bg-opacity-50 text-white p-1 text-center" style="font-size: 0.6rem;">
                                     ${data.createdAt}
                                 </div>
                             </div>
@@ -220,7 +218,7 @@
                     `;
                     container.insertAdjacentHTML('afterbegin', html);
                     
-                    const items = container.querySelectorAll('.col-6');
+                    const items = container.querySelectorAll('.col-4');
                     if (items.length > 6) items[items.length - 1].remove();
                 } else {
                     alert('Ошибка: ' + data.error);

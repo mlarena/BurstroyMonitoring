@@ -14,8 +14,8 @@
         <div class="card-body py-2">
             <form id="reportForm" class="row g-2 align-items-end">
                 @Html.AntiForgeryToken()
-                <div class="col-auto d-flex align-items-center gap-2">
-                    <label for="monitoringPostSelect" class="form-label small fw-bold mb-0 text-nowrap">Пост мониторинга</label>
+                <div class="col-auto">
+                    <label for="monitoringPostSelect" class="form-label small fw-bold mb-1">Пост мониторинга</label>
                     <select id="monitoringPostSelect" class="form-select form-select-sm" 
                             asp-for="SelectedMonitoringPostId" 
                             asp-items="Model.MonitoringPosts"
@@ -35,6 +35,7 @@
                         <div class="col-md-4">
                             <label for="intervalSelect" class="form-label small fw-bold mb-1">Интервал</label>
                             <select id="intervalSelect" class="form-select form-select-sm">
+                                <option value="0">Без группировки</option>
                                 <option value="10">10 мин</option>
                                 <option value="30">30 мин</option>
                                 <option value="60">1 час</option>
@@ -42,13 +43,13 @@
                         </div>
                     </div>
                 </div>
-                <div id="submitControl" class="col-md-3 d-none">
-                    <div class="btn-group btn-group-sm w-100">
-                        <button type="button" id="btnGenerateReport" class="btn btn-primary">Сформировать</button>
-                        <button type="button" class="btn btn-success" onclick="exportReport('excel')" title="Экспорт в Excel">
+                <div id="submitControl" class="col-auto d-none">
+                    <div class="d-flex gap-1">
+                        <button type="button" id="btnGenerateReport" class="btn btn-sm btn-primary">Сформировать сводный отчет</button>
+                        <button type="button" class="btn btn-sm btn-success" onclick="exportReport('excel')" title="Экспорт в Excel">
                             <i class="bi bi-file-earmark-excel"></i>
                         </button>
-                        <button type="button" class="btn btn-secondary" onclick="exportReport('csv')" title="Экспорт в CSV">
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="exportReport('csv')" title="Экспорт в CSV">
                             <i class="bi bi-file-earmark-spreadsheet"></i>
                         </button>
                     </div>
@@ -108,6 +109,14 @@
                     $('#reportContent').html('<div class="alert alert-info">Выберите пост мониторинга для формирования отчета.</div>');
                 }
             });
+
+            // Автоматический выбор первого поста при загрузке
+            if ($('#monitoringPostSelect option').length > 1) {
+                const firstPostValue = $('#monitoringPostSelect option').eq(1).val(); // eq(1) так как eq(0) это "Выберите пост"
+                if (firstPostValue) {
+                    $('#monitoringPostSelect').val(firstPostValue).trigger('change');
+                }
+            }
 
             $('#btnGenerateReport').click(function () {
                 const postId = $('#monitoringPostSelect').val();

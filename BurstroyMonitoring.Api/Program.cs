@@ -146,6 +146,11 @@ var app = builder.Build();
 
 // Configure pipeline
 
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+
 app.UseSwagger();
 app.UseSwaggerUI(c => 
 {
@@ -157,9 +162,11 @@ app.UseSwaggerUI(c =>
     c.DisplayRequestDuration(); // Показывать длительность запросов
 });
 
+app.UseRouting();
 
-//app.UseHttpsRedirection();
+// CORS должен быть строго после UseRouting и перед UseAuthorization/MapControllers
 app.UseCors(app.Environment.IsDevelopment() ? "AllowAll" : "AllowSpecificOrigins");
+
 // app.UseAuthentication();
 // app.UseAuthorization();
 

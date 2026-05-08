@@ -3,35 +3,39 @@ ssh -p 58222 usermeteo@192.168.192.137
 
 scp -P 58222 "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" usermeteo@192.168.192.137:/opt/burstroy/tmp
 
-scp -P 9022 "C:\git\BurstroyMonitoring\admin\sql\create_database.sql" bsp@192.168.3.19:/opt/burstroy/tmp
-scp -P 9022 "C:\git\BurstroyMonitoring\admin\sql\db_insert.sql" bsp@192.168.3.19:/opt/burstroy/tmp
-scp -P 9022 "C:\git\BurstroyMonitoring\admin\sql\user.sql" bsp@192.168.3.19:/opt/burstroy/tmp
-scp -P 9022 "C:\git\BurstroyMonitoring\admin\sql\db_insert_internal_test_MonitoringPost.sql" bsp@192.168.3.19:/opt/burstroy/tmp
-scp -P 9022 "C:\git\BurstroyMonitoring\admin\sql\db_insert_test_sensors_roof.sql" bsp@192.168.3.19:/opt/burstroy/tmp
 
-scp "C:\git\BurstroyMonitoring\admin\sql\create_database.sql" devuser@192.168.192.143:/opt/burstroy/tmp
-scp "C:\git\BurstroyMonitoring\admin\sql\db_insert.sql" devuser@192.168.192.143:/opt/burstroy/tmp
-scp "C:\git\BurstroyMonitoring\admin\sql\user.sql" devuser@192.168.192.143:/opt/burstroy/tmp
-scp "C:\git\BurstroyMonitoring\admin\sql\monitoring_posts.sql" devuser@192.168.192.143:/opt/burstroy/tmp
-scp "C:\git\BurstroyMonitoring\admin\sql\db_new_big_data.sql" devuser@192.168.192.143:/opt/burstroy/tmp
 toor
 
+scp "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" devuser@192.168.192.147:/tmp
+scp "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm_arm.zip" devuser@192.168.192.147:/tmp
+
+scp "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" devuser@192.168.192.150:/tmp
+ 
+
+ 
 виртуалка большой тест
 ssh devuser@192.168.192.143
 scp "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" devuser@192.168.192.143:/opt/burstroy/tmp
 
 тестовый сервер
 ssh debusr@192.168.3.74 
-scp -P 58222 "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" debusr@192.168.3.74:/opt/burstroy/tmp
+scp "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" debusr@192.168.3.74:/opt/burstroy/tmp
 @Ze2vgeFyYVC
 user: root
 pass: y$2wbYUcCo2%
 
 
+ssh bsp@192.168.3.187
 крыша
+ssh bsp@192.168.1.30
 ssh bsp@192.168.3.19 -p 9022
+ssh bsp@192.168.3.187 -p 9022
+ssh bsp@192.168.3.134 -p 9022
 bsp
 scp -P 9022 "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm_arm.zip" bsp@192.168.3.19:/opt/burstroy/tmp
+scp -P 9022 "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm_arm.zip" bsp@192.168.3.187:/opt/burstroy/tmp
+
+scp -P 9022 "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm_arm.zip" bsp@192.168.3.134:/opt/burstroy/tmp
 
 ssh bspuser@192.168.3.229
 scp "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm_arm.zip" bspuser@192.168.3.230:/opt/burstroy/tmp
@@ -46,6 +50,15 @@ cd /opt/burstroy/worker/
 cd /opt/burstroy/tcm/
 
 3. подключение к postgres, создание базы данных
+psql -U postgres -h localhost -d postgres
+
+/etc/postgresql/<версия>/main/postgresql.conf
+cat /etc/postgresql/18/main/postgresql.conf
+nano /etc/postgresql/18/main/postgresql.conf
+timezone = 'Europe/Moscow'
+log_timezone = 'Europe/Moscow'
+
+sudo systemctl restart postgresql
 
 psql -U postgres -h localhost -d postgres
 
@@ -53,8 +66,12 @@ psql -U postgres -h localhost -d postgres
 
 
 sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/create_database.sql
+-- загрузка поста монитринга
 sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_insert_internal_test_MonitoringPost.sql
-sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_insert_test_sensors_sintetic.sql
+--датчики для собранного шкафа
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_insert_sensors_default.sql
+--внутренние датчики
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/db_insert_test_sensors.sql  
 
 
 monitoring_posts.sql

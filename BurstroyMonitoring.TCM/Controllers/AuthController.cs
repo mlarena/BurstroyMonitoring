@@ -40,7 +40,7 @@ namespace BurstroyMonitoring.TCM.Controllers
 
             if (user == null || !_authService.VerifyPassword(model.Password, user.PasswordHash, user.Salt))
             {
-                ModelState.AddModelError("", "Invalid credentials");
+                ModelState.AddModelError("", "Неверное имя пользователя или пароль");
                 return View(model);
             }
 
@@ -61,7 +61,7 @@ namespace BurstroyMonitoring.TCM.Controllers
 
             if (_context.Users.Any(u => u.UserName == model.UserName))
             {
-                ModelState.AddModelError("", "Username already exists");
+                ModelState.AddModelError("", "Пользователь с таким именем уже существует");
                 return View(model);
             }
 
@@ -99,21 +99,22 @@ namespace BurstroyMonitoring.TCM.Controllers
 
     public class LoginModel
     {
-        [Required]
+        [Required(ErrorMessage = "Введите имя пользователя")]
         public string UserName { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Введите пароль")]
         public string Password { get; set; }
     }
 
     public class RegisterModel
     {
-        [Required]
+        [Required(ErrorMessage = "Введите имя пользователя")]
         public string UserName { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Введите пароль")]
         public string Password { get; set; }
         
+        [Required(ErrorMessage = "Выберите роль")]
         public string Role { get; set; }
     }
 }

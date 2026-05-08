@@ -39,21 +39,14 @@ echo ""
 # Step 1: Check if the service is running
 print_status "Step 1: Checking if $SERVICE_NAME is running..."
 if ! systemctl is-active --quiet $SERVICE_NAME; then
-    print_warning "Service $SERVICE_NAME is not running"
-    read -p "Do you want to start it now? (y/n): " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        sudo systemctl start $SERVICE_NAME
-        sleep 2
-        if ! systemctl is-active --quiet $SERVICE_NAME; then
-            print_error "Failed to start $SERVICE_NAME"
-            exit 1
-        fi
-        print_status "Service started successfully"
-    else
-        print_error "Cannot proceed without running service"
+    print_warning "Service $SERVICE_NAME is not running. Starting it..."
+    sudo systemctl start $SERVICE_NAME
+    sleep 2
+    if ! systemctl is-active --quiet $SERVICE_NAME; then
+        print_error "Failed to start $SERVICE_NAME"
         exit 1
     fi
+    print_status "Service started successfully"
 else
     print_status "Service $SERVICE_NAME is running"
 fi
@@ -70,14 +63,8 @@ print_status "Application is responding on port $APP_PORT"
 # Step 3: Create nginx configuration
 print_status "Step 3: Creating nginx configuration..."
 
-# Check for custom domain
-read -p "Enter domain name (press Enter for all domains): " user_domain
-if [ -n "$user_domain" ]; then
-    DOMAIN_NAME="$user_domain"
-    print_status "Using domain: $DOMAIN_NAME"
-else
-    print_status "Using all domains (_)"
-fi
+# Using default domain (_)
+print_status "Using all domains (_)"
 
 # Create nginx config (fixed version without static files block)
 cat > /tmp/$NGINX_CONFIG_NAME.conf << 'EOF'

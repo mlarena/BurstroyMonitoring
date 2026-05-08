@@ -190,15 +190,15 @@ namespace BurstroyMonitoring.Api.Controllers
                     meteo_precip_intensity = (float?)lastData.PrecipitationIntensity,        // IWS Интенсивность осадков, мм/ч 
                     meteo_view_distance = (int?)lastData.VisibleRange ?? -9999,              // DOV "visibleRange": "Дальность видимости" Метеорологическая дальность видимости, м 
                     meteo_t_road = (float?)lastData.TemperatureRoad ?? -9999,                // DSPD "roadTemperature": "Температура дорожного покрытия" Температура поверхности дорожного покрытия, °C 
-                    meteo_t_underroad  =  -9999,                                             // DSPD TemperatureCase Температура дорожной одежды , °C 
-                    meteo_t_base = -9999,                                                    // Температура грунта земляного полотна, °C 
+                    meteo_t_underroad  =  -9999,                                         //// DSPD TemperatureCase Температура дорожной одежды , °C 
+                    meteo_t_base = (float?)lastData.OwenCh1 ?? -9999,                    //// Температура грунта земляного полотна, °C 
                     meteo_condition_road = lastData.RoadStatus ?? -9999,                     // DSPD RoadStatus Код состояния поверхности дороги:
                                                                                              //  1 — сухо;
                                                                                              //  2 — мокро (вода);
                                                                                              //  3 — лед;
                                                                                              //  4 — реагент;
                                                                                              //  5 — реагент со льдом
-                    meteo_volhumidity_base  = -9999,                                         //  Объемная влажность дорожной одежды, % 
+                    meteo_volhumidity_base  = -9999,                                    ////  Объемная влажность дорожной одежды, % 
                     meteo_layer_water = (float?)lastData.HeightH2O ?? -9999,                 //  "waterHeight": "Высота слоя воды"  Высота слоя воды на поверхности, мм
                     meteo_sit_intensity = lastData.PrecipitationIntensity > 0 ? 1 : 0,       //  IWS Наличие осадков:
                                                                                              //  0 — нет;

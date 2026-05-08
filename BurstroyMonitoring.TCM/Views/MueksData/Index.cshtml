@@ -94,7 +94,7 @@
                         </td>
                         <td class="small">@(item.WattHoursAkb?.ToString("F0") ?? "—")</td>
                         <td class="small">
-                            @(item.OwenCh1?.ToString("F1") ?? "—")°C / @(item.OwenCh2?.ToString("F1") ?? "—")°C
+                            @(item.OwenCh1?.ToString("F2") ?? "—")°C 
                         </td>
                         <td class="small text-center">                            @if (item.Sensor220B == 1) { <span class="text-success">Есть</span> }
                             else if (item.Sensor220B == 0) { <span class="text-danger">Нет</span> }

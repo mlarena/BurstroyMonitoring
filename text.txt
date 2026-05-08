@@ -26,3 +26,10 @@
   },
   "Serial": "Pinger_BF:00:00:0C:E7:CD:42:28"
 }
+
+rtsp://192.168.3.19:8554/user=admin&password=admin&channel=1&stream=0.sdp?
+
+rtsp://192.168.3.122:554/user=admin&password=Adm!n001&ch0/stream=0.sdp?
+rtsp://admin:Adm!n001@192.168.3.122:554/ch0/stream0
+
+rtsp://85.141.104.238:44554/user=admin&password=SAdm!n001&channel=1&stream=0.sdp?

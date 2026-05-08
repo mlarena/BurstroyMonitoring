@@ -1,4 +1,3 @@
-
 виртуальный сервер ТЦМ
 1. загружаем скрипты для установки программного обеспечения
 
@@ -9,13 +8,18 @@ apt-get install -y dos2unix
 dos2unix *.sql
 
 
-scp "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" devuser@192.168.19.137:/opt/burstroy/tmp 
+
+scp -P 58222 "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" usermeteo@192.168.192.137:/opt/burstroy/tmp 
+scp "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" devuser@192.168.192.143:/opt/burstroy/tmp
+
 scp "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" devuser@192.168.19.139:/opt/burstroy/tmp 
 
-scp "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" devuser@192.168.192.143:/opt/burstroy/tmp 
-scp -P 58222 "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" usermeteo@192.168.192.137:/opt/burstroy/tmp 
+
 
 ssh devuser@192.168.192.143
+
+ssh devuser@192.168.192.147
+scp "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" devuser@192.168.192.147:/tmp 
 
 
 sudo timedatectl set-timezone Europe/Moscow
@@ -36,54 +40,12 @@ create database sensordb;
 sudo -u postgres psql -d sensordb_mu -f /opt/burstroy/tmp/db_vw.sql
 \dt
 \dv
+настройка для доступа по сети
+
 
 SELECT * FROM public."Sensor";
 
 sudo timedatectl set-timezone Europe/Moscow
 
-sudo systemctl start burstroy-monitoring-tcm
-sudo systemctl stop burstroy-monitoring-tcm
-sudo systemctl restart burstroy-monitoring-tcm
-sudo systemctl status burstroy-monitoring-tcm
-sudo journalctl -u burstroy-monitoring-tcm -f
-sudo systemctl enable burstroy-monitoring-tcm
-sudo systemctl disable burstroy-monitoring-tcm
-
-
-sudo systemctl start burstroy-monitoring-worker
-sudo systemctl stop burstroy-monitoring-worker
-sudo systemctl restart burstroy-monitoring-worker
-sudo systemctl status burstroy-monitoring-worker
-sudo journalctl -u burstroy-monitoring-worker -f
-sudo systemctl enable burstroy-monitoring-worker
-sudo systemctl disable burstroy-monitoring-worker
-
-sudo systemctl start burstroy-monitoring-video.service
-sudo systemctl stop burstroy-monitoring-video.service
-sudo systemctl restart burstroy-monitoring-video.service
-sudo systemctl status burstroy-monitoring-video.service
-sudo journalctl -u burstroy-monitoring-video.service -f
-sudo systemctl enable burstroy-monitoring-video.service
-sudo systemctl disable burstroy-monitoring-video.service
-sudo systemctl stop burstroy-monitoring-video.service
-
-sudo systemctl start burstroy-monitoring-api
-sudo systemctl stop burstroy-monitoring-api
-sudo systemctl restart burstroy-monitoring-api
-sudo systemctl status burstroy-monitoring-api
-sudo journalctl -u burstroy-monitoring-api -f
-sudo systemctl enable burstroy-monitoring-api
-sudo systemctl disable burstroy-monitoring-api
-sudo systemctl stop burstroy-monitoring-api
-
-
- 
-DROP VIEW  vw_dov_data_full;
-DROP VIEW  vw_dspd_data_full;
-DROP VIEW  vw_dust_data_full;
-DROP VIEW   vw_iws_data_full;
-DROP VIEW  vw_mueks_data_full;
-DROP VIEW  vw_sensor_errors_full;
-DROP VIEW vw_sensor_results_full;
 
 /opt/burstroy/tcm/wwwroot/snapshots

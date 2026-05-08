@@ -1,0 +1,51 @@
+0. вход на тестовые сервера
+ssh -p 58222 usermeteo@192.168.192.137
+ssh devuser@192.168.192.143
+ssh devuser@192.168.192.147
+
+1. снять резеврные копии только схемы данных без комментариев
+
+sudo -u postgres pg_dump -s --no-comments sensordb > /tmp/sensordb_137.sql
+sudo -u postgres pg_dump -s --no-comments sensordb > /tmp/sensordb_143.sql
+sudo -u postgres pg_dump -s --no-comments sensordb > /tmp/sensordb_147.sql
+
+2. снять резернвную копию c базы разработки
+
+.\pg_dump -U postgres -s --no-comments sensordb > C:\git\burstroymonitoring\admin\update\sql\sensordb_dev.sql
+
+
+3 загрузить все на комп разработки
+
+
+scp -P 58222 usermeteo@192.168.192.137:/tmp/sensordb_137.sql C:\git\burstroymonitoring\admin\update\sql\
+scp -P 22 devuser@192.168.192.143:/tmp/sensordb_143.sql C:\git\burstroymonitoring\admin\update\sql\
+scp -P 22 devuser@192.168.192.147:/tmp/sensordb_147.sql C:\git\burstroymonitoring\admin\update\sql\
+
+
+
+scp -P 58222 "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" usermeteo@192.168.192.137:/opt/burstroy/tmp
+scp -P 22 "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" devuser@192.168.192.143:/opt/burstroy/tmp
+scp -P 22 "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm.zip" devuser@192.168.192.147:/opt/burstroy/tmp
+
+
+scp -P 58222 "C:\git\burstroymonitoring\admin\update\sql\view.sql" usermeteo@192.168.192.137:/opt/burstroy/tmp
+scp -P 22 "C:\git\burstroymonitoring\admin\update\sql\view.sql" devuser@192.168.192.143:/opt/burstroy/tmp
+scp -P 22 "C:\git\burstroymonitoring\admin\update\sql\view.sql" devuser@192.168.192.147:/opt/burstroy/tmp
+
+sudo -u postgres psql -d sensordb -f /opt/burstroy/tmp/view.sql
+
+psql -U postgres -h localhost -d postgres
+
+sudo systemctl stop burstroy-monitoring-tcm burstroy-monitoring-worker burstroy-monitoring-video burstroy-monitoring-api
+
+sudo systemctl start burstroy-monitoring-tcm burstroy-monitoring-worker burstroy-monitoring-video burstroy-monitoring-api
+
+
+drop view vw_dov_data_full;
+drop view vw_dspd_data_full;
+drop view vw_dust_data_full;
+drop view vw_iws_data_full;
+drop view vw_meteo_standart_last;
+drop view vw_mueks_data_full;
+
+

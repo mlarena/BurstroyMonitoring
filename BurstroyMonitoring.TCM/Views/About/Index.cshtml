@@ -4,12 +4,12 @@
     ViewData["Title"] = "О программе";
     var appSettings = Configuration.GetSection("AppSettings");
     var title = appSettings["Title"] ?? "Burstroy Monitoring System";
-    var version = appSettings["SoftwareVersion"] ?? "1.0.0";
+    var version = appSettings["SoftwareVersion"] ?? "1.4.0";
 }
 
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-10 col-lg-8">
+        <div class="col-12">
             <div class="card shadow-sm border-0 overflow-hidden">
                 <div class="card-header bg-primary text-white py-4 text-center">
                     <h1 class="h2 mb-0">@title</h1>
@@ -28,12 +28,20 @@
                         <div class="col-md-6">
                             <h5 class="fw-bold mb-3"><i class="bi bi-cpu me-2 text-primary"></i>Поддерживаемые датчики</h5>
                             <ul class="list-unstyled small text-muted">
-                                <li class="mb-2"><i class="bi bi-check2-circle me-2 text-success"></i><strong>IWS</strong> — Метеорологические станции</li>
-                                <li class="mb-2"><i class="bi bi-check2-circle me-2 text-success"></i><strong>DSPD</strong> — Датчики состояния дорожного полотна</li>
-                                <li class="mb-2"><i class="bi bi-check2-circle me-2 text-success"></i><strong>DOV</strong> — Датчики видимости</li>
-                                <li class="mb-2"><i class="bi bi-check2-circle me-2 text-success"></i><strong>DUST</strong> — Анализаторы пыли и частиц</li>
-                                <li class="mb-2"><i class="bi bi-check2-circle me-2 text-success"></i><strong>PUID</strong> — Системы учета трафика</li>
-                                <li class="mb-2"><i class="bi bi-check2-circle me-2 text-success"></i><strong>MUEKS</strong> — Инженерные системы шкафов</li>
+                                <!-- <li class="mb-2"><i class="bi bi-check2-circle me-2 text-success"></i>Метеорологические станции</li>
+                                <li class="mb-2"><i class="bi bi-check2-circle me-2 text-success"></i>Датчики состояния дорожного полотна</li>
+                                <li class="mb-2"><i class="bi bi-check2-circle me-2 text-success"></i>Датчики видимости</li>
+                                <li class="mb-2"><i class="bi bi-check2-circle me-2 text-success"></i>Анализаторы пыли и частиц</li>
+                                <li class="mb-2"><i class="bi bi-check2-circle me-2 text-success"></i>Системы учета трафика</li>
+                                <li class="mb-2"><i class="bi bi-check2-circle me-2 text-success"></i>Модуль управления энергоснабжением и контроля сети</li> -->
+                
+                                <li class="mb-2"><i class="bi bi-check2-circle me-2 text-success"></i><strong>IWS</strong> — Датчик комплексный параметров атмосферы</li>
+                                <li class="mb-2"><i class="bi bi-check2-circle me-2 text-success"></i><strong>ДСПД</strong> — Датчик состояния поверхности дорожного полотна</li>
+                                <li class="mb-2"><i class="bi bi-check2-circle me-2 text-success"></i><strong>ДОВ</strong> — Датчик оптической видимости</li>
+                                <!-- <li class="mb-2"><i class="bi bi-check2-circle me-2 text-success"></i><strong>DUST</strong> — Анализаторы пыли и частиц</li> -->
+                                <li class="mb-2"><i class="bi bi-check2-circle me-2 text-success"></i><strong>ПУИДД</strong> — Прибор учета интенсивности дорожного движения</li>
+                                <li class="mb-2"><i class="bi bi-check2-circle me-2 text-success"></i><strong>MUEKS</strong> — Модуль управления энергоснабжением и контроля сети</li>
+                
                             </ul>
                         </div>
 
@@ -45,17 +53,18 @@
                                 <li class="mb-2"><i class="bi bi-dot me-1"></i>Система логирования ошибок</li>
                                 <li class="mb-2"><i class="bi bi-dot me-1"></i>Анализ интенсивности движения</li>
                                 <li class="mb-2"><i class="bi bi-dot me-1"></i>Управление правами доступа</li>
+                                <li class="mb-2"><i class="bi bi-dot me-1"></i>Ведение журнала изменений системы</li>
                             </ul>
                         </div>
 
                         <div class="col-12 mt-5 pt-4 border-top text-center">
                             <div class="small text-muted">
-                                <p class="mb-1">&copy; @DateTime.Now.Year <strong>@title</strong>. Все права защищены.</p>
+                                <p class="mb-1">&copy; @DateTime.Now.Year <strong>@title</strong>.</p>
                                 <p class="mb-0">@version</p>
-                                @if (!string.IsNullOrEmpty(appSettings["VerificationResults"]))
+                                <!-- @if (!string.IsNullOrEmpty(appSettings["VerificationResults"]))
                                 {
                                     <p class="mt-2 mb-0 fw-bold text-primary">@appSettings["VerificationResults"]</p>
-                                }
+                                } -->
                             </div>
                         </div>
                     </div>

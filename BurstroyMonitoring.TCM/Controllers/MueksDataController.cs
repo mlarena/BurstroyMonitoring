@@ -40,9 +40,9 @@ namespace BurstroyMonitoring.TCM.Controllers
                 ["VisibleRange"] = "Дальность видимости",
                 ["Sensor220B"] = "Наличие питания 220В",
                 ["DoorStatus"] = "Состояние двери",
-                ["OwenCh1"] = "Темп. грунта 1",
-                ["OwenCh2"] = "Темп. грунта 2",
-                ["PostName"] = "Имя поста",                ["PostAddress"] = "Адрес поста",
+                                ["OwenCh1"] = "Темп. грунта",
+                ["PostName"] = "Имя поста",
+                ["PostAddress"] = "Адрес поста",
                 ["PostIsActive"] = "Пост активен"
             };
         }
@@ -65,9 +65,9 @@ namespace BurstroyMonitoring.TCM.Controllers
                 "VisibleRange",
                 "Sensor220B",
                 "DoorStatus",
-                "OwenCh1",
-                "OwenCh2",
-                "PostName",                "PostAddress",
+                                "OwenCh1",
+                "PostName",
+                "PostAddress",
                 "PostIsActive"
             };
         }

@@ -1,0 +1,31 @@
+создать на диске С папку git 
+C:\git
+клонировать туда репозиторий
+git clone ssh://git@192.168.3.84:2222/burstroymonitorig/burstroymonitoring.git
+получится так 
+C:\git\burstroymonitoring
+перейти в папку cd .\admin\publish_cmd\
+выполнить .\clean_release.ps1
+ C:\git\burstroymonitoring\admin\publish_cmd> .\clean_release.ps1 - мы почистим сборки
+далее собираем проект .\publish_linux_arm.ps1 !arm - для крыши
+C:\git\burstroymonitoring\admin\publish_cmd> .\publish_linux_arm.ps1
+потом собираем проект и скрипты установки вместе
+C:\git\burstroymonitoring\admin\publish_cmd> .\create_deploy_bundle_arm.ps1
+
+у нас появляется архив установки
+C:\git\burstroymonitoring\admin\publish_cmd\tcm_arm.zip
+загружаем на необходимый мини пк
+scp "C:\git\BurstroyMonitoring\admin\publish_cmd\tcm_arm.zip" user@ip:/tmp
+---
+на мини пк
+выполнить последовательно команды
+cd tmp/
+ls -l # проверяем что загрузился tcm_arm.zip
+apt update
+apt install unzip
+unzip tcm.zip
+chmod +x *.sh
+./1_install_system.sh
+./4_status_services.sh
+	
+
